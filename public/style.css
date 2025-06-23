@@ -1,0 +1,154 @@
+/* Sticky footer setup */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+  line-height: 1.6;
+  background-color: #ffffff;
+  color: #333;
+  scroll-behavior: smooth;
+}
+
+/* Glavni sadržaj */
+main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 600;
+}
+
+section {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.btn-primary {
+  background-color: #0056b3;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #00408a;
+}
+
+.bg-dark {
+  background-color: #111 !important;
+}
+
+i {
+  transition: transform 0.3s ease;
+}
+i:hover {
+  transform: scale(1.1);
+}
+
+form input,
+form textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form input:focus,
+form textarea:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 86, 179, 0.4);
+}
+
+footer {
+  background-color: #222;
+  color: #ccc;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+  .lead {
+    font-size: 1.1rem;
+  }
+}
+
+.navbar {
+  transition: all 0.4s ease-in-out;
+}
+.navbar.scrolled {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-hero {
+  background-color: #4b86ca;
+}
+.flip-card {
+  perspective: 1000px;
+  width: 100%;
+  height: 300px; /* Fiksna visina za sve kartice */
+  position: relative;
+}
+
+.flip-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  top: 0;
+  left: 0;
+}
+
+.flip-card-front {
+  background-color: #fff;
+}
+
+.flip-card-front img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-title {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #1224b2;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.flip-card-back {
+  background-color: #1224b2;
+  color: white;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
