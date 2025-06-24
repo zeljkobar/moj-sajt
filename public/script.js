@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const username = e.target.username.value;
       const password = e.target.password.value;
 
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch("http://localhost:3000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

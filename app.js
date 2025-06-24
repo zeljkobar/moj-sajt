@@ -8,7 +8,7 @@ const cors = require("cors");
 // parsiranje JSON i form-data
 app.use(
   cors({
-    origin: "http://localhost:5000", // promeni ako koristiš drugi port
+    origin: "http://localhost:3000", // promeni ako koristiš drugi port
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
   })
@@ -16,6 +16,7 @@ app.use(
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 // 👇 Dummy korisnik za test
 const users = [{ username: "admin", password: "12345" }];
