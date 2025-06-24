@@ -79,28 +79,44 @@
                 <a class="nav-link" href="kontakt.html">Kontakt</a>
               </li>
             </ul>
+            <!-- Login forma -->
             <form
               id="loginForm"
-              class="d-none d-lg-flex align-items-center ms-lg-3"
+              class="d-none d-flex align-items-center ms-lg-3"
               role="login"
-              onsubmit="return false;"
             >
               <input
                 class="form-control form-control-sm me-2"
                 type="text"
                 placeholder="Korisničko ime"
                 name="username"
+                required
               />
               <input
                 class="form-control form-control-sm me-2"
                 type="password"
                 placeholder="Lozinka"
                 name="password"
+                required
               />
               <button class="btn btn-sm btn-outline-primary" type="submit">
                 Prijava
               </button>
             </form>
+            <!-- Panel za ulogovanog korisnika -->
+            <div
+              id="userPanel"
+              class="d-none d-flex align-items-center ms-lg-3"
+            >
+              <span id="welcomeMsg" class="me-2"></span>
+              <button
+                id="logoutBtn"
+                class="btn btn-sm btn-outline-danger"
+                type="button"
+              >
+                Odjavi se
+              </button>
+            </div>
           </div>
         </div>
       </nav>

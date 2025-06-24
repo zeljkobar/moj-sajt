@@ -1,7 +1,28 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Login forma
+  // Elementi za autentifikaciju
   const loginForm = document.getElementById("loginForm");
+  const userPanel = document.getElementById("userPanel");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const welcomeMsg = document.getElementById("welcomeMsg");
 
+  // Provera statusa autentifikacije
+  fetch("/api/check-auth")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Autentifikacija:", data);
+      if (data.authenticated) {
+        if (loginForm) loginForm.classList.add("d-none");
+        if (userPanel) userPanel.classList.remove("d-none");
+        if (welcomeMsg)
+          welcomeMsg.textContent = `Dobrodošao, ${data.user.username}!`;
+      } else {
+        if (loginForm) loginForm.classList.remove("d-none");
+        if (userPanel) userPanel.classList.add("d-none");
+        if (welcomeMsg) welcomeMsg.textContent = "";
+      }
+    });
+
+  // Login submit
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -9,22 +30,28 @@ document.addEventListener("DOMContentLoaded", function () {
       const username = e.target.username.value;
       const password = e.target.password.value;
 
-      const res = await fetch("http://localhost:3000/api/login", {
+      const res = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        alert("Uspješna prijava");
-        window.location.href = "/dashboard";
+        // Osveži prikaz
+        location.reload();
       } else {
         alert(data.message || "Neispravni podaci");
       }
+    });
+  }
+
+  // Logout
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function () {
+      await fetch("/api/logout", { method: "POST" });
+      location.reload();
     });
   }
 
