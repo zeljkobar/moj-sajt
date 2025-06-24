@@ -1,0 +1,111 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background-color: #f2f2f2;
+}
+.input-cell {
+  text-align: right;
+}
+input[type="text"],
+input[type="number"] {
+  width: 100px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-align: right;
+}
+.signature {
+  margin-top: 20px;
+  text-align: center;
+}
+.signature input {
+  width: auto;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+footer p {
+  text-align: center;
+  color: #777;
+  font-size: 0.9em;
+  margin-top: 20px;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-size: 12px;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    border: none;
+    background: none;
+    font-size: 12px;
+    padding: 0;
+  }
+
+  button#printButton,
+  footer {
+    display: none !important;
+  }
+
+  table,
+  td,
+  th {
+    border: 1px solid #000;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+}
+
+.pdf-export {
+  background: white !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.pdf-export input {
+  border: none !important;
+  background: none !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  color: #000 !important;
+}
