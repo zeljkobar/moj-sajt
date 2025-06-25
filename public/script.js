@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const data = await res.json();
 
       if (res.ok) {
-        // Osveži prikaz
-        location.reload();
+        // Preusmeri na dashboard
+        window.location.href = "/dashboard.html";
       } else {
         alert(data.message || "Neispravni podaci");
       }

@@ -55,6 +55,30 @@ app.get("/pdv0.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/pdv0.html");
 });
 
+// Zaštićena ruta za dashboard
+app.get("/dashboard.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/dashboard.html");
+});
+
+// API ruta za dashboard statistike
+app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
+  const { aktivneFirme } = require("./src/data/firme");
+  const { firme0 } = require("./src/data/firme0");
+
+  const aktivneCount = aktivneFirme.length;
+  const naNuliCount = firme0.length;
+  const total = aktivneCount + naNuliCount;
+  const procenatNaNuli =
+    total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
+
+  res.json({
+    total: total,
+    aktivne: aktivneCount,
+    naNuli: naNuliCount,
+    procenatNaNuli: procenatNaNuli,
+  });
+});
+
 // API rute
 app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
