@@ -175,14 +175,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Učitaj aktivne firme
-    const responseAktivne = await fetch("/api/aktivne-firme");
+    const responseAktivne = await fetch("/api/firme/aktivne");
     if (responseAktivne.ok) {
       aktivneFirme = await responseAktivne.json();
       console.log("Aktivne firme učitane:", aktivneFirme.length);
     }
 
     // Učitaj firme na nuli
-    const responseFirme0 = await fetch("/api/firme0");
+    const responseFirme0 = await fetch("/api/firme/nula");
     if (responseFirme0.ok) {
       firme0 = await responseFirme0.json();
       console.log("Firme na nuli učitane:", firme0.length);

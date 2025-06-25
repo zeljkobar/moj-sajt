@@ -61,7 +61,7 @@ function createZeroXML(firma, mjesec) {
 // Funkcija za učitavanje firmi
 async function loadFirme() {
   try {
-    const response = await fetch("/api/firme0");
+    const response = await fetch("/api/firme/nula");
     if (response.ok) {
       firmeData = await response.json();
       displayFirmeList();
