@@ -15,9 +15,28 @@ function download(filename, text) {
 document.getElementById("xmlButton").addEventListener(
   "click",
   function () {
-    const pib = document.getElementById("poreski_identifikacioni_broj").value;
-    const period = document.getElementById("poreski_period_mesec").value;
-    const naziv = document.getElementById("naziv_pravno_lice").value;
+    // Bezbedne funkcije za dohvatanje vrednosti
+    const getValue = (id) => {
+      const element = document.getElementById(id);
+      return element ? element.value : "";
+    };
+    
+    const getValueByClass = (className) => {
+      const element = document.getElementsByClassName(className)[0];
+      return element ? (element.value || 0) : 0;
+    };
+    
+    const pib = getValue("pib_firme");
+    const period = getValue("poreski_period_mesec");
+    const naziv = getValue("naziv_firme");
+    const adresa = getValue("adresa_firme");
+    const pdvBroj = getValue("pdv_broj");
+    
+    // Proveri da li su osnovni podaci popunjeni
+    if (!pib || !period || !naziv) {
+      alert("Molimo popunite osnovne podatke (PIB, period, naziv firme)");
+      return;
+    }
 
     var text = `<?xml version="1.0"?>
   <PortalVatReturn2025 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -27,62 +46,36 @@ document.getElementById("xmlButton").addEventListener(
   <IzmijenjenaMjesecnaPrijava>false</IzmijenjenaMjesecnaPrijava>
   <Naziv>${naziv}</Naziv>
   <SifraDjelatnosti/>
-  <Adresa></Adresa>
+  <Adresa>${adresa}</Adresa>
   <Telefon>067440040</Telefon>
   <OvlascenoLicePIB>1606981220012</OvlascenoLicePIB>
   <OvlascenoLicePrezimeIme>Željko Ðuranoviæ</OvlascenoLicePrezimeIme>
   <KontaktEmail>zeljkodj@t-com.me</KontaktEmail>
   <KontaktTelefon>067440040</KontaktTelefon>
-  <PdvRegistracioniBroj></PdvRegistracioniBroj>
+  <PdvRegistracioniBroj>${pdvBroj}</PdvRegistracioniBroj>
   <BezTransakcija>false</BezTransakcija>
-  <Iznos10>${document.getElementsByClassName("field-10")[0].value}</Iznos10>
-  <Iznos11>${
-    document.getElementsByClassName("field-11")[0].value || 0
-  }</Iznos11>
-  <Iznos12>${
-    document.getElementsByClassName("field-12")[0].value || 0
-  }</Iznos12>
+  <Iznos10>${getValueByClass("field-10")}</Iznos10>
+  <Iznos11>${getValueByClass("field-11")}</Iznos11>
+  <Iznos12>${getValueByClass("field-12")}</Iznos12>
   <Iznos13>0</Iznos13>
   <Iznos14>0</Iznos14>
   <Iznos15>0</Iznos15>
-  <Iznos16>${
-    document.getElementsByClassName("field-16")[0].value || 0
-  }</Iznos16>
-  <Iznos17>${
-    document.getElementsByClassName("field-17")[0].value || 0
-  }</Iznos17>
-  <Iznos18>${
-    document.getElementsByClassName("field-18")[0].value || 0
-  }</Iznos18>
-  <Iznos19>${
-    document.getElementsByClassName("field-19")[0].value || 0
-  }</Iznos19>
-  <Iznos20>${
-    document.getElementsByClassName("field-20")[0].value || 0
-  }</Iznos20>
+  <Iznos16>${getValueByClass("field-16")}</Iznos16>
+  <Iznos17>${getValueByClass("field-17")}</Iznos17>
+  <Iznos18>${getValueByClass("field-18")}</Iznos18>
+  <Iznos19>${getValueByClass("field-19")}</Iznos19>
+  <Iznos20>${getValueByClass("field-20")}</Iznos20>
   <Iznos21A>0</Iznos21A>
   <Iznos21B>0</Iznos21B>
   <Iznos22>0</Iznos22>
   <Iznos23A>0</Iznos23A>
   <Iznos23B>0</Iznos23B>
-  <Iznos24>${
-    document.getElementsByClassName("field-24")[0].value || 0
-  }</Iznos24>
-  <Iznos25>${
-    document.getElementsByClassName("field-25")[0].value || 0
-  }</Iznos25>
-  <Iznos26>${
-    document.getElementsByClassName("field-26")[0].value || 0
-  }</Iznos26>
-  <Iznos27>${
-    document.getElementsByClassName("field-27")[0].value || 0
-  }</Iznos27>
-  <Iznos28>${
-    document.getElementsByClassName("field-28")[0].value || 0
-  }</Iznos28>
-  <Iznos29>${
-    document.getElementsByClassName("field-29")[0].value || 0
-  }</Iznos29>
+  <Iznos24>${getValueByClass("field-24")}</Iznos24>
+  <Iznos25>${getValueByClass("field-25")}</Iznos25>
+  <Iznos26>${getValueByClass("field-26")}</Iznos26>
+  <Iznos27>${getValueByClass("field-27")}</Iznos27>
+  <Iznos28>${getValueByClass("field-28")}</Iznos28>
+  <Iznos29>${getValueByClass("field-29")}</Iznos29>
   <ZahtjevamPovracaj>false</ZahtjevamPovracaj>
   </PortalVatReturn2025>`;
     //   var filename = document.getElementById("filename").value;

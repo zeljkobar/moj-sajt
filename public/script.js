@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const logoutBtn = document.getElementById("logoutBtn");
   const welcomeMsg = document.getElementById("welcomeMsg");
   const pdvLink = document.getElementById("pdvLink");
+  const pdv0Link = document.getElementById("pdv0Link");
 
   // Provera statusa autentifikacije
   fetch("/api/check-auth")
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (loginForm) loginForm.classList.add("d-none");
         if (userPanel) userPanel.classList.remove("d-none");
         if (pdvLink) pdvLink.classList.remove("d-none");
+        if (pdv0Link) pdv0Link.classList.remove("d-none");
         if (welcomeMsg)
           welcomeMsg.textContent = `Dobrodošao, ${data.user.username}!`;
       } else {
@@ -22,6 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (userPanel) userPanel.classList.add("d-none");
         if (welcomeMsg) welcomeMsg.textContent = "";
         if (pdvLink) pdvLink.classList.add("d-none");
+        if (pdv0Link) pdv0Link.classList.add("d-none");
       }
     });
 

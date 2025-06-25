@@ -3,8 +3,23 @@ function updateIzlazniPdv() {
     parseFloat(document.getElementById("izlazni_pdv_21").value) || 0;
   const izlazni15 =
     parseFloat(document.getElementById("izlazni_pdv_15").value) || 0;
-  const izlazni7 =
-    parseFloat(document.getElementById("izlazni_pdv_7").value) || 0;
+  const izlazni7   // Do  // Dodaj  akt  firme0Group.label = "🔸 Firme na nuli";vneGroup.label = "🔹 Aktivne firme";optgroup za aktivne firme (PRVO)
+  const aktivneGroup = document.createElement("optgroup");
+  aktivneGroup.label = "🔹 Aktivne firme (sa stvarnim vrijednostima)";
+  select.appendChild(aktivneGroup);
+
+  // Dodaj optgroup za firme na nuli (DRUGO)
+  const firme0Group = document.createElement("optgroup");
+  firme0Group.label = "🔸 Firme na nuli (nulte prijave)";
+  select.appendChild(firme0Group);oup za aktivne firme (PRVO)
+  const aktivneGroup = document.createElement("optgroup");
+  aktivneGroup.label = "🔹 Aktivne firme (sa stvarnim vrijednostima)";
+  select.appendChild(aktivneGroup);
+
+  // Dodaj optgroup za firme na nuli (DRUGO)
+  const firme0Group = document.createElement("optgroup");
+  firme0Group.label = "🔸 Firme na nuli (nulte prijave)";
+  select.appendChild(firme0Group);rseFloat(document.getElementById("izlazni_pdv_7").value) || 0;
 
   const izlazni_pdv = izlazni21 + izlazni15 + izlazni7;
   document.getElementById("ukupan_izlazni_pdv").value = izlazni_pdv.toFixed(2);
@@ -146,8 +161,6 @@ document
 
 // Dodavanje funkcionalnosti za firme
 let firmeData = [];
-let aktivneFirme = [];
-let firme0 = [];
 
 // Učitavanje podataka o firmama kad se stranica učita
 document.addEventListener("DOMContentLoaded", async () => {
@@ -166,29 +179,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     .getElementById("pdv_uvoz")
     .addEventListener("input", updateUlazniPdv);
 
-  // Zatim učitaj firme dinamički sa backend-a
+  // Zatim učitaj firme
   try {
-    // Učitaj sve firme (za kompatibilnost)
-    const responseAll = await fetch("/api/firme");
-    if (responseAll.ok) {
-      firmeData = await responseAll.json();
-    }
+    // Dohvata SVE firme (i firme na nuli i aktivne firme) iz /api/firme endpoint-a
+    const response = await fetch("/api/firme");
+    console.log("Response status:", response.status);
 
-    // Učitaj aktivne firme
-    const responseAktivne = await fetch("/api/aktivne-firme");
-    if (responseAktivne.ok) {
-      aktivneFirme = await responseAktivne.json();
-      console.log("Aktivne firme učitane:", aktivneFirme.length);
+    if (response.ok) {
+      firmeData = await response.json();
+      console.log("Firme učitane:", firmeData.length);
+      populateFirmeDropdown();
+    } else {
+      console.error(
+        "Greška pri fetch-u:",
+        response.status,
+        response.statusText
+      );
     }
-
-    // Učitaj firme na nuli
-    const responseFirme0 = await fetch("/api/firme0");
-    if (responseFirme0.ok) {
-      firme0 = await responseFirme0.json();
-      console.log("Firme na nuli učitane:", firme0.length);
-    }
-
-    populateFirmeDropdown();
   } catch (error) {
     console.error("Greška pri učitavanju firmi:", error);
   }
@@ -208,18 +215,44 @@ function populateFirmeDropdown() {
   // Dodaj prazan option
   select.innerHTML = '<option value="">-- Izaberi firmu --</option>';
 
-  // Kreiraj PIB set-ove za lakše filtriranje
-  const firme0Pib = new Set(firme0.map((f) => f.pib));
-  console.log("PIB-ovi firmi na nuli:", firme0Pib);
+  // Razdeli firme na nule i aktivne
+  const firme0Pib = [
+    "02793253",
+    "02807572",
+    "02670739",
+    "02984296",
+    "02992507",
+    "02224399",
+    "02758342",
+    "03046800",
+    "03057925",
+    "03111997",
+    "02622777",
+    "02622521",
+    "03259196",
+    "03093913",
+    "03289052",
+    "03103269",
+    "02670194",
+    "02940442",
+    "02648938",
+    "02704951",
+    "02904136",
+    "02758512",
+    "03100863",
+    "03316378",
+    "02347334",
+    "02752450",
+  ];
 
-  // Dodaj optgroup za aktivne firme PRVO
+  // Dodaj optgroup za aktivne firme (PRVO)
   const aktivneGroup = document.createElement("optgroup");
-  aktivneGroup.label = "✅ Aktivne firme";
+  aktivneGroup.label = "� Aktivne firme";
   select.appendChild(aktivneGroup);
 
-  // Dodaj optgroup za firme na nuli DRUGO
+  // Dodaj optgroup za firme na nuli (DRUGO)
   const firme0Group = document.createElement("optgroup");
-  firme0Group.label = "⭕ Firme na nuli";
+  firme0Group.label = "� Firme na nuli";
   select.appendChild(firme0Group);
 
   // Dodaj firme u odgovarajuće grupe
@@ -228,7 +261,7 @@ function populateFirmeDropdown() {
     option.value = firma.pib;
     option.textContent = `${firma.ime} (PIB: ${firma.pib})`;
 
-    if (firme0Pib.has(firma.pib)) {
+    if (firme0Pib.includes(firma.pib)) {
       firme0Group.appendChild(option);
     } else {
       aktivneGroup.appendChild(option);
@@ -255,95 +288,4 @@ function populateCompanyData(pib) {
   if (pibField) pibField.value = firma.pib;
   if (adresaField) adresaField.value = firma.adresa;
   if (pdvField) pdvField.value = firma.pdv;
-}
-
-// Event listener za dropdown - kada korisnik izabere firmu
-document.addEventListener("DOMContentLoaded", () => {
-  const firmaSelect = document.getElementById("firma_select");
-  if (firmaSelect) {
-    firmaSelect.addEventListener("change", function () {
-      populateCompanyData(this.value);
-    });
-  }
-});
-
-// XML Export funkcionalnost
-document.getElementById("xmlButton").addEventListener("click", function () {
-  const firma = document.getElementById("firma_select").value;
-  if (!firma) {
-    alert("Molimo izaberite firmu pre eksportovanja XML-a");
-    return;
-  }
-
-  const selectedFirma = firmeData.find((f) => f.pib === firma);
-  if (!selectedFirma) {
-    alert("Podaci o firmi nisu pronađeni");
-    return;
-  }
-
-  exportXML(selectedFirma);
-});
-
-function exportXML(firma) {
-  // Kreiraj XML strukturu za PDV prijavu
-  const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-<PDVPrijava>
-  <Firma>
-    <PIB>${firma.pib}</PIB>
-    <Naziv>${firma.ime}</Naziv>
-    <Adresa>${firma.adresa}</Adresa>
-    <PDVBroj>${firma.pdv || ""}</PDVBroj>
-  </Firma>
-  <IzlazniPDV>
-    <OporeziviPromet21>${
-      document.getElementById("oporezivi_promet_21").value || 0
-    }</OporeziviPromet21>
-    <IzlazniPDV21>${
-      document.getElementById("izlazni_pdv_21").value || 0
-    }</IzlazniPDV21>
-    <OporeziviPromet15>${
-      document.getElementById("oporezivi_promet_15").value || 0
-    }</OporeziviPromet15>
-    <IzlazniPDV15>${
-      document.getElementById("izlazni_pdv_15").value || 0
-    }</IzlazniPDV15>
-    <OporeziviPromet7>${
-      document.getElementById("oporezivi_promet_7").value || 0
-    }</OporeziviPromet7>
-    <IzlazniPDV7>${
-      document.getElementById("izlazni_pdv_7").value || 0
-    }</IzlazniPDV7>
-    <UkupanIzlazniPDV>${
-      document.getElementById("ukupan_izlazni_pdv").value || 0
-    }</UkupanIzlazniPDV>
-  </IzlazniPDV>
-  <UlazniPDV>
-    <UlazniPDVDomaci>${
-      document.getElementById("ulazni_pdv_domaci_promet").value || 0
-    }</UlazniPDVDomaci>
-    <PDVUvoz>${document.getElementById("pdv_uvoz").value || 0}</PDVUvoz>
-    <UkupanUlazniPDV>${
-      document.getElementById("ukupan_ulazni_pdv_pretporez").value || 0
-    }</UkupanUlazniPDV>
-  </UlazniPDV>
-  <Rezultat>
-    <DospjeliPDV>${
-      document.getElementById("dospjeli_pdv").value || 0
-    }</DospjeliPDV>
-    <PDVKredit>${document.getElementById("pdv_kredit").value || 0}</PDVKredit>
-  </Rezultat>
-</PDVPrijava>`;
-
-  // Kreiraj i preuzmi fajl
-  const blob = new Blob([xmlData], { type: "application/xml" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `pdv_prijava_${firma.pib}_${new Date()
-    .toISOString()
-    .slice(0, 10)}.xml`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
 }

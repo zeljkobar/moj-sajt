@@ -12,6 +12,31 @@
   <body>
     <div class="container">
       <h2>PDV Obrazac</h2>
+
+      <!-- Dropdown za izbor firme -->
+      <div
+        class="firma-selector"
+        style="
+          margin-bottom: 20px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+        "
+      >
+        <label for="firma_select"
+          ><strong
+            >Izaberi firmu (firme na nuli + aktivne firme):</strong
+          ></label
+        >
+        <select
+          id="firma_select"
+          onchange="populateCompanyData(this.value)"
+          style="margin-left: 10px; padding: 5px; width: 300px"
+        >
+          <option value="">-- Učitavanje firmi... --</option>
+        </select>
+      </div>
+
       <table>
         <tr>
           <td>Poreski period:</td>
@@ -35,34 +60,19 @@
           </td>
           <td>Poreski identifikacioni broj:</td>
           <td>
-            <input
-              type="text"
-              id="poreski_identifikacioni_broj"
-              value="03291812"
-              class="pdf-field"
-            />
+            <input type="text" id="pib_firme" value="" class="pdf-field" />
           </td>
         </tr>
         <tr>
           <td>Naziv (pravno lice), prezime i ime (fizičko lice):</td>
           <td colspan="4">
-            <input
-              type="text"
-              id="naziv_pravno_lice"
-              class="pdf-field"
-              value="BEHAR TRADE"
-            />
+            <input type="text" id="naziv_firme" class="pdf-field" value="" />
           </td>
         </tr>
         <tr>
           <td>Adresa/ Ulica:</td>
           <td colspan="2">
-            <input
-              type="text"
-              id="adresa_ulica"
-              value="PODGRAD BB, STARI BAR"
-              class="pdf-field"
-            />
+            <input type="text" id="adresa_firme" value="" class="pdf-field" />
           </td>
           <td>Grad:</td>
           <td><input type="text" id="grad" class="pdf-field" value="BAR" /></td>
@@ -85,12 +95,7 @@
         <tr>
           <td>PDV registracioni broj:</td>
           <td>
-            <input
-              type="text"
-              id="pdv_registracioni_broj"
-              value="80/31-04280-2"
-              class="pdf-field"
-            />
+            <input type="text" id="pdv_broj" value="" class="pdf-field" />
           </td>
           <td colspan="3"></td>
         </tr>
@@ -406,7 +411,7 @@
     <footer>
       <p>© 2025 Summa Summarum. Sva prava zadržana.</p>
     </footer>
-    <script src="script.js" async></script>
-    <script src="exportxml.js" async></script>
+    <script src="script.js"></script>
+    <script src="exportxml.js"></script>
   </body>
 </html>
