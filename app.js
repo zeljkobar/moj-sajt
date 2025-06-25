@@ -75,6 +75,10 @@ app.get("/protected.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/protected.html");
 });
 
+app.get("/pdv_prijava/index.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/pdv_prijava/index.html");
+});
+
 // in-memory CRUD za “users”
 app.use("/api/users", userRoutes);
 

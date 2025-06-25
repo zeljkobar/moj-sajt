@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <link rel="stylesheet" href="style.css" />
     <title>PDV Obrazac</title>
@@ -17,14 +17,22 @@
           <td>Poreski period:</td>
           <td>
             <input
-              type="number" class="pdf-field"
+              type="number"
+              class="pdf-field"
               id="poreski_period_mesec"
               value="1"
               max="12"
               min="1"
             />
           </td>
-          <td><input type="text" id="poreski_period_godina" class="pdf-field" value="2025" /></td>
+          <td>
+            <input
+              type="text"
+              id="poreski_period_godina"
+              class="pdf-field"
+              value="2025"
+            />
+          </td>
           <td>Poreski identifikacioni broj:</td>
           <td>
             <input
@@ -38,7 +46,12 @@
         <tr>
           <td>Naziv (pravno lice), prezime i ime (fizičko lice):</td>
           <td colspan="4">
-            <input type="text" id="naziv_pravno_lice" class="pdf-field" value="BEHAR TRADE" />
+            <input
+              type="text"
+              id="naziv_pravno_lice"
+              class="pdf-field"
+              value="BEHAR TRADE"
+            />
           </td>
         </tr>
         <tr>
@@ -47,7 +60,8 @@
             <input
               type="text"
               id="adresa_ulica"
-              value="PODGRAD BB, STARI BAR" class="pdf-field"
+              value="PODGRAD BB, STARI BAR"
+              class="pdf-field"
             />
           </td>
           <td>Grad:</td>
@@ -56,10 +70,17 @@
         <tr>
           <td>Ovlašćeno lice PIB:</td>
           <td>
-            <input type="text" id="ovlasteno_lice_pib" class="pdf-field" value="2606976220016" />
+            <input
+              type="text"
+              id="ovlasteno_lice_pib"
+              class="pdf-field"
+              value="2606976220016"
+            />
           </td>
           <td>Ime i prezime:</td>
-          <td colspan="2"><input type="text" class="pdf-field" id="ovlasteno_lice_ime" /></td>
+          <td colspan="2">
+            <input type="text" class="pdf-field" id="ovlasteno_lice_ime" />
+          </td>
         </tr>
         <tr>
           <td>PDV registracioni broj:</td>
@@ -67,7 +88,8 @@
             <input
               type="text"
               id="pdv_registracioni_broj"
-              value="80/31-04280-2" class="pdf-field"
+              value="80/31-04280-2"
+              class="pdf-field"
             />
           </td>
           <td colspan="3"></td>
@@ -98,25 +120,45 @@
         <tr>
           <td>Oporezivi promet (isporuke) po stopi od 21%</td>
           <td class="input-cell">
-            <input type="number" id="oporezivi_promet_21" class="pdf-field field-10" step="0.01" />
+            <input
+              type="number"
+              id="oporezivi_promet_21"
+              class="pdf-field field-10"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Oporezivi promet (isporuke) po stopi od 15%</td>
           <td class="input-cell">
-            <input type="number" id="oporezivi_promet_15" class="pdf-field field-11" step="0.01" />
+            <input
+              type="number"
+              id="oporezivi_promet_15"
+              class="pdf-field field-11"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Oporezivi promet (isporuke) po stopi od 7%</td>
           <td class="input-cell">
-            <input type="number" id="oporezivi_promet_7" class="pdf-field field-12" step="0.01" />
+            <input
+              type="number"
+              id="oporezivi_promet_7"
+              class="pdf-field field-12"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Oslobođeni promet - isporuke</td>
           <td class="input-cell">
-            <input type="number" id="oslobodjeni_promet" class="pdf-field field-14"  step="0.01" />
+            <input
+              type="number"
+              id="oslobodjeni_promet"
+              class="pdf-field field-14"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
@@ -125,7 +167,12 @@
             ili hlađenje
           </td>
           <td class="input-cell">
-            <input type="number" id="promet_energije" class="pdf-field field-15" step="0.01" />
+            <input
+              type="number"
+              id="promet_energije"
+              class="pdf-field field-15"
+              step="0.01"
+            />
           </td>
         </tr>
       </table>
@@ -139,21 +186,36 @@
         <tr>
           <td>PDV na domaći promet proizvoda i usluga po stopi od 21%</td>
           <td class="input-cell">
-            <input type="number" id="izlazni_pdv_21" class="pdf-field field-16" step="0.01" />
+            <input
+              type="number"
+              id="izlazni_pdv_21"
+              class="pdf-field field-16"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
         <tr>
           <td>PDV na domaći promet proizvoda i usluga po stopi od 15%</td>
           <td class="input-cell">
-            <input type="number" id="izlazni_pdv_15" class="pdf-field field-17" step="0.01" />
+            <input
+              type="number"
+              id="izlazni_pdv_15"
+              class="pdf-field field-17"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
         <tr>
           <td>PDV na domaći promet proizvoda i usluga po stopi od 7%</td>
           <td class="input-cell">
-            <input type="number" id="izlazni_pdv_7" class="pdf-field field-18" step="0.01" />
+            <input
+              type="number"
+              id="izlazni_pdv_7"
+              class="pdf-field field-18"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
@@ -161,28 +223,48 @@
           <td>Ulazni PDV na domaći promet proizvoda i usluga</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="ulazni_pdv_domaci_promet" class="pdf-field field-19" step="0.01" />
+            <input
+              type="number"
+              id="ulazni_pdv_domaci_promet"
+              class="pdf-field field-19"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>PDV plaćen na uvoz</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="pdv_uvoz" class="pdf-field field-20" step="0.01" />
+            <input
+              type="number"
+              id="pdv_uvoz"
+              class="pdf-field field-20"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>PDV na usluge inostranih lica</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="pdv_usluge_inostranih_lica" class="pdf-field" step="0.01" />
+            <input
+              type="number"
+              id="pdv_usluge_inostranih_lica"
+              class="pdf-field"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Paušalna nadoknada isplaćena poljoprivredniku po stopi od 8%</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="pausalna_nadoknada" class="pdf-field" step="0.01" />
+            <input
+              type="number"
+              id="pausalna_nadoknada"
+              class="pdf-field"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
@@ -192,7 +274,12 @@
           </td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="pdv_promet_energije" class="pdf-field" step="0.01" />
+            <input
+              type="number"
+              id="pdv_promet_energije"
+              class="pdf-field"
+              step="0.01"
+            />
           </td>
         </tr>
       </table>
@@ -206,7 +293,12 @@
         <tr>
           <td>Ukupan izlazni PDV na isporuke (iznos iz kolona 16+17+18+21)</td>
           <td class="input-cell">
-            <input type="number" id="ukupan_izlazni_pdv" class="pdf-field field-24" step="0.01" />
+            <input
+              type="number"
+              id="ukupan_izlazni_pdv"
+              class="pdf-field field-24"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
@@ -214,34 +306,59 @@
           <td>Ukupan ulazni PDV - pretporez (19+20+21+22)</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="ukupan_ulazni_pdv_pretporez" class="pdf-field field-25" step="0.01" />
+            <input
+              type="number"
+              id="ukupan_ulazni_pdv_pretporez"
+              class="pdf-field field-25"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Ulazni PDV bez prava na odbitak</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="ulazni_pdv_bez_prava" class="pdf-field field-26" step="0.01" />
+            <input
+              type="number"
+              id="ulazni_pdv_bez_prava"
+              class="pdf-field field-26"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Ulazni PDV sa pravom na odbitak (25-26)</td>
           <td></td>
           <td class="input-cell">
-            <input type="number" id="ulazni_pdv_sa_pravom" class="pdf-field field-27" step="0.01" />
+            <input
+              type="number"
+              id="ulazni_pdv_sa_pravom"
+              class="pdf-field field-27"
+              step="0.01"
+            />
           </td>
         </tr>
         <tr>
           <td>Dospjeli PDV za uplatu (24-27)</td>
           <td class="input-cell">
-            <input type="number" id="dospjeli_pdv" class="pdf-field field-28" step="0.01" />
+            <input
+              type="number"
+              id="dospjeli_pdv"
+              class="pdf-field field-28"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
         <tr>
           <td>PDV kredit (27-24)</td>
           <td class="input-cell">
-            <input type="number" id="pdv_kredit" class="pdf-field field-29" step="0.01" />
+            <input
+              type="number"
+              id="pdv_kredit"
+              class="pdf-field field-29"
+              step="0.01"
+            />
           </td>
           <td></td>
         </tr>
@@ -284,10 +401,12 @@
     <button id="printButton" onclick="window.print()">Štampaj obrazac</button>
     <button id="pdfButton">Preuzmi kao PDF</button>
     <button id="xmlButton">Preuzmi kao XML</button>
+    <button id="backButton" onclick="window.history.back()">Nazad</button>
 
     <footer>
       <p>© 2025 Summa Summarum. Sva prava zadržana.</p>
-      <script src="script.js" async></script>
-      <script src="exportxml.js" async></script>
+    </footer>
+    <script src="script.js" async></script>
+    <script src="exportxml.js" async></script>
   </body>
 </html>

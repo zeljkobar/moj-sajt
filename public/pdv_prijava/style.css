@@ -79,6 +79,9 @@ footer p {
   }
 
   button#printButton,
+  button#pdfButton,
+  button#xmlButton,
+  button#backButton,
   footer {
     display: none !important;
   }
