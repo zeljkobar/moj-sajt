@@ -154,9 +154,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOMContentLoaded - pokušavam da učitam firme...");
 
   // Prvo postavi event listenere za PDV kalkulacije
-  setupPdvInput("oporezivi_promet_21", "izlazni_pdv_21", 0.21);
-  setupPdvInput("oporezivi_promet_15", "izlazni_pdv_15", 0.15);
-  setupPdvInput("oporezivi_promet_7", "izlazni_pdv_7", 0.07);
+  setupPdvInput("oporezivi_promet_21", "izlazni_pdv_21", 0.173553719);
+  setupPdvInput("oporezivi_promet_15", "izlazni_pdv_15", 0.1304347826);
+  setupPdvInput("oporezivi_promet_7", "izlazni_pdv_7", 0.06542050747);
 
   // Event listeneri za ulazni PDV
   document
