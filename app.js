@@ -71,12 +71,20 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// zasticene rute
 app.get("/protected.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/protected.html");
 });
 
+// Zaštićena ruta za PDV prijavu
 app.get("/pdv_prijava/index.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/public/pdv_prijava/index.html");
+  res.sendFile(__dirname + "/protected/pdv_prijava/index.html");
+});
+
+// Zaštićene rute za sve PDV prijava resurse
+app.get("/pdv_prijava/:file", authMiddleware, (req, res) => {
+  const fileName = req.params.file;
+  res.sendFile(__dirname + "/protected/pdv_prijava/" + fileName);
 });
 
 // in-memory CRUD za “users”
