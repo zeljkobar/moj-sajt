@@ -16,6 +16,7 @@ app.use(
     origin: "http://localhost:3000", // promeni ako koristiš drugi port
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
+    credentials: true, // Omogući slanje cookies/session
   })
 );
 app.use(express.json());
@@ -80,9 +81,23 @@ app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
   const { aktivneFirme } = require("./src/data/firme");
   const { firme0 } = require("./src/data/firme0");
 
-  const aktivneCount = aktivneFirme.length;
-  const naNuliCount = firme0.length;
-  const total = aktivneCount + naNuliCount;
+  // Kreiraj kombinovani niz sa status poljima (isto kao u firmeController)
+  const aktivneWithStatus = aktivneFirme.map((firma) => ({
+    ...firma,
+    status: "active",
+  }));
+
+  const zeroWithStatus = firme0.map((firma) => ({
+    ...firma,
+    status: "zero",
+  }));
+
+  const sveFirme = [...aktivneWithStatus, ...zeroWithStatus];
+
+  // Izračunaj statistike
+  const aktivneCount = sveFirme.filter((f) => f.status === "active").length;
+  const naNuliCount = sveFirme.filter((f) => f.status === "zero").length;
+  const total = sveFirme.length;
   const procenatNaNuli =
     total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
 

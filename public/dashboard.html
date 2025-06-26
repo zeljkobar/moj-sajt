@@ -233,7 +233,9 @@
 
       async function loadStatistics() {
         try {
-          const response = await fetch("/api/dashboard-stats");
+          const response = await fetch("/api/dashboard-stats", {
+            credentials: "include",
+          });
           const stats = await response.json();
 
           document.getElementById("totalFirme").textContent = stats.total;

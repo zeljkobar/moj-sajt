@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const pdv0Link = document.getElementById("pdv0Link");
 
   // Provera statusa autentifikacije
-  fetch("/api/check-auth")
+  fetch("/api/check-auth", {
+    credentials: "include",
+  })
     .then((res) => res.json())
     .then((data) => {
       console.log("Autentifikacija:", data);
@@ -40,6 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -56,7 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Logout
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-      await fetch("/api/logout", { method: "POST" });
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
       location.reload();
     });
   }
