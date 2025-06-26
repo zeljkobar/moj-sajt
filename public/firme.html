@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pregled firmi | Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      .firms-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .filter-tabs {
+        margin-bottom: 30px;
+      }
+      .tab-btn {
+        border: none;
+        background: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+      .tab-btn:not(.active) {
+        background: #f8f9fa;
+        color: #6c757d;
+      }
+      .tab-btn:not(.active):hover {
+        background: #e9ecef;
+        color: #495057;
+      }
+      .firm-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+      .firm-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      }
+      .firm-status {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      .status-active {
+        background: #28a745;
+      }
+      .status-zero {
+        background: #ffc107;
+      }
+      .search-box {
+        border-radius: 25px;
+        border: 2px solid #e9ecef;
+        padding: 12px 20px;
+        transition: border-color 0.3s ease;
+      }
+      .search-box:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+      .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 40px;
+      }
+      .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+      }
+      .back-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        color: white;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .edit-btn,
+      .delete-btn {
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .edit-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+      }
+      .edit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+      .delete-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+      .delete-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard.html">
+          <i class="fas fa-building me-2"></i>Firme
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a href="/dashboard.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Nazad na dashboard
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Header -->
+      <div class="firms-header">
+        <h1><i class="fas fa-building me-3"></i>Pregled firmi</h1>
+        <p class="mb-0 fs-5">Upravljanje aktivnim firmama i firmama na nuli</p>
+      </div>
+
+      <!-- Search i filtri -->
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control search-box"
+            placeholder="🔍 Pretraguj po nazivu, PIB-u ili adresi..."
+          />
+        </div>
+        <div class="col-md-3">
+          <div class="filter-tabs">
+            <button class="tab-btn active" data-filter="all">
+              Sve (<span id="totalCount">0</span>)
+            </button>
+            <button class="tab-btn" data-filter="active">
+              Aktivne (<span id="activeCount">0</span>)
+            </button>
+            <button class="tab-btn" data-filter="zero">
+              Na nuli (<span id="zeroCount">0</span>)
+            </button>
+          </div>
+        </div>
+        <div class="col-md-3 text-end">
+          <a href="/dodaj-firmu.html" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Dodaj firmu
+          </a>
+        </div>
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Učitava...</span>
+        </div>
+        <p class="mt-3">Učitavam firme...</p>
+      </div>
+
+      <!-- Firme liste -->
+      <div id="firmsContainer">
+        <!-- Firme će biti učitane dinamički -->
+      </div>
+
+      <!-- No results -->
+      <div class="no-results d-none">
+        <i class="fas fa-search fs-1 text-muted mb-3"></i>
+        <h4>Nema rezultata</h4>
+        <p>Pokušajte sa drugim terminima pretrage</p>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let allFirms = [];
+      let filteredFirms = [];
+      let currentFilter = "all";
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadFirms();
+        setupEventListeners();
+      });
+
+      function setupEventListeners() {
+        // Search funkcionalnost
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", function (e) {
+            filterFirms();
+          });
+
+        // Tab filtering
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            currentFilter = this.dataset.filter;
+            filterFirms();
+          });
+        });
+      }
+
+      async function loadFirms() {
+        try {
+          document.querySelector(".loading-spinner").style.display = "block";
+
+          const response = await fetch("/api/firme");
+          const data = await response.json();
+
+          allFirms = data.firme || [];
+          updateCounts();
+          filterFirms();
+        } catch (error) {
+          console.error("Greška pri učitavanju firmi:", error);
+          document.getElementById("firmsContainer").innerHTML =
+            '<div class="alert alert-danger">Greška pri učitavanju firmi</div>';
+        } finally {
+          document.querySelector(".loading-spinner").style.display = "none";
+        }
+      }
+
+      function updateCounts() {
+        const activeFirms = allFirms.filter((f) => f.status === "active");
+        const zeroFirms = allFirms.filter((f) => f.status === "zero");
+
+        document.getElementById("totalCount").textContent = allFirms.length;
+        document.getElementById("activeCount").textContent = activeFirms.length;
+        document.getElementById("zeroCount").textContent = zeroFirms.length;
+      }
+
+      function filterFirms() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        // Filter by status
+        let firms = allFirms;
+        if (currentFilter === "active") {
+          firms = allFirms.filter((f) => f.status === "active");
+        } else if (currentFilter === "zero") {
+          firms = allFirms.filter((f) => f.status === "zero");
+        }
+
+        // Filter by search term
+        if (searchTerm) {
+          firms = firms.filter(
+            (firm) =>
+              firm.ime.toLowerCase().includes(searchTerm) ||
+              firm.pib.includes(searchTerm) ||
+              firm.adresa.toLowerCase().includes(searchTerm) ||
+              (firm.pdv && firm.pdv.toLowerCase().includes(searchTerm))
+          );
+        }
+
+        filteredFirms = firms;
+        renderFirms();
+      }
+
+      function renderFirms() {
+        const container = document.getElementById("firmsContainer");
+        const noResults = document.querySelector(".no-results");
+
+        if (filteredFirms.length === 0) {
+          container.innerHTML = "";
+          noResults.classList.remove("d-none");
+          return;
+        }
+
+        noResults.classList.add("d-none");
+
+        const firmsHtml = filteredFirms
+          .map(
+            (firm) => `
+        <div class="firm-card card">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-7">
+                <h5 class="card-title mb-2">
+                  <span class="firm-status ${
+                    firm.status === "active" ? "status-active" : "status-zero"
+                  }"></span>
+                  ${firm.ime}
+                </h5>
+                <p class="mb-1"><strong>PIB:</strong> ${firm.pib}</p>
+                <p class="mb-1"><strong>Adresa:</strong> ${firm.adresa}</p>
+                ${
+                  firm.pdv
+                    ? `<p class="mb-0"><strong>PDV broj:</strong> ${firm.pdv}</p>`
+                    : ""
+                }
+              </div>
+              <div class="col-md-3 text-md-center">
+                <span class="badge ${
+                  firm.status === "active" ? "bg-success" : "bg-warning"
+                } fs-6 px-3 py-2">
+                  ${firm.status === "active" ? "Aktivna" : "Na nuli"}
+                </span>
+              </div>
+              <div class="col-md-2 text-md-end">
+                <div class="action-buttons">
+                  <button class="edit-btn" onclick="editFirm('${firm.pib}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="delete-btn" onclick="deleteFirm('${
+                    firm.pib
+                  }', '${firm.ime}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+          )
+          .join("");
+
+        container.innerHTML = firmsHtml;
+      }
+
+      // Edit firma function
+      function editFirm(pib) {
+        // Za sada samo redirect - možeš later napraviti modal ili drugu stranicu
+        window.location.href = `/edit-firmu.html?pib=${pib}`;
+      }
+
+      // Delete firma function
+      async function deleteFirm(pib, ime) {
+        if (
+          !confirm(`Da li ste sigurni da želite da obrišete firmu "${ime}"?`)
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/firme/${pib}`, {
+            method: "DELETE",
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            // Remove firm from local array
+            allFirms = allFirms.filter((f) => f.pib !== pib);
+            updateCounts();
+            filterFirms();
+
+            // Show success message (you can add a toast notification here)
+            alert(`Firma "${ime}" je uspešno obrisana!`);
+          } else {
+            alert(result.message || "Greška pri brisanju firme");
+          }
+        } catch (error) {
+          console.error("Error deleting firm:", error);
+          alert("Greška pri komunikaciji sa serverom");
+        }
+      }
+
+      // Make functions global so they can be called from HTML
+      window.editFirm = editFirm;
+      window.deleteFirm = deleteFirm;
+    </script>
+  </body>
+</html>

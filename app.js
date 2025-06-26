@@ -60,6 +60,21 @@ app.get("/dashboard.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/dashboard.html");
 });
 
+// Zaštićena ruta za pregled firmi
+app.get("/firme.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/firme.html");
+});
+
+// Zaštićena ruta za dodavanje firmi
+app.get("/dodaj-firmu.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/dodaj-firmu.html");
+});
+
+// Zaštićena ruta za editovanje firmi
+app.get("/edit-firmu.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/edit-firmu.html");
+});
+
 // API ruta za dashboard statistike
 app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
   const { aktivneFirme } = require("./src/data/firme");

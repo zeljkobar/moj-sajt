@@ -61,8 +61,18 @@ const saveFirme0ToFile = (firme) => {
 const firmeController = {
   // Dobijanje svih firmi
   getAllFirme: (req, res) => {
-    const sveFirme = [...firme0, ...aktivneFirme];
-    res.json(sveFirme);
+    const aktivneWithStatus = aktivneFirme.map((firma) => ({
+      ...firma,
+      status: "active",
+    }));
+
+    const zeroWithStatus = firme0.map((firma) => ({
+      ...firma,
+      status: "zero",
+    }));
+
+    const sveFirme = [...aktivneWithStatus, ...zeroWithStatus];
+    res.json({ firme: sveFirme });
   },
 
   // Dobijanje firmi na nuli
@@ -78,14 +88,21 @@ const firmeController = {
   // Dobijanje pojedinačne firme po PIB-u
   getFirmaByPib: (req, res) => {
     const pib = req.params.pib;
-    const sveFirme = [...firme0, ...aktivneFirme];
-    const firma = sveFirme.find((f) => f.pib === pib);
 
-    if (firma) {
-      res.json(firma);
-    } else {
-      res.status(404).json({ message: "Firma nije pronađena" });
+    // Pronađi u aktivnim firmama
+    const aktivnaFirma = aktivneFirme.find((f) => f.pib === pib);
+    if (aktivnaFirma) {
+      return res.json({ ...aktivnaFirma, status: "active" });
     }
+
+    // Pronađi u firmama na nuli
+    const firma0 = firme0.find((f) => f.pib === pib);
+    if (firma0) {
+      return res.json({ ...firma0, status: "zero" });
+    }
+
+    // Nije pronađena
+    res.status(404).json({ message: "Firma nije pronađena" });
   },
 
   // Dodavanje nove aktivne firme

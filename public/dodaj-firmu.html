@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dodaj firmu | Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+      }
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+      .submit-btn {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+        color: white;
+      }
+      .cancel-btn {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+      .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        color: white;
+      }
+      .status-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+      .status-card:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+      }
+      .status-card.selected {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+      }
+      .status-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+      .success-message {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      .error-message {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/firme.html">
+          <i class="fas fa-plus-circle me-2"></i>Dodaj firmu
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a href="/firme.html" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left me-2"></i>Nazad na firme
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Header -->
+      <div class="form-header">
+        <h1><i class="fas fa-plus-circle me-3"></i>Dodaj novu firmu</h1>
+        <p class="mb-0 fs-5">Unesite podatke o novoj firmi</p>
+      </div>
+
+      <!-- Messages -->
+      <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle me-2"></i>
+        <span id="successText">Firma je uspešno dodana!</span>
+      </div>
+
+      <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span id="errorText">Greška pri dodavanju firme!</span>
+      </div>
+
+      <!-- Form -->
+      <div class="form-container">
+        <form id="firmForm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="ime" class="form-label">Naziv firme *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ime"
+                name="ime"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="pib" class="form-label">PIB *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="pib"
+                name="pib"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <label for="adresa" class="form-label">Adresa *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="adresa"
+                name="adresa"
+                required
+              />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="pdv" class="form-label">PDV broj</label>
+              <input type="text" class="form-control" id="pdv" name="pdv" />
+              <div class="form-text">Opcionalno za firme na nuli</div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Status firme *</label>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="status-card" data-status="active">
+                  <div class="status-icon text-success">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <h5>Aktivna firma</h5>
+                  <p class="mb-0">Firma koja posluje i podleže PDV-u</p>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="status-card" data-status="zero">
+                  <div class="status-icon text-warning">
+                    <i class="fas fa-pause-circle"></i>
+                  </div>
+                  <h5>Firma na nuli</h5>
+                  <p class="mb-0">Firma koja ne posluje i prijavljuje nule</p>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="status" name="status" required />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <button type="submit" class="submit-btn">
+                <i class="fas fa-save me-2"></i>Sačuvaj firmu
+              </button>
+            </div>
+            <div class="col-md-6 mb-3">
+              <a href="/firme.html" class="cancel-btn">
+                <i class="fas fa-times me-2"></i>Otkaži
+              </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        setupStatusSelection();
+        setupFormSubmit();
+      });
+
+      function setupStatusSelection() {
+        const statusCards = document.querySelectorAll(".status-card");
+        const statusInput = document.getElementById("status");
+
+        statusCards.forEach((card) => {
+          card.addEventListener("click", function () {
+            // Remove selected class from all cards
+            statusCards.forEach((c) => c.classList.remove("selected"));
+
+            // Add selected class to clicked card
+            this.classList.add("selected");
+
+            // Set hidden input value
+            statusInput.value = this.dataset.status;
+          });
+        });
+      }
+
+      function setupFormSubmit() {
+        const form = document.getElementById("firmForm");
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const formData = new FormData(form);
+          const data = {
+            ime: formData.get("ime"),
+            pib: formData.get("pib"),
+            adresa: formData.get("adresa"),
+            pdv: formData.get("pdv"),
+            status: formData.get("status"),
+          };
+
+          // Validation
+          if (!data.status) {
+            showError("Molimo izaberite status firme");
+            return;
+          }
+
+          try {
+            const endpoint =
+              data.status === "active" ? "/api/firme" : "/api/firme/nula";
+
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              showSuccess(`Firma "${data.ime}" je uspešno dodana!`);
+              form.reset();
+              document
+                .querySelectorAll(".status-card")
+                .forEach((c) => c.classList.remove("selected"));
+
+              // Redirect to firms list after 2 seconds
+              setTimeout(() => {
+                window.location.href = "/firme.html";
+              }, 2000);
+            } else {
+              showError(result.message || "Greška pri dodavanju firme");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            showError("Greška pri komunikaciji sa serverom");
+          }
+        });
+      }
+
+      function showSuccess(message) {
+        const successDiv = document.getElementById("successMessage");
+        const successText = document.getElementById("successText");
+
+        successText.textContent = message;
+        successDiv.style.display = "block";
+
+        // Hide error message if visible
+        document.getElementById("errorMessage").style.display = "none";
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+
+        errorText.textContent = message;
+        errorDiv.style.display = "block";
+
+        // Hide success message if visible
+        document.getElementById("successMessage").style.display = "none";
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+      }
+    </script>
+  </body>
+</html>
