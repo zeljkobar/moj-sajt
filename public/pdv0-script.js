@@ -22,7 +22,7 @@ function createZeroXML(firma, mjesec) {
 <Mjesec>${mjesec}</Mjesec>
 <Godina>2025</Godina>
 <IzmijenjenaMjesecnaPrijava>false</IzmijenjenaMjesecnaPrijava>
-<Naziv>${firma.ime}</Naziv>
+<Naziv>${firma.naziv}</Naziv>
 <SifraDjelatnosti/>
 <Adresa>${firma.adresa}</Adresa>
 <Telefon>067440040</Telefon>
@@ -30,7 +30,7 @@ function createZeroXML(firma, mjesec) {
 <OvlascenoLicePrezimeIme>Željko Ðuranoviæ</OvlascenoLicePrezimeIme>
 <KontaktEmail>zeljkodj@t-com.me</KontaktEmail>
 <KontaktTelefon>067440040</KontaktTelefon>
-<PdvRegistracioniBroj>${firma.pdv}</PdvRegistracioniBroj>
+<PdvRegistracioniBroj>${firma.pdvBroj}</PdvRegistracioniBroj>
 <BezTransakcija>false</BezTransakcija>
 <Iznos10>0</Iznos10>
 <Iznos11>0</Iznos11>
@@ -61,7 +61,9 @@ function createZeroXML(firma, mjesec) {
 // Funkcija za učitavanje firmi
 async function loadFirme() {
   try {
-    const response = await fetch("/api/firme/nula");
+    const response = await fetch("/api/firme/nula", {
+      credentials: "include"
+    });
     if (response.ok) {
       firmeData = await response.json();
       displayFirmeList();
@@ -91,7 +93,7 @@ function displayFirmeList() {
   firmeData.forEach((firma, index) => {
     html += `
             <div style="padding: 8px; background: #f9f9f9; border-radius: 4px; font-size: 14px;">
-                <strong>${index + 1}.</strong> ${firma.ime}<br>
+                <strong>${index + 1}.</strong> ${firma.naziv}<br>
                 <small>PIB: ${firma.pib}</small>
             </div>
         `;
@@ -191,7 +193,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Proveri da li je korisnik prijavljen
-fetch("/api/check-auth")
+fetch("/api/check-auth", {
+  credentials: "include"
+})
   .then((response) => response.json())
   .then((data) => {
     if (!data.authenticated) {

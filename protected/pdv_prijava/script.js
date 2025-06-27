@@ -169,20 +169,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Zatim učitaj firme dinamički sa backend-a
   try {
     // Učitaj sve firme (za kompatibilnost)
-    const responseAll = await fetch("/api/firme");
+    const responseAll = await fetch("/api/firme", {
+      credentials: "include"
+    });
     if (responseAll.ok) {
-      firmeData = await responseAll.json();
+      const data = await responseAll.json();
+      firmeData = data.firme || [];
     }
 
     // Učitaj aktivne firme
-    const responseAktivne = await fetch("/api/firme/aktivne");
+    const responseAktivne = await fetch("/api/firme/aktivne", {
+      credentials: "include"
+    });
     if (responseAktivne.ok) {
       aktivneFirme = await responseAktivne.json();
       console.log("Aktivne firme učitane:", aktivneFirme.length);
     }
 
     // Učitaj firme na nuli
-    const responseFirme0 = await fetch("/api/firme/nula");
+    const responseFirme0 = await fetch("/api/firme/nula", {
+      credentials: "include"
+    });
     if (responseFirme0.ok) {
       firme0 = await responseFirme0.json();
       console.log("Firme na nuli učitane:", firme0.length);
@@ -226,7 +233,7 @@ function populateFirmeDropdown() {
   firmeData.forEach((firma) => {
     const option = document.createElement("option");
     option.value = firma.pib;
-    option.textContent = `${firma.ime} (PIB: ${firma.pib})`;
+    option.textContent = `${firma.naziv} (PIB: ${firma.pib})`;
 
     if (firme0Pib.has(firma.pib)) {
       firme0Group.appendChild(option);
@@ -251,10 +258,10 @@ function populateCompanyData(pib) {
   const adresaField = document.getElementById("adresa_firme");
   const pdvField = document.getElementById("pdv_broj");
 
-  if (nazivField) nazivField.value = firma.ime;
+  if (nazivField) nazivField.value = firma.naziv;
   if (pibField) pibField.value = firma.pib;
   if (adresaField) adresaField.value = firma.adresa;
-  if (pdvField) pdvField.value = firma.pdv;
+  if (pdvField) pdvField.value = firma.pdvBroj;
 }
 
 // Event listener za dropdown - kada korisnik izabere firmu
@@ -290,9 +297,9 @@ function exportXML(firma) {
 <PDVPrijava>
   <Firma>
     <PIB>${firma.pib}</PIB>
-    <Naziv>${firma.ime}</Naziv>
+    <Naziv>${firma.naziv}</Naziv>
     <Adresa>${firma.adresa}</Adresa>
-    <PDVBroj>${firma.pdv || ""}</PDVBroj>
+    <PDVBroj>${firma.pdvBroj || ""}</PDVBroj>
   </Firma>
   <IzlazniPDV>
     <OporeziviPromet21>${
