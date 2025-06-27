@@ -3,6 +3,7 @@
 ## 📋 Pregled
 
 Ova dokumentacija opisuje sve dostupne API endpoint-e u Summa Summarum aplikaciji.
+Aplikacija koristi multi-user arhitekturu gde svaki korisnik ima izolovane podatke.
 
 ---
 
@@ -16,10 +17,12 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 | ------ | ----------------- | ---------------------------------- | --------- |
 | `POST` | `/api/login`      | Prijava korisnika                  | ❌        |
 | `POST` | `/api/logout`     | Odjava korisnika                   | ❌        |
-| `GET`  | `/api/check-auth` | Provera da li je korisnik ulogovan | ❌        |
+| `GET`  | `/api/auth/check` | Provera da li je korisnik ulogovan | ❌        |
+| `POST` | `/api/register`   | Registracija novog korisnika       | ❌        |
 
 #### POST /api/login
 
+**Zahtev:**
 ```json
 {
   "username": "admin",
@@ -27,11 +30,56 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 }
 ```
 
-**Odgovor:**
-
+**Uspešan odgovor:**
 ```json
 {
   "success": true
+}
+```
+
+**Neuspešan odgovor:**
+```json
+{
+  "message": "Pogrešno korisničko ime ili lozinka"
+}
+```
+
+#### GET /api/auth/check
+
+**Uspešan odgovor:**
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@summasummarum.me"
+  }
+}
+```
+
+#### POST /api/register
+
+**Zahtev:**
+```json
+{
+  "username": "novi_korisnik",
+  "email": "novi@example.com",
+  "password": "sigurna123",
+  "phone": "+382 67 123 456",
+  "address": "Nova adresa 123"
+}
+```
+
+**Uspešan odgovor:**
+```json
+{
+  "message": "Korisnik je uspešno registrovan",
+  "user": {
+    "id": 4,
+    "username": "novi_korisnik",
+    "email": "novi@example.com"
+  }
 }
 ```
 
@@ -40,14 +88,19 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 ## 🏢 Firme API
 
 Svi endpoint-i za upravljanje firmama zahtevaju autentifikaciju.
+**Važno:** Svaki korisnik vidi i upravlja samo svojim firmama.
 
 ### Osnovni Endpoint-i
 
 | Metoda | Ruta                 | Opis                                     | Zaštićeno |
 | ------ | -------------------- | ---------------------------------------- | --------- |
-| `GET`  | `/api/firme`         | Dobijanje svih firmi (aktivne + na nuli) | 🔒        |
-| `GET`  | `/api/firme/aktivne` | Dobijanje samo aktivnih firmi            | 🔒        |
-| `GET`  | `/api/firme/nula`    | Dobijanje firmi na nuli                  | 🔒        |
+| `GET`  | `/api/firme`         | Sve firme trenutnog korisnika            | 🔒        |
+| `GET`  | `/api/firme/aktivne` | Aktivne firme trenutnog korisnika        | 🔒        |
+| `GET`  | `/api/firme/nula`    | Firme na nuli trenutnog korisnika        | 🔒        |
+| `GET`  | `/api/firme/:pib`    | Jedna firma po PIB-u                    | 🔒        |
+| `POST` | `/api/firme`         | Dodaj novu firmu                         | 🔒        |
+| `PUT`  | `/api/firme/:pib`    | Ažuriraj postojeću firmu                 | 🔒        |
+| `DELETE` | `/api/firme/:pib`  | Obriši firmu                             | 🔒        |
 | `GET`  | `/api/firme/:pib`    | Dobijanje jedne firme po PIB-u           | 🔒        |
 
 ### CRUD Operacije
@@ -61,40 +114,164 @@ Svi endpoint-i za upravljanje firmama zahtevaju autentifikaciju.
 
 ---
 
-## 📝 Detaljni Opisi
+## 📝 Detaljni Opisi Firme API
 
 ### GET /api/firme
 
-Vraća kombinovanu listu svih firmi (aktivne + firme na nuli).
+Vraća sve firme trenutnog ulogovanog korisnika (aktivne + firme na nuli).
 
-**Odgovor:**
+**Uspešan odgovor:**
 
 ```json
-[
-  {
-    "ime": "Nova aktivna firma d.o.o.",
-    "pib": "12345678",
-    "adresa": "Adresa bb",
-    "pdv": "80/31-12345-0"
-  },
-  {
-    "ime": "Zavet d.o.o.",
-    "pib": "02793253",
-    "adresa": "VUKA KARADZICA BB",
-    "pdv": "80/31-02314-8"
-  }
-]
+{
+  "firme": [
+    {
+      "naziv": "Nova aktivna firma d.o.o.",
+      "pib": "12345678",
+      "adresa": "Adresa bb",
+      "pdvBroj": "80/31-12345-0",
+      "status": "active"
+    },
+    {
+      "naziv": "Firma na nuli d.o.o.",
+      "pib": "87654321",
+      "adresa": "Druga adresa bb",
+      "pdvBroj": "80/31-87654-1",
+      "status": "zero"
+    }
+  ]
+}
 ```
 
 ### GET /api/firme/aktivne
 
-Vraća samo aktivne firme.
+Vraća samo aktivne firme trenutnog korisnika.
+
+**Uspešan odgovor:**
+
+```json
+{
+  "firme": [
+    {
+      "naziv": "Nova aktivna firma d.o.o.",
+      "pib": "12345678",
+      "adresa": "Adresa bb",
+      "pdvBroj": "80/31-12345-0",
+      "status": "active"
+    }
+  ]
+}
+```
 
 ### GET /api/firme/nula
 
-Vraća samo firme na nuli (za masovno generiranje XML-a sa nulama).
+Vraća samo firme na nuli trenutnog korisnika.
 
 ### GET /api/firme/:pib
+
+Vraća jednu specifičnu firmu po PIB-u.
+
+**Uspešan odgovor:**
+
+```json
+{
+  "firma": {
+    "naziv": "Nova aktivna firma d.o.o.",
+    "pib": "12345678",
+    "adresa": "Adresa bb",
+    "pdvBroj": "80/31-12345-0",
+    "status": "active"
+  }
+}
+```
+
+**Neuspešan odgovor (404):**
+
+```json
+{
+  "message": "Firma nije pronađena"
+}
+```
+
+### POST /api/firme
+
+Dodaje novu firmu za trenutnog korisnika.
+
+**Zahtev:**
+
+```json
+{
+  "naziv": "Nova firma d.o.o.",
+  "pib": "12345678",
+  "adresa": "Adresa firme bb",
+  "pdvBroj": "80/31-12345-0",
+  "status": "active"
+}
+```
+
+**Uspešan odgovor:**
+
+```json
+{
+  "message": "Firma je uspešno dodana",
+  "firma": {
+    "naziv": "Nova firma d.o.o.",
+    "pib": "12345678",
+    "adresa": "Adresa firme bb",
+    "pdvBroj": "80/31-12345-0",
+    "status": "active"
+  }
+}
+```
+
+### PUT /api/firme/:pib
+
+Ažurira postojeću firmu.
+
+**Zahtev:**
+
+```json
+{
+  "naziv": "Ažurirani naziv d.o.o.",
+  "adresa": "Nova adresa bb",
+  "pdvBroj": "80/31-12345-1",
+  "status": "zero"
+}
+```
+
+**Uspešan odgovor:**
+
+```json
+{
+  "message": "Firma je uspešno ažurirana",
+  "firma": {
+    "naziv": "Ažurirani naziv d.o.o.",
+    "pib": "12345678",
+    "adresa": "Nova adresa bb",
+    "pdvBroj": "80/31-12345-1",
+    "status": "zero"
+  }
+}
+```
+
+### DELETE /api/firme/:pib
+
+Briše firmu po PIB-u.
+
+**Uspešan odgovor:**
+
+```json
+{
+  "message": "Firma je uspešno obrisana",
+  "firma": {
+    "naziv": "Obrisana firma d.o.o.",
+    "pib": "12345678",
+    "adresa": "Adresa bb",
+    "pdvBroj": "80/31-12345-0",
+    "status": "active"
+  }
+}
+```
 
 Vraća jednu firmu na osnovu PIB-a.
 
@@ -179,7 +356,39 @@ Briše firmu na osnovu PIB-a.
 
 ---
 
-## 👥 Users API
+## � Bezbednost i Multi-user Arhitektura
+
+### Izolacija podataka
+
+- Svaki korisnik vidi i upravlja **samo svojim firmama**
+- Podaci su fizički izolovani u posebnim JSON fajlovima
+- Auth middleware automatski filtrira pristup na osnovu sesije
+
+### Struktura fajlova
+
+- Korisnici: `src/data/users.json`
+- Firme po korisniku: `src/data/users/{username}_firme.json`
+
+### Status kodovi
+
+| Kod | Značenje                      | Razlog                           |
+| --- | ----------------------------- | -------------------------------- |
+| 200 | OK                            | Uspešna operacija                |
+| 401 | Unauthorized                  | Korisnik nije ulogovan           |
+| 404 | Not Found                     | Firma/resurs nije pronađen      |
+| 400 | Bad Request                   | Neispravni podaci u zahtevu      |
+| 500 | Internal Server Error         | Greška na serveru                |
+
+### Validacija
+
+- **PIB**: Mora biti jedinstven po korisniku
+- **Status**: Samo "active" ili "zero"
+- **Naziv**: Obavezan
+- **Adresa**: Obavezna
+
+---
+
+## �👥 Users API (Admin funkcionalnost)
 
 | Metoda   | Ruta             | Opis                             | Zaštićeno |
 | -------- | ---------------- | -------------------------------- | --------- |
