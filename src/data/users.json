@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "12345",
+    "email": "admin@summasummarum.me",
+    "phone": "+382 67 440 040",
+    "address": "Popa Dukljanina 2, Bar"
+  },
+  {
+    "id": 2,
+    "username": "ana",
+    "password": "ana123",
+    "email": "ana@summasummarum.me",
+    "phone": "+382 67 111 111",
+    "address": "Ana adresa 1"
+  },
+  {
+    "id": 3,
+    "username": "marko",
+    "password": "marko123",
+    "email": "marko@summasummarum.me",
+    "phone": "+382 67 222 222",
+    "address": "Marko adresa 1"
+  }
+]

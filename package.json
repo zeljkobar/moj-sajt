@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --ignore 'src/data/users/*.json' app.js",
-    "dev": "nodemon --ignore 'src/data/users/*.json' app.js"
+    "start": "nodemon --ignore 'src/data/users/*.json' --ignore 'src/data/users.json' app.js",
+    "dev": "nodemon --ignore 'src/data/users/*.json' --ignore 'src/data/users.json' app.js"
   },
   "keywords": [],
   "author": "",
