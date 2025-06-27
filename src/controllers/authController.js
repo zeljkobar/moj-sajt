@@ -1,5 +1,10 @@
 // Dummy korisnici - u produkcioj bi ovo bila prava baza
-const users = [{ id: 1, username: "admin", password: "12345" }];
+const users = [
+  { id: 1, username: "admin", password: "12345" },
+  { id: 2, username: "ana", password: "ana123" },
+  { id: 3, username: "marko", password: "marko123" },
+  { id: 4, username: "test", password: "test123" },
+];
 
 const authController = {
   // Login

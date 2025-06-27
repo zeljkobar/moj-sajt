@@ -129,10 +129,10 @@ function filterFirms() {
   if (searchTerm) {
     firms = firms.filter(
       (firm) =>
-        firm.ime.toLowerCase().includes(searchTerm) ||
+        firm.naziv.toLowerCase().includes(searchTerm) ||
         firm.pib.includes(searchTerm) ||
         firm.adresa.toLowerCase().includes(searchTerm) ||
-        (firm.pdv && firm.pdv.toLowerCase().includes(searchTerm))
+        (firm.pdvBroj && firm.pdvBroj.toLowerCase().includes(searchTerm))
     );
   }
 
@@ -165,13 +165,13 @@ function renderFirms() {
               <span class="firm-status ${
                 firm.status === "active" ? "status-active" : "status-zero"
               }"></span>
-              ${firm.ime}
+              ${firm.naziv}
             </h5>
             <p class="mb-1"><strong>PIB:</strong> ${firm.pib}</p>
             <p class="mb-1"><strong>Adresa:</strong> ${firm.adresa}</p>
             ${
-              firm.pdv
-                ? `<p class="mb-0"><strong>PDV broj:</strong> ${firm.pdv}</p>`
+              firm.pdvBroj
+                ? `<p class="mb-0"><strong>PDV broj:</strong> ${firm.pdvBroj}</p>`
                 : ""
             }
           </div>
@@ -188,7 +188,7 @@ function renderFirms() {
                 <i class="fas fa-edit"></i>
               </button>
               <button class="delete-btn" onclick="deleteFirm('${firm.pib}', '${
-        firm.ime
+        firm.naziv
       }')">
                 <i class="fas fa-trash"></i>
               </button>
@@ -210,8 +210,8 @@ function editFirm(pib) {
 }
 
 // Delete firma function
-async function deleteFirm(pib, ime) {
-  if (!confirm(`Da li ste sigurni da želite da obrišete firmu "${ime}"?`)) {
+async function deleteFirm(pib, naziv) {
+  if (!confirm(`Da li ste sigurni da želite da obrišete firmu "${naziv}"?`)) {
     return;
   }
 
@@ -229,7 +229,7 @@ async function deleteFirm(pib, ime) {
       filterFirms();
 
       // Show success message
-      alert(`Firma "${ime}" je uspešno obrisana!`);
+      alert(`Firma "${naziv}" je uspešno obrisana!`);
     } else {
       alert(result.message || "Greška pri brisanju firme");
     }
@@ -277,10 +277,10 @@ function setupFormSubmit() {
 
     const formData = new FormData(form);
     const data = {
-      ime: formData.get("ime"),
+      naziv: formData.get("naziv"),
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
-      pdv: formData.get("pdv"),
+      pdvBroj: formData.get("pdvBroj"),
       status: formData.get("status"),
     };
 
@@ -305,7 +305,7 @@ function setupFormSubmit() {
       const result = await response.json();
 
       if (response.ok) {
-        showSuccess(`Firma "${data.ime}" je uspešno dodana!`);
+        showSuccess(`Firma "${data.naziv}" je uspešno dodana!`);
         form.reset();
         document
           .querySelectorAll(".status-card")
@@ -354,16 +354,16 @@ async function loadFirmData() {
     const firm = await response.json();
 
     // Populate form
-    const imeInput = document.getElementById("ime");
+    const nazivInput = document.getElementById("naziv");
     const pibInput = document.getElementById("pib");
     const adresaInput = document.getElementById("adresa");
-    const pdvInput = document.getElementById("pdv");
+    const pdvBrojInput = document.getElementById("pdvBroj");
     const statusInput = document.getElementById("status");
 
-    if (imeInput) imeInput.value = firm.ime || "";
+    if (nazivInput) nazivInput.value = firm.naziv || "";
     if (pibInput) pibInput.value = firm.pib || "";
     if (adresaInput) adresaInput.value = firm.adresa || "";
-    if (pdvInput) pdvInput.value = firm.pdv || "";
+    if (pdvBrojInput) pdvBrojInput.value = firm.pdvBroj || "";
 
     // Set status
     originalStatus = firm.status;
@@ -399,10 +399,10 @@ function setupEditFormSubmit() {
 
     const formData = new FormData(form);
     const data = {
-      ime: formData.get("ime"),
+      naziv: formData.get("naziv"),
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
-      pdv: formData.get("pdv"),
+      pdvBroj: formData.get("pdvBroj"),
       status: formData.get("status"),
     };
 
@@ -423,7 +423,7 @@ function setupEditFormSubmit() {
       const result = await response.json();
 
       if (response.ok) {
-        showSuccess(`Firma "${data.ime}" je uspešno ažurirana!`);
+        showSuccess(`Firma "${data.naziv}" je uspešno ažurirana!`);
 
         setTimeout(() => {
           window.location.href = "/firme.html";

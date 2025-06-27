@@ -62,7 +62,7 @@ function createZeroXML(firma, mjesec) {
 async function loadFirme() {
   try {
     const response = await fetch("/api/firme/nula", {
-      credentials: "include"
+      credentials: "include",
     });
     if (response.ok) {
       firmeData = await response.json();
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Proveri da li je korisnik prijavljen
 fetch("/api/check-auth", {
-  credentials: "include"
+  credentials: "include",
 })
   .then((response) => response.json())
   .then((data) => {

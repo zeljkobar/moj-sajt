@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     // Učitaj sve firme (za kompatibilnost)
     const responseAll = await fetch("/api/firme", {
-      credentials: "include"
+      credentials: "include",
     });
     if (responseAll.ok) {
       const data = await responseAll.json();
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Učitaj aktivne firme
     const responseAktivne = await fetch("/api/firme/aktivne", {
-      credentials: "include"
+      credentials: "include",
     });
     if (responseAktivne.ok) {
       aktivneFirme = await responseAktivne.json();
@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Učitaj firme na nuli
     const responseFirme0 = await fetch("/api/firme/nula", {
-      credentials: "include"
+      credentials: "include",
     });
     if (responseFirme0.ok) {
       firme0 = await responseFirme0.json();

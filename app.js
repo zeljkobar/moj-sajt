@@ -84,9 +84,10 @@ app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
     const allFirme = firmeController.readUserFirme(username);
 
     const total = allFirme.length;
-    const aktivneCount = allFirme.filter(f => f.status === "active").length;
-    const naNuliCount = allFirme.filter(f => f.status === "zero").length;
-    const procenatNaNuli = total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
+    const aktivneCount = allFirme.filter((f) => f.status === "active").length;
+    const naNuliCount = allFirme.filter((f) => f.status === "zero").length;
+    const procenatNaNuli =
+      total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
 
     res.json({
       total: total,
