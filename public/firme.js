@@ -187,9 +187,9 @@ function renderFirms() {
               <button class="edit-btn" onclick="editFirm('${firm.pib}')">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="delete-btn" onclick="deleteFirm('${firm.pib}', '${
-        firm.naziv
-      }')">
+              <button class="delete-btn" data-pib="${
+                firm.pib
+              }" data-naziv="${firm.naziv.replace(/"/g, "&quot;")}">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -211,16 +211,20 @@ function editFirm(pib) {
 
 // Delete firma function
 async function deleteFirm(pib, naziv) {
+  console.log("deleteFirm pozvan sa:", { pib, naziv });
+
   if (!confirm(`Da li ste sigurni da želite da obrišete firmu "${naziv}"?`)) {
     return;
   }
 
   try {
+    console.log("Šalje DELETE zahtev za PIB:", pib);
     const response = await fetch(`/api/firme/${pib}`, {
       method: "DELETE",
     });
 
     const result = await response.json();
+    console.log("Response:", { status: response.status, result });
 
     if (response.ok) {
       // Remove firm from local array
@@ -483,3 +487,19 @@ function showError(message) {
 // Make functions globally available for onclick handlers
 window.editFirm = editFirm;
 window.deleteFirm = deleteFirm;
+
+// Add event listeners for delete buttons
+document.addEventListener("DOMContentLoaded", function () {
+  // Delegated event listener for dynamically created delete buttons
+  document.addEventListener("click", function (e) {
+    if (e.target.closest(".delete-btn")) {
+      const btn = e.target.closest(".delete-btn");
+      const pib = btn.getAttribute("data-pib");
+      const naziv = btn.getAttribute("data-naziv");
+
+      if (pib && naziv) {
+        deleteFirm(pib, naziv);
+      }
+    }
+  });
+});
