@@ -1,0 +1,205 @@
+[
+  {
+    "naziv": "Summa Summarum",
+    "pib": "02825767",
+    "adresa": "Popa Dukljanina 2",
+    "pdvBroj": "80/31-12335-3",
+    "status": "active"
+  },
+  {
+    "naziv": "OTA-LAKI DOO",
+    "pib": "03100863",
+    "adresa": "Vladimira Rolovica 18",
+    "pdvBroj": "80/31-03570-9",
+    "status": "zero"
+  },
+  {
+    "naziv": "R&P Agent doo",
+    "pib": "02758512",
+    "adresa": "Maršala Tita 25",
+    "pdvBroj": "80/31-02206-2",
+    "status": "zero"
+  },
+  {
+    "naziv": "WASH & GO",
+    "pib": "02904136",
+    "adresa": "Bjelisi bb",
+    "pdvBroj": "80/31-02586-8",
+    "status": "zero"
+  },
+  {
+    "naziv": "Zavet d.o.o.",
+    "pib": "02793253",
+    "adresa": "VUKA KARADZICA BB",
+    "pdvBroj": "80/31-02314-8",
+    "status": "zero"
+  },
+  {
+    "naziv": "Volume d.o.o.",
+    "pib": "02807572",
+    "adresa": "Rutke bb",
+    "pdvBroj": "80/31-02174-0",
+    "status": "zero"
+  },
+  {
+    "naziv": "W Group d.o.o.",
+    "pib": "02670739",
+    "adresa": "Bjelisi 260",
+    "pdvBroj": "80/31-01444-2",
+    "status": "zero"
+  },
+  {
+    "naziv": "Ajna d.o.o.",
+    "pib": "02984296",
+    "adresa": "Stari Bar bb",
+    "pdvBroj": "80/31-02906-7",
+    "status": "zero"
+  },
+  {
+    "naziv": "NDDL d.o.o.",
+    "pib": "02992507",
+    "adresa": "Mirosica 2",
+    "pdvBroj": "80/31-02947-4",
+    "status": "zero"
+  },
+  {
+    "naziv": "8 Mart d.o.o.",
+    "pib": "02224399",
+    "adresa": "Jovana Tomasevica 32/34",
+    "pdvBroj": "80/31-00172-3",
+    "status": "zero"
+  },
+  {
+    "naziv": "Adriatic proing d.o.o.",
+    "pib": "02758342",
+    "adresa": "Jovana Tomasevica G9",
+    "pdvBroj": "80/31-03772-8",
+    "status": "zero"
+  },
+  {
+    "naziv": "Fighter d.o.o.",
+    "pib": "03046800",
+    "adresa": "Susanj bb",
+    "pdvBroj": "",
+    "status": "zero"
+  },
+  {
+    "naziv": "Creative Solutions Montenegro d.o.o.",
+    "pib": "03057925",
+    "adresa": "Jovana Tomasevica G9",
+    "pdvBroj": "80/31-03213-0",
+    "status": "zero"
+  },
+  {
+    "naziv": "Nivl d.o.o.",
+    "pib": "03111997",
+    "adresa": "Poslovni centar G9",
+    "pdvBroj": "80/31-03508-3",
+    "status": "zero"
+  },
+  {
+    "naziv": "Butua resort d.o.o.",
+    "pib": "02622777",
+    "adresa": "Marsala Tita zgrada D5",
+    "pdvBroj": "",
+    "status": "zero"
+  },
+  {
+    "naziv": "Ulcinj resort d.o.o.",
+    "pib": "02622521",
+    "adresa": "Marsala Tita zgrada D5",
+    "pdvBroj": "92/31-00893-1",
+    "status": "zero"
+  },
+  {
+    "naziv": "Pan.kov trading d.o.o.",
+    "pib": "03259196",
+    "adresa": "Velika Gorana bb",
+    "pdvBroj": "80-31-04220-9",
+    "status": "zero"
+  },
+  {
+    "naziv": "Coco Loco fashion d.o.o. ",
+    "pib": "03093913",
+    "adresa": "Drobnici bb",
+    "pdvBroj": "81/31-04899-9",
+    "status": "zero"
+  },
+  {
+    "naziv": "Aesha d.o.o.",
+    "pib": "03289052",
+    "adresa": "Bjelisi bb",
+    "pdvBroj": "70/31-02212-0",
+    "status": "zero"
+  },
+  {
+    "naziv": "Wel-War d.o.o.",
+    "pib": "03103269",
+    "adresa": "Jovana Tomasevica G9",
+    "pdvBroj": "80/31-03525-3",
+    "status": "zero"
+  },
+  {
+    "naziv": "Jokic zp d.o.o.",
+    "pib": "02670194",
+    "adresa": "Ilino b.b.",
+    "pdvBroj": "80/31-01845-6",
+    "status": "zero"
+  },
+  {
+    "naziv": "Md alfa d.o.o.",
+    "pib": "02940442",
+    "adresa": "Mila Damjanovica 5",
+    "pdvBroj": "80/31-02762-5",
+    "status": "zero"
+  },
+  {
+    "naziv": "Nina mont d.o.o.",
+    "pib": "02648938",
+    "adresa": "Bulevar Marka Brezanina bb",
+    "pdvBroj": "80/31-016232",
+    "status": "zero"
+  },
+  {
+    "naziv": "II - IRIS DOO",
+    "pib": "02704951",
+    "adresa": "Boljevici bb",
+    "pdvBroj": "80/31-01637-2",
+    "status": "zero"
+  },
+  {
+    "naziv": "PANTELIJA",
+    "pib": "03316378",
+    "adresa": "SUVI POTOK BB",
+    "pdvBroj": "80/31-04356-6",
+    "status": "zero"
+  },
+  {
+    "naziv": "Beton Transport Group",
+    "pib": "02347334",
+    "adresa": "Mila Boskovica h12",
+    "pdvBroj": "80/31-01592-9",
+    "status": "zero"
+  },
+  {
+    "naziv": "Megtrade",
+    "pib": "02752450",
+    "adresa": "POSLOVNI CENTAR G-9 ",
+    "pdvBroj": "80/31-01880-4",
+    "status": "zero"
+  },
+  {
+    "naziv": "Test Single JSON Firma",
+    "pib": "11111111",
+    "adresa": "Test adresa",
+    "pdvBroj": "80/31-11111-1",
+    "status": "active"
+  },
+  {
+    "naziv": "Test Firma Na Nuli",
+    "pib": "22222222",
+    "adresa": "Test adresa na nuli",
+    "pdvBroj": "80/31-22222-2",
+    "status": "zero"
+  }
+]

@@ -1,284 +1,258 @@
 const fs = require("fs");
 const path = require("path");
-const { firme0 } = require("../data/firme0");
-const { aktivneFirme } = require("../data/firme");
 
-// Helper funkcije za čuvanje podataka u fajlove
-const saveFirmeToFile = (firme, filePath) => {
-  try {
-    const data = `const aktivneFirme = ${JSON.stringify(
-      firme,
-      null,
-      2
-    )};\n\nmodule.exports = { aktivneFirme };`;
-    fs.writeFileSync(filePath, data, "utf8");
-    return true;
-  } catch (error) {
-    console.error("Greška pri čuvanju aktivnih firmi:", error);
-    return false;
-  }
-};
-
-const saveFirme0ToFile = (firme) => {
-  try {
-    const firme0Path = path.join(__dirname, "..", "data", "firme0.js");
-    let data = "";
-
-    // Kreiraj individualne objekte kao što su bili
-    firme.forEach((firma, index) => {
-      const variableName = firma.ime
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "")
-        .substring(0, 20);
-
-      data += `const ${variableName}${index} = ${JSON.stringify(
-        firma,
-        null,
-        2
-      )};\n\n`;
-    });
-
-    // Dodaj export
-    data += `const firme0 = [\n`;
-    firme.forEach((firma, index) => {
-      const variableName = firma.ime
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "")
-        .substring(0, 20);
-      data += `  ${variableName}${index},\n`;
-    });
-    data += `];\n\nmodule.exports = { firme0 };`;
-
-    fs.writeFileSync(firme0Path, data, "utf8");
-    return true;
-  } catch (error) {
-    console.error("Greška pri čuvanju firmi na nuli:", error);
-    return false;
-  }
-};
-
-// Kontroler funkcije
 const firmeController = {
-  // Dobijanje svih firmi
+  // Helper funkcija za čitanje firmi korisnika
+  readUserFirme: (username) => {
+    try {
+      const filePath = path.join(__dirname, "..", "data", "users", `${username}_firme.json`);
+      
+      if (!fs.existsSync(filePath)) {
+        // Ako fajl ne postoji, kreiraj prazan
+        fs.writeFileSync(filePath, JSON.stringify([], null, 2));
+        return [];
+      }
+      
+      const data = fs.readFileSync(filePath, "utf8");
+      return JSON.parse(data);
+    } catch (error) {
+      console.error(`Greška pri čitanju firmi za korisnika ${username}:`, error);
+      return [];
+    }
+  },
+
+  // Helper funkcija za čuvanje firmi korisnika
+  saveUserFirme: (username, firme) => {
+    try {
+      const filePath = path.join(__dirname, "..", "data", "users", `${username}_firme.json`);
+      fs.writeFileSync(filePath, JSON.stringify(firme, null, 2));
+      return true;
+    } catch (error) {
+      console.error(`Greška pri čuvanju firmi za korisnika ${username}:`, error);
+      return false;
+    }
+  },
+
+  // GET /api/firme - vraća sve firme za ulogovanog korisnika
   getAllFirme: (req, res) => {
-    const aktivneWithStatus = aktivneFirme.map((firma) => ({
-      ...firma,
-      status: "active",
-    }));
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
 
-    const zeroWithStatus = firme0.map((firma) => ({
-      ...firma,
-      status: "zero",
-    }));
-
-    const sveFirme = [...aktivneWithStatus, ...zeroWithStatus];
-    res.json({ firme: sveFirme });
+      const username = req.session.user.username;
+      const firme = firmeController.readUserFirme(username);
+      
+      res.json({ firme });
+    } catch (error) {
+      console.error("Greška pri dobijanju firmi:", error);
+      res.status(500).json({ message: "Greška pri dobijanju firmi" });
+    }
   },
 
-  // Dobijanje firmi na nuli
-  getFirme0: (req, res) => {
-    res.json(firme0);
-  },
-
-  // Dobijanje aktivnih firmi
+  // GET /api/firme/aktivne - vraća samo aktivne firme
   getAktivneFirme: (req, res) => {
-    res.json(aktivneFirme);
-  },
-
-  // Dobijanje pojedinačne firme po PIB-u
-  getFirmaByPib: (req, res) => {
-    const pib = req.params.pib;
-
-    // Pronađi u aktivnim firmama
-    const aktivnaFirma = aktivneFirme.find((f) => f.pib === pib);
-    if (aktivnaFirma) {
-      return res.json({ ...aktivnaFirma, status: "active" });
-    }
-
-    // Pronađi u firmama na nuli
-    const firma0 = firme0.find((f) => f.pib === pib);
-    if (firma0) {
-      return res.json({ ...firma0, status: "zero" });
-    }
-
-    // Nije pronađena
-    res.status(404).json({ message: "Firma nije pronađena" });
-  },
-
-  // Dodavanje nove aktivne firme
-  createAktivnaFirma: (req, res) => {
-    const { ime, pib, adresa, pdv } = req.body;
-
-    // Validacija
-    if (!ime || !pib || !adresa) {
-      return res.status(400).json({ message: "Ime, PIB i adresa su obavezni" });
-    }
-
-    // Proveri da li PIB već postoji
-    const sveFirme = [...firme0, ...aktivneFirme];
-    if (sveFirme.find((f) => f.pib === pib)) {
-      return res
-        .status(400)
-        .json({ message: "Firma sa ovim PIB-om već postoji" });
-    }
-
-    const novaFirma = { ime, pib, adresa, pdv: pdv || "" };
-    aktivneFirme.push(novaFirma);
-
-    // Sačuvaj u fajl
-    const aktivneFirmePath = path.join(__dirname, "..", "data", "firme.js");
-    if (saveFirmeToFile(aktivneFirme, aktivneFirmePath)) {
-      res
-        .status(201)
-        .json({ message: "Firma je uspešno dodana", firma: novaFirma });
-    } else {
-      // Ukloni iz niza ako nije moguće sačuvati
-      aktivneFirme.pop();
-      res.status(500).json({ message: "Greška pri čuvanju firme" });
-    }
-  },
-
-  // Dodavanje nove firme na nuli
-  createFirma0: (req, res) => {
-    const { ime, pib, adresa, pdv } = req.body;
-
-    // Validacija
-    if (!ime || !pib || !adresa) {
-      return res.status(400).json({ message: "Ime, PIB i adresa su obavezni" });
-    }
-
-    // Proveri da li PIB već postoji
-    const sveFirme = [...firme0, ...aktivneFirme];
-    if (sveFirme.find((f) => f.pib === pib)) {
-      return res
-        .status(400)
-        .json({ message: "Firma sa ovim PIB-om već postoji" });
-    }
-
-    const novaFirma = { ime, pib, adresa, pdv: pdv || "" };
-    firme0.push(novaFirma);
-
-    // Sačuvaj u fajl
-    if (saveFirme0ToFile(firme0)) {
-      res
-        .status(201)
-        .json({ message: "Firma na nuli je uspešno dodana", firma: novaFirma });
-    } else {
-      // Ukloni iz niza ako nije moguće sačuvati
-      firme0.pop();
-      res.status(500).json({ message: "Greška pri čuvanju firme" });
-    }
-  },
-
-  // Brisanje firme
-  deleteFirma: (req, res) => {
-    const pib = req.params.pib;
-
-    // Traži u aktivnim firmama
-    let indexAktivne = aktivneFirme.findIndex((f) => f.pib === pib);
-    if (indexAktivne !== -1) {
-      const obrisanaFirma = aktivneFirme.splice(indexAktivne, 1)[0];
-      const aktivneFirmePath = path.join(__dirname, "..", "data", "firme.js");
-      if (saveFirmeToFile(aktivneFirme, aktivneFirmePath)) {
-        return res.json({
-          message: "Aktivna firma je uspešno obrisana",
-          firma: obrisanaFirma,
-        });
-      } else {
-        // Vrati firmu u niz ako nije moguće sačuvati
-        aktivneFirme.splice(indexAktivne, 0, obrisanaFirma);
-        return res.status(500).json({ message: "Greška pri brisanju firme" });
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
       }
-    }
 
-    // Traži u firmama na nuli
-    let indexFirme0 = firme0.findIndex((f) => f.pib === pib);
-    if (indexFirme0 !== -1) {
-      const obrisanaFirma = firme0.splice(indexFirme0, 1)[0];
-      if (saveFirme0ToFile(firme0)) {
-        return res.json({
-          message: "Firma na nuli je uspešno obrisana",
-          firma: obrisanaFirma,
-        });
-      } else {
-        // Vrati firmu u niz ako nije moguće sačuvati
-        firme0.splice(indexFirme0, 0, obrisanaFirma);
-        return res.status(500).json({ message: "Greška pri brisanju firme" });
-      }
+      const username = req.session.user.username;
+      const allFirme = firmeController.readUserFirme(username);
+      const aktivneFirme = allFirme.filter(firma => firma.status === "active");
+      
+      res.json(aktivneFirme);
+    } catch (error) {
+      console.error("Greška pri dobijanju aktivnih firmi:", error);
+      res.status(500).json({ message: "Greška pri dobijanju aktivnih firmi" });
     }
-
-    res.status(404).json({ message: "Firma nije pronađena" });
   },
 
-  // Ažuriranje firme
+  // GET /api/firme/nula - vraća samo firme na nuli
+  getFirmeNaNuli: (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const allFirme = firmeController.readUserFirme(username);
+      const firmeNaNuli = allFirme.filter(firma => firma.status === "zero");
+      
+      res.json(firmeNaNuli);
+    } catch (error) {
+      console.error("Greška pri dobijanju firmi na nuli:", error);
+      res.status(500).json({ message: "Greška pri dobijanju firmi na nuli" });
+    }
+  },
+
+  // POST /api/firme - dodaje novu firmu
+  addFirma: (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const { naziv, pib, adresa, pdvBroj, status } = req.body;
+
+      // Validacija
+      if (!naziv || !pib || !adresa || !status) {
+        return res.status(400).json({ 
+          message: "Naziv, PIB, adresa i status su obavezni" 
+        });
+      }
+
+      // Validacija status-a
+      if (!["active", "zero"].includes(status)) {
+        return res.status(400).json({ 
+          message: "Status mora biti 'active' ili 'zero'" 
+        });
+      }
+
+      const allFirme = firmeController.readUserFirme(username);
+
+      // Proveri da li firma sa istim PIB-om već postoji
+      const postojecaFirma = allFirme.find(f => f.pib === pib);
+      if (postojecaFirma) {
+        return res.status(400).json({ 
+          message: "Firma sa ovim PIB-om već postoji" 
+        });
+      }
+
+      // Kreiraj novu firmu
+      const novaFirma = {
+        naziv,
+        pib,
+        adresa,
+        pdvBroj: pdvBroj || "",
+        status
+      };
+
+      allFirme.push(novaFirma);
+
+      // Sačuvaj
+      const success = firmeController.saveUserFirme(username, allFirme);
+      if (!success) {
+        return res.status(500).json({ message: "Greška pri čuvanju firme" });
+      }
+
+      res.json({
+        message: "Firma je uspešno dodana",
+        firma: novaFirma
+      });
+    } catch (error) {
+      console.error("Greška pri dodavanju firme:", error);
+      res.status(500).json({ message: "Greška pri dodavanju firme" });
+    }
+  },
+
+  // PUT /api/firme/:pib - ažurira postojeću firmu
   updateFirma: (req, res) => {
-    const pib = req.params.pib;
-    const { ime, adresa, pdv, noviPib } = req.body;
-
-    // Validacija
-    if (!ime || !adresa) {
-      return res.status(400).json({ message: "Ime i adresa su obavezni" });
-    }
-
-    // Ako se menja PIB, proveri da li novi PIB već postoji
-    if (noviPib && noviPib !== pib) {
-      const sveFirme = [...firme0, ...aktivneFirme];
-      if (sveFirme.find((f) => f.pib === noviPib)) {
-        return res
-          .status(400)
-          .json({ message: "Firma sa novim PIB-om već postoji" });
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
       }
-    }
 
-    // Traži u aktivnim firmama
-    let indexAktivne = aktivneFirme.findIndex((f) => f.pib === pib);
-    if (indexAktivne !== -1) {
-      const stareFirme = [...aktivneFirme];
-      aktivneFirme[indexAktivne] = {
-        ime,
-        pib: noviPib || pib,
-        adresa,
-        pdv: pdv || "",
-      };
+      const username = req.session.user.username;
+      const { pib } = req.params;
+      const { naziv, adresa, pdvBroj, status } = req.body;
 
-      const aktivneFirmePath = path.join(__dirname, "..", "data", "firme.js");
-      if (saveFirmeToFile(aktivneFirme, aktivneFirmePath)) {
-        return res.json({
-          message: "Aktivna firma je uspešno ažurirana",
-          firma: aktivneFirme[indexAktivne],
-        });
-      } else {
-        // Vrati stare podatke ako nije moguće sačuvati
-        aktivneFirme.splice(0, aktivneFirme.length, ...stareFirme);
+      const allFirme = firmeController.readUserFirme(username);
+      const firmaIndex = allFirme.findIndex(f => f.pib === pib);
+
+      if (firmaIndex === -1) {
+        return res.status(404).json({ message: "Firma nije pronađena" });
+      }
+
+      // Ažuriraj firmu
+      if (naziv !== undefined) allFirme[firmaIndex].naziv = naziv;
+      if (adresa !== undefined) allFirme[firmaIndex].adresa = adresa;
+      if (pdvBroj !== undefined) allFirme[firmaIndex].pdvBroj = pdvBroj;
+      if (status !== undefined) {
+        if (!["active", "zero"].includes(status)) {
+          return res.status(400).json({ 
+            message: "Status mora biti 'active' ili 'zero'" 
+          });
+        }
+        allFirme[firmaIndex].status = status;
+      }
+
+      // Sačuvaj
+      const success = firmeController.saveUserFirme(username, allFirme);
+      if (!success) {
         return res.status(500).json({ message: "Greška pri ažuriranju firme" });
       }
+
+      res.json({
+        message: "Firma je uspešno ažurirana",
+        firma: allFirme[firmaIndex]
+      });
+    } catch (error) {
+      console.error("Greška pri ažuriranju firme:", error);
+      res.status(500).json({ message: "Greška pri ažuriranju firme" });
     }
-
-    // Traži u firmama na nuli
-    let indexFirme0 = firme0.findIndex((f) => f.pib === pib);
-    if (indexFirme0 !== -1) {
-      const stareFirme = [...firme0];
-      firme0[indexFirme0] = {
-        ime,
-        pib: noviPib || pib,
-        adresa,
-        pdv: pdv || "",
-      };
-
-      if (saveFirme0ToFile(firme0)) {
-        return res.json({
-          message: "Firma na nuli je uspešno ažurirana",
-          firma: firme0[indexFirme0],
-        });
-      } else {
-        // Vrati stare podatke ako nije moguće sačuvati
-        firme0.splice(0, firme0.length, ...stareFirme);
-        return res.status(500).json({ message: "Greška pri ažuriranju firme" });
-      }
-    }
-
-    res.status(404).json({ message: "Firma nije pronađena" });
   },
+
+  // DELETE /api/firme/:pib - briše firmu
+  deleteFirma: (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const { pib } = req.params;
+
+      const allFirme = firmeController.readUserFirme(username);
+      const firmaIndex = allFirme.findIndex(f => f.pib === pib);
+
+      if (firmaIndex === -1) {
+        return res.status(404).json({ message: "Firma nije pronađena" });
+      }
+
+      // Ukloni firmu
+      const obrisanaFirma = allFirme.splice(firmaIndex, 1)[0];
+
+      // Sačuvaj
+      const success = firmeController.saveUserFirme(username, allFirme);
+      if (!success) {
+        return res.status(500).json({ message: "Greška pri brisanju firme" });
+      }
+
+      res.json({
+        message: "Firma je uspešno obrisana",
+        firma: obrisanaFirma
+      });
+    } catch (error) {
+      console.error("Greška pri brisanju firme:", error);
+      res.status(500).json({ message: "Greška pri brisanju firme" });
+    }
+  },
+
+  // GET /api/firme/:pib - vraća specifičnu firmu
+  getFirmaByPib: (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const { pib } = req.params;
+
+      const allFirme = firmeController.readUserFirme(username);
+      const firma = allFirme.find(f => f.pib === pib);
+
+      if (!firma) {
+        return res.status(404).json({ message: "Firma nije pronađena" });
+      }
+
+      res.json({ firma });
+    } catch (error) {
+      console.error("Greška pri dobijanju firme:", error);
+      res.status(500).json({ message: "Greška pri dobijanju firme" });
+    }
+  }
 };
 
 module.exports = firmeController;

@@ -78,35 +78,26 @@ app.get("/edit-firmu.html", authMiddleware, (req, res) => {
 
 // API ruta za dashboard statistike
 app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
-  const { aktivneFirme } = require("./src/data/firme");
-  const { firme0 } = require("./src/data/firme0");
+  try {
+    const username = req.session.user.username;
+    const firmeController = require("./src/controllers/firmeController");
+    const allFirme = firmeController.readUserFirme(username);
 
-  // Kreiraj kombinovani niz sa status poljima (isto kao u firmeController)
-  const aktivneWithStatus = aktivneFirme.map((firma) => ({
-    ...firma,
-    status: "active",
-  }));
+    const total = allFirme.length;
+    const aktivneCount = allFirme.filter(f => f.status === "active").length;
+    const naNuliCount = allFirme.filter(f => f.status === "zero").length;
+    const procenatNaNuli = total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
 
-  const zeroWithStatus = firme0.map((firma) => ({
-    ...firma,
-    status: "zero",
-  }));
-
-  const sveFirme = [...aktivneWithStatus, ...zeroWithStatus];
-
-  // Izračunaj statistike
-  const aktivneCount = sveFirme.filter((f) => f.status === "active").length;
-  const naNuliCount = sveFirme.filter((f) => f.status === "zero").length;
-  const total = sveFirme.length;
-  const procenatNaNuli =
-    total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
-
-  res.json({
-    total: total,
-    aktivne: aktivneCount,
-    naNuli: naNuliCount,
-    procenatNaNuli: procenatNaNuli,
-  });
+    res.json({
+      total: total,
+      aktivne: aktivneCount,
+      naNuli: naNuliCount,
+      procenatNaNuli: procenatNaNuli,
+    });
+  } catch (error) {
+    console.error("Greška pri učitavanju dashboard statistika:", error);
+    res.status(500).json({ message: "Greška pri učitavanju statistika" });
+  }
 });
 
 // API rute
