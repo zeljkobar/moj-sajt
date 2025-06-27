@@ -4,13 +4,13 @@
     "pib": "11111114",
     "adresa": "Ana nova adresa",
     "pdvBroj": "80/31-11111-4",
-    "status": "active"
+    "status": "zero"
   },
   {
     "naziv": "firma firma",
     "pib": "938291928",
     "adresa": "bjelisi bb",
     "pdvBroj": "78/819291-0",
-    "status": "active"
+    "status": "zero"
   }
 ]

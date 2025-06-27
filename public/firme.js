@@ -334,10 +334,13 @@ function setupFormSubmit() {
 // =============================================================================
 
 function initEditFirmPage() {
+  console.log("initEditFirmPage pozvana");
   const urlParams = new URLSearchParams(window.location.search);
   currentPib = urlParams.get("pib");
+  console.log("PIB iz URL-a:", currentPib);
 
   if (!currentPib) {
+    console.error("PIB firme nije specificiran u URL-u");
     showError("PIB firme nije specificiran");
     return;
   }
@@ -349,13 +352,25 @@ function initEditFirmPage() {
 
 async function loadFirmData() {
   try {
+    console.log("Učitavam podatke za PIB:", currentPib);
     const response = await fetch(`/api/firme/${currentPib}`);
+
+    if (response.status === 401) {
+      // Korisnik nije ulogovan - preusmeri na početnu sa porukom
+      alert("Niste ulogovani. Molimo prijavite se prvo.");
+      window.location.href = "/";
+      return;
+    }
 
     if (!response.ok) {
       throw new Error("Firma nije pronađena");
     }
 
-    const firm = await response.json();
+    const data = await response.json();
+    console.log("Podaci primljeni:", data);
+
+    // Backend vraća { firma: {...} }
+    const firm = data.firma || data;
 
     // Populate form
     const nazivInput = document.getElementById("naziv");
@@ -396,10 +411,16 @@ async function loadFirmData() {
 
 function setupEditFormSubmit() {
   const form = document.getElementById("firmForm");
-  if (!form) return;
+  if (!form) {
+    console.error("Form 'firmForm' nije pronađen na stranici");
+    return;
+  }
+
+  console.log("Form za edit je pronađen i setup je završen");
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
+    console.log("Form submit event pokrennut");
 
     const formData = new FormData(form);
     const data = {
@@ -410,12 +431,15 @@ function setupEditFormSubmit() {
       status: formData.get("status"),
     };
 
+    console.log("Podaci iz forme:", data);
+
     if (!data.status) {
       showError("Molimo izaberite status firme");
       return;
     }
 
     try {
+      console.log(`Šalje PUT zahtev za PIB: ${currentPib}`);
       const response = await fetch(`/api/firme/${currentPib}`, {
         method: "PUT",
         headers: {
@@ -425,6 +449,7 @@ function setupEditFormSubmit() {
       });
 
       const result = await response.json();
+      console.log("Response:", { status: response.status, result });
 
       if (response.ok) {
         showSuccess(`Firma "${data.naziv}" je uspešno ažurirana!`);
