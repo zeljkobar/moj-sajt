@@ -21,4 +21,7 @@ router.delete("/:pib", authMiddleware, firmeController.deleteFirma);
 // Fallback za hosting provajdere koji ne podržavaju DELETE
 router.post("/:pib/delete", authMiddleware, firmeController.deleteFirma);
 
+// Fallback za hosting provajdere koji ne podržavaju PUT
+router.post("/:pib/edit", authMiddleware, firmeController.updateFirma);
+
 module.exports = router;

@@ -107,7 +107,13 @@ Svi endpoint-i za upravljanje firmama zahtevaju autentifikaciju.
 | `POST`   | `/api/firme`         | Dodaj novu firmu                  | 🔒        |
 | `PUT`    | `/api/firme/:pib`    | Ažuriraj postojeću firmu          | 🔒        |
 | `DELETE` | `/api/firme/:pib`    | Obriši firmu                      | 🔒        |
-| `GET`    | `/api/firme/:pib`    | Dobijanje jedne firme po PIB-u    | 🔒        |
+
+### Fallback rute za hosting provajdere
+
+| Metoda | Ruta                   | Opis                              | Zaštićeno |
+| ------ | ---------------------- | --------------------------------- | --------- |
+| `POST` | `/api/firme/:pib/edit` | Fallback za PUT (editovanje)      | 🔒        |
+| `POST` | `/api/firme/:pib/delete` | Fallback za DELETE (brisanje)   | 🔒        |
 
 ### CRUD Operacije
 

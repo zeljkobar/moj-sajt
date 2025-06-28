@@ -453,13 +453,27 @@ function setupEditFormSubmit() {
 
     try {
       console.log(`Šalje PUT zahtev za PIB: ${currentPib}`);
-      const response = await fetch(`/api/firme/${currentPib}`, {
+      
+      // Pokušaj prvo sa PUT metodom
+      let response = await fetch(`/api/firme/${currentPib}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
+
+      // Ako PUT ne radi (405), pokušaj sa POST fallback
+      if (response.status === 405) {
+        console.log("PUT metoda nije podržana, koristim POST fallback");
+        response = await fetch(`/api/firme/${currentPib}/edit`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
 
       const result = await response.json();
       console.log("Response:", { status: response.status, result });
