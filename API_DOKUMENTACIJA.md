@@ -23,6 +23,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 #### POST /api/login
 
 **Zahtev:**
+
 ```json
 {
   "username": "admin",
@@ -31,6 +32,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 ```
 
 **Uspešan odgovor:**
+
 ```json
 {
   "success": true
@@ -38,6 +40,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 ```
 
 **Neuspešan odgovor:**
+
 ```json
 {
   "message": "Pogrešno korisničko ime ili lozinka"
@@ -47,6 +50,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 #### GET /api/auth/check
 
 **Uspešan odgovor:**
+
 ```json
 {
   "authenticated": true,
@@ -61,6 +65,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 #### POST /api/register
 
 **Zahtev:**
+
 ```json
 {
   "username": "novi_korisnik",
@@ -72,6 +77,7 @@ Svi endpoint-i označeni sa 🔒 zahtevaju da korisnik bude ulogovan putem sesij
 ```
 
 **Uspešan odgovor:**
+
 ```json
 {
   "message": "Korisnik je uspešno registrovan",
@@ -92,25 +98,24 @@ Svi endpoint-i za upravljanje firmama zahtevaju autentifikaciju.
 
 ### Osnovni Endpoint-i
 
-| Metoda | Ruta                 | Opis                                     | Zaštićeno |
-| ------ | -------------------- | ---------------------------------------- | --------- |
-| `GET`  | `/api/firme`         | Sve firme trenutnog korisnika            | 🔒        |
-| `GET`  | `/api/firme/aktivne` | Aktivne firme trenutnog korisnika        | 🔒        |
-| `GET`  | `/api/firme/nula`    | Firme na nuli trenutnog korisnika        | 🔒        |
-| `GET`  | `/api/firme/:pib`    | Jedna firma po PIB-u                    | 🔒        |
-| `POST` | `/api/firme`         | Dodaj novu firmu                         | 🔒        |
-| `PUT`  | `/api/firme/:pib`    | Ažuriraj postojeću firmu                 | 🔒        |
-| `DELETE` | `/api/firme/:pib`  | Obriši firmu                             | 🔒        |
-| `GET`  | `/api/firme/:pib`    | Dobijanje jedne firme po PIB-u           | 🔒        |
+| Metoda   | Ruta                 | Opis                              | Zaštićeno |
+| -------- | -------------------- | --------------------------------- | --------- |
+| `GET`    | `/api/firme`         | Sve firme trenutnog korisnika     | 🔒        |
+| `GET`    | `/api/firme/aktivne` | Aktivne firme trenutnog korisnika | 🔒        |
+| `GET`    | `/api/firme/nula`    | Firme na nuli trenutnog korisnika | 🔒        |
+| `GET`    | `/api/firme/:pib`    | Jedna firma po PIB-u              | 🔒        |
+| `POST`   | `/api/firme`         | Dodaj novu firmu                  | 🔒        |
+| `PUT`    | `/api/firme/:pib`    | Ažuriraj postojeću firmu          | 🔒        |
+| `DELETE` | `/api/firme/:pib`    | Obriši firmu                      | 🔒        |
+| `GET`    | `/api/firme/:pib`    | Dobijanje jedne firme po PIB-u    | 🔒        |
 
 ### CRUD Operacije
 
-| Metoda   | Ruta              | Opis                         | Zaštićeno |
-| -------- | ----------------- | ---------------------------- | --------- |
-| `POST`   | `/api/firme`      | Dodavanje nove aktivne firme | 🔒        |
-| `POST`   | `/api/firme/nula` | Dodavanje nove firme na nuli | 🔒        |
-| `PUT`    | `/api/firme/:pib` | Ažuriranje postojeće firme   | 🔒        |
-| `DELETE` | `/api/firme/:pib` | Brisanje firme               | 🔒        |
+| Metoda   | Ruta              | Opis                                      | Zaštićeno |
+| -------- | ----------------- | ----------------------------------------- | --------- |
+| `POST`   | `/api/firme`      | Dodavanje nove firme (bilo kojeg statusa) | 🔒        |
+| `PUT`    | `/api/firme/:pib` | Ažuriranje postojeće firme                | 🔒        |
+| `DELETE` | `/api/firme/:pib` | Brisanje firme                            | 🔒        |
 
 ---
 
@@ -290,16 +295,29 @@ Vraća jednu firmu na osnovu PIB-a.
 
 ### POST /api/firme
 
-Dodaje novu aktivnu firmu.
+Dodaje novu firmu bilo kojeg statusa (aktivna ili na nuli).
 
 **Body:**
 
 ```json
 {
-  "ime": "Nova firma d.o.o.",
+  "naziv": "Nova firma d.o.o.",
   "pib": "98765432",
   "adresa": "Neka adresa 123",
-  "pdv": "80/31-98765-4"
+  "pdvBroj": "80/31-98765-4",
+  "status": "active"
+}
+```
+
+ili za firmu na nuli:
+
+```json
+{
+  "naziv": "Firma na nuli d.o.o.",
+  "pib": "11111111",
+  "adresa": "Adresa na nuli 456",
+  "pdvBroj": "",
+  "status": "zero"
 }
 ```
 
@@ -316,10 +334,6 @@ Dodaje novu aktivnu firmu.
   }
 }
 ```
-
-### POST /api/firme/nula
-
-Dodaje novu firmu na nuli (isti format kao gore).
 
 ### PUT /api/firme/:pib
 
@@ -371,13 +385,13 @@ Briše firmu na osnovu PIB-a.
 
 ### Status kodovi
 
-| Kod | Značenje                      | Razlog                           |
-| --- | ----------------------------- | -------------------------------- |
-| 200 | OK                            | Uspešna operacija                |
-| 401 | Unauthorized                  | Korisnik nije ulogovan           |
-| 404 | Not Found                     | Firma/resurs nije pronađen      |
-| 400 | Bad Request                   | Neispravni podaci u zahtevu      |
-| 500 | Internal Server Error         | Greška na serveru                |
+| Kod | Značenje              | Razlog                      |
+| --- | --------------------- | --------------------------- |
+| 200 | OK                    | Uspešna operacija           |
+| 401 | Unauthorized          | Korisnik nije ulogovan      |
+| 404 | Not Found             | Firma/resurs nije pronađen  |
+| 400 | Bad Request           | Neispravni podaci u zahtevu |
+| 500 | Internal Server Error | Greška na serveru           |
 
 ### Validacija
 

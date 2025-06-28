@@ -308,8 +308,8 @@ function setupFormSubmit() {
     }
 
     try {
-      const endpoint =
-        data.status === "active" ? "/api/firme" : "/api/firme/nula";
+      // Koristi uvek isti endpoint za dodavanje firmi, bez obzira na status
+      const endpoint = "/api/firme";
 
       const response = await fetch(endpoint, {
         method: "POST",
