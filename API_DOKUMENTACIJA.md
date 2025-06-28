@@ -110,10 +110,10 @@ Svi endpoint-i za upravljanje firmama zahtevaju autentifikaciju.
 
 ### Fallback rute za hosting provajdere
 
-| Metoda | Ruta                   | Opis                              | Zaštićeno |
-| ------ | ---------------------- | --------------------------------- | --------- |
-| `POST` | `/api/firme/:pib/edit` | Fallback za PUT (editovanje)      | 🔒        |
-| `POST` | `/api/firme/:pib/delete` | Fallback za DELETE (brisanje)   | 🔒        |
+| Metoda | Ruta                     | Opis                          | Zaštićeno |
+| ------ | ------------------------ | ----------------------------- | --------- |
+| `POST` | `/api/firme/:pib/edit`   | Fallback za PUT (editovanje)  | 🔒        |
+| `POST` | `/api/firme/:pib/delete` | Fallback za DELETE (brisanje) | 🔒        |
 
 ### CRUD Operacije
 

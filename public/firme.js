@@ -453,7 +453,7 @@ function setupEditFormSubmit() {
 
     try {
       console.log(`Šalje PUT zahtev za PIB: ${currentPib}`);
-      
+
       // Pokušaj prvo sa PUT metodom
       let response = await fetch(`/api/firme/${currentPib}`, {
         method: "PUT",
