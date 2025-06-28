@@ -12,6 +12,30 @@ function download(filename, text) {
   document.body.removeChild(element);
 }
 
+// Globalna promenljiva za korisničke podatke
+let currentUser = null;
+
+// Funkcija za učitavanje podataka o trenutno ulogovanom korisniku
+async function loadCurrentUser() {
+  try {
+    const response = await fetch("/api/check-auth", {
+      credentials: "include",
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.authenticated && data.user) {
+        currentUser = data.user;
+        console.log("Korisnički podaci učitani za XML:", currentUser);
+      }
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju korisničkih podataka:", error);
+  }
+}
+
+// Učitaj korisničke podatke kad se stranica učita
+document.addEventListener("DOMContentLoaded", loadCurrentUser);
+
 document.getElementById("xmlButton").addEventListener(
   "click",
   function () {
@@ -20,23 +44,38 @@ document.getElementById("xmlButton").addEventListener(
       const element = document.getElementById(id);
       return element ? element.value : "";
     };
-    
+
     const getValueByClass = (className) => {
       const element = document.getElementsByClassName(className)[0];
-      return element ? (element.value || 0) : 0;
+      return element ? element.value || 0 : 0;
     };
-    
+
     const pib = getValue("pib_firme");
     const period = getValue("poreski_period_mesec");
     const naziv = getValue("naziv_firme");
     const adresa = getValue("adresa_firme");
     const pdvBroj = getValue("pdv_broj");
-    
+
     // Proveri da li su osnovni podaci popunjeni
     if (!pib || !period || !naziv) {
       alert("Molimo popunite osnovne podatke (PIB, period, naziv firme)");
       return;
     }
+
+    // Proveri da li su korisnički podaci učitani
+    if (!currentUser) {
+      alert("Korisnički podaci nisu učitani. Molimo osvežite stranicu.");
+      return;
+    }
+
+    // Pripremi korisničke podatke za XML
+    const telefon = currentUser.phone;
+    const ovlascenoLicePIB = currentUser.jmbg;
+    const ovlascenoLicePrezimeIme = `${currentUser.ime || "Ime"} ${
+      currentUser.prezime || "Prezime"
+    }`;
+    const kontaktEmail = currentUser.email || "email@example.com";
+    const kontaktTelefon = currentUser.phone || "067111111";
 
     var text = `<?xml version="1.0"?>
   <PortalVatReturn2025 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -47,11 +86,11 @@ document.getElementById("xmlButton").addEventListener(
   <Naziv>${naziv}</Naziv>
   <SifraDjelatnosti/>
   <Adresa>${adresa}</Adresa>
-  <Telefon>067440040</Telefon>
-  <OvlascenoLicePIB>1606981220012</OvlascenoLicePIB>
-  <OvlascenoLicePrezimeIme>Željko Ðuranoviæ</OvlascenoLicePrezimeIme>
-  <KontaktEmail>zeljkodj@t-com.me</KontaktEmail>
-  <KontaktTelefon>067440040</KontaktTelefon>
+  <Telefon>${telefon}</Telefon>
+  <OvlascenoLicePIB>${ovlascenoLicePIB}</OvlascenoLicePIB>
+  <OvlascenoLicePrezimeIme>${ovlascenoLicePrezimeIme}</OvlascenoLicePrezimeIme>
+  <KontaktEmail>${kontaktEmail}</KontaktEmail>
+  <KontaktTelefon>${kontaktTelefon}</KontaktTelefon>
   <PdvRegistracioniBroj>${pdvBroj}</PdvRegistracioniBroj>
   <BezTransakcija>false</BezTransakcija>
   <Iznos10>${getValueByClass("field-10")}</Iznos10>

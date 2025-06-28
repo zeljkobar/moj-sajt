@@ -237,7 +237,7 @@ function populateUserData(user) {
   if (ovlascenoLicePibField && user.jmbg) {
     ovlascenoLicePibField.value = user.jmbg;
   }
-  
+
   if (ovlascenoLiceImeField && user.ime && user.prezime) {
     ovlascenoLiceImeField.value = `${user.ime} ${user.prezime}`;
   }
@@ -245,7 +245,7 @@ function populateUserData(user) {
   console.log("Podaci o ovlašćenom licu popunjeni:", {
     ime: user.ime,
     prezime: user.prezime,
-    jmbg: user.jmbg
+    jmbg: user.jmbg,
   });
 }
 

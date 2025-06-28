@@ -107,12 +107,14 @@ const authController = {
 
   // Registracija
   register: (req, res) => {
-    const { username, email, password, phone, address, ime, prezime, jmbg } = req.body;
+    const { username, email, password, phone, address, ime, prezime, jmbg } =
+      req.body;
 
     // Validacija obaveznih polja
     if (!username || !email || !password || !ime || !prezime || !jmbg) {
       return res.status(400).json({
-        message: "Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni",
+        message:
+          "Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni",
       });
     }
 
@@ -122,7 +124,8 @@ const authController = {
     );
     if (existingUser) {
       return res.status(400).json({
-        message: "Korisnik sa ovim korisničkim imenom, email-om ili JMBG-om već postoji",
+        message:
+          "Korisnik sa ovim korisničkim imenom, email-om ili JMBG-om već postoji",
       });
     }
 
