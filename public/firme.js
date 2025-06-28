@@ -219,9 +219,22 @@ async function deleteFirm(pib, naziv) {
 
   try {
     console.log("Šalje DELETE zahtev za PIB:", pib);
-    const response = await fetch(`/api/firme/${pib}`, {
+
+    // Pokušaj prvo sa DELETE metodom
+    let response = await fetch(`/api/firme/${pib}`, {
       method: "DELETE",
     });
+
+    // Ako DELETE ne radi (405), pokušaj sa POST fallback
+    if (response.status === 405) {
+      console.log("DELETE metoda nije podržana, koristim POST fallback");
+      response = await fetch(`/api/firme/${pib}/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
 
     const result = await response.json();
     console.log("Response:", { status: response.status, result });
