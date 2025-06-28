@@ -61,40 +61,6 @@ document
     const { jsPDF } = window.jspdf;
     const container = document.querySelector(".container");
 
-    // Dodaj klasu da simulira izgled za štampu
-    container.classList.add("pdf-export");
-
-    // Sačekaj kratko da se stil primijeni
-    await new Promise((r) => setTimeout(r, 100));
-
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    pdf.save("pdv_obrazac.pdf");
-
-    // Ukloni klasu nakon eksportovanja
-    container.classList.remove("pdf-export");
-  });
-
-// span
-document
-  .getElementById("pdfButton")
-  .addEventListener("click", async function () {
-    const { jsPDF } = window.jspdf;
-    const container = document.querySelector(".container");
-
     // Kreiraj <span> verzije svih input polja
     const inputs = container.querySelectorAll("input.pdf-field");
     const originalStates = [];
@@ -165,6 +131,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   document
     .getElementById("pdv_uvoz")
     .addEventListener("input", updateUlazniPdv);
+
+  // Učitaj podatke o trenutno ulogovanom korisniku
+  try {
+    const authResponse = await fetch("/api/check-auth", {
+      credentials: "include",
+    });
+    if (authResponse.ok) {
+      const authData = await authResponse.json();
+      if (authData.authenticated && authData.user) {
+        populateUserData(authData.user);
+      }
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju korisničkih podataka:", error);
+  }
 
   // Zatim učitaj firme dinamički sa backend-a
   try {
@@ -243,6 +224,29 @@ function populateFirmeDropdown() {
   });
 
   console.log("Dropdown popunjen sa", firmeData.length, "firmi");
+}
+
+// Funkcija za popunjavanje podataka o ovlašćenom licu
+function populateUserData(user) {
+  if (!user) return;
+
+  // Popuni polja za ovlašćeno lice
+  const ovlascenoLicePibField = document.getElementById("ovlasteno_lice_pib");
+  const ovlascenoLiceImeField = document.getElementById("ovlasteno_lice_ime");
+
+  if (ovlascenoLicePibField && user.jmbg) {
+    ovlascenoLicePibField.value = user.jmbg;
+  }
+  
+  if (ovlascenoLiceImeField && user.ime && user.prezime) {
+    ovlascenoLiceImeField.value = `${user.ime} ${user.prezime}`;
+  }
+
+  console.log("Podaci o ovlašćenom licu popunjeni:", {
+    ime: user.ime,
+    prezime: user.prezime,
+    jmbg: user.jmbg
+  });
 }
 
 // Funkcija za automatsko popunjavanje podataka firme

@@ -24,6 +24,9 @@ function loadUsers() {
       email: "admin@summasummarum.me",
       phone: "+382 67 440 040",
       address: "Popa Dukljanina 2, Bar",
+      ime: "Željko",
+      prezime: "Đuranović",
+      jmbg: "1606981220012",
     },
     {
       id: 2,
@@ -32,6 +35,9 @@ function loadUsers() {
       email: "ana@summasummarum.me",
       phone: "+382 67 111 111",
       address: "Ana adresa 1",
+      ime: "Ana",
+      prezime: "Marić",
+      jmbg: "1234567890123",
     },
     {
       id: 3,
@@ -40,6 +46,9 @@ function loadUsers() {
       email: "marko@summasummarum.me",
       phone: "+382 67 222 222",
       address: "Marko adresa 1",
+      ime: "Marko",
+      prezime: "Petrović",
+      jmbg: "2345678901234",
     },
   ];
 }
@@ -98,22 +107,22 @@ const authController = {
 
   // Registracija
   register: (req, res) => {
-    const { username, email, password, phone, address } = req.body;
+    const { username, email, password, phone, address, ime, prezime, jmbg } = req.body;
 
-    // Validacija
-    if (!username || !email || !password) {
+    // Validacija obaveznih polja
+    if (!username || !email || !password || !ime || !prezime || !jmbg) {
       return res.status(400).json({
-        message: "Korisničko ime, email i lozinka su obavezni",
+        message: "Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni",
       });
     }
 
     // Proveri da li korisnik već postoji
     const existingUser = users.find(
-      (u) => u.username === username || u.email === email
+      (u) => u.username === username || u.email === email || u.jmbg === jmbg
     );
     if (existingUser) {
       return res.status(400).json({
-        message: "Korisnik sa ovim korisničkim imenom ili email-om već postoji",
+        message: "Korisnik sa ovim korisničkim imenom, email-om ili JMBG-om već postoji",
       });
     }
 
@@ -141,6 +150,26 @@ const authController = {
       });
     }
 
+    // JMBG validacija
+    if (!/^[0-9]{13}$/.test(jmbg)) {
+      return res.status(400).json({
+        message: "JMBG mora imati tačno 13 cifara",
+      });
+    }
+
+    // Ime/prezime validacija
+    if (ime.trim().length < 2 || ime.trim().length > 50) {
+      return res.status(400).json({
+        message: "Ime mora imati između 2 i 50 karaktera",
+      });
+    }
+
+    if (prezime.trim().length < 2 || prezime.trim().length > 50) {
+      return res.status(400).json({
+        message: "Prezime mora imati između 2 i 50 karaktera",
+      });
+    }
+
     // Kreiraj novog korisnika
     const newUser = {
       id: Math.max(0, ...users.map((u) => u.id)) + 1, // Sigurniji način za ID
@@ -149,6 +178,9 @@ const authController = {
       email,
       phone: phone || "",
       address: address || "",
+      ime: ime.trim(),
+      prezime: prezime.trim(),
+      jmbg,
     };
 
     users.push(newUser);
@@ -187,6 +219,8 @@ const authController = {
         id: newUser.id,
         username: newUser.username,
         email: newUser.email,
+        ime: newUser.ime,
+        prezime: newUser.prezime,
       },
     });
   },

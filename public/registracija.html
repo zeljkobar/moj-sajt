@@ -208,6 +208,67 @@
                     </div>
                   </div>
 
+                  <!-- Nova polja za ime, prezime i JMBG -->
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="regIme" class="form-label"
+                        >Ime *</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regIme"
+                        name="ime"
+                        required
+                        minlength="2"
+                        maxlength="50"
+                        placeholder="Unesite vaše ime"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="regPrezime" class="form-label"
+                        >Prezime *</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regPrezime"
+                        name="prezime"
+                        required
+                        minlength="2"
+                        maxlength="50"
+                        placeholder="Unesite vaše prezime"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12 mb-3">
+                      <label for="regJmbg" class="form-label"
+                        >JMBG *</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regJmbg"
+                        name="jmbg"
+                        required
+                        pattern="[0-9]{13}"
+                        maxlength="13"
+                        placeholder="Unesite JMBG (13 cifara)"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca (13 cifara)
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="row">
                     <div class="col-12 mb-4">
                       <div class="form-check">
@@ -268,6 +329,9 @@
               passwordConfirm: formData.get("passwordConfirm"),
               phone: formData.get("phone"),
               address: formData.get("address"),
+              ime: formData.get("ime"),
+              prezime: formData.get("prezime"),
+              jmbg: formData.get("jmbg"),
             };
 
             // Client-side validacija
@@ -287,6 +351,23 @@
               showRegistrationError(
                 "Korisničko ime može sadržavati samo slova, brojeve i _ (3-20 karaktera)!"
               );
+              return;
+            }
+
+            // JMBG validacija
+            if (!data.jmbg || data.jmbg.length !== 13 || !/^[0-9]{13}$/.test(data.jmbg)) {
+              showRegistrationError("JMBG mora imati tačno 13 cifara!");
+              return;
+            }
+
+            // Ime/prezime validacija
+            if (!data.ime || data.ime.trim().length < 2) {
+              showRegistrationError("Ime mora imati najmanje 2 karaktera!");
+              return;
+            }
+
+            if (!data.prezime || data.prezime.trim().length < 2) {
+              showRegistrationError("Prezime mora imati najmanje 2 karaktera!");
               return;
             }
 
