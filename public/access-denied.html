@@ -6,23 +6,23 @@
     <title>Pristup zabranjen | Summa Summarum</title>
     
     <!-- Favicon -->
-    <link rel="icon" href="images/favicon/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="images/favicon/apple-touch-icon.png"
+      href="/images/favicon/apple-touch-icon.png"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="images/favicon/favicon-32x32.png"
+      href="/images/favicon/favicon-32x32.png"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="16x16"
-      href="images/favicon/favicon-16x16.png"
+      href="/images/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="/site.webmanifest" />
     
@@ -49,7 +49,7 @@
         padding: 60px 40px;
         border-radius: 20px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 500px;
+        max-width: 600px;
         width: 90%;
       }
       .lock-icon {
@@ -126,15 +126,26 @@
       <div class="lock-icon">
         <i class="fas fa-lock"></i>
       </div>
-      <h1 class="title">Pristup zabranjen</h1>
+      <h1 class="title">🔒 Pristup zabranjen</h1>
       <p class="message">
-        Niste ulogovani u sistem.<br />
-        Molimo prijavite se da biste pristupili ovoj stranici.
+        Morate biti prijavljeni da biste pristupili ovoj stranici.<br />
+        <strong>PDV prijave, porezi na dobit i ostale funkcionalnosti su dostupne samo registrovanim korisnicima.</strong>
       </p>
       <a href="/" class="login-btn">
         <i class="fas fa-sign-in-alt me-2"></i>
-        Idite na početnu i prijavite se
+        Prijavite se ili registrujte se
       </a>
+      <br />
+      <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: left;">
+        <h5 style="color: #495057; margin-bottom: 15px;"><i class="fas fa-info-circle me-2"></i>Šta možete raditi na portalu:</h5>
+        <ul style="color: #6c757d; list-style: none; padding: 0;">
+          <li style="margin: 8px 0;"><i class="fas fa-check text-success me-2"></i>PDV prijave i izvozi</li>
+          <li style="margin: 8px 0;"><i class="fas fa-check text-success me-2"></i>Prijave poreza na dobit</li>
+          <li style="margin: 8px 0;"><i class="fas fa-check text-success me-2"></i>Upravljanje firmama</li>
+          <li style="margin: 8px 0;"><i class="fas fa-check text-success me-2"></i>Masovno preuzimanje PDV nula</li>
+          <li style="margin: 8px 0;"><i class="fas fa-check text-success me-2"></i>Automatizacija poreskih procesa</li>
+        </ul>
+      </div>
       <br />
       <a href="/" class="home-link">
         <i class="fas fa-home me-1"></i>

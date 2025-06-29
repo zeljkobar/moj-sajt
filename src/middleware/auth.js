@@ -15,11 +15,11 @@ const authMiddleware = (req, res, next) => {
       // For API/AJAX requests, return JSON error
       return res.status(401).json({ msg: "Korisnik nije autentifikovan" });
     } else {
-      // For browser requests, send HTML page
+      // For browser requests, send HTML page with additional context
       res
         .status(401)
         .sendFile(
-          path.join(__dirname, "..", "..", "public", "access-denied.html")
+          path.join(__dirname, "..", "..", "public", "access-denied-dynamic.html")
         );
     }
   }

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pristup zabranjen | Summa Summarum</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/site.webmanifest" />
+    
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Arial", sans-serif;
+      }
+      .access-denied-container {
+        text-align: center;
+        background: white;
+        padding: 60px 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 650px;
+        width: 90%;
+        margin: 20px;
+        animation: slideIn 0.6s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .lock-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 30px;
+        animation: shake 2s infinite;
+      }
+      @keyframes shake {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateX(0);
+        }
+        10% {
+          transform: translateX(-10px);
+        }
+        30% {
+          transform: translateX(10px);
+        }
+        60% {
+          transform: translateX(-5px);
+        }
+        90% {
+          transform: translateX(5px);
+        }
+      }
+      .title {
+        color: #333;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .message {
+        color: #666;
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        line-height: 1.6;
+      }
+      .login-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      }
+      .login-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        color: white;
+      }
+      .home-link {
+        color: #6c757d;
+        text-decoration: none;
+        margin-top: 20px;
+        display: inline-block;
+        transition: color 0.3s ease;
+      }
+      .home-link:hover {
+        color: #495057;
+      }
+      .info-section {
+        margin-top: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        text-align: left;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0 0 0;
+      }
+      .feature-list li {
+        margin: 10px 0;
+        color: #6c757d;
+        font-size: 1rem;
+      }
+      .page-specific {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 5px solid #ffc107;
+      }
+      .page-specific.pdv {
+        background: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+        border-left-color: #17a2b8;
+      }
+      .page-specific.dobit {
+        background: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+        border-left-color: #28a745;
+      }
+      .responsive-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      @media (max-width: 576px) {
+        .responsive-buttons {
+          flex-direction: column;
+        }
+        .login-btn {
+          width: 100%;
+          margin: 5px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="access-denied-container">
+      <div class="lock-icon">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h1 class="title">🔒 Pristup zabranjen</h1>
+      
+      <div id="page-specific-message" class="page-specific" style="display: none;">
+        <!-- Dinamički sadržaj na osnovu stranice -->
+      </div>
+      
+      <p class="message">
+        Morate biti prijavljeni da biste pristupili ovoj stranici.<br />
+        <strong>PDV prijave, porezi na dobit i ostale funkcionalnosti su dostupne samo registrovanim korisnicima.</strong>
+      </p>
+      
+      <div class="responsive-buttons">
+        <a href="/" class="login-btn">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          Prijavite se
+        </a>
+        <a href="/registracija.html" class="login-btn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+          <i class="fas fa-user-plus me-2"></i>
+          Registrujte se
+        </a>
+      </div>
+      
+      <div class="info-section">
+        <h5 style="color: #495057; margin-bottom: 15px;">
+          <i class="fas fa-info-circle me-2"></i>Šta možete raditi na Summa Summarum portalu:
+        </h5>
+        <ul class="feature-list">
+          <li><i class="fas fa-check text-success me-2"></i><strong>PDV prijave i XML eksport</strong> - Kreiranje i preuzimanje PDV prijava</li>
+          <li><i class="fas fa-check text-success me-2"></i><strong>Prijave poreza na dobit</strong> - Kompletno upravljanje porezom na dobit</li>
+          <li><i class="fas fa-check text-success me-2"></i><strong>Upravljanje firmama</strong> - Dodavanje, editovanje i pregled firmi</li>
+          <li><i class="fas fa-check text-success me-2"></i><strong>PDV nule - masovno</strong> - Preuzimanje nulti za više firmi odjednom</li>
+          <li><i class="fas fa-check text-success me-2"></i><strong>Automatizacija</strong> - Efikasniji poreskih proces</li>
+        </ul>
+      </div>
+      
+      <br />
+      <a href="/" class="home-link">
+        <i class="fas fa-home me-1"></i>
+        Nazad na početnu
+      </a>
+    </div>
+
+    <script>
+      // Dinamički sadržaj na osnovu stranice
+      function detectPageType() {
+        const currentPath = window.location.pathname;
+        const messageDiv = document.getElementById('page-specific-message');
+        
+        if (currentPath.includes('pdv_prijava')) {
+          messageDiv.innerHTML = `
+            <strong><i class="fas fa-file-invoice me-2"></i>PDV Prijava</strong><br>
+            Pokušavate pristupiti PDV prijavi. Ova funkcionalnost omogućava kreiranje, 
+            pregled i eksport PDV prijava u XML formatu.
+          `;
+          messageDiv.className = 'page-specific pdv';
+          messageDiv.style.display = 'block';
+        } else if (currentPath.includes('dobit_prijava')) {
+          messageDiv.innerHTML = `
+            <strong><i class="fas fa-calculator me-2"></i>Porez na dobit</strong><br>
+            Pokušavate pristupiti prijavi poreza na dobit. Ovde možete kreirati kompletne 
+            prijave poreza na dobit sa automatskim kalkulacijama.
+          `;
+          messageDiv.className = 'page-specific dobit';
+          messageDiv.style.display = 'block';
+        } else if (currentPath.includes('dashboard')) {
+          messageDiv.innerHTML = `
+            <strong><i class="fas fa-tachometer-alt me-2"></i>Dashboard</strong><br>
+            Dashboard vam omogućava pregled svih vaših firmi, statistika i brz pristup 
+            svim funkcionalnostima portala.
+          `;
+          messageDiv.className = 'page-specific';
+          messageDiv.style.display = 'block';
+        } else if (currentPath.includes('firme')) {
+          messageDiv.innerHTML = `
+            <strong><i class="fas fa-building me-2"></i>Upravljanje firmama</strong><br>
+            Ovde možete dodavati nove firme, editovati postojeće i upravljati 
+            vašim portfolio-om firmi.
+          `;
+          messageDiv.className = 'page-specific';
+          messageDiv.style.display = 'block';
+        }
+      }
+      
+      // Pozovi funkciju kada se stranica učita
+      document.addEventListener('DOMContentLoaded', detectPageType);
+    </script>
+  </body>
+</html>
