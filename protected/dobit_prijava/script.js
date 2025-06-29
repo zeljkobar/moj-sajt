@@ -1,5 +1,4 @@
 let izabranaFirma, naziv, pib, adresa;
-let godina = 2024;
 let isCheked = false;
 
 let OvlascenoLicePrezimeIme = "";
@@ -11,6 +10,35 @@ const form = document.querySelector("form");
 const inputs = form.querySelectorAll("input");
 const select = document.getElementById("mySelect");
 const vrijednostiPolja = [];
+
+// Funkcija za dobijanje godine iz input polja
+function getGodina() {
+  const godinaInput = document.getElementById("godina");
+  return godinaInput ? parseInt(godinaInput.value) || 2024 : 2024;
+}
+
+// Funkcija za ažuriranje godina u labelima
+function updateGodine() {
+  const trenutnaGodina = getGodina();
+
+  // Ažuriranje PG1 sekcije (poslovni gubici)
+  for (let i = 1; i <= 5; i++) {
+    const godina = trenutnaGodina - i;
+    const label = document.querySelector(`label[for="pg1_2${i}"]`);
+    if (label) {
+      label.textContent = `${godina} godina`;
+    }
+  }
+
+  // Ažuriranje PG2 sekcije (kapitalni gubici)
+  for (let i = 1; i <= 5; i++) {
+    const godina = trenutnaGodina - i;
+    const label = document.querySelector(`label[for="pg2_2${i}"]`);
+    if (label) {
+      label.textContent = `${godina} godina`;
+    }
+  }
+}
 
 let rezultat,
   dobit9,
@@ -68,6 +96,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.error("Greška pri učitavanju firmi:", error);
+  }
+
+  // Ažuriraj godine pri učitavanju stranice
+  updateGodine();
+
+  // Dodaj event listener za promenu godine
+  const godinaInput = document.getElementById("godina");
+  if (godinaInput) {
+    godinaInput.addEventListener("input", updateGodine);
+    godinaInput.addEventListener("change", updateGodine);
   }
 });
 
@@ -370,6 +408,13 @@ document.getElementById("download-btn").addEventListener(
       return;
     }
 
+    const godina = getGodina();
+
+    if (godina < 2020 || godina > 2030) {
+      alert("Molimo unesite validnu godinu (2020-2030)");
+      return;
+    }
+
     inputs.forEach(function (input) {
       vrijednostiPolja[input.name] = parseFloat(input.value);
       if (!vrijednostiPolja[input.name]) {
@@ -382,8 +427,8 @@ document.getElementById("download-btn").addEventListener(
     <PortalCitReturn2025 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
       <PIB>${pib}</PIB>
       <Godina>${godina}</Godina>
-      <Od>2024-01-01T00:00:00</Od>
-      <Do>2024-12-31T00:00:00</Do>
+      <Od>${godina}-01-01T00:00:00</Od>
+      <Do>${godina}-12-31T00:00:00</Do>
       <Izmijenjena>${isCheked}</Izmijenjena>
       <Naziv>${izabranaFirma.naziv}</Naziv>
       <Rezident>true</Rezident>
@@ -490,7 +535,7 @@ document.getElementById("download-btn").addEventListener(
     </PortalCitReturn2025>
     `;
     console.log(izabranaFirma.naziv);
-    var filename = `${izabranaFirma.naziv}.xml`;
+    var filename = `${izabranaFirma.naziv}_${godina}.xml`;
     download(filename, text);
   },
   false

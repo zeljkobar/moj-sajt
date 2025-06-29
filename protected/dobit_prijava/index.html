@@ -5,6 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Porez na dobit</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <script src="podaci.js" defer></script>
     <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
@@ -13,6 +17,16 @@
     <div class="container">
       <h1>Izrada prijave poreza na dobit</h1>
       <form action="index.html" id="forma" method="post">
+        <label for="godina">Godina</label>
+        <input
+          type="number"
+          id="godina"
+          name="godina"
+          value="2024"
+          min="2020"
+          max="2030"
+        />
+        <br />
         <label for="mySelect">Izaberi firmu</label>
         <select id="mySelect"></select>
         <label for="checkbox">Izmjenjena prijava</label>
@@ -426,8 +440,23 @@
         <input type="number" id="pg2_3" name="pg2_3" />
         <br />
         <br /><br />
-        <button type="button" id="download-btn">izvezi xml</button>
       </form>
+
+      <div class="action-buttons">
+        <button id="download-btn">
+          <i class="fas fa-file-code"></i> Preuzmi kao XML
+        </button>
+        <button
+          id="backButton"
+          onclick="window.location.href='/dashboard.html'"
+        >
+          <i class="fas fa-arrow-left"></i> Nazad na dashboard
+        </button>
+      </div>
     </div>
+
+    <footer>
+      <p>© 2025 Summa Summarum. Sva prava zadržana.</p>
+    </footer>
   </body>
 </html>

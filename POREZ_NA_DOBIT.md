@@ -7,6 +7,7 @@ Dodana je nova funkcionalnost za automatsko izračunavanje poreza na dobit sa di
 ## Nova Funkcionalnost
 
 ### 1. Dinamičko Učitavanje Firmi
+
 - **Izvor podataka**: `/api/firme` endpoint
 - **Autentifikacija**: Koristi se session-based authentication
 - **Struktura podataka**: Firme se učitavaju sa sledećim podacima:
@@ -15,11 +16,13 @@ Dodana je nova funkcionalnost za automatsko izračunavanje poreza na dobit sa di
   - `adresa` - adresa firme
 
 ### 2. Dropdown Lista Firmi
+
 - Automatsko popunjavanje dropdown-a pri učitavanju stranice
 - Format: "Naziv firme (PIB: 123456789)"
 - Prazan option na vrhu za početnu selekciju
 
 ### 3. Automatski Podaci Ovlašćenog Lica
+
 - Učitavaju se iz trenutno ulogovanog korisnika
 - Popunjavaju se sledeći podaci:
   - Prezime i ime (iz `ime` i `prezime`)
@@ -30,11 +33,13 @@ Dodana je nova funkcionalnost za automatsko izračunavanje poreza na dobit sa di
 ### 4. Kalkulacija Poreza na Dobit
 
 #### Progresivne Stope:
+
 - **9%** - na deo osnovice do 100.000 KM
-- **12%** - na deo osnovice od 100.001 do 1.500.000 KM  
+- **12%** - na deo osnovice od 100.001 do 1.500.000 KM
 - **15%** - na deo osnovice preko 1.500.000 KM
 
 #### Automatski Izračuni:
+
 - Dobit/Gubitak na osnovu bilansa stanja
 - Povećanja i smanjenja poreske osnovice
 - Kapitalni dobitak/gubitak
@@ -43,6 +48,7 @@ Dodana je nova funkcionalnost za automatsko izračunavanje poreza na dobit sa di
 - Razliku između obaveze i plaćenog poreza
 
 ### 5. XML Export
+
 - Generiše se XML fajl u formatu `PortalCitReturn2025`
 - Automatski se koristi naziv firme kao ime fajla
 - Uključuje sve kalkulisane vrednosti
@@ -50,6 +56,7 @@ Dodana je nova funkcionalnost za automatsko izračunavanje poreza na dobit sa di
 ## Tehničke Karakteristike
 
 ### Frontend (script.js)
+
 ```javascript
 // Učitavanje firmi iz baze
 const responseFirme = await fetch("/api/firme", {
@@ -70,23 +77,28 @@ switch (true) {
 ```
 
 ### Automatska Kalkulacija
+
 - Svi izračuni se ažuriraju u realnom vremenu
 - Event listeneri na `blur` za sve input polja
 - Validacija podataka pre XML eksporta
 
 ### Navigacija
+
 - Enter key omogućava prelazak na sledeće polje
 - Fokus se automatski postavlja na sledeći element
 
 ## API Integracija
 
 ### Endpoint: `/api/check-auth`
+
 - Proverava autentifikaciju korisnika
 - Vraća podatke o korisniku za automatsko popunjavanje
 
 ### Endpoint: `/api/firme`
+
 - Vraća listu firmi za trenutno ulogovanog korisnika
 - Format odgovora:
+
 ```json
 {
   "firme": [
@@ -102,12 +114,14 @@ switch (true) {
 ## Fajlovi
 
 ### Novi Fajlovi:
+
 - `protected/dobit_prijava/index.html` - Forma za unos podataka
 - `protected/dobit_prijava/script.js` - JavaScript funkcionalnost
 - `protected/dobit_prijava/style.css` - Stilizovanje
 - `protected/dobit_prijava/podaci.js` - Pomoćni podaci
 
 ### Glavne Funkcije:
+
 1. `populateFirmeDropdown()` - Popunjava dropdown sa firmama
 2. `populateUserData(user)` - Popunjava podatke ovlašćenog lica
 3. `preracun(vrijednosti)` - Glavni izračun poreza
