@@ -10,7 +10,7 @@ router.get("/test-db", async (req, res) => {
     const testResults = {
       timestamp: new Date().toISOString(),
       database: process.env.DB_NAME || "not_configured",
-      host: process.env.DB_HOST || "not_configured", 
+      host: process.env.DB_HOST || "not_configured",
       user: process.env.DB_USER || "not_configured",
       status: "checking...",
       details: {},
@@ -78,14 +78,14 @@ router.get("/test-db", async (req, res) => {
         code: error.code,
         message: error.message,
         sqlMessage: error.sqlMessage || null,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : null
+        stack: process.env.NODE_ENV === "development" ? error.stack : null,
       },
       config: {
         DB_HOST: process.env.DB_HOST || "not_set",
-        DB_USER: process.env.DB_USER || "not_set", 
+        DB_USER: process.env.DB_USER || "not_set",
         DB_NAME: process.env.DB_NAME || "not_set",
         DB_PORT: process.env.DB_PORT || "not_set",
-        NODE_ENV: process.env.NODE_ENV || "not_set"
+        NODE_ENV: process.env.NODE_ENV || "not_set",
       },
       timestamp: new Date().toISOString(),
     });
@@ -128,13 +128,53 @@ router.get("/test-env", (req, res) => {
     env: {
       NODE_ENV: process.env.NODE_ENV || "not_set",
       DB_HOST: process.env.DB_HOST || "not_set",
-      DB_USER: process.env.DB_USER || "not_set", 
+      DB_USER: process.env.DB_USER || "not_set",
       DB_NAME: process.env.DB_NAME || "not_set",
       DB_PORT: process.env.DB_PORT || "not_set",
       DB_PASSWORD: process.env.DB_PASSWORD ? "***SET***" : "not_set",
-      SESSION_SECRET: process.env.SESSION_SECRET ? "***SET***" : "not_set"
+      SESSION_SECRET: process.env.SESSION_SECRET ? "***SET***" : "not_set",
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Debug ruta za MySQL konekciju (za Plesk troubleshooting)
+router.get("/test-mysql-info", (req, res) => {
+  const mysql = require('mysql2/promise');
+  
+  // Pokušaj sa osnovnim podacima
+  const config = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER, 
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306
+  };
+
+  res.json({
+    message: "MySQL connection info za Plesk",
+    config: {
+      host: config.host,
+      user: config.user,
+      database: config.database, 
+      port: config.port,
+      password_set: !!config.password
+    },
+    plesk_help: {
+      check_database_exists: `SHOW DATABASES LIKE '${config.database}';`,
+      check_user_privileges: `SHOW GRANTS FOR '${config.user}'@'${config.host}';`,
+      possible_database_names: [
+        config.database,
+        `${config.user}_${config.database}`,
+        `${config.user}_${config.database.replace('_', '')}`
+      ]
+    },
+    next_steps: [
+      "1. Proveri da li baza stvarno postoji u Plesk-u",
+      "2. Proveri da li korisnik ima privilegije na tu bazu", 
+      "3. Resetuj lozinku u Plesk-u ako treba",
+      "4. Možda je ime baze username_summasum_ umesto summasum_"
+    ]
   });
 });
 

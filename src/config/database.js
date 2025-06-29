@@ -1,6 +1,12 @@
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
+// Debug log za environment varijable
+console.log('🔍 Database config debug:');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_NAME:', process.env.DB_NAME);
+
 // Database configuration
 const dbConfig = {
   host: process.env.DB_HOST || "localhost",
@@ -12,6 +18,8 @@ const dbConfig = {
   connectionLimit: 10,
   queueLimit: 0
 };
+
+console.log('🔧 Final DB config:', { ...dbConfig, password: '***' });
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);
