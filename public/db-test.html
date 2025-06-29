@@ -105,14 +105,17 @@
             </div>
           </div>
         </div>
-        
+
         <div class="col-md-6">
           <div class="card test-card">
             <div class="card-header bg-dark text-white">
               <i class="fas fa-bug"></i> Connection Debug
             </div>
             <div class="card-body">
-              <button class="btn btn-dark w-100" onclick="testConnectionDebug()">
+              <button
+                class="btn btn-dark w-100"
+                onclick="testConnectionDebug()"
+              >
                 Debug Connection
               </button>
               <div id="debug-result" class="mt-3"></div>
@@ -144,11 +147,10 @@
           <li>
             <code>GET /api/test/test-env</code> - Test environment varijabli
           </li>
+          <li><code>GET /api/test/test-mysql-info</code> - MySQL Plesk info</li>
           <li>
-            <code>GET /api/test/test-mysql-info</code> - MySQL Plesk info
-          </li>
-          <li>
-            <code>GET /api/test/debug-connection</code> - Detaljni connection debug
+            <code>GET /api/test/debug-connection</code> - Detaljni connection
+            debug
           </li>
         </ul>
       </div>
