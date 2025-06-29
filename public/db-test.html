@@ -92,7 +92,7 @@
       </div>
 
       <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
           <div class="card test-card">
             <div class="card-header bg-danger text-white">
               <i class="fas fa-tools"></i> MySQL Troubleshooting
@@ -102,6 +102,20 @@
                 MySQL Plesk Info
               </button>
               <div id="mysql-result" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card test-card">
+            <div class="card-header bg-dark text-white">
+              <i class="fas fa-bug"></i> Connection Debug
+            </div>
+            <div class="card-body">
+              <button class="btn btn-dark w-100" onclick="testConnectionDebug()">
+                Debug Connection
+              </button>
+              <div id="debug-result" class="mt-3"></div>
             </div>
           </div>
         </div>
@@ -129,6 +143,12 @@
           </li>
           <li>
             <code>GET /api/test/test-env</code> - Test environment varijabli
+          </li>
+          <li>
+            <code>GET /api/test/test-mysql-info</code> - MySQL Plesk info
+          </li>
+          <li>
+            <code>GET /api/test/debug-connection</code> - Detaljni connection debug
           </li>
         </ul>
       </div>
@@ -251,22 +271,33 @@
 
       async function testMySQLInfo() {
         try {
-          const response = await fetch("/api/test/mysql-info");
+          const response = await fetch("/api/test/test-mysql-info");
           const data = await response.json();
 
-          if (data.success) {
-            const message = `MySQL Version: ${data.version}<br>Host: ${data.host}<br>Port: ${data.port}`;
-            showResult("mysql-result", true, message, data);
-          } else {
-            showResult(
-              "mysql-result",
-              false,
-              data.message || "MySQL error",
-              data
-            );
-          }
+          const message = `Config: ${data.config.host}:${data.config.port}/${data.config.database}<br>User: ${data.config.user}`;
+          showResult("mysql-result", true, message, data);
         } catch (error) {
           showResult("mysql-result", false, `Network error: ${error.message}`);
+        }
+      }
+
+      async function testConnectionDebug() {
+        try {
+          const response = await fetch("/api/test/debug-connection");
+          const data = await response.json();
+
+          if (data.overall_success) {
+            const connInfo = data.tests.user_info;
+            const hostInfo = data.tests.process_info;
+            const message = `✅ Connected as: ${connInfo.current_user}<br>Host seen by MySQL: ${hostInfo.host_as_seen_by_mysql}<br>Tables: ${data.tests.table_access.tables_count}`;
+            showResult("debug-result", true, message, data);
+          } else {
+            const error = data.tests.connection;
+            const message = `❌ ${error.error_code}: ${error.error_message}`;
+            showResult("debug-result", false, message, data);
+          }
+        } catch (error) {
+          showResult("debug-result", false, `Network error: ${error.message}`);
         }
       }
 

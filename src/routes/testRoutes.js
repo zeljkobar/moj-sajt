@@ -178,4 +178,134 @@ router.get("/test-mysql-info", (req, res) => {
   });
 });
 
+// Detaljni debug za MySQL konekciju
+router.get("/debug-connection", async (req, res) => {
+  const mysql = require('mysql2/promise');
+  
+  const config = {
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "summasum_local"
+  };
+  
+  const result = {
+    config: { ...config, password: '***' },
+    tests: {},
+    timestamp: new Date().toISOString()
+  };
+  
+  try {
+    console.log('🚀 Debug connection test starting...');
+    const connection = await mysql.createConnection(config);
+    
+    result.tests.connection = { success: true, message: "Connection successful" };
+    
+    // Test 1: Get current user info
+    try {
+      const [userResult] = await connection.execute('SELECT USER() as current_user, CONNECTION_ID() as connection_id');
+      result.tests.user_info = {
+        success: true,
+        current_user: userResult[0].current_user,
+        connection_id: userResult[0].connection_id
+      };
+    } catch (err) {
+      result.tests.user_info = { success: false, error: err.message };
+    }
+    
+    // Test 2: Get MySQL server info
+    try {
+      const [hostResult] = await connection.execute('SELECT @@hostname as hostname, @@port as port, @@version as version');
+      result.tests.server_info = {
+        success: true,
+        hostname: hostResult[0].hostname,
+        port: hostResult[0].port,
+        version: hostResult[0].version
+      };
+    } catch (err) {
+      result.tests.server_info = { success: false, error: err.message };
+    }
+    
+    // Test 3: Check process list to see how connection appears
+    try {
+      const [processResult] = await connection.execute('SHOW PROCESSLIST');
+      const myProcess = processResult.find(p => p.User === config.user);
+      result.tests.process_info = {
+        success: true,
+        host_as_seen_by_mysql: myProcess ? myProcess.Host : 'not found',
+        total_connections: processResult.length
+      };
+    } catch (err) {
+      result.tests.process_info = { success: false, error: err.message };
+    }
+    
+    // Test 4: Check database access
+    try {
+      const [dbResult] = await connection.execute('SELECT DATABASE() as current_db');
+      result.tests.database_access = {
+        success: true,
+        current_database: dbResult[0].current_db
+      };
+    } catch (err) {
+      result.tests.database_access = { success: false, error: err.message };
+    }
+    
+    // Test 5: Check table access
+    try {
+      const [tables] = await connection.execute('SHOW TABLES');
+      result.tests.table_access = {
+        success: true,
+        tables_count: tables.length,
+        tables: tables.map(t => Object.values(t)[0])
+      };
+    } catch (err) {
+      result.tests.table_access = { success: false, error: err.message };
+    }
+    
+    // Test 6: Test korisnici table specifically
+    try {
+      const [korisniciTest] = await connection.execute('SELECT COUNT(*) as count FROM korisnici');
+      result.tests.korisnici_table = {
+        success: true,
+        rows_count: korisniciTest[0].count
+      };
+    } catch (err) {
+      result.tests.korisnici_table = { success: false, error: err.message };
+    }
+    
+    await connection.end();
+    
+    result.overall_success = true;
+    
+  } catch (error) {
+    result.tests.connection = { 
+      success: false, 
+      error_code: error.code,
+      error_message: error.message,
+      sql_state: error.sqlState
+    };
+    result.overall_success = false;
+    
+    // Add troubleshooting suggestions
+    result.troubleshooting = {
+      error_analysis: {
+        "ER_ACCESS_DENIED_ERROR": "User/password/host privilege problem",
+        "ER_BAD_DB_ERROR": "Database does not exist", 
+        "ECONNREFUSED": "MySQL server not running or wrong port",
+        "ENOTFOUND": "Wrong hostname/IP address"
+      },
+      suggested_fixes: [
+        "Check user privileges in phpMyAdmin",
+        "Verify database name in Plesk",
+        "Grant privileges: GRANT ALL ON summasum_.* TO 'zeljko'@'%'",
+        "Flush privileges: FLUSH PRIVILEGES",
+        "Restart Node.js application after .env changes"
+      ]
+    };
+  }
+  
+  res.json(result);
+});
+
 module.exports = router;
