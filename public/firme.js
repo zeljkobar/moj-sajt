@@ -221,8 +221,6 @@ function editFirm(pib) {
 
 // Delete firma function
 async function deleteFirm(pib, naziv) {
-  console.log("deleteFirm pozvan sa:", { pib, naziv });
-
   if (!confirm(`Da li ste sigurni da želite da obrišete firmu "${naziv}"?`)) {
     return;
   }
