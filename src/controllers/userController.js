@@ -135,6 +135,93 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// PUT /api/users/change-password - Change current user's password
+exports.changePassword = async (req, res) => {
+  try {
+    console.log("Change password request received");
+    console.log("Session:", req.session);
+    console.log("Session user:", req.session?.user);
+
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({ msg: "Korisnik nije autentifikovan" });
+    }
+
+    const username = req.session.user.username;
+    console.log("Username from session:", username);
+
+    if (!username) {
+      return res.status(400).json({ msg: "Username nije pronađen u sesiji" });
+    }
+
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    console.log("Request body:", {
+      hasCurrentPassword: !!currentPassword,
+      hasNewPassword: !!newPassword,
+      hasConfirmPassword: !!confirmPassword,
+      newPasswordLength: newPassword?.length,
+    });
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ msg: "Sva polja su obavezna" });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ msg: "Nova lozinka mora imati najmanje 6 karaktera" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ msg: "Nova lozinka i potvrda se ne poklapaju" });
+    }
+
+    // Get current user's password
+    const users = await executeQuery(
+      "SELECT password FROM users WHERE username = ?",
+      [username]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ msg: "Korisnik nije pronađen" });
+    }
+
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(
+      currentPassword,
+      users[0].password
+    );
+
+    if (!isValidPassword) {
+      return res.status(400).json({ msg: "Trenutna lozinka nije ispravna" });
+    }
+
+    // Check if new password is different from current
+    const isSamePassword = await bcrypt.compare(newPassword, users[0].password);
+
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .json({ msg: "Nova lozinka mora biti različita od trenutne" });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await executeQuery(
+      "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE username = ?",
+      [hashedNewPassword, username]
+    );
+
+    res.json({ msg: "Lozinka je uspešno promenjena" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
 // GET /api/users/:id
 exports.getUserById = async (req, res) => {
   try {

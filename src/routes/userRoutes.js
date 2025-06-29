@@ -9,6 +9,7 @@ router.route("/").get(ctrl.getUsers).post(ctrl.createUser);
 // Profile management routes (require authentication)
 router.get("/current", authMiddleware, ctrl.getCurrentUser);
 router.put("/profile", authMiddleware, ctrl.updateProfile);
+router.put("/change-password", authMiddleware, ctrl.changePassword);
 
 router
   .route("/:id")
