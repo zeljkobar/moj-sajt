@@ -111,6 +111,27 @@ app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api/firme", firmeRoutes);
 
+// Zaštićena ruta za prijavu poreza na dobit
+app.get("/dobit_prijava/index.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/protected/dobit_prijava/index.html");
+});
+
+// Zaštićene rute za sve dobit prijava resurse
+app.get("/dobit_prijava/:file", authMiddleware, (req, res) => {
+  const fileName = req.params.file;
+
+  // Dozvoljavamo pristup CSS, JS i ostalim statičkim fajlovima
+  if (
+    fileName.endsWith(".css") ||
+    fileName.endsWith(".js") ||
+    fileName.endsWith(".html")
+  ) {
+    res.sendFile(__dirname + `/protected/dobit_prijava/${fileName}`);
+  } else {
+    res.status(404).send("File not found");
+  }
+});
+
 // fallback 404
 app.use((req, res) => {
   res.status(404).json({ msg: "Ruta nije pronađena" });

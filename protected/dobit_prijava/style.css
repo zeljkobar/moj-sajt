@@ -1,0 +1,99 @@
+/* * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 90%;
+  height: auto;
+  margin: auto;
+  background-color: rgb(179, 184, 178);
+  border-radius: 10px;
+}
+
+h1 {
+  margin-bottom: 60px;
+}
+
+.forma {
+  text-align: left;
+  align-content: left;
+}
+
+label {
+  display: inline-block;
+  width: 500px;
+  font-size: 16px;
+  word-wrap: break-word;
+  text-align: left;
+  margin-top: 3px;
+}
+
+input:focus ~ label {
+  font-weight: bold;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#br {
+  margin-top: 50px;
+} */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+  background-color: #f0f4f8; /* svijetla pozadina */
+  border-radius: 10px;
+  padding: 20px;
+  color: #2c3e50; /* tamniji tekst */
+}
+
+h1 {
+  margin-bottom: 60px;
+  color: #333;
+}
+
+.forma {
+  text-align: left;
+  align-content: left;
+}
+
+label {
+  display: inline-block;
+  width: 500px;
+  font-size: 16px;
+  word-wrap: break-word;
+  text-align: left;
+  margin-top: 3px;
+  color: #444;
+}
+
+input:focus ~ label {
+  font-weight: bold;
+}
+
+input[type="number"] {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* dodan border-radius za inpute */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#br {
+  margin-top: 50px;
+}
