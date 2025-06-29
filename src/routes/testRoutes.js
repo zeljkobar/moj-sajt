@@ -9,7 +9,9 @@ router.get("/test-db", async (req, res) => {
 
     const testResults = {
       timestamp: new Date().toISOString(),
-      database: "summasum_",
+      database: process.env.DB_NAME || "not_configured",
+      host: process.env.DB_HOST || "not_configured", 
+      user: process.env.DB_USER || "not_configured",
       status: "checking...",
       details: {},
     };
@@ -69,13 +71,21 @@ router.get("/test-db", async (req, res) => {
   } catch (error) {
     console.error("❌ Greška u test DB ruti:", error);
 
-    res.status(500).json({
+    res.status(200).json({
       success: false,
       message: "❌ Greška pri testiranju baze podataka",
       error: {
         code: error.code,
         message: error.message,
         sqlMessage: error.sqlMessage || null,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : null
+      },
+      config: {
+        DB_HOST: process.env.DB_HOST || "not_set",
+        DB_USER: process.env.DB_USER || "not_set", 
+        DB_NAME: process.env.DB_NAME || "not_set",
+        DB_PORT: process.env.DB_PORT || "not_set",
+        NODE_ENV: process.env.NODE_ENV || "not_set"
       },
       timestamp: new Date().toISOString(),
     });
@@ -107,6 +117,24 @@ router.get("/test-session", (req, res) => {
     sessionId: req.sessionID,
     testCounter: req.session.testCounter,
     user: req.session.user || null,
+  });
+});
+
+// Debug ruta za env varijable (samo za development)
+router.get("/test-env", (req, res) => {
+  res.json({
+    success: true,
+    message: "Environment variables check",
+    env: {
+      NODE_ENV: process.env.NODE_ENV || "not_set",
+      DB_HOST: process.env.DB_HOST || "not_set",
+      DB_USER: process.env.DB_USER || "not_set", 
+      DB_NAME: process.env.DB_NAME || "not_set",
+      DB_PORT: process.env.DB_PORT || "not_set",
+      DB_PASSWORD: process.env.DB_PASSWORD ? "***SET***" : "not_set",
+      SESSION_SECRET: process.env.SESSION_SECRET ? "***SET***" : "not_set"
+    },
+    timestamp: new Date().toISOString()
   });
 });
 
