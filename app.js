@@ -9,6 +9,8 @@ const firmeRoutes = require("./src/routes/firmeRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const cors = require("cors");
 const session = require("express-session");
+const path = require("path");
+const fs = require("fs");
 
 // parsiranje JSON i form-data
 app.use(
@@ -19,6 +21,18 @@ app.use(
     credentials: true, // Omogući slanje cookies/session
   })
 );
+
+// Debug middleware - loguj sve zahteve
+app.use((req, res, next) => {
+  console.log(`📥 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`   Headers:`, {
+    "user-agent": req.headers["user-agent"],
+    accept: req.headers.accept,
+    "content-type": req.headers["content-type"],
+  });
+  next();
+});
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
