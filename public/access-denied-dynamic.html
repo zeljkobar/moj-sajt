@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pristup zabranjen | Summa Summarum</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon" />
     <link
@@ -25,7 +25,7 @@
       href="/images/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="/site.webmanifest" />
-    
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -193,40 +193,71 @@
         <i class="fas fa-lock"></i>
       </div>
       <h1 class="title">🔒 Pristup zabranjen</h1>
-      
-      <div id="page-specific-message" class="page-specific" style="display: none;">
+
+      <div
+        id="page-specific-message"
+        class="page-specific"
+        style="display: none"
+      >
         <!-- Dinamički sadržaj na osnovu stranice -->
       </div>
-      
+
       <p class="message">
         Morate biti prijavljeni da biste pristupili ovoj stranici.<br />
-        <strong>PDV prijave, porezi na dobit i ostale funkcionalnosti su dostupne samo registrovanim korisnicima.</strong>
+        <strong
+          >PDV prijave, porezi na dobit i ostale funkcionalnosti su dostupne
+          samo registrovanim korisnicima.</strong
+        >
       </p>
-      
+
       <div class="responsive-buttons">
         <a href="/" class="login-btn">
           <i class="fas fa-sign-in-alt me-2"></i>
           Prijavite se
         </a>
-        <a href="/registracija.html" class="login-btn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+        <a
+          href="/registracija.html"
+          class="login-btn"
+          style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%)"
+        >
           <i class="fas fa-user-plus me-2"></i>
           Registrujte se
         </a>
       </div>
-      
+
       <div class="info-section">
-        <h5 style="color: #495057; margin-bottom: 15px;">
-          <i class="fas fa-info-circle me-2"></i>Šta možete raditi na Summa Summarum portalu:
+        <h5 style="color: #495057; margin-bottom: 15px">
+          <i class="fas fa-info-circle me-2"></i>Šta možete raditi na Summa
+          Summarum portalu:
         </h5>
         <ul class="feature-list">
-          <li><i class="fas fa-check text-success me-2"></i><strong>PDV prijave i XML eksport</strong> - Kreiranje i preuzimanje PDV prijava</li>
-          <li><i class="fas fa-check text-success me-2"></i><strong>Prijave poreza na dobit</strong> - Kompletno upravljanje porezom na dobit</li>
-          <li><i class="fas fa-check text-success me-2"></i><strong>Upravljanje firmama</strong> - Dodavanje, editovanje i pregled firmi</li>
-          <li><i class="fas fa-check text-success me-2"></i><strong>PDV nule - masovno</strong> - Preuzimanje nulti za više firmi odjednom</li>
-          <li><i class="fas fa-check text-success me-2"></i><strong>Automatizacija</strong> - Efikasniji poreskih proces</li>
+          <li>
+            <i class="fas fa-check text-success me-2"></i
+            ><strong>PDV prijave i XML eksport</strong> - Kreiranje i
+            preuzimanje PDV prijava
+          </li>
+          <li>
+            <i class="fas fa-check text-success me-2"></i
+            ><strong>Prijave poreza na dobit</strong> - Kompletno upravljanje
+            porezom na dobit
+          </li>
+          <li>
+            <i class="fas fa-check text-success me-2"></i
+            ><strong>Upravljanje firmama</strong> - Dodavanje, editovanje i
+            pregled firmi
+          </li>
+          <li>
+            <i class="fas fa-check text-success me-2"></i
+            ><strong>PDV nule - masovno</strong> - Preuzimanje nulti za više
+            firmi odjednom
+          </li>
+          <li>
+            <i class="fas fa-check text-success me-2"></i
+            ><strong>Automatizacija</strong> - Efikasniji poreskih proces
+          </li>
         </ul>
       </div>
-      
+
       <br />
       <a href="/" class="home-link">
         <i class="fas fa-home me-1"></i>
@@ -238,45 +269,45 @@
       // Dinamički sadržaj na osnovu stranice
       function detectPageType() {
         const currentPath = window.location.pathname;
-        const messageDiv = document.getElementById('page-specific-message');
-        
-        if (currentPath.includes('pdv_prijava')) {
+        const messageDiv = document.getElementById("page-specific-message");
+
+        if (currentPath.includes("pdv_prijava")) {
           messageDiv.innerHTML = `
             <strong><i class="fas fa-file-invoice me-2"></i>PDV Prijava</strong><br>
             Pokušavate pristupiti PDV prijavi. Ova funkcionalnost omogućava kreiranje, 
             pregled i eksport PDV prijava u XML formatu.
           `;
-          messageDiv.className = 'page-specific pdv';
-          messageDiv.style.display = 'block';
-        } else if (currentPath.includes('dobit_prijava')) {
+          messageDiv.className = "page-specific pdv";
+          messageDiv.style.display = "block";
+        } else if (currentPath.includes("dobit_prijava")) {
           messageDiv.innerHTML = `
             <strong><i class="fas fa-calculator me-2"></i>Porez na dobit</strong><br>
             Pokušavate pristupiti prijavi poreza na dobit. Ovde možete kreirati kompletne 
             prijave poreza na dobit sa automatskim kalkulacijama.
           `;
-          messageDiv.className = 'page-specific dobit';
-          messageDiv.style.display = 'block';
-        } else if (currentPath.includes('dashboard')) {
+          messageDiv.className = "page-specific dobit";
+          messageDiv.style.display = "block";
+        } else if (currentPath.includes("dashboard")) {
           messageDiv.innerHTML = `
             <strong><i class="fas fa-tachometer-alt me-2"></i>Dashboard</strong><br>
             Dashboard vam omogućava pregled svih vaših firmi, statistika i brz pristup 
             svim funkcionalnostima portala.
           `;
-          messageDiv.className = 'page-specific';
-          messageDiv.style.display = 'block';
-        } else if (currentPath.includes('firme')) {
+          messageDiv.className = "page-specific";
+          messageDiv.style.display = "block";
+        } else if (currentPath.includes("firme")) {
           messageDiv.innerHTML = `
             <strong><i class="fas fa-building me-2"></i>Upravljanje firmama</strong><br>
             Ovde možete dodavati nove firme, editovati postojeće i upravljati 
             vašim portfolio-om firmi.
           `;
-          messageDiv.className = 'page-specific';
-          messageDiv.style.display = 'block';
+          messageDiv.className = "page-specific";
+          messageDiv.style.display = "block";
         }
       }
-      
+
       // Pozovi funkciju kada se stranica učita
-      document.addEventListener('DOMContentLoaded', detectPageType);
+      document.addEventListener("DOMContentLoaded", detectPageType);
     </script>
   </body>
 </html>

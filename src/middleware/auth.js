@@ -19,7 +19,13 @@ const authMiddleware = (req, res, next) => {
       res
         .status(401)
         .sendFile(
-          path.join(__dirname, "..", "..", "public", "access-denied-dynamic.html")
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "public",
+            "access-denied-dynamic.html"
+          )
         );
     }
   }
