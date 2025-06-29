@@ -101,8 +101,8 @@ async function loadFirms() {
 }
 
 function updateCounts() {
-  const activeFirms = allFirms.filter((f) => f.status === "active");
-  const zeroFirms = allFirms.filter((f) => f.status === "zero");
+  const activeFirms = allFirms.filter((f) => f.status === "aktivan");
+  const zeroFirms = allFirms.filter((f) => f.status === "nula");
 
   const totalCount = document.getElementById("totalCount");
   const activeCount = document.getElementById("activeCount");
@@ -120,9 +120,9 @@ function filterFirms() {
   // Filter by status
   let firms = allFirms;
   if (currentFilter === "active") {
-    firms = allFirms.filter((f) => f.status === "active");
+    firms = allFirms.filter((f) => f.status === "aktivan");
   } else if (currentFilter === "zero") {
-    firms = allFirms.filter((f) => f.status === "zero");
+    firms = allFirms.filter((f) => f.status === "nula");
   }
 
   // Filter by search term
@@ -163,7 +163,7 @@ function renderFirms() {
           <div class="col-md-7">
             <h5 class="card-title mb-2">
               <span class="firm-status ${
-                firm.status === "active" ? "status-active" : "status-zero"
+                firm.status === "aktivan" ? "status-active" : "status-zero"
               }"></span>
               ${firm.naziv}
             </h5>
@@ -171,15 +171,25 @@ function renderFirms() {
             <p class="mb-1"><strong>Adresa:</strong> ${firm.adresa}</p>
             ${
               firm.pdvBroj
-                ? `<p class="mb-0"><strong>PDV broj:</strong> ${firm.pdvBroj}</p>`
+                ? `<p class="mb-1"><strong>PDV broj:</strong> ${firm.pdvBroj}</p>`
+                : ""
+            }
+            ${
+              firm.direktor_ime_prezime
+                ? `<p class="mb-1"><strong>Direktor:</strong> ${firm.direktor_ime_prezime}</p>`
+                : ""
+            }
+            ${
+              firm.direktor_jmbg
+                ? `<p class="mb-0"><strong>JMBG direktora:</strong> ${firm.direktor_jmbg}</p>`
                 : ""
             }
           </div>
           <div class="col-md-3 text-md-center">
             <span class="badge ${
-              firm.status === "active" ? "bg-success" : "bg-warning"
+              firm.status === "aktivan" ? "bg-success" : "bg-warning"
             } fs-6 px-3 py-2">
-              ${firm.status === "active" ? "Aktivna" : "Na nuli"}
+              ${firm.status === "aktivan" ? "Aktivna" : "Na nuli"}
             </span>
           </div>
           <div class="col-md-2 text-md-end">
@@ -298,6 +308,8 @@ function setupFormSubmit() {
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
       pdvBroj: formData.get("pdvBroj"),
+      direktor_ime_prezime: formData.get("direktorImePrezime"),
+      direktor_jmbg: formData.get("direktorJmbg"),
       status: formData.get("status"),
     };
 
@@ -390,12 +402,17 @@ async function loadFirmData() {
     const pibInput = document.getElementById("pib");
     const adresaInput = document.getElementById("adresa");
     const pdvBrojInput = document.getElementById("pdvBroj");
+    const direktorImeInput = document.getElementById("direktorImePrezime");
+    const direktorJmbgInput = document.getElementById("direktorJmbg");
     const statusInput = document.getElementById("status");
 
     if (nazivInput) nazivInput.value = firm.naziv || "";
     if (pibInput) pibInput.value = firm.pib || "";
     if (adresaInput) adresaInput.value = firm.adresa || "";
     if (pdvBrojInput) pdvBrojInput.value = firm.pdvBroj || "";
+    if (direktorImeInput)
+      direktorImeInput.value = firm.direktor_ime_prezime || "";
+    if (direktorJmbgInput) direktorJmbgInput.value = firm.direktor_jmbg || "";
 
     // Set status
     originalStatus = firm.status;
@@ -441,6 +458,8 @@ function setupEditFormSubmit() {
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
       pdvBroj: formData.get("pdvBroj"),
+      direktor_ime_prezime: formData.get("direktorImePrezime"),
+      direktor_jmbg: formData.get("direktorJmbg"),
       status: formData.get("status"),
     };
 

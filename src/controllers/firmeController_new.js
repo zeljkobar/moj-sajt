@@ -23,7 +23,7 @@ const firmeController = {
 
       const firme = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, pdvBroj, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? 
         ORDER BY naziv
@@ -73,7 +73,7 @@ const firmeController = {
 
       const aktivneFirme = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, pdvBroj, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? AND status = 'aktivan'
         ORDER BY naziv
@@ -103,7 +103,7 @@ const firmeController = {
 
       const firmeNaNuli = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, pdvBroj, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? AND status = 'nula'
         ORDER BY naziv
@@ -125,15 +125,7 @@ const firmeController = {
         return res.status(401).json({ message: "Nije autentifikovan" });
       }
 
-      const {
-        naziv,
-        pib,
-        adresa,
-        pdvBroj,
-        status,
-        direktor_ime_prezime,
-        direktor_jmbg,
-      } = req.body;
+      const { naziv, pib, adresa, pdvBroj, status } = req.body;
       const username = req.session.user.username;
 
       // Validacija
@@ -172,19 +164,10 @@ const firmeController = {
       // Dodaj firmu
       const result = await executeQuery(
         `
-        INSERT INTO firme (user_id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO firme (user_id, pib, naziv, adresa, pdvBroj, status)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
-        [
-          userId,
-          pib,
-          naziv,
-          adresa,
-          pdvBroj || "",
-          direktor_ime_prezime || "",
-          direktor_jmbg || "",
-          status || "aktivan",
-        ]
+        [userId, pib, naziv, adresa, pdvBroj || "", status || "aktivan"]
       );
 
       console.log(
@@ -217,14 +200,7 @@ const firmeController = {
       }
 
       const { pib } = req.params;
-      const {
-        naziv,
-        adresa,
-        pdvBroj,
-        status,
-        direktor_ime_prezime,
-        direktor_jmbg,
-      } = req.body;
+      const { naziv, adresa, pdvBroj, status } = req.body;
       const username = req.session.user.username;
 
       // Validacija
@@ -257,19 +233,10 @@ const firmeController = {
       await executeQuery(
         `
         UPDATE firme 
-        SET naziv = ?, adresa = ?, pdvBroj = ?, direktor_ime_prezime = ?, direktor_jmbg = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+        SET naziv = ?, adresa = ?, pdvBroj = ?, status = ?, updated_at = CURRENT_TIMESTAMP
         WHERE user_id = ? AND pib = ?
       `,
-        [
-          naziv,
-          adresa,
-          pdvBroj || "",
-          direktor_ime_prezime || "",
-          direktor_jmbg || "",
-          status || "aktivan",
-          userId,
-          pib,
-        ]
+        [naziv, adresa, pdvBroj || "", status || "aktivan", userId, pib]
       );
 
       console.log(
@@ -354,7 +321,7 @@ const firmeController = {
 
       const firma = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, pdvBroj, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? AND pib = ?
       `,

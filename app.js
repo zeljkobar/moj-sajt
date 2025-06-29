@@ -77,15 +77,15 @@ app.get("/edit-firmu.html", authMiddleware, (req, res) => {
 });
 
 // API ruta za dashboard statistike
-app.get("/api/dashboard-stats", authMiddleware, (req, res) => {
+app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
   try {
     const username = req.session.user.username;
     const firmeController = require("./src/controllers/firmeController");
-    const allFirme = firmeController.readUserFirme(username);
+    const allFirme = await firmeController.readUserFirme(username);
 
     const total = allFirme.length;
-    const aktivneCount = allFirme.filter((f) => f.status === "active").length;
-    const naNuliCount = allFirme.filter((f) => f.status === "zero").length;
+    const aktivneCount = allFirme.filter((f) => f.status === "aktivan").length;
+    const naNuliCount = allFirme.filter((f) => f.status === "nula").length;
     const procenatNaNuli =
       total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
 
