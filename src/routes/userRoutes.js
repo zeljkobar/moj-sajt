@@ -2,8 +2,13 @@
 const express = require("express");
 const router = express.Router();
 const ctrl = require("../controllers/userController");
+const { authMiddleware } = require("../middleware/auth");
 
 router.route("/").get(ctrl.getUsers).post(ctrl.createUser);
+
+// Profile management routes (require authentication)
+router.get("/current", authMiddleware, ctrl.getCurrentUser);
+router.put("/profile", authMiddleware, ctrl.updateProfile);
 
 router
   .route("/:id")

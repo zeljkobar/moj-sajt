@@ -72,9 +72,32 @@
         </a>
         <div class="navbar-nav ms-auto">
           <span class="navbar-text me-3" id="welcomeMsg">Dobrodošli!</span>
-          <a class="nav-link" href="#" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Odjava
-          </a>
+          <div class="dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-user"></i>
+              <span id="navbar-username">Korisnik</span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="edit-profil.html"
+                  ><i class="fas fa-edit"></i> Edituj Profil</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="#" id="logoutBtn"
+                  ><i class="fas fa-sign-out-alt"></i> Odjavi se</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </nav>
@@ -227,9 +250,30 @@
               document.getElementById(
                 "welcomeMsg"
               ).textContent = `Dobrodošao, ${data.user.username}!`;
+
+              // Load current user data for dropdown
+              loadCurrentUser();
             }
           });
       });
+
+      // Load current user data
+      async function loadCurrentUser() {
+        try {
+          const response = await fetch("/api/users/current", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            document.getElementById("navbar-username").textContent =
+              userData.ime + " " + userData.prezime;
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      }
 
       async function loadStatistics() {
         try {

@@ -76,6 +76,11 @@ app.get("/edit-firmu.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/edit-firmu.html");
 });
 
+// Zaštićena ruta za editovanje profila
+app.get("/edit-profil.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/edit-profil.html");
+});
+
 // API ruta za dashboard statistike
 app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
   try {
