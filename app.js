@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000;
 const userRoutes = require("./src/routes/userRoutes");
 const authRoutes = require("./src/routes/authRoutes");
 const firmeRoutes = require("./src/routes/firmeRoutes");
+const testRoutes = require("./src/routes/testRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const cors = require("cors");
 const session = require("express-session");
@@ -105,6 +106,7 @@ app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api/firme", firmeRoutes);
+app.use("/api/test", testRoutes); // Test rute za debug
 
 // fallback 404
 app.use((req, res) => {
