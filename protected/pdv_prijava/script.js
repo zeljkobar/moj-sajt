@@ -16,8 +16,20 @@ function updateUlazniPdv() {
     parseFloat(document.getElementById("ulazni_pdv_domaci_promet").value) || 0;
   const ulazniUvozni =
     parseFloat(document.getElementById("pdv_uvoz").value) || 0;
+  const pdvUslugeInostranih =
+    parseFloat(document.getElementById("pdv_usluge_inostranih_lica").value) ||
+    0;
+  const pausalnaNadoknada =
+    parseFloat(document.getElementById("pausalna_nadoknada").value) || 0;
+  const pdvPrometEnergije =
+    parseFloat(document.getElementById("pdv_promet_energije").value) || 0;
 
-  const ulazni_pdv = ulazniDomaci + ulazniUvozni;
+  const ulazni_pdv =
+    ulazniDomaci +
+    ulazniUvozni +
+    pdvUslugeInostranih +
+    pausalnaNadoknada +
+    pdvPrometEnergije;
   document.getElementById("ukupan_ulazni_pdv_pretporez").value =
     ulazni_pdv.toFixed(2);
   document.getElementById("ulazni_pdv_sa_pravom").value = ulazni_pdv.toFixed(2);
@@ -130,6 +142,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     .addEventListener("input", updateUlazniPdv);
   document
     .getElementById("pdv_uvoz")
+    .addEventListener("input", updateUlazniPdv);
+  document
+    .getElementById("pdv_usluge_inostranih_lica")
+    .addEventListener("input", updateUlazniPdv);
+  document
+    .getElementById("pausalna_nadoknada")
+    .addEventListener("input", updateUlazniPdv);
+  document
+    .getElementById("pdv_promet_energije")
     .addEventListener("input", updateUlazniPdv);
 
   // Učitaj podatke o trenutno ulogovanom korisniku
