@@ -4,7 +4,8 @@ const { executeQuery } = require("../config/database");
 // Funkcija za dobijanje korisnika po username-u
 async function getUserByUsername(username) {
   try {
-    const query = "SELECT * FROM users WHERE username = ?";
+    const query =
+      "SELECT id, username, password, email, phone, ime, prezime, jmbg, role, created_at FROM users WHERE username = ?";
     const users = await executeQuery(query, [username]);
     return users.length > 0 ? users[0] : null;
   } catch (error) {

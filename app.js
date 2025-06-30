@@ -7,6 +7,7 @@ const userRoutes = require("./src/routes/userRoutes");
 const authRoutes = require("./src/routes/authRoutes");
 const firmeRoutes = require("./src/routes/firmeRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
+const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const cors = require("cors");
 const session = require("express-session");
 const path = require("path");
@@ -54,21 +55,36 @@ app.get("/protected.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/protected.html");
 });
 
-// Zaštićena ruta za PDV prijavu
-app.get("/pdv_prijava/index.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/protected/pdv_prijava/index.html");
-});
+// Zaštićena ruta za PDV prijavu - requires PDV or higher role
+app.get(
+  "/pdv_prijava/index.html",
+  authMiddleware,
+  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/protected/pdv_prijava/index.html");
+  }
+);
 
-// Zaštićene rute za sve PDV prijava resurse
-app.get("/pdv_prijava/:file", authMiddleware, (req, res) => {
-  const fileName = req.params.file;
-  res.sendFile(__dirname + "/protected/pdv_prijava/" + fileName);
-});
+// Zaštićene rute za sve PDV prijava resurse - requires PDV or higher role
+app.get(
+  "/pdv_prijava/:file",
+  authMiddleware,
+  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    const fileName = req.params.file;
+    res.sendFile(__dirname + "/protected/pdv_prijava/" + fileName);
+  }
+);
 
-// Zaštićena ruta za PDV0 (masovno preuzimanje)
-app.get("/pdv0.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/public/pdv0.html");
-});
+// Zaštićena ruta za PDV0 (masovno preuzimanje) - accessible to all authenticated users
+app.get(
+  "/pdv0.html",
+  authMiddleware,
+  requireRole([ROLES.PDV0, ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/public/pdv0.html");
+  }
+);
 
 // Zaštićena ruta za dashboard
 app.get("/dashboard.html", authMiddleware, (req, res) => {
@@ -125,26 +141,95 @@ app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api/firme", firmeRoutes);
 
-// Zaštićena ruta za prijavu poreza na dobit
-app.get("/dobit_prijava/index.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/protected/dobit_prijava/index.html");
-});
-
-// Zaštićene rute za sve dobit prijava resurse
-app.get("/dobit_prijava/:file", authMiddleware, (req, res) => {
-  const fileName = req.params.file;
-
-  // Dozvoljavamo pristup CSS, JS i ostalim statičkim fajlovima
-  if (
-    fileName.endsWith(".css") ||
-    fileName.endsWith(".js") ||
-    fileName.endsWith(".html")
-  ) {
-    res.sendFile(__dirname + `/protected/dobit_prijava/${fileName}`);
-  } else {
-    res.status(404).send("File not found");
+// Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
+app.get(
+  "/dobit_prijava/index.html",
+  authMiddleware,
+  requireRole([ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/protected/dobit_prijava/index.html");
   }
-});
+);
+
+// Zaštićene rute za sve dobit prijava resurse - requires FULL or ADMIN role
+app.get(
+  "/dobit_prijava/:file",
+  authMiddleware,
+  requireRole([ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    const fileName = req.params.file;
+
+    // Dozvoljavamo pristup CSS, JS i ostalim statičkim fajlovima
+    if (
+      fileName.endsWith(".css") ||
+      fileName.endsWith(".js") ||
+      fileName.endsWith(".html")
+    ) {
+      res.sendFile(__dirname + `/protected/dobit_prijava/${fileName}`);
+    } else {
+      res.status(404).send("File not found");
+    }
+  }
+);
+
+// Admin routes - require ADMIN role
+app.get(
+  "/admin-users.html",
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/public/admin-users.html");
+  }
+);
+
+// API rute za admin funkcionalnosti
+app.get(
+  "/api/admin/users",
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  async (req, res) => {
+    try {
+      const { executeQuery } = require("./src/config/database");
+      const users = await executeQuery(
+        "SELECT id, username, email, ime, prezime, role, created_at FROM users ORDER BY created_at DESC"
+      );
+      res.json(users);
+    } catch (error) {
+      console.error("Greška pri učitavanju korisnika:", error);
+      res.status(500).json({ msg: "Greška pri učitavanju korisnika" });
+    }
+  }
+);
+
+app.put(
+  "/api/admin/users/:id/role",
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  async (req, res) => {
+    try {
+      const { executeQuery } = require("./src/config/database");
+      const { id } = req.params;
+      const { role } = req.body;
+
+      // Validate role
+      const validRoles = ["pdv0", "pdv", "full", "admin"];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ msg: "Neispravna rola" });
+      }
+
+      // Don't allow changing own role
+      if (parseInt(id) === req.session.user.id) {
+        return res.status(400).json({ msg: "Ne možete promeniti svoju rolu" });
+      }
+
+      await executeQuery("UPDATE users SET role = ? WHERE id = ?", [role, id]);
+      res.json({ msg: "Rola je uspešno promenjena", role });
+    } catch (error) {
+      console.error("Greška pri promeni role:", error);
+      res.status(500).json({ msg: "Greška pri promeni role" });
+    }
+  }
+);
 
 // fallback 404
 app.use((req, res) => {

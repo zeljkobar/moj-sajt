@@ -59,7 +59,7 @@ exports.getCurrentUser = async (req, res) => {
     const username = req.session.user.username;
 
     const users = await executeQuery(
-      "SELECT id, username, email, ime, prezime, phone, jmbg, created_at FROM users WHERE username = ?",
+      "SELECT id, username, email, ime, prezime, phone, jmbg, role, created_at FROM users WHERE username = ?",
       [username]
     );
 
