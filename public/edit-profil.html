@@ -520,17 +520,53 @@
               throw new Error("Nova lozinka i potvrda se ne poklapaju");
             }
 
-            // Send change password request
-            const response = await fetch("/api/users/change-password", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-              body: JSON.stringify(formData),
-            });
+            // Send change password request - try PUT first, fallback to POST
+            let response;
+            try {
+              response = await fetch("/api/users/change-password", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(formData),
+              });
 
-            const result = await response.json();
+              // If PUT returns 405 (Method Not Allowed), try POST
+              if (response.status === 405) {
+                console.log("PUT not supported, trying POST...");
+                response = await fetch("/api/users/change-password", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                  body: JSON.stringify(formData),
+                });
+              }
+            } catch (error) {
+              console.error("Network error, trying POST as fallback:", error);
+              response = await fetch("/api/users/change-password", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(formData),
+              });
+            }
+
+            let result;
+            try {
+              result = await response.json();
+            } catch (jsonError) {
+              console.error("Failed to parse JSON response:", jsonError);
+              // If we get HTML instead of JSON, it means there's a server error
+              const text = await response.text();
+              console.log("Server returned HTML:", text.substring(0, 200));
+              throw new Error("Server greška - molimo pokušajte ponovo");
+            }
+
             console.log("Server response:", result);
 
             if (response.ok) {

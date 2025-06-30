@@ -10,6 +10,7 @@ router.route("/").get(ctrl.getUsers).post(ctrl.createUser);
 router.get("/current", authMiddleware, ctrl.getCurrentUser);
 router.put("/profile", authMiddleware, ctrl.updateProfile);
 router.put("/change-password", authMiddleware, ctrl.changePassword);
+router.post("/change-password", authMiddleware, ctrl.changePassword); // Backup POST route for servers that don't support PUT
 
 router
   .route("/:id")
