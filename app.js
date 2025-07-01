@@ -55,7 +55,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+// express.static će biti pomereno na kraj da zaštićene rute imaju prioritet
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "vanesa3007", // koristi env variable za production
@@ -100,11 +100,11 @@ app.get(
   }
 );
 
-// Zaštićena ruta za PDV0 (masovno preuzimanje) - accessible to all authenticated users
+// Zaštićena ruta za PDV0 (masovno preuzimanje) - accessible to PDV, FULL and ADMIN
 app.get(
   "/pdv0.html",
   authMiddleware,
-  requireRole([ROLES.PDV0, ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/public/pdv0.html");
   }
@@ -129,6 +129,34 @@ app.get("/dodaj-firmu.html", authMiddleware, (req, res) => {
 app.get("/edit-firmu.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/edit-firmu.html");
 });
+
+// Zaštićene rute za UGOVORI funkcionalnost
+app.get(
+  "/radnici.html",
+  authMiddleware,
+  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/public/radnici.html");
+  }
+);
+
+app.get(
+  "/pozicije.html",
+  authMiddleware,
+  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/public/pozicije.html");
+  }
+);
+
+app.get(
+  "/ugovor-o-radu.html",
+  authMiddleware,
+  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + "/public/ugovor-o-radu.html");
+  }
+);
 
 // Zaštićena ruta za editovanje profila
 app.get("/edit-profil.html", authMiddleware, (req, res) => {
@@ -239,7 +267,7 @@ app.put(
       const { role } = req.body;
 
       // Validate role
-      const validRoles = ["pdv0", "pdv", "full", "admin"];
+      const validRoles = ["pdv", "ugovori", "full", "admin"];
       if (!validRoles.includes(role)) {
         return res.status(400).json({ msg: "Neispravna rola" });
       }
@@ -257,6 +285,9 @@ app.put(
     }
   }
 );
+
+// Statički fajlovi - zadnji da zaštićene rute imaju prioritet
+app.use(express.static("public"));
 
 // fallback 404
 app.use((req, res) => {

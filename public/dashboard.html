@@ -303,13 +303,13 @@
           }
 
           const userData = await response.json();
-          const userRole = userData.role || "pdv0";
+          const userRole = userData.role || "pdv";
 
           displayQuickActions(userRole);
         } catch (error) {
           console.error("Error loading user role:", error);
           // Fallback to basic options
-          displayQuickActions("pdv0");
+          displayQuickActions("pdv");
         }
       }
 
@@ -319,7 +319,14 @@
 
         // Define available actions based on role
         const actionConfigs = {
-          pdv0: [
+          pdv: [
+            {
+              href: "/pdv_prijava/index.html",
+              icon: "fas fa-file-invoice",
+              title: "PDV Prijava",
+              description: "Kreiraj PDV prijavu za aktivne firme",
+              btnClass: "btn-primary",
+            },
             {
               href: "/pdv0.html",
               icon: "fas fa-download",
@@ -335,20 +342,20 @@
               btnClass: "btn-info",
             },
           ],
-          pdv: [
+          ugovori: [
             {
-              href: "/pdv_prijava/index.html",
-              icon: "fas fa-file-invoice",
-              title: "PDV Prijava",
-              description: "Kreiraj PDV prijavu za aktivne firme",
-              btnClass: "btn-primary",
+              href: "/radnici.html",
+              icon: "fas fa-users",
+              title: "Radnici",
+              description: "Upravljanje radnicima i ugovorima",
+              btnClass: "btn-warning",
             },
             {
-              href: "/pdv0.html",
-              icon: "fas fa-download",
-              title: "PDV Nule",
-              description: "Masovno preuzimanje PDV prijava na 0",
-              btnClass: "btn-success",
+              href: "/pozicije.html",
+              icon: "fas fa-briefcase",
+              title: "Pozicije",
+              description: "Upravljanje pozicijama i opisima poslova",
+              btnClass: "btn-secondary",
             },
             {
               href: "/firme.html",
@@ -441,7 +448,7 @@
           ],
         };
 
-        const currentActions = actionConfigs[userRole] || actionConfigs["pdv0"];
+        const currentActions = actionConfigs[userRole] || actionConfigs["pdv"];
 
         const actionsHtml = currentActions
           .map(

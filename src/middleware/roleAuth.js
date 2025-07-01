@@ -11,7 +11,7 @@ const requireRole = (allowedRoles) => {
       }
     }
 
-    const userRole = req.session.user.role || "pdv0"; // Default role
+    const userRole = req.session.user.role || "pdv"; // Default role
 
     // Check if user has required role
     if (!allowedRoles.includes(userRole)) {
@@ -50,25 +50,25 @@ const requireRole = (allowedRoles) => {
 
 // Role definitions and access levels
 const ROLES = {
-  PDV0: "pdv0", // Only PDV0 (mass download)
-  PDV: "pdv", // PDV0 + PDV submissions
-  FULL: "full", // PDV0 + PDV + Profit tax
+  PDV: "pdv", // PDV access (kombinuje staro pdv0 + pdv)
+  UGOVORI: "ugovori", // Nova rola za upravljanje ugovorima/radnicima
+  FULL: "full", // PDV + Ugovori + Profit tax
   ADMIN: "admin", // Everything + user management
 };
 
 // Helper function to get role permissions
 const getRolePermissions = (role) => {
   switch (role) {
-    case ROLES.PDV0:
-      return ["pdv0"];
     case ROLES.PDV:
-      return ["pdv0", "pdv_prijava"];
+      return ["pdv_prijava", "pdv_nule"];
+    case ROLES.UGOVORI:
+      return ["ugovori", "radnici", "pozicije"];
     case ROLES.FULL:
-      return ["pdv0", "pdv_prijava", "dobit_prijava"];
+      return ["pdv_prijava", "pdv_nule", "dobit_prijava", "ugovori", "radnici", "pozicije"];
     case ROLES.ADMIN:
-      return ["pdv0", "pdv_prijava", "dobit_prijava", "admin"];
+      return ["pdv_prijava", "pdv_nule", "dobit_prijava", "ugovori", "radnici", "pozicije", "admin"];
     default:
-      return ["pdv0"]; // Default minimal access
+      return ["pdv_prijava"]; // Default minimal access
   }
 };
 
