@@ -20,7 +20,7 @@ const fs = require("fs");
 const allowedOrigins = [
   "http://localhost:3000",
   "https://summasummarum.me",
-  "http://summasummarum.me"
+  "http://summasummarum.me",
 ];
 
 app.use(
@@ -28,11 +28,11 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -62,10 +62,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production' && !process.env.IISNODE_VERSION, // false za IIS
+      secure:
+        process.env.NODE_ENV === "production" && !process.env.IISNODE_VERSION, // false za IIS
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 sata
-    }
+      maxAge: 24 * 60 * 60 * 1000, // 24 sata
+    },
   })
 );
 
@@ -278,8 +279,8 @@ const server = app.listen(port, () => {
 });
 
 // Handle IIS shutdown gracefully
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
   server.close(() => {
     process.exit(0);
   });
