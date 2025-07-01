@@ -197,6 +197,11 @@ function renderFirms() {
               <button class="edit-btn" onclick="editFirm('${firm.pib}')">
                 <i class="fas fa-edit"></i>
               </button>
+              <button class="edit-btn" onclick="viewRadnici(${
+                firm.id
+              })" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="fas fa-users"></i>
+              </button>
               <button class="delete-btn" data-pib="${
                 firm.pib
               }" data-naziv="${firm.naziv.replace(/"/g, "&quot;")}">
@@ -572,3 +577,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+// =============================================================================
+// RADNICI FUNKCIJE
+// =============================================================================
+
+// Funkcija za pregled radnika po firmi
+function viewRadnici(firmaId) {
+  window.location.href = `/radnici-firma.html?firmaId=${firmaId}`;
+}

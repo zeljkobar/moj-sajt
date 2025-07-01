@@ -6,6 +6,9 @@ const port = process.env.PORT || 3000;
 const userRoutes = require("./src/routes/userRoutes");
 const authRoutes = require("./src/routes/authRoutes");
 const firmeRoutes = require("./src/routes/firmeRoutes");
+const contractRoutes = require("./src/routes/contractRoutes");
+const radnikRoutes = require("./src/routes/radnikRoutes");
+const pozicijeRoutes = require("./src/routes/pozicijeRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const cors = require("cors");
@@ -140,6 +143,9 @@ app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api/firme", firmeRoutes);
+app.use("/api", contractRoutes);
+app.use("/api/radnici", radnikRoutes);
+app.use("/api/pozicije", pozicijeRoutes);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 app.get(

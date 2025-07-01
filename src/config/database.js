@@ -1,5 +1,6 @@
 const mysql = require("mysql2/promise");
 require("dotenv").config();
+const fs = require("fs");
 
 // Database configuration
 const dbConfig = {
@@ -48,9 +49,26 @@ async function getConnection() {
   return await pool.getConnection();
 }
 
+// Execute SQL script file
+async function executeSQLScript(scriptPath) {
+  try {
+    const script = fs.readFileSync(scriptPath, "utf8");
+    const connection = await pool.getConnection();
+    await connection.query(script);
+    console.log("✅ SQL script executed successfully");
+    connection.release();
+  } catch (error) {
+    console.error("❌ Error executing SQL script:", error.message);
+  }
+}
+
+// Test SQL script execution (uncomment to use)
+// executeSQLScript("/Users/zeljkodjuranovic/Desktop/moj sajt/add_contract_tables.sql");
+
 module.exports = {
   pool,
   testConnection,
   executeQuery,
   getConnection,
+  executeSQLScript,
 };

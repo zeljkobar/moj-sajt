@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="generator" content="none" />
+    <title>Ugovor o zajmu novca</title>
+    <script>
+      // Pomaže u uklanjanju zaglavlja i podnožja pri štampanju u različitim pretraživačima
+      window.onbeforeprint = function () {
+        // Neki pretraživači čitaju ove atribute
+        document.title = "";
+      };
+    </script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #000;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      .section {
+        margin-bottom: 20px;
+      }
+      .section h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .signature {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+      }
+      .signature div {
+        text-align: center;
+        width: 45%;
+      }
+
+      /* Stilovi za štampanje */
+      @media print {
+        body {
+          background-color: white;
+          margin: 0;
+          padding: 0;
+          font-family: "Times New Roman", Times, serif;
+          font-size: 12pt;
+        }
+        .container {
+          max-width: 100%;
+          box-shadow: none;
+          border-radius: 0;
+          padding: 20px;
+        }
+        h1 {
+          font-size: 16pt;
+        }
+        .section h2 {
+          font-size: 14pt;
+        }
+        p {
+          margin-bottom: 10pt;
+          line-height: 1.5;
+        }
+        .signature {
+          margin-top: 60pt;
+          page-break-inside: avoid;
+        }
+        @page {
+          margin: 1cm;
+          size: A4;
+        }
+        html {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        body::after,
+        body::before {
+          content: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Ugovor o zajmu novca</h1>
+      <p>Zaključen u Baru, dana 17.05.2014. god.</p>
+
+      <div class="section">
+        <h2>Strane:</h2>
+        <p>
+          1. “ANJA” d.o.o., STARI BAR BB, PIB: 02984296, kojeg zastupa zastupnik
+          BEKIM BEHAROVIC, JMBG 2606976220016, izvršni direktor, kao
+          zajmoprimac, s jedne strane,
+        </p>
+        <p>
+          2. BEKIM BEHAROVIC, JMBG 2606976220016, kao zajmodavac, sa druge
+          strane, na slijedeći način:
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 1.</h2>
+        <p>
+          Zajmodavac daje zajmoprimcu na zajam novac u iznosu od koji mu je
+          potreban da bi zajmoprimac isplatio obaveze prema dobavljačima.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 2.</h2>
+        <p>
+          Zajmoprimac prima na zajam od zajmodavca iznos od 500,00 eura (pet
+          stotina eura), za namjenu iz čl.1.Ugovora.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 3.</h2>
+        <p>
+          Zajmodavac ovim ugovorom ne traži od zajmoprimca da mu plati kamatu
+          ili bilo kakvu naknadu, te je ovaj ugovor bez naknade.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 4.</h2>
+        <p>
+          Zajmoprimac se obavezuje da primljeni novac iz člana 1. Ugovora vrati
+          zajmodavcu, za godinu dana od dana prijema istog.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 5.</h2>
+        <p>
+          Za sve što nije predviđeno ovim ugovorom primijeniće se odredbe Zakona
+          o obligacionim odnosima.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Član 6.</h2>
+        <p>
+          Ovaj ugovor sačinjen je u 4 primjerka i svaka strana dobija po dva
+          primjerka.
+        </p>
+      </div>
+
+      <div class="signature">
+        <div>
+          <p>Zajmodavac</p>
+        </div>
+        <div>
+          <p>Zajmoprimac</p>
+        </div>
+      </div>
+
+      <script>
+        async function popuniUgovor(firmaId, radnikId) {
+          try {
+            const firmaResponse = await fetch(`/api/firme/${firmaId}`);
+            const firma = await firmaResponse.json();
+
+            const radnikResponse = await fetch(`/api/radnici/${radnikId}`);
+            const radnik = await radnikResponse.json();
+
+            document.getElementById("firma-naziv").textContent = firma.naziv;
+            document.getElementById("firma-adresa").textContent = firma.adresa;
+            document.getElementById("firma-direktor").textContent =
+              firma.direktor;
+            document.getElementById("firma-pib").textContent = firma.pib;
+
+            document.getElementById("radnik-ime").textContent = radnik.ime;
+            document.getElementById("radnik-prezime").textContent =
+              radnik.prezime;
+            document.getElementById("radnik-pozicija").textContent =
+              radnik.pozicija;
+          } catch (error) {
+            console.error("Greška pri dohvaćanju podataka:", error);
+          }
+        }
+
+        // Primer poziva funkcije
+        popuniUgovor(1, 1);
+      </script>
+
+      <!-- Primer HTML elemenata za dinamičko popunjavanje -->
+      <p>
+        Firma: <span id="firma-naziv"></span>, Adresa:
+        <span id="firma-adresa"></span>, PIB: <span id="firma-pib"></span>,
+        Direktor: <span id="firma-direktor"></span>
+      </p>
+      <p>
+        Radnik: <span id="radnik-ime"></span> <span id="radnik-prezime"></span>,
+        Pozicija: <span id="radnik-pozicija"></span>
+      </p>
+    </div>
+  </body>
+</html>

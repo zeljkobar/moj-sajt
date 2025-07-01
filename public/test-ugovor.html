@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test ugovora o radu</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ccc;
+      }
+      .result {
+        background: #f0f0f0;
+        padding: 10px;
+        margin: 10px 0;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test funkcionalnosti ugovora o radu</h1>
+
+    <div class="test-section">
+      <h2>1. Test API endpointova</h2>
+      <button onclick="testFirmaAPI()">Test Firma API</button>
+      <button onclick="testRadnikAPI()">Test Radnik API</button>
+      <button onclick="testUgovorAPI()">Test Ugovor API</button>
+      <div id="api-results" class="result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>2. Test dinamičkog popunjavanja ugovora</h2>
+      <button onclick="popuniUgovor()">Popuni ugovor sa test podacima</button>
+      <div id="ugovor-content">
+        <h3>Podaci o firmi:</h3>
+        <p>Naziv: <span id="firma-naziv">[Čeka se učitavanje...]</span></p>
+        <p>Adresa: <span id="firma-adresa">[Čeka se učitavanje...]</span></p>
+        <p>PIB: <span id="firma-pib">[Čeka se učitavanje...]</span></p>
+        <p>
+          Direktor: <span id="firma-direktor">[Čeka se učitavanje...]</span>
+        </p>
+
+        <h3>Podaci o radniku:</h3>
+        <p>Ime: <span id="radnik-ime">[Čeka se učitavanje...]</span></p>
+        <p>Prezime: <span id="radnik-prezime">[Čeka se učitavanje...]</span></p>
+        <p>
+          Pozicija: <span id="radnik-pozicija">[Čeka se učitavanje...]</span>
+        </p>
+
+        <h3>Podaci o ugovoru:</h3>
+        <p>Datum: <span id="ugovor-datum">[Čeka se učitavanje...]</span></p>
+        <p>Tip: <span id="ugovor-tip">[Čeka se učitavanje...]</span></p>
+      </div>
+    </div>
+
+    <script>
+      async function testFirmaAPI() {
+        try {
+          const response = await fetch("/api/firme/id/147");
+          const data = await response.json();
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Firma API:</h4><pre>" +
+            JSON.stringify(data, null, 2) +
+            "</pre>";
+        } catch (error) {
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Firma API Error:</h4><p>" + error.message + "</p>";
+        }
+      }
+
+      async function testRadnikAPI() {
+        try {
+          const response = await fetch("/api/radnici/id/1");
+          const data = await response.json();
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Radnik API:</h4><pre>" +
+            JSON.stringify(data, null, 2) +
+            "</pre>";
+        } catch (error) {
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Radnik API Error:</h4><p>" + error.message + "</p>";
+        }
+      }
+
+      async function testUgovorAPI() {
+        try {
+          const response = await fetch("/api/contracts/1");
+          const data = await response.json();
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Ugovor API:</h4><pre>" +
+            JSON.stringify(data, null, 2) +
+            "</pre>";
+        } catch (error) {
+          document.getElementById("api-results").innerHTML +=
+            "<h4>Ugovor API Error:</h4><p>" + error.message + "</p>";
+        }
+      }
+
+      async function popuniUgovor() {
+        try {
+          // Dohvati podatke o firmi
+          const firmaResponse = await fetch("/api/firme/id/147");
+          const firma = await firmaResponse.json();
+
+          // Dohvati podatke o radniku
+          const radnikResponse = await fetch("/api/radnici/id/1");
+          const radnik = await radnikResponse.json();
+
+          // Dohvati podatke o ugovoru
+          const ugovorResponse = await fetch("/api/contracts/1");
+          const ugovor = await ugovorResponse.json();
+
+          // Popuni elemente
+          document.getElementById("firma-naziv").textContent = firma.naziv;
+          document.getElementById("firma-adresa").textContent = firma.adresa;
+          document.getElementById("firma-pib").textContent = firma.pib;
+          document.getElementById("firma-direktor").textContent =
+            firma.direktor_ime_prezime;
+
+          document.getElementById("radnik-ime").textContent = radnik.ime;
+          document.getElementById("radnik-prezime").textContent =
+            radnik.prezime;
+          document.getElementById("radnik-pozicija").textContent =
+            radnik.pozicija;
+
+          document.getElementById("ugovor-datum").textContent = new Date(
+            ugovor.datum
+          ).toLocaleDateString("sr-RS");
+          document.getElementById("ugovor-tip").textContent =
+            ugovor.tip_ugovora;
+
+          alert("✅ Ugovor je uspešno popunjen sa podacima iz baze!");
+        } catch (error) {
+          alert("❌ Greška pri popunjavanju ugovora: " + error.message);
+          console.error("Greška:", error);
+        }
+      }
+    </script>
+  </body>
+</html>

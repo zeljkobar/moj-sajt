@@ -383,6 +383,41 @@ const firmeController = {
   updateFirmaFallback: async (req, res) => {
     return await firmeController.updateFirma(req, res);
   },
+
+  // GET /api/firme/id/:id - dobij firmu po ID-u
+  getFirmaById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const [firma] = await executeQuery("SELECT * FROM firme WHERE id = ?", [
+        id,
+      ]);
+      if (!firma) {
+        return res.status(404).json({ message: "Firma nije pronađena" });
+      }
+      res.json(firma);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Greška na serveru" });
+    }
+  },
+
+  // GET /api/radnici/id/:id - dobij radnika po ID-u
+  getRadnikById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const [radnik] = await executeQuery(
+        "SELECT * FROM radnici WHERE id = ?",
+        [id]
+      );
+      if (!radnik) {
+        return res.status(404).json({ message: "Radnik nije pronađen" });
+      }
+      res.json(radnik);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Greška na serveru" });
+    }
+  },
 };
 
 module.exports = firmeController;

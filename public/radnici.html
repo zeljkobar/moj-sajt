@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upravljanje radnicima</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .btn-group {
+        margin-bottom: 20px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 5px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background-color: #0056b3;
+      }
+      .btn-success {
+        background-color: #28a745;
+      }
+      .btn-success:hover {
+        background-color: #1e7e34;
+      }
+      .section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #f8f9fa;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+      }
+      .modal-content {
+        background-color: white;
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        top: 10px;
+      }
+
+      /* Dodaj stilove za bolji prikaz dugih formi */
+      @media (max-height: 800px) {
+        .modal-content {
+          margin: 10px auto;
+          max-height: 95vh;
+        }
+      }
+
+      .modal h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+      }
+
+      /* Layout za formu u dva stubca */
+      .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .form-col {
+        flex: 1;
+      }
+
+      .form-col .form-group {
+        margin-bottom: 0;
+      }
+
+      /* Dodaj boju za dugmad */
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 2px;
+        transition: background-color 0.3s;
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        color: white;
+      }
+
+      .btn-success:hover {
+        background-color: #218838;
+      }
+
+      .btn:not(.btn-success) {
+        background-color: #6c757d;
+        color: white;
+      }
+
+      .btn:not(.btn-success):hover {
+        background-color: #5a6268;
+      }
+
+      /* CSS za search polje */
+      #radniciSearchInput:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+      }
+
+      /* Poboljšanja za responsive dizajn */
+      @media (max-width: 768px) {
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+
+        .modal-content {
+          width: 95%;
+          margin: 5px auto;
+          padding: 15px;
+        }
+
+        .form-col .form-group {
+          margin-bottom: 15px;
+        }
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .form-group textarea {
+        height: 100px;
+        resize: vertical;
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Upravljanje radnicima</h1>
+
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="openRadnikModal()">
+          + Dodaj novog radnika
+        </button>
+        <a
+          href="pozicije.html"
+          class="btn"
+          style="background-color: #17a2b8; color: white"
+        >
+          📋 Pregled pozicija
+        </a>
+        <a href="dashboard.html" class="btn">← Nazad na dashboard</a>
+      </div>
+
+      <!-- Search polje za radnike -->
+      <div class="section">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input
+              type="text"
+              id="radniciSearchInput"
+              class="form-control"
+              placeholder="🔍 Pretražuj radnike po imenu, prezimenu, JMBG, poziciji ili firmi..."
+              style="
+                border-radius: 25px;
+                border: 2px solid #e9ecef;
+                padding: 12px 20px;
+                transition: border-color 0.3s ease;
+              "
+            />
+          </div>
+          <div class="col-md-6 d-flex align-items-center">
+            <span class="text-muted">
+              Prikazano: <strong id="radniciCount">0</strong> radnik(a)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Radnici</h2>
+        <table id="radniciTable">
+          <thead>
+            <tr>
+              <th>Ime i prezime</th>
+              <th>JMBG</th>
+              <th>Pozicija</th>
+              <th>Firma</th>
+              <th>Datum zaposlenja</th>
+              <th>Zarada (€)</th>
+              <th>Radno vreme</th>
+              <th>Tip ugovora</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dinamički sadržaj -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal za dodavanje radnika -->
+    <div id="radnikModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRadnikModal()">&times;</span>
+        <h2>Dodaj novog radnika</h2>
+        <form id="radnikForm">
+          <!-- Osnovni podaci -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="ime">Ime:</label>
+                <input type="text" id="ime" name="ime" required />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="prezime">Prezime:</label>
+                <input type="text" id="prezime" name="prezime" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="jmbg">JMBG:</label>
+            <input
+              type="text"
+              id="jmbg"
+              name="jmbg"
+              required
+              maxlength="13"
+              pattern="[0-9]{13}"
+              title="JMBG mora imati tačno 13 cifara"
+            />
+          </div>
+
+          <!-- Pozicija i firma -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="pozicija_id">Pozicija:</label>
+                <select id="pozicija_id" name="pozicija_id" required>
+                  <option value="">Izaberite poziciju</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="firma_id">Firma:</label>
+                <select id="firma_id" name="firma_id" required>
+                  <option value="">Izaberite firmu</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datum i zarada -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="datum_zaposlenja">Datum zaposlenja:</label>
+                <input
+                  type="date"
+                  id="datum_zaposlenja"
+                  name="datum_zaposlenja"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="visina_zarade">Visina zarade (€):</label>
+                <input
+                  type="number"
+                  id="visina_zarade"
+                  name="visina_zarade"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Radno vreme -->
+          <div class="form-group">
+            <label for="tip_radnog_vremena">Radno vreme:</label>
+            <select id="tip_radnog_vremena" name="tip_radnog_vremena" required>
+              <option value="puno_8h">
+                Puno radno vreme (8 sati dnevno / 40 sati nedeljno)
+              </option>
+              <option value="skraceno_6h">
+                Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)
+              </option>
+              <option value="skraceno_4h">
+                Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)
+              </option>
+              <option value="skraceno_2h">
+                Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)
+              </option>
+            </select>
+          </div>
+
+          <!-- Tip ugovora -->
+          <div class="form-group">
+            <label for="tip_ugovora">Tip ugovora:</label>
+            <select
+              id="tip_ugovora"
+              name="tip_ugovora"
+              required
+              onchange="toggleDatumPrestanka()"
+            >
+              <option value="na_neodredjeno">Na neodređeno vreme</option>
+              <option value="na_odredjeno">Na određeno vreme</option>
+            </select>
+          </div>
+
+          <!-- Datum prestanka (uslovni) -->
+          <div
+            class="form-group"
+            id="datum_prestanka_group"
+            style="display: none"
+          >
+            <label for="datum_prestanka">Datum prestanka rada:</label>
+            <input type="date" id="datum_prestanka" name="datum_prestanka" />
+          </div>
+
+          <!-- Napomene -->
+          <div class="form-group">
+            <label for="napomene">Napomene:</label>
+            <textarea
+              id="napomene"
+              name="napomene"
+              placeholder="Dodatne napomene o zaposlenju..."
+            ></textarea>
+          </div>
+
+          <!-- Dugmad -->
+          <div style="margin-top: 20px; text-align: center">
+            <button
+              type="submit"
+              class="btn btn-success"
+              style="margin-right: 10px"
+            >
+              Dodaj radnika
+            </button>
+            <button type="button" class="btn" onclick="closeRadnikModal()">
+              Otkaži
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="radnici.js"></script>
+    <script>
+      // Funkcija za prikaz/sakrivanje polja za datum prestanka
+      function toggleDatumPrestanka() {
+        const tipUgovora = document.getElementById("tip_ugovora").value;
+        const datumPrestankaGroup = document.getElementById(
+          "datum_prestanka_group"
+        );
+        const datumPrestankaInput = document.getElementById("datum_prestanka");
+
+        if (tipUgovora === "na_odredjeno") {
+          datumPrestankaGroup.style.display = "block";
+          datumPrestankaInput.required = true;
+        } else {
+          datumPrestankaGroup.style.display = "none";
+          datumPrestankaInput.required = false;
+          datumPrestankaInput.value = "";
+        }
+      }
+
+      // Postavi današnji datum kao default za datum zaposlenja
+      document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("datum_zaposlenja").value = today;
+      });
+    </script>
+  </body>
+</html>

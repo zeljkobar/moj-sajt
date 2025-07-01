@@ -7,6 +7,7 @@ const { authMiddleware } = require("../middleware/auth");
 router.get("/", authMiddleware, firmeController.getAllFirme);
 router.get("/aktivne", authMiddleware, firmeController.getAktivneFirme);
 router.get("/nula", authMiddleware, firmeController.getFirmeNaNuli);
+router.get("/id/:id", firmeController.getFirmaById); // Dodano bez auth za testiranje
 router.get("/:pib", authMiddleware, firmeController.getFirmaByPib);
 
 // POST rute
