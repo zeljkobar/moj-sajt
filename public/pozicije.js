@@ -116,7 +116,84 @@ async function deletePozicija(id) {
   }
 }
 
-// Funkcija za edit pozicije (placeholder)
-function editPozicija(id) {
-  alert("Edit funkcionalnost će biti implementirana u budućnosti");
+// Funkcija za edit pozicije
+async function editPozicija(id) {
+  try {
+    // Prvo učitamo podatke o poziciji
+    const response = await fetch(`/api/pozicije/${id}`);
+    const pozicija = await response.json();
+
+    if (response.ok && pozicija) {
+      // Popunimo edit modal sa postojećim podacima
+      document.getElementById("editPozicijaId").value = pozicija.id;
+      document.getElementById("editNaziv").value = pozicija.naziv;
+      document.getElementById("editOpisPoslova").value = pozicija.opis_poslova;
+
+      // Pokažemo edit modal
+      document.getElementById("editPozicijaModal").style.display = "block";
+    } else {
+      alert(
+        "Greška pri učitavanju podataka: " +
+          (pozicija.message || "Nepoznata greška")
+      );
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju pozicije:", error);
+    alert("Greška pri učitavanju pozicije");
+  }
 }
+
+// Funkcija za zatvaranje edit modal-a
+function closeEditPozicijaModal() {
+  document.getElementById("editPozicijaModal").style.display = "none";
+}
+
+// Event listener za edit formu
+document
+  .getElementById("editPozicijaForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const id = document.getElementById("editPozicijaId").value;
+    const naziv = document.getElementById("editNaziv").value;
+    const opis_poslova = document.getElementById("editOpisPoslova").value;
+
+    try {
+      const response = await fetch(`/api/pozicije/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          naziv: naziv,
+          opis_poslova: opis_poslova,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Pozicija je uspešno ažurirana!");
+        closeEditPozicijaModal();
+        loadPozicije(); // Osvežimo listu
+      } else {
+        alert("Greška: " + result.message);
+      }
+    } catch (error) {
+      console.error("Greška pri ažuriranju pozicije:", error);
+      alert("Greška pri ažuriranju pozicije");
+    }
+  });
+
+// Zatvaranje modal-a klikom van njega
+window.onclick = function (event) {
+  const pozicijaModal = document.getElementById("pozicijaModal");
+  const editPozicijaModal = document.getElementById("editPozicijaModal");
+
+  if (event.target == pozicijaModal) {
+    pozicijaModal.style.display = "none";
+  }
+  if (event.target == editPozicijaModal) {
+    editPozicijaModal.style.display = "none";
+  }
+};

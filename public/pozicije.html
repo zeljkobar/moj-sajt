@@ -172,6 +172,34 @@
       </div>
     </div>
 
+    <!-- Edit Pozicija Modal -->
+    <div id="editPozicijaModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditPozicijaModal()">&times;</span>
+        <h2>Uredi poziciju</h2>
+        <form id="editPozicijaForm">
+          <input type="hidden" id="editPozicijaId" />
+          <div class="form-group">
+            <label for="editNaziv">Naziv pozicije:</label>
+            <input type="text" id="editNaziv" name="naziv" required />
+          </div>
+          <div class="form-group">
+            <label for="editOpisPoslova">Opis poslova:</label>
+            <textarea
+              id="editOpisPoslova"
+              name="opis_poslova"
+              required
+              placeholder="Unesite detaljjan opis poslova za ovu poziciju..."
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">Sačuvaj izmene</button>
+          <button type="button" class="btn" onclick="closeEditPozicijaModal()">
+            Otkaži
+          </button>
+        </form>
+      </div>
+    </div>
+
     <script src="pozicije.js"></script>
   </body>
 </html>
