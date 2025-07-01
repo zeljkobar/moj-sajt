@@ -17,11 +17,26 @@ const path = require("path");
 const fs = require("fs");
 
 // parsiranje JSON i form-data
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://summasummarum.me",
+  "http://summasummarum.me"
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000", // promeni ako koristiš drugi port
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Omogući slanje cookies/session
   })
 );
@@ -43,9 +58,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(
   session({
-    secret: "vanesa3007", // promeni ovo u jaku vrednost
+    secret: process.env.SESSION_SECRET || "vanesa3007", // koristi env variable za production
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production' && !process.env.IISNODE_VERSION, // false za IIS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 sata
+    }
   })
 );
 
@@ -248,6 +268,19 @@ app.use((err, req, res, next) => {
   res.status(500).json({ msg: "Server error" });
 });
 
-app.listen(port, () => {
-  console.log(`🚀 Server radi na http://localhost:${port}`);
+// IIS uses named pipes, not ports
+const server = app.listen(port, () => {
+  if (process.env.IISNODE_VERSION) {
+    console.log(`🚀 Server running on IIS with iisnode`);
+  } else {
+    console.log(`🚀 Server radi na http://localhost:${port}`);
+  }
+});
+
+// Handle IIS shutdown gracefully
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    process.exit(0);
+  });
 });
