@@ -64,9 +64,24 @@ const getRolePermissions = (role) => {
     case ROLES.UGOVORI:
       return ["ugovori", "radnici", "pozicije"];
     case ROLES.FULL:
-      return ["pdv_prijava", "pdv_nule", "dobit_prijava", "ugovori", "radnici", "pozicije"];
+      return [
+        "pdv_prijava",
+        "pdv_nule",
+        "dobit_prijava",
+        "ugovori",
+        "radnici",
+        "pozicije",
+      ];
     case ROLES.ADMIN:
-      return ["pdv_prijava", "pdv_nule", "dobit_prijava", "ugovori", "radnici", "pozicije", "admin"];
+      return [
+        "pdv_prijava",
+        "pdv_nule",
+        "dobit_prijava",
+        "ugovori",
+        "radnici",
+        "pozicije",
+        "admin",
+      ];
     default:
       return ["pdv_prijava"]; // Default minimal access
   }

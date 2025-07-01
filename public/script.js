@@ -16,12 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Autentifikacija:", data);
       if (data.authenticated) {
         const userRole = data.user.role;
-        
+
         if (loginForm) loginForm.classList.add("d-none");
         if (userPanel) userPanel.classList.remove("d-none");
         if (welcomeMsg)
           welcomeMsg.textContent = `Dobrodošao, ${data.user.username}!`;
-        
+
         // Show navigation links based on role permissions
         if (pdvLink && ["pdv", "full", "admin"].includes(userRole)) {
           pdvLink.classList.remove("d-none");
