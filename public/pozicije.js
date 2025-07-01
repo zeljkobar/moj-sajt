@@ -97,9 +97,18 @@ document
 async function deletePozicija(id) {
   if (confirm("Da li ste sigurni da želite da obrišete ovu poziciju?")) {
     try {
-      const response = await fetch(`/api/pozicije/${id}`, {
+      // Prvo pokušaj sa DELETE metodom
+      let response = await fetch(`/api/pozicije/${id}`, {
         method: "DELETE",
       });
+
+      // Ako DELETE ne radi (405 greška), koristi POST fallback
+      if (response.status === 405) {
+        console.log("DELETE metoda nije podržana, koristim POST fallback");
+        response = await fetch(`/api/pozicije/${id}/delete`, {
+          method: "POST",
+        });
+      }
 
       const result = await response.json();
 
@@ -159,7 +168,8 @@ document
     const opis_poslova = document.getElementById("editOpisPoslova").value;
 
     try {
-      const response = await fetch(`/api/pozicije/${id}`, {
+      // Prvo pokušaj sa PUT metodom
+      let response = await fetch(`/api/pozicije/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -169,6 +179,21 @@ document
           opis_poslova: opis_poslova,
         }),
       });
+
+      // Ako PUT ne radi (405 greška), koristi POST fallback
+      if (response.status === 405) {
+        console.log("PUT metoda nije podržana, koristim POST fallback");
+        response = await fetch(`/api/pozicije/${id}/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            naziv: naziv,
+            opis_poslova: opis_poslova,
+          }),
+        });
+      }
 
       const result = await response.json();
 
