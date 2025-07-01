@@ -34,11 +34,11 @@
         padding: 4px 8px;
       }
 
-      .role-pdv0 {
-        background-color: #6c757d;
-      }
       .role-pdv {
         background-color: #0d6efd;
+      }
+      .role-ugovori {
+        background-color: #fd7e14;
       }
       .role-full {
         background-color: #198754;
@@ -108,19 +108,19 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-3">
-                  <span class="badge role-pdv0 role-badge">PDV0</span>
+                  <span class="badge role-pdv role-badge">PDV</span>
                   <small class="d-block mt-1"
-                    >Samo masovno preuzimanje PDV</small
+                    >PDV prijave i nule</small
                   >
                 </div>
                 <div class="col-md-3">
-                  <span class="badge role-pdv role-badge">PDV</span>
-                  <small class="d-block mt-1">PDV0 + PDV prijave</small>
+                  <span class="badge role-ugovori role-badge">UGOVORI</span>
+                  <small class="d-block mt-1">Radnici i ugovori</small>
                 </div>
                 <div class="col-md-3">
                   <span class="badge role-full role-badge">FULL</span>
                   <small class="d-block mt-1"
-                    >PDV0 + PDV + Porez na dobit</small
+                    >PDV + UGOVORI + Porez na dobit</small
                   >
                 </div>
                 <div class="col-md-3">
@@ -168,21 +168,25 @@
     <script>
       // Role display configuration
       const roleConfig = {
-        pdv0: { name: "PDV0", class: "role-pdv0", description: "Samo PDV0" },
-        pdv: {
-          name: "PDV",
-          class: "role-pdv",
-          description: "PDV0 + PDV prijave",
+        pdv: { 
+          name: "PDV", 
+          class: "role-pdv", 
+          description: "PDV prijave i nule" 
+        },
+        ugovori: {
+          name: "UGOVORI",
+          class: "role-ugovori",
+          description: "Radnici, pozicije i ugovori",
         },
         full: {
           name: "FULL",
           class: "role-full",
-          description: "PDV0 + PDV + Dobit",
+          description: "PDV + UGOVORI + Porez na dobit",
         },
         admin: {
           name: "ADMIN",
           class: "role-admin",
-          description: "Sve + Admin",
+          description: "Sve + Admin panel",
         },
       };
 
@@ -227,7 +231,7 @@
 
         const usersHtml = users
           .map((user) => {
-            const roleInfo = roleConfig[user.role] || roleConfig["pdv0"];
+            const roleInfo = roleConfig[user.role] || roleConfig["pdv"];
             return `
             <div class="col-md-6 col-lg-4 mb-3">
               <div class="card user-card">
@@ -250,12 +254,12 @@
                     <select class="form-select form-select-sm" onchange="changeUserRole(${
                       user.id
                     }, this.value)">
-                      <option value="pdv0" ${
-                        user.role === "pdv0" ? "selected" : ""
-                      }>PDV0</option>
                       <option value="pdv" ${
                         user.role === "pdv" ? "selected" : ""
                       }>PDV</option>
+                      <option value="ugovori" ${
+                        user.role === "ugovori" ? "selected" : ""
+                      }>UGOVORI</option>
                       <option value="full" ${
                         user.role === "full" ? "selected" : ""
                       }>FULL</option>
