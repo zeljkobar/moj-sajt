@@ -79,6 +79,70 @@
         font-size: 4rem;
         margin-bottom: 20px;
       }
+      
+      /* Responsive poboljšanja */
+      @media (max-width: 768px) {
+        .firm-header {
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+        
+        .firm-header h1 {
+          font-size: 1.5rem;
+        }
+        
+        .radnik-info {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+        
+        .radnik-info .text-end {
+          text-align: left !important;
+          width: 100%;
+        }
+        
+        .radnik-info .text-end .btn {
+          width: 48%;
+          margin: 2px 1%;
+        }
+        
+        .pozicija-opis {
+          padding: 12px;
+        }
+        
+        .container {
+          padding: 10px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .firm-header {
+          padding: 15px;
+        }
+        
+        .firm-header h1 {
+          font-size: 1.3rem;
+        }
+        
+        .radnik-card {
+          padding: 15px;
+        }
+        
+        .radnik-info .text-end .btn {
+          width: 100%;
+          margin: 2px 0;
+        }
+        
+        .back-btn {
+          padding: 8px 16px;
+          font-size: 0.9rem;
+        }
+        
+        .empty-state {
+          padding: 40px 15px;
+        }
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -233,22 +297,25 @@
           // Dohvati detaljne podatke o radniku
           const response = await fetch(`/api/radnici/id/${radnikId}`);
           const radnik = await response.json();
-          
+
           // Formatiranje datuma
-          const datumZaposlenja = radnik.datum_zaposlenja 
+          const datumZaposlenja = radnik.datum_zaposlenja
             ? new Date(radnik.datum_zaposlenja).toLocaleDateString("sr-RS")
             : "N/A";
-          
-          const datumPrestanka = radnik.datum_prestanka 
+
+          const datumPrestanka = radnik.datum_prestanka
             ? new Date(radnik.datum_prestanka).toLocaleDateString("sr-RS")
             : "N/A";
 
           // Formatiranje radnog vremena
           const radnoVremeText = {
             puno_8h: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
-            skraceno_6h: "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
-            skraceno_4h: "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
-            skraceno_2h: "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
+            skraceno_6h:
+              "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
+            skraceno_4h:
+              "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
+            skraceno_2h:
+              "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
           };
 
           // Formatiranje tipa ugovora
@@ -263,47 +330,75 @@
               <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title">Detalji radnika: ${radnik.ime} ${radnik.prezime}</h5>
+                    <h5 class="modal-title">Detalji radnika: ${radnik.ime} ${
+            radnik.prezime
+          }</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
                   <div class="modal-body">
                     <div class="row">
                       <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Osnovni podaci</h6>
-                        <p><strong>Ime i prezime:</strong> ${radnik.ime} ${radnik.prezime}</p>
+                        <p><strong>Ime i prezime:</strong> ${radnik.ime} ${
+            radnik.prezime
+          }</p>
                         <p><strong>JMBG:</strong> ${radnik.jmbg}</p>
-                        <p><strong>Telefon:</strong> ${radnik.telefon || "N/A"}</p>
+                        <p><strong>Telefon:</strong> ${
+                          radnik.telefon || "N/A"
+                        }</p>
                         <p><strong>Email:</strong> ${radnik.email || "N/A"}</p>
-                        <p><strong>Adresa:</strong> ${radnik.adresa || "N/A"}</p>
+                        <p><strong>Adresa:</strong> ${
+                          radnik.adresa || "N/A"
+                        }</p>
                       </div>
                       <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Podaci o zaposlenju</h6>
-                        <p><strong>Pozicija:</strong> ${radnik.pozicija_naziv || "N/A"}</p>
-                        <p><strong>Firma:</strong> ${radnik.firma_naziv || "N/A"}</p>
+                        <p><strong>Pozicija:</strong> ${
+                          radnik.pozicija_naziv || "N/A"
+                        }</p>
+                        <p><strong>Firma:</strong> ${
+                          radnik.firma_naziv || "N/A"
+                        }</p>
                         <p><strong>Datum zaposlenja:</strong> ${datumZaposlenja}</p>
-                        <p><strong>Tip ugovora:</strong> ${tipUgovoraText[radnik.tip_ugovora] || "N/A"}</p>
-                        ${radnik.tip_ugovora === 'na_odredjeno' ? `<p><strong>Datum prestanka:</strong> ${datumPrestanka}</p>` : ''}
+                        <p><strong>Tip ugovora:</strong> ${
+                          tipUgovoraText[radnik.tip_ugovora] || "N/A"
+                        }</p>
+                        ${
+                          radnik.tip_ugovora === "na_odredjeno"
+                            ? `<p><strong>Datum prestanka:</strong> ${datumPrestanka}</p>`
+                            : ""
+                        }
                       </div>
                     </div>
                     <div class="row mt-3">
                       <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Finansijski podaci</h6>
-                        <p><strong>Visina zarade:</strong> ${radnik.visina_zarade || 0}€</p>
-                        <p><strong>Radno vreme:</strong> ${radnoVremeText[radnik.tip_radnog_vremena] || "N/A"}</p>
+                        <p><strong>Visina zarade:</strong> ${
+                          radnik.visina_zarade || 0
+                        }€</p>
+                        <p><strong>Radno vreme:</strong> ${
+                          radnoVremeText[radnik.tip_radnog_vremena] || "N/A"
+                        }</p>
                       </div>
                       <div class="col-md-6">
                         <h6 class="fw-bold mb-3">Dodatne informacije</h6>
-                        <p><strong>Napomene:</strong> ${radnik.napomene || "Nema dodatnih napomena"}</p>
+                        <p><strong>Napomene:</strong> ${
+                          radnik.napomene || "Nema dodatnih napomena"
+                        }</p>
                       </div>
                     </div>
-                    ${radnik.opis_poslova ? `
+                    ${
+                      radnik.opis_poslova
+                        ? `
                       <div class="mt-3">
                         <h6 class="fw-bold mb-3">Opis poslova</h6>
                         <div class="alert alert-info">
                           ${radnik.opis_poslova}
                         </div>
                       </div>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="generateUgovor(${radnikId})">
@@ -317,18 +412,19 @@
           `;
 
           // Ukloni postojeći modal ako postoji
-          const existingModal = document.getElementById('radnikDetailsModal');
+          const existingModal = document.getElementById("radnikDetailsModal");
           if (existingModal) {
             existingModal.remove();
           }
 
           // Dodaj novi modal u body
-          document.body.insertAdjacentHTML('beforeend', modalHtml);
+          document.body.insertAdjacentHTML("beforeend", modalHtml);
 
           // Prikaži modal
-          const modal = new bootstrap.Modal(document.getElementById('radnikDetailsModal'));
+          const modal = new bootstrap.Modal(
+            document.getElementById("radnikDetailsModal")
+          );
           modal.show();
-
         } catch (error) {
           console.error("Greška pri dohvaćanju detalja radnika:", error);
           alert("Greška pri učitavanju detalja radnika");
