@@ -3,7 +3,7 @@
 ## 📋 Pregled
 
 Ova dokumentacija opisuje sve dostupne API endpoint-e u Summa Summarum aplikaciji.
-Aplikacija koristi multi-user arhitekturu gde svaki korisnik ima izolovane podatke.
+Aplikacija koristi multi-user arhitekturu sa MariaDB bazom podataka gde svaki korisnik ima izolovane podatke.
 
 ---
 
@@ -137,18 +137,18 @@ Vraća sve firme trenutnog ulogovanog korisnika (aktivne + firme na nuli).
 {
   "firme": [
     {
-      "naziv": "Nova aktivna firma d.o.o.",
-      "pib": "12345678",
-      "adresa": "Adresa bb",
-      "pdvBroj": "80/31-12345-0",
-      "status": "active"
-    },
-    {
-      "naziv": "Firma na nuli d.o.o.",
-      "pib": "87654321",
-      "adresa": "Druga adresa bb",
-      "pdvBroj": "80/31-87654-1",
-      "status": "zero"
+      "id": 1,
+      "user_id": 1,
+      "PIB": "02825767",
+      "Naziv": "SUMMA SUMMARUM",
+      "Adresa": "POPA DUKLJANINA 2",
+      "PDVBroj": "80/31-02217-8",
+      "direktor_ime_prezime": "ŽELJKO ĐURANOVIĆ",
+      "direktor_jmbg": "1606981220012",
+      "Telefon": "067440040",
+      "Email": "zeljkodj@t-com.me",
+      "created_at": "2025-07-05T10:30:00.000Z",
+      "updated_at": "2025-07-05T10:30:00.000Z"
     }
   ]
 }
@@ -164,11 +164,16 @@ Vraća samo aktivne firme trenutnog korisnika.
 {
   "firme": [
     {
-      "naziv": "Nova aktivna firma d.o.o.",
-      "pib": "12345678",
-      "adresa": "Adresa bb",
-      "pdvBroj": "80/31-12345-0",
-      "status": "active"
+      "id": 1,
+      "user_id": 1,
+      "PIB": "02825767",
+      "Naziv": "SUMMA SUMMARUM",
+      "Adresa": "POPA DUKLJANINA 2",
+      "PDVBroj": "80/31-02217-8",
+      "direktor_ime_prezime": "ŽELJKO ĐURANOVIĆ",
+      "direktor_jmbg": "1606981220012",
+      "Telefon": "067440040",
+      "Email": "zeljkodj@t-com.me"
     }
   ]
 }
@@ -176,7 +181,7 @@ Vraća samo aktivne firme trenutnog korisnika.
 
 ### GET /api/firme/nula
 
-Vraća samo firme na nuli trenutnog korisnika.
+Vraća samo firme na nuli trenutnog korisnika (ako postoje).
 
 ### GET /api/firme/:pib
 
@@ -187,11 +192,18 @@ Vraća jednu specifičnu firmu po PIB-u.
 ```json
 {
   "firma": {
-    "naziv": "Nova aktivna firma d.o.o.",
-    "pib": "12345678",
-    "adresa": "Adresa bb",
-    "pdvBroj": "80/31-12345-0",
-    "status": "active"
+    "id": 1,
+    "user_id": 1,
+    "PIB": "02825767",
+    "Naziv": "SUMMA SUMMARUM",
+    "Adresa": "POPA DUKLJANINA 2",
+    "PDVBroj": "80/31-02217-8",
+    "direktor_ime_prezime": "ŽELJKO ĐURANOVIĆ",
+    "direktor_jmbg": "1606981220012",
+    "Telefon": "067440040",
+    "Email": "zeljkodj@t-com.me",
+    "created_at": "2025-07-05T10:30:00.000Z",
+    "updated_at": "2025-07-05T10:30:00.000Z"
   }
 }
 ```
@@ -212,11 +224,14 @@ Dodaje novu firmu za trenutnog korisnika.
 
 ```json
 {
-  "naziv": "Nova firma d.o.o.",
-  "pib": "12345678",
-  "adresa": "Adresa firme bb",
-  "pdvBroj": "80/31-12345-0",
-  "status": "active"
+  "PIB": "03123456",
+  "Naziv": "NOVA FIRMA DOO",
+  "Adresa": "NOVA ADRESA BB",
+  "PDVBroj": "80/31-12345-6",
+  "direktor_ime_prezime": "MARKO MARKOVIĆ",
+  "direktor_jmbg": "1234567890123",
+  "Telefon": "067123456",
+  "Email": "info@novafirma.me"
 }
 ```
 
@@ -226,11 +241,16 @@ Dodaje novu firmu za trenutnog korisnika.
 {
   "message": "Firma je uspešno dodana",
   "firma": {
-    "naziv": "Nova firma d.o.o.",
-    "pib": "12345678",
-    "adresa": "Adresa firme bb",
-    "pdvBroj": "80/31-12345-0",
-    "status": "active"
+    "id": 2,
+    "user_id": 1,
+    "PIB": "03123456",
+    "Naziv": "NOVA FIRMA DOO",
+    "Adresa": "NOVA ADRESA BB",
+    "PDVBroj": "80/31-12345-6",
+    "direktor_ime_prezime": "MARKO MARKOVIĆ",
+    "direktor_jmbg": "1234567890123",
+    "Telefon": "067123456",
+    "Email": "info@novafirma.me"
   }
 }
 ```
@@ -243,10 +263,13 @@ Ažurira postojeću firmu.
 
 ```json
 {
-  "naziv": "Ažurirani naziv d.o.o.",
-  "adresa": "Nova adresa bb",
-  "pdvBroj": "80/31-12345-1",
-  "status": "zero"
+  "Naziv": "AŽURIRANI NAZIV FIRME DOO",
+  "Adresa": "NOVA ADRESA 123",
+  "PDVBroj": "80/31-54321-9",
+  "direktor_ime_prezime": "PETAR PETROVIĆ",
+  "direktor_jmbg": "9876543210987",
+  "Telefon": "067987654",
+  "Email": "nova@email.me"
 }
 ```
 
@@ -256,11 +279,17 @@ Ažurira postojeću firmu.
 {
   "message": "Firma je uspešno ažurirana",
   "firma": {
-    "naziv": "Ažurirani naziv d.o.o.",
-    "pib": "12345678",
-    "adresa": "Nova adresa bb",
-    "pdvBroj": "80/31-12345-1",
-    "status": "zero"
+    "id": 1,
+    "user_id": 1,
+    "PIB": "02825767",
+    "Naziv": "AŽURIRANI NAZIV FIRME DOO",
+    "Adresa": "NOVA ADRESA 123",
+    "PDVBroj": "80/31-54321-9",
+    "direktor_ime_prezime": "PETAR PETROVIĆ",
+    "direktor_jmbg": "9876543210987",
+    "Telefon": "067987654",
+    "Email": "nova@email.me",
+    "updated_at": "2025-07-05T12:00:00.000Z"
   }
 }
 ```
@@ -275,11 +304,10 @@ Briše firmu po PIB-u.
 {
   "message": "Firma je uspešno obrisana",
   "firma": {
-    "naziv": "Obrisana firma d.o.o.",
-    "pib": "12345678",
-    "adresa": "Adresa bb",
-    "pdvBroj": "80/31-12345-0",
-    "status": "active"
+    "id": 1,
+    "PIB": "02825767",
+    "Naziv": "SUMMA SUMMARUM",
+    "Adresa": "POPA DUKLJANINA 2"
   }
 }
 ```
@@ -292,10 +320,14 @@ Vraća jednu firmu na osnovu PIB-a.
 
 ```json
 {
-  "ime": "Nova aktivna firma d.o.o.",
-  "pib": "12345678",
-  "adresa": "Adresa bb",
-  "pdv": "80/31-12345-0"
+  "PIB": "02825767",
+  "Naziv": "SUMMA SUMMARUM",
+  "Adresa": "POPA DUKLJANINA 2",
+  "PDVBroj": "80/31-02217-8",
+  "direktor_ime_prezime": "ŽELJKO ĐURANOVIĆ",
+  "direktor_jmbg": "1606981220012",
+  "Telefon": "067440040",
+  "Email": "zeljkodj@t-com.me"
 }
 ```
 
@@ -307,23 +339,14 @@ Dodaje novu firmu bilo kojeg statusa (aktivna ili na nuli).
 
 ```json
 {
-  "naziv": "Nova firma d.o.o.",
-  "pib": "98765432",
-  "adresa": "Neka adresa 123",
-  "pdvBroj": "80/31-98765-4",
-  "status": "active"
-}
-```
-
-ili za firmu na nuli:
-
-```json
-{
-  "naziv": "Firma na nuli d.o.o.",
-  "pib": "11111111",
-  "adresa": "Adresa na nuli 456",
-  "pdvBroj": "",
-  "status": "zero"
+  "PIB": "03987654",
+  "Naziv": "NOVA TEST FIRMA DOO",
+  "Adresa": "TEST ADRESA 123",
+  "PDVBroj": "80/31-98765-4",
+  "direktor_ime_prezime": "ANA ANIĆ",
+  "direktor_jmbg": "1122334455667",
+  "Telefon": "067111222",
+  "Email": "test@firma.me"
 }
 ```
 
@@ -333,10 +356,15 @@ ili za firmu na nuli:
 {
   "message": "Firma je uspešno dodana",
   "firma": {
-    "ime": "Nova firma d.o.o.",
-    "pib": "98765432",
-    "adresa": "Neka adresa 123",
-    "pdv": "80/31-98765-4"
+    "id": 3,
+    "PIB": "03987654",
+    "Naziv": "NOVA TEST FIRMA DOO",
+    "Adresa": "TEST ADRESA 123",
+    "PDVBroj": "80/31-98765-4",
+    "direktor_ime_prezime": "ANA ANIĆ",
+    "direktor_jmbg": "1122334455667",
+    "Telefon": "067111222",
+    "Email": "test@firma.me"
   }
 }
 ```
@@ -349,10 +377,13 @@ Ažurira postojeću firmu.
 
 ```json
 {
-  "ime": "Ažurirano ime firme",
-  "adresa": "Nova adresa",
-  "pdv": "80/31-11111-1",
-  "noviPib": "11111111" // opciono - za menjanje PIB-a
+  "Naziv": "AŽURIRANO IME FIRME DOO",
+  "Adresa": "NOVA ADRESA 456",
+  "PDVBroj": "80/31-11111-1",
+  "direktor_ime_prezime": "NOVI DIREKTOR",
+  "direktor_jmbg": "5555666677889",
+  "Telefon": "067555666",
+  "Email": "novo@email.me"
 }
 ```
 
@@ -364,30 +395,47 @@ Briše firmu na osnovu PIB-a.
 
 ```json
 {
-  "message": "Aktivna firma je uspešno obrisana",
+  "message": "Firma je uspešno obrisana",
   "firma": {
-    "ime": "Obrisana firma",
-    "pib": "12345678",
-    "adresa": "Adresa",
-    "pdv": "80/31-12345-0"
+    "PIB": "02825767",
+    "Naziv": "SUMMA SUMMARUM",
+    "Adresa": "POPA DUKLJANINA 2"
   }
 }
 ```
 
 ---
 
-## � Bezbednost i Multi-user Arhitektura
+## 🔒 Bezbednost i Multi-user Arhitektura
 
 ### Izolacija podataka
 
-- Svaki korisnik vidi i upravlja **samo svojim firmama**
-- Podaci su fizički izolovani u posebnim JSON fajlovima
+- Svaki korisnik vidi i upravlja **samo svojim firmama** (`user_id` filtriranje)
+- Podaci su čuvani u **MariaDB bazi podataka**
 - Auth middleware automatski filtrira pristup na osnovu sesije
 
-### Struktura fajlova
+### Struktura baze podataka
 
-- Korisnici: `src/data/users.json`
-- Firme po korisniku: `src/data/users/{username}_firme.json`
+- **Tabela `users`**: Korisnici sistema
+- **Tabela `firme`**: Firme sa `user_id` foreign key
+- **Tabela `radnici`**: Radnici povezani sa firmama (opciono)
+
+### Kolone tabele `firme`
+
+| Kolona                | Tip          | Opis                           |
+| --------------------- | ------------ | ------------------------------ |
+| `id`                  | INT          | Primary key (auto increment)   |
+| `user_id`             | INT          | Foreign key na users tabelu    |
+| `PIB`                 | VARCHAR(20)  | Poreski identifikacioni broj   |
+| `Naziv`               | VARCHAR(255) | Naziv firme                    |
+| `Adresa`              | VARCHAR(255) | Adresa firme                   |
+| `PDVBroj`             | VARCHAR(50)  | PDV broj (može biti NULL)      |
+| `direktor_ime_prezime`| VARCHAR(255) | Ime i prezime direktora        |
+| `direktor_jmbg`       | VARCHAR(20)  | JMBG direktora                 |
+| `Telefon`             | VARCHAR(50)  | Kontakt telefon                |
+| `Email`               | VARCHAR(255) | Email adresa                   |
+| `created_at`          | TIMESTAMP    | Datum kreiranja                |
+| `updated_at`          | TIMESTAMP    | Datum poslednje izmene         |
 
 ### Status kodovi
 
@@ -401,10 +449,13 @@ Briše firmu na osnovu PIB-a.
 
 ### Validacija
 
-- **PIB**: Mora biti jedinstven po korisniku
-- **Status**: Samo "active" ili "zero"
+- **PIB**: Mora biti jedinstven u celoj bazi
+- **user_id**: Automatski se postavlja na osnovu ulogovanog korisnika
 - **Naziv**: Obavezan
 - **Adresa**: Obavezna
+- **direktor_ime_prezime**: Obavezan
+- **direktor_jmbg**: Obavezan
+- **Velika slova**: Sva polja osim Email-a se čuvaju velikim slovima
 
 ---
 
@@ -438,7 +489,7 @@ Briše firmu na osnovu PIB-a.
 
 ```json
 {
-  "message": "Ime, PIB i adresa su obavezni"
+  "message": "PIB, Naziv, Adresa, direktor_ime_prezime i direktor_jmbg su obavezni"
 }
 ```
 
@@ -468,23 +519,20 @@ Briše firmu na osnovu PIB-a.
 
 ---
 
-## 📁 Struktura Fajlova
+## 📁 Struktura Projekta
 
 ```
 src/
 ├── controllers/
-│   ├── authController.js     # Login/logout logika
-│   ├── firmeController.js    # CRUD operacije za firme
-│   └── userController.js     # CRUD operacije za korisnike
-├── routes/
-│   ├── authRoutes.js         # Auth endpoint-i
-│   ├── firmeRoutes.js        # Firme endpoint-i
-│   └── userRoutes.js         # Users endpoint-i
-├── middleware/
-│   └── auth.js               # Middleware za autentifikaciju
-└── data/
-    ├── firme.js              # Aktivne firme
-    └── firme0.js             # Firme na nuli
+│   ├── userController.js     # CRUD operacije za korisnike
+└── routes/
+    └── userRoutes.js         # Auth i user endpoint-i
+app.js                        # Glavna Express aplikacija
+database/
+├── firme.csv                 # CSV fajl sa firmama za import
+├── firme_mariadb_update.sql  # SQL skripta za masovni import/update
+├── create_firme_table.sql    # SQL skripta za kreiranje tabele
+└── generate_mariadb_sql.py   # Python skripta za generisanje SQL-a
 ```
 
 ---
@@ -507,7 +555,7 @@ curl -X GET http://localhost:3000/api/firme \
 curl -X POST http://localhost:3000/api/firme \
   -H "Content-Type: application/json" \
   -H "Cookie: connect.sid=your-session-cookie" \
-  -d '{"ime":"Test firma","pib":"12345678","adresa":"Test adresa"}'
+  -d '{"PIB":"03123456","Naziv":"TEST FIRMA DOO","Adresa":"TEST ADRESA","direktor_ime_prezime":"MARKO MARKOVIĆ","direktor_jmbg":"1234567890123","Telefon":"067123456","Email":"test@firma.me"}'
 ```
 
 ### PowerShell primer:
@@ -526,11 +574,13 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/firme" -WebSession $session
 ## 📝 Napomene
 
 1. **Sesije**: Aplikacija koristi express-session za čuvanje stanja login-a
-2. **Perzistencija**: Podaci se čuvaju u `.js` fajlovima (ne u bazi)
-3. **CORS**: Konfigurisan za `http://localhost:3000`
-4. **Validacija**: PIB mora biti jedinstven kroz sve firme
-5. **Auto-save**: Sve izmene se automatski čuvaju u fajlove
+2. **Baza podataka**: MariaDB sa UTF-8 podrškom za crnogorska slova
+3. **CORS**: Konfigurisan za development i production
+4. **Validacija**: PIB mora biti jedinstven u celoj bazi
+5. **Auto-uppercase**: Sva polja osim Email-a se automatski pretvaraju u velika slova
+6. **Timestamps**: Automatsko čuvanje vremena kreiranja i izmene
+7. **Foreign keys**: user_id se automatski postavlja na osnovu sesije
 
 ---
 
-_Poslednja izmena: 25. jun 2025._
+_Poslednja izmena: 5. jul 2025._
