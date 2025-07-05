@@ -188,6 +188,8 @@ const radniciController = {
       ime,
       prezime,
       jmbg,
+      grad,
+      adresa,
       pozicija_id,
       firma_id,
       datum_zaposlenja,
@@ -196,6 +198,7 @@ const radniciController = {
       tip_ugovora,
       datum_prestanka,
       napomene,
+      vrsta_ugovora,
     } = req.body;
 
     try {
@@ -213,9 +216,10 @@ const radniciController = {
           .json({ message: "Sva obavezna polja moraju biti popunjena" });
       }
 
+      // Ažuriraj radnika
       await executeQuery(
         `UPDATE radnici SET 
-          ime = ?, prezime = ?, jmbg = ?, pozicija_id = ?, firma_id = ?,
+          ime = ?, prezime = ?, jmbg = ?, grad = ?, adresa = ?, pozicija_id = ?, firma_id = ?,
           datum_zaposlenja = ?, visina_zarade = ?, tip_radnog_vremena = ?,
           tip_ugovora = ?, datum_prestanka = ?, napomene = ?
         WHERE id = ?`,
@@ -223,6 +227,8 @@ const radniciController = {
           ime,
           prezime,
           jmbg,
+          grad || null,
+          adresa || null,
           pozicija_id,
           firma_id,
           datum_zaposlenja,
@@ -234,6 +240,15 @@ const radniciController = {
           id,
         ]
       );
+
+      // Ažuriraj vrstu ugovora u tabeli ugovori ako postoji
+      if (vrsta_ugovora) {
+        await executeQuery(
+          `UPDATE ugovori SET vrsta_ugovora = ? WHERE radnik_id = ?`,
+          [vrsta_ugovora, id]
+        );
+      }
+
       res.json({ success: true, message: "Radnik je uspešno ažuriran" });
     } catch (error) {
       console.error("Greška pri ažuriranju radnika:", error);

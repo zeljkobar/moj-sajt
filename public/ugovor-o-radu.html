@@ -56,7 +56,22 @@
         margin-bottom: 5px;
         height: 40px;
       }
+      .print-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
       @media print {
+        .print-button {
+          display: none;
+        }
         body {
           background-color: white;
           padding: 0;
@@ -69,6 +84,9 @@
     </style>
   </head>
   <body>
+    <button class="print-button" onclick="window.print()">
+      Štampaj ugovor
+    </button>
     <div class="container">
       <p>
         Na osnovu čl. 29, 30 tač.1 i 31. Zakona o radu (»Sl.list CG«.br.74/2019,

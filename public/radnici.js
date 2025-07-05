@@ -142,13 +142,37 @@ function populateFirmeSelect() {
 }
 
 // Modal funkcije za radnike
+// Funkcija za otvaranje modala za kreiranje novog radnika
 function openRadnikModal() {
+  resetModalForNew();
   document.getElementById("radnikModal").style.display = "block";
+}
+
+// Funkcija za resetovanje modala za kreiranje novog radnika
+function resetModalForNew() {
+  // Reset naslov i dugme
+  document.getElementById("modalTitle").textContent = "Dodaj novog radnika";
+  document.getElementById("submitBtn").textContent = "Dodaj radnika";
+
+  // Reset formu
+  document.getElementById("radnikForm").reset();
+
+  // Sakrij datum prestanka polje
+  document.getElementById("datum_prestanka_group").style.display = "none";
+  document.getElementById("datum_prestanka").required = false;
+
+  // Resetuj help text
+  document.getElementById("radnoVremeHelp").style.display = "none";
+
+  // Postavi današnji datum
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("datum_zaposlenja").value = today;
 }
 
 function closeRadnikModal() {
   document.getElementById("radnikModal").style.display = "none";
-  document.getElementById("radnikForm").reset();
+  // Reset formu i sve što treba
+  resetModalForNew();
 }
 
 // Zatvaranje modala klikom van njega
@@ -159,7 +183,7 @@ window.onclick = function (event) {
   }
 };
 
-// Form submit za dodavanje radnika
+// Form submit za dodavanje/uređivanje radnika
 document
   .getElementById("radnikForm")
   .addEventListener("submit", async function (e) {
@@ -168,27 +192,53 @@ document
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
 
+    // Proveri da li je uređivanje ili kreiranje
+    const radnikId = data.radnik_id;
+    const isEditing = radnikId && radnikId !== "";
+
+    // Ukloni radnik_id iz podataka ako je prazan (za kreiranje)
+    if (!isEditing) {
+      delete data.radnik_id;
+    }
+
     try {
-      const response = await fetch("/api/radnici", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      let response;
+      let successMessage;
+
+      if (isEditing) {
+        // Uređivanje postojećeg radnika
+        response = await fetch(`/api/radnici/${radnikId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        successMessage = "Radnik je uspešno ažuriran!";
+      } else {
+        // Kreiranje novog radnika
+        response = await fetch("/api/radnici", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        successMessage = "Radnik je uspešno dodan!";
+      }
 
       const result = await response.json();
 
       if (result.success) {
-        alert("Radnik je uspešno dodan!");
+        alert(successMessage);
         closeRadnikModal();
         loadRadnici();
       } else {
         alert("Greška: " + result.message);
       }
     } catch (error) {
-      console.error("Greška pri dodavanju radnika:", error);
-      alert("Greška pri dodavanju radnika");
+      console.error("Greška pri obradi radnika:", error);
+      alert("Greška pri obradi radnika");
     }
   });
 
@@ -282,8 +332,57 @@ async function deleteRadnik(id) {
 }
 
 // Funkcije za editovanje (placeholder)
-function editRadnik(id) {
-  alert("Funkcija editovanja radnika će biti implementirana");
+// Funkcija za uređivanje radnika
+async function editRadnik(id) {
+  try {
+    // Dohvati podatke o radniku
+    const response = await fetch(`/api/radnici/id/${id}`);
+    if (!response.ok) {
+      throw new Error("Greška pri dohvatanju podataka o radniku");
+    }
+
+    const radnik = await response.json();
+
+    // Promeni naslov modala
+    document.getElementById("modalTitle").textContent = "Uredi radnika";
+    document.getElementById("submitBtn").textContent = "Sačuvaj izmene";
+
+    // Popuni formu sa postojećim podacima
+    document.getElementById("radnik_id").value = radnik.id;
+    document.getElementById("vrsta_ugovora").value = radnik.vrsta_ugovora || "";
+    document.getElementById("ime").value = radnik.ime || "";
+    document.getElementById("prezime").value = radnik.prezime || "";
+    document.getElementById("jmbg").value = radnik.jmbg || "";
+    document.getElementById("grad").value = radnik.grad || "";
+    document.getElementById("adresa").value = radnik.adresa || "";
+    document.getElementById("pozicija_id").value = radnik.pozicija_id || "";
+    document.getElementById("firma_id").value = radnik.firma_id || "";
+    document.getElementById("datum_zaposlenja").value =
+      radnik.datum_zaposlenja || "";
+    document.getElementById("visina_zarade").value = radnik.visina_zarade || "";
+    document.getElementById("tip_radnog_vremena").value =
+      radnik.tip_radnog_vremena || "";
+    document.getElementById("tip_ugovora").value = radnik.tip_ugovora || "";
+
+    // Ako je datum prestanka setovan, prikaži polje
+    if (radnik.datum_prestanka) {
+      document.getElementById("datum_prestanka").value = radnik.datum_prestanka;
+      document.getElementById("datum_prestanka_group").style.display = "block";
+      document.getElementById("datum_prestanka").required = true;
+    }
+
+    document.getElementById("napomene").value = radnik.napomene || "";
+
+    // Pozovi toggle funkcije da se prilagode opcije
+    toggleRadnoVremeOptions();
+    toggleDatumPrestanka();
+
+    // Otvori modal DIREKTNO (ne pozivaj openRadnikModal jer resetuje podatke)
+    document.getElementById("radnikModal").style.display = "block";
+  } catch (error) {
+    console.error("Greška pri dohvatanju podataka o radniku:", error);
+    alert("Greška pri dohvatanju podataka o radniku");
+  }
 }
 
 // Funkcija za generisanje ugovora iz tabele radnika

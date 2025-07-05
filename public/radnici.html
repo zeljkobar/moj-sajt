@@ -384,8 +384,9 @@
     <div id="radnikModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeRadnikModal()">&times;</span>
-        <h2>Dodaj novog radnika</h2>
+        <h2 id="modalTitle">Dodaj novog radnika</h2>
         <form id="radnikForm">
+          <input type="hidden" id="radnik_id" name="radnik_id" />
           <!-- Vrsta ugovora - PRVO POLJE -->
           <div class="form-group">
             <label for="vrsta_ugovora">Vrsta ugovora:</label>
@@ -580,6 +581,7 @@
               type="submit"
               class="btn btn-success"
               style="margin-right: 10px"
+              id="submitBtn"
             >
               Dodaj radnika
             </button>
