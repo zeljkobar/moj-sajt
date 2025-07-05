@@ -384,6 +384,26 @@
         <span class="close" onclick="closeRadnikModal()">&times;</span>
         <h2>Dodaj novog radnika</h2>
         <form id="radnikForm">
+          <!-- Vrsta ugovora - PRVO POLJE -->
+          <div class="form-group">
+            <label for="vrsta_ugovora">Vrsta ugovora:</label>
+            <select
+              id="vrsta_ugovora"
+              name="vrsta_ugovora"
+              required
+              onchange="toggleRadnoVremeOptions()"
+            >
+              <option value="">Izaberite vrstu ugovora</option>
+              <option value="ugovor_o_radu">Ugovor o radu</option>
+              <option value="ugovor_o_djelu">Ugovor o djelu</option>
+              <option value="ugovor_o_dopunskom_radu">
+                Ugovor o dopunskom radu
+              </option>
+              <option value="autorski_ugovor">Autorski ugovor</option>
+              <option value="ugovor_o_pozajmnici">Ugovor o pozajmnici</option>
+            </select>
+          </div>
+
           <!-- Osnovni podaci -->
           <div class="form-row">
             <div class="form-col">
@@ -478,6 +498,12 @@
                 Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)
               </option>
             </select>
+            <small
+              id="radnoVremeHelp"
+              style="color: #6c757d; font-size: 12px; display: none"
+            >
+              💡 Za dopunski rad: maksimalno 4 sata dnevno po zakonu
+            </small>
           </div>
 
           <!-- Tip ugovora -->
@@ -491,21 +517,6 @@
             >
               <option value="na_neodredjeno">Na neodređeno vreme</option>
               <option value="na_odredjeno">Na određeno vreme</option>
-            </select>
-          </div>
-
-          <!-- Vrsta ugovora -->
-          <div class="form-group">
-            <label for="vrsta_ugovora">Vrsta ugovora:</label>
-            <select id="vrsta_ugovora" name="vrsta_ugovora" required>
-              <option value="">Izaberite vrstu ugovora</option>
-              <option value="ugovor_o_radu">Ugovor o radu</option>
-              <option value="ugovor_o_djelu">Ugovor o djelu</option>
-              <option value="ugovor_o_dopunskom_radu">
-                Ugovor o dopunskom radu
-              </option>
-              <option value="autorski_ugovor">Autorski ugovor</option>
-              <option value="ugovor_o_pozajmnici">Ugovor o pozajmnici</option>
             </select>
           </div>
 
@@ -566,6 +577,49 @@
           datumPrestankaGroup.style.display = "none";
           datumPrestankaInput.required = false;
           datumPrestankaInput.value = "";
+        }
+      }
+
+      // Funkcija za ograničavanje opcija radnog vremena na osnovu vrste ugovora
+      function toggleRadnoVremeOptions() {
+        const vrstaUgovora = document.getElementById("vrsta_ugovora").value;
+        const radnoVremeSelect = document.getElementById("tip_radnog_vremena");
+        const helpText = document.getElementById("radnoVremeHelp");
+
+        // Sačuvaj trenutno izabranu vrednost
+        const trenutnaVrednost = radnoVremeSelect.value;
+
+        if (vrstaUgovora === "ugovor_o_dopunskom_radu") {
+          // Za dopunski rad - samo 2h ili 4h (max 4h po zakonu)
+          radnoVremeSelect.innerHTML = `
+            <option value="skraceno_2h">Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)</option>
+            <option value="skraceno_4h">Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)</option>
+          `;
+          // Postavi default na 4h za dopunski rad
+          radnoVremeSelect.value = "skraceno_4h";
+          // Prikaži poruku o ograničenju
+          helpText.style.display = "block";
+        } else {
+          // Za ostale ugovore - sve opcije
+          radnoVremeSelect.innerHTML = `
+            <option value="puno_8h">Puno radno vreme (8 sati dnevno / 40 sati nedeljno)</option>
+            <option value="skraceno_6h">Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)</option>
+            <option value="skraceno_4h">Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)</option>
+            <option value="skraceno_2h">Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)</option>
+          `;
+          // Pokušaj da vratiš prethodnu vrednost ako je bila validna
+          if (
+            trenutnaVrednost &&
+            ["puno_8h", "skraceno_6h", "skraceno_4h", "skraceno_2h"].includes(
+              trenutnaVrednost
+            )
+          ) {
+            radnoVremeSelect.value = trenutnaVrednost;
+          } else {
+            radnoVremeSelect.value = "puno_8h"; // Default za ostale ugovore
+          }
+          // Sakrij poruku o ograničenju
+          helpText.style.display = "none";
         }
       }
 
