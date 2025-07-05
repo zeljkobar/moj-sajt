@@ -95,7 +95,8 @@
       <p>
         <strong>ZAPOSLENI:</strong>
         <span id="radnik-ime-prezime">DEJAN NOVOVIĆ</span> iz Bara jmbg:
-        <span id="radnik-jmbg">0506981250010</span>, <br />
+        <span id="radnik-jmbg">0506981250010</span>, sa adresom stanovanja:
+        <span id="radnik-adresa">Bar, Ulica 123</span>, <br />
       </p>
       <p>
         Ovim ugovorom se uredjuju odnosi po osnovu rada izmedju poslodavca i
@@ -483,129 +484,212 @@
           const response = await fetch(`/api/contracts/${ugovorId}`);
           const ugovor = await response.json();
 
-          // Popuni tip ugovora
-          const tipTekst =
-            ugovor.radnik_tip_ugovora === "na_neodredjeno"
-              ? "neodređeno"
-              : "određeno";
-          document.getElementById("tip-ugovora").textContent = tipTekst;
-          document.getElementById("tip-ugovora-clan7").textContent = tipTekst;
-          document.getElementById("tip-ugovora-clan2").textContent = tipTekst;
-
-          // Popuni podatke o firmi
-          document.getElementById("firma-naziv").textContent =
-            ugovor.firma_naziv;
-          document.getElementById("firma-pib").textContent = ugovor.firma_pib;
-          document.getElementById("firma-adresa").textContent =
-            ugovor.firma_adresa || "MILA BOSKOVICA";
-          document.getElementById("direktor-ime").textContent =
-            ugovor.direktor_ime_prezime || "SPIČANOVIĆ VOJIN";
-
-          // Popuni podatke o radniku
-          const radnikImePrezime = `${ugovor.radnik_prezime} ${ugovor.radnik_ime}`;
-          document.getElementById("radnik-ime-prezime").textContent =
-            radnikImePrezime.toUpperCase();
-          document.getElementById("radnik-jmbg").textContent =
-            ugovor.radnik_jmbg;
-
-          // Popuni datume
-          const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
-          const formatiraniDatumZaposlenja =
-            datumZaposlenja.toLocaleDateString("sr-RS");
-
-          document.getElementById("datum-pocetka").textContent =
-            formatiraniDatumZaposlenja;
-          document.getElementById("datum-stupanja").textContent =
-            formatiraniDatumZaposlenja;
-          document.getElementById("datum-zaposlenja-clan2").textContent =
-            formatiraniDatumZaposlenja;
-
-          // Prikaži/sakrij datum kraja za određeno/neodređeno vreme
-          const datumKrajaWrapper = document.getElementById(
-            "datum-kraja-wrapper"
-          );
-          const doDatumPrestankaWrapper = document.getElementById(
-            "do-datum-prestanka-wrapper"
-          );
-
-          if (ugovor.radnik_tip_ugovora === "na_neodredjeno") {
-            datumKrajaWrapper.style.display = "none";
-            doDatumPrestankaWrapper.style.display = "none";
-          } else if (ugovor.datum_prestanka) {
-            const datumPrestanka = new Date(ugovor.datum_prestanka);
-            const formatiraniDatumPrestanka =
-              datumPrestanka.toLocaleDateString("sr-RS");
-            document.getElementById("datum-kraja").textContent =
-              formatiraniDatumPrestanka;
-            document.getElementById("datum-prestanka-clan2").textContent =
-              formatiraniDatumPrestanka;
-            datumKrajaWrapper.style.display = "inline";
-            doDatumPrestankaWrapper.style.display = "inline";
-          }
-
-          // Popuni mesto rada
-          document.getElementById("mesto-rada").textContent =
-            ugovor.mesto_rada || "SUSANJ BB";
-
-          // Popuni poziciju
-          document.getElementById("pozicija-naziv").textContent =
-            ugovor.pozicija_naziv || "rukovalac građevi";
-
-          // Popuni opis pozicije
-          const pozicijaOpisDiv = document.getElementById("pozicija-opis");
-          if (ugovor.opis_poslova) {
-            pozicijaOpisDiv.innerHTML = `<p>${ugovor.opis_poslova}</p>`;
-            console.log("Popunjen opis pozicije iz baze:", ugovor.opis_poslova);
-          } else {
-            console.log("Nema opisa pozicije u bazi, ostaje statični sadržaj");
-          }
-
-          // Popuni radno vreme
-          const satiDnevno = ugovor.sati_dnevno || 8;
-          const satiNedeljno = ugovor.sati_nedeljno || 40;
-
-          // Funkcija za konvertovanje broja u tekst
-          const brojUTekst = (broj) => {
-            const brojevi = {
-              2: "dva",
-              4: "četiri",
-              6: "šest",
-              8: "osam",
-              10: "deset",
-              20: "dvadeset",
-              30: "trideset",
-              40: "četrdeset",
-            };
-            return brojevi[broj] || broj.toString();
-          };
-
-          // Određuj tip radnog vremena
-          let tipRadnogVremena = "PUNIM";
-          if (satiDnevno < 8) {
-            tipRadnogVremena = "SKRAĆENIM";
-          }
-
-          document.getElementById("tip-radnog-vremena").textContent =
-            tipRadnogVremena;
-          document.getElementById("sati-dnevno").textContent = satiDnevno;
-          document.getElementById("sati-dnevno-tekst").textContent =
-            brojUTekst(satiDnevno);
-          document.getElementById("sati-nedeljno").textContent = satiNedeljno;
-          document.getElementById("sati-nedeljno-tekst").textContent =
-            brojUTekst(satiNedeljno);
-
-          console.log("Ugovor uspešno popunjen:", ugovor);
+          // Koristi novu centralizovanu funkciju za popunjavanje
+          popuniUgovorSaPodacima(ugovor);
         } catch (error) {
           console.error("Greška pri dohvaćanju ugovora:", error);
         }
       }
 
-      // Dobij ugovorId iz URL parametara
-      const urlParams = new URLSearchParams(window.location.search);
-      const ugovorId = urlParams.get("ugovor") || 1;
+      async function popuniUgovorPoRadniku(radnikId, firmaId) {
+        try {
+          // Učitaj podatke o radniku i firmi direktno
+          const [radnikResponse, firmaResponse] = await Promise.all([
+            fetch(`/api/radnici/id/${radnikId}`),
+            fetch(`/api/firme/id/${firmaId}`),
+          ]);
 
-      // Popuni ugovor kada se stranica učita
-      popuniUgovor(ugovorId);
+          const radnik = await radnikResponse.json();
+          const firma = await firmaResponse.json();
+
+          // Kreiraj ugovor objekat u istom formatu kao što API vraća
+          const ugovor = {
+            radnik_tip_ugovora: radnik.tip_ugovora,
+            firma_naziv: firma.naziv,
+            firma_pib: firma.pib,
+            firma_adresa: firma.adresa,
+            direktor_ime_prezime: firma.direktor_ime_prezime,
+            radnik_ime: radnik.ime,
+            radnik_prezime: radnik.prezime,
+            radnik_jmbg: radnik.jmbg,
+            radnik_adresa: radnik.adresa,
+            pozicija_naziv: radnik.pozicija_naziv,
+            opis_poslova: radnik.opis_poslova,
+            datum_zaposlenja: radnik.datum_zaposlenja,
+            datum_prestanka: radnik.datum_prestanka,
+            visina_zarade: radnik.visina_zarade,
+            tip_radnog_vremena: radnik.tip_radnog_vremena,
+          };
+
+          // Pozovi postojeću logiku popunjavanja sa kreiranim objektom
+          popuniUgovorSaPodacima(ugovor);
+        } catch (error) {
+          console.error("Greška pri dohvaćanju podataka za ugovor:", error);
+        }
+      }
+
+      // Izvuci logiku popunjavanja u zasebnu funkciju
+      function popuniUgovorSaPodacima(ugovor) {
+        // Popuni tip ugovora
+        const tipTekst =
+          ugovor.radnik_tip_ugovora === "na_neodredjeno"
+            ? "neodređeno"
+            : "određeno";
+        document.getElementById("tip-ugovora").textContent = tipTekst;
+        document.getElementById("tip-ugovora-clan7").textContent = tipTekst;
+        document.getElementById("tip-ugovora-clan2").textContent = tipTekst;
+
+        // Popuni podatke o firmi
+        document.getElementById("firma-naziv").textContent = ugovor.firma_naziv;
+        document.getElementById("firma-pib").textContent = ugovor.firma_pib;
+        document.getElementById("firma-adresa").textContent =
+          ugovor.firma_adresa || "MILA BOSKOVICA";
+        document.getElementById("direktor-ime").textContent =
+          ugovor.direktor_ime_prezime || "SPIČANOVIĆ VOJIN";
+
+        // Popuni podatke o radniku
+        const radnikImePrezime = `${ugovor.radnik_prezime} ${ugovor.radnik_ime}`;
+        document.getElementById("radnik-ime-prezime").textContent =
+          radnikImePrezime.toUpperCase();
+        document.getElementById("radnik-jmbg").textContent = ugovor.radnik_jmbg;
+
+        // Popuni adresu radnika
+        document.getElementById("radnik-adresa").textContent =
+          ugovor.radnik_adresa || "N/A";
+
+        // Popuni datume
+        const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
+        const formatiraniDatumZaposlenja =
+          datumZaposlenja.toLocaleDateString("sr-RS");
+
+        document.getElementById("datum-pocetka").textContent =
+          formatiraniDatumZaposlenja;
+        document.getElementById("datum-stupanja").textContent =
+          formatiraniDatumZaposlenja;
+        document.getElementById("datum-zaposlenja-clan2").textContent =
+          formatiraniDatumZaposlenja;
+
+        // Prikaži/sakrij datum kraja za određeno/neodređeno vreme
+        const datumKrajaWrapper = document.getElementById(
+          "datum-kraja-wrapper"
+        );
+        const doDatumPrestankaWrapper = document.getElementById(
+          "do-datum-prestanka-wrapper"
+        );
+
+        if (ugovor.radnik_tip_ugovora === "na_neodredjeno") {
+          datumKrajaWrapper.style.display = "none";
+          doDatumPrestankaWrapper.style.display = "none";
+        } else if (ugovor.datum_prestanka) {
+          const datumPrestanka = new Date(ugovor.datum_prestanka);
+          const formatiraniDatumPrestanka =
+            datumPrestanka.toLocaleDateString("sr-RS");
+          document.getElementById("datum-kraja").textContent =
+            formatiraniDatumPrestanka;
+          document.getElementById("datum-prestanka-clan2").textContent =
+            formatiraniDatumPrestanka;
+          datumKrajaWrapper.style.display = "inline";
+          doDatumPrestankaWrapper.style.display = "inline";
+        }
+
+        // Popuni mesto rada
+        document.getElementById("mesto-rada").textContent =
+          ugovor.mesto_rada || "SUSANJ BB";
+
+        // Popuni poziciju
+        document.getElementById("pozicija-naziv").textContent =
+          ugovor.pozicija_naziv || "rukovalac građevi";
+
+        // Popuni opis pozicije
+        const pozicijaOpisDiv = document.getElementById("pozicija-opis");
+        if (ugovor.opis_poslova) {
+          pozicijaOpisDiv.innerHTML = `<p>${ugovor.opis_poslova}</p>`;
+          console.log("Popunjen opis pozicije iz baze:", ugovor.opis_poslova);
+        } else {
+          console.log("Nema opisa pozicije u bazi, ostaje statični sadržaj");
+        }
+
+        // Popuni radno vreme na osnovu tip_radnog_vremena iz baze
+        let satiDnevno = 8;
+        let satiNedeljno = 40;
+
+        if (ugovor.tip_radnog_vremena) {
+          switch (ugovor.tip_radnog_vremena) {
+            case "puno_8h":
+              satiDnevno = 8;
+              satiNedeljno = 40;
+              break;
+            case "skraceno_6h":
+              satiDnevno = 6;
+              satiNedeljno = 30;
+              break;
+            case "skraceno_4h":
+              satiDnevno = 4;
+              satiNedeljno = 20;
+              break;
+            case "skraceno_2h":
+              satiDnevno = 2;
+              satiNedeljno = 10;
+              break;
+            default:
+              satiDnevno = 8;
+              satiNedeljno = 40;
+          }
+        }
+
+        // Funkcija za konvertovanje broja u tekst
+        const brojUTekst = (broj) => {
+          const brojevi = {
+            2: "dva",
+            4: "četiri",
+            6: "šest",
+            8: "osam",
+            10: "deset",
+            20: "dvadeset",
+            30: "trideset",
+            40: "četrdeset",
+          };
+          return brojevi[broj] || broj.toString();
+        };
+
+        // Određuj tip radnog vremena
+        let tipRadnogVremena = "PUNIM";
+        if (satiDnevno < 8) {
+          tipRadnogVremena = "SKRAĆENIM";
+        }
+
+        document.getElementById("tip-radnog-vremena").textContent =
+          tipRadnogVremena;
+        document.getElementById("sati-dnevno").textContent = satiDnevno;
+        document.getElementById("sati-dnevno-tekst").textContent =
+          brojUTekst(satiDnevno);
+        document.getElementById("sati-nedeljno").textContent = satiNedeljno;
+        document.getElementById("sati-nedeljno-tekst").textContent =
+          brojUTekst(satiNedeljno);
+
+        console.log("Ugovor uspešno popunjen:", ugovor);
+      }
+
+      // Kada se stranica učita, popuni ugovor
+      document.addEventListener("DOMContentLoaded", function () {
+        // Dobij ugovorId ili radnikId iz URL parametara
+        const urlParams = new URLSearchParams(window.location.search);
+        const ugovorId = urlParams.get("ugovor");
+        const radnikId = urlParams.get("radnikId");
+        const firmaId = urlParams.get("firmaId");
+
+        // Popuni ugovor kada se stranica učita
+        if (ugovorId) {
+          // Postojeći način - preko ugovor ID-a
+          popuniUgovor(ugovorId);
+        } else if (radnikId && firmaId) {
+          // Novi način - direktno preko radnik i firma ID-a
+          popuniUgovorPoRadniku(radnikId, firmaId);
+        } else {
+          // Fallback
+          popuniUgovor(1);
+        }
+      });
     </script>
   </body>
 </html>

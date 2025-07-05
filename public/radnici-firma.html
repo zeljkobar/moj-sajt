@@ -79,66 +79,66 @@
         font-size: 4rem;
         margin-bottom: 20px;
       }
-      
+
       /* Responsive poboljšanja */
       @media (max-width: 768px) {
         .firm-header {
           padding: 20px;
           margin-bottom: 20px;
         }
-        
+
         .firm-header h1 {
           font-size: 1.5rem;
         }
-        
+
         .radnik-info {
           flex-direction: column;
           align-items: flex-start;
           gap: 15px;
         }
-        
+
         .radnik-info .text-end {
           text-align: left !important;
           width: 100%;
         }
-        
+
         .radnik-info .text-end .btn {
           width: 48%;
           margin: 2px 1%;
         }
-        
+
         .pozicija-opis {
           padding: 12px;
         }
-        
+
         .container {
           padding: 10px;
         }
       }
-      
+
       @media (max-width: 480px) {
         .firm-header {
           padding: 15px;
         }
-        
+
         .firm-header h1 {
           font-size: 1.3rem;
         }
-        
+
         .radnik-card {
           padding: 15px;
         }
-        
+
         .radnik-info .text-end .btn {
           width: 100%;
           margin: 2px 0;
         }
-        
+
         .back-btn {
           padding: 8px 16px;
           font-size: 0.9rem;
         }
-        
+
         .empty-state {
           padding: 40px 15px;
         }
@@ -164,9 +164,12 @@
       <!-- Header -->
       <div class="firm-header">
         <h1 id="firmaNaziv"><i class="fas fa-users me-3"></i>Učitavam...</h1>
-        <p class="mb-0 fs-5" id="firmaInfo">
+        <p class="mb-3 fs-5" id="firmaInfo">
           Pregled radnika i njihovih pozicija
         </p>
+        <a href="#" id="dodajRadnikaBtn" class="btn btn-light btn-lg">
+          <i class="fas fa-user-plus me-2"></i>Dodaj novog radnika
+        </a>
       </div>
 
       <!-- Loading spinner -->
@@ -187,7 +190,7 @@
         <i class="fas fa-user-slash"></i>
         <h4>Nema radnika</h4>
         <p>Ova firma trenutno nema registrovane radnike.</p>
-        <a href="/radnici.html" class="btn btn-primary">
+        <a href="#" id="dodajPrvogRadnikaBtn" class="btn btn-primary">
           <i class="fas fa-plus me-2"></i>Dodaj prvog radnika
         </a>
       </div>
@@ -205,6 +208,7 @@
         if (firmaId) {
           loadFirmaInfo();
           loadRadnici();
+          setupDodajRadnikaBtn();
         } else {
           alert("Nedostaje ID firme!");
           window.location.href = "/firme.html";
@@ -227,6 +231,19 @@
         }
       }
 
+      function setupDodajRadnikaBtn() {
+        const dodajBtn = document.getElementById("dodajRadnikaBtn");
+        const dodajPrviBtn = document.getElementById("dodajPrvogRadnikaBtn");
+
+        if (dodajBtn) {
+          dodajBtn.href = `/radnici.html?firmaId=${firmaId}`;
+        }
+
+        if (dodajPrviBtn) {
+          dodajPrviBtn.href = `/radnici.html?firmaId=${firmaId}`;
+        }
+      }
+
       async function loadRadnici() {
         try {
           const response = await fetch(`/api/radnici/firma/${firmaId}`);
@@ -236,6 +253,7 @@
 
           if (radnici.length === 0) {
             document.getElementById("emptyState").classList.remove("d-none");
+            setupDodajRadnikaBtn(); // Setup dugme i za empty state
           } else {
             displayRadnici(radnici);
           }
@@ -432,37 +450,12 @@
       }
 
       async function generateUgovor(radnikId) {
-        try {
-          // Kreiraj novi ugovor u bazi
-          const response = await fetch("/api/contracts", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              firma_id: firmaId,
-              radnik_id: radnikId,
-              datum: new Date().toISOString().split("T")[0],
-              tip_ugovora: "na_neodredjeno",
-              sadrzaj: "Ugovor o radu",
-            }),
-          });
-
-          const result = await response.json();
-
-          if (result.success) {
-            // Otvori stranicu sa ugovorom
-            window.open(
-              `/ugovor-o-radu.html?ugovor=${result.contractId}`,
-              "_blank"
-            );
-          } else {
-            alert("Greška pri kreiranje ugovora");
-          }
-        } catch (error) {
-          console.error("Greška:", error);
-          alert("Greška pri kreiranje ugovora");
-        }
+        // Jednostavno otvori ugovor - ugovor-o-radu.html će sam da učita podatke
+        // i neće kreirati novi red u bazi svaki put
+        window.open(
+          `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+          "_blank"
+        );
       }
     </script>
   </body>
