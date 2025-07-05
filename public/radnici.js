@@ -89,6 +89,8 @@ function displayRadnici() {
             }</td>
             <td>${radnik.ime} ${radnik.prezime}</td>
             <td>${radnik.jmbg}</td>
+            <td>${radnik.grad || "N/A"}</td>
+            <td>${radnik.adresa || "N/A"}</td>
             <td>${radnik.pozicija_naziv || "N/A"}</td>
             <td>${radnik.firma_naziv || "N/A"}</td>
             <td>${datumZaposlenja}</td>

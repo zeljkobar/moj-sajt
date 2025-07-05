@@ -361,6 +361,8 @@
                 <th>Vrsta ugovora</th>
                 <th>Ime i prezime</th>
                 <th>JMBG</th>
+                <th>Grad</th>
+                <th>Adresa</th>
                 <th>Pozicija</th>
                 <th>Firma</th>
                 <th>Datum zaposlenja</th>
@@ -420,16 +422,45 @@
             </div>
           </div>
 
+          <!-- JMBG i Grad -->
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="jmbg">JMBG:</label>
+                <input
+                  type="text"
+                  id="jmbg"
+                  name="jmbg"
+                  required
+                  maxlength="13"
+                  pattern="[0-9]{13}"
+                  title="JMBG mora imati tačno 13 cifara"
+                />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="grad">Grad:</label>
+                <input
+                  type="text"
+                  id="grad"
+                  name="grad"
+                  placeholder="Bar, Budva, Podgorica..."
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Adresa -->
           <div class="form-group">
-            <label for="jmbg">JMBG:</label>
+            <label for="adresa">Adresa:</label>
             <input
               type="text"
-              id="jmbg"
-              name="jmbg"
+              id="adresa"
+              name="adresa"
+              placeholder="Ulica i broj, Bar 85000"
               required
-              maxlength="13"
-              pattern="[0-9]{13}"
-              title="JMBG mora imati tačno 13 cifara"
             />
           </div>
 

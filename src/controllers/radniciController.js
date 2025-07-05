@@ -5,7 +5,10 @@ const radniciController = {
   getAllRadnici: async (req, res) => {
     try {
       const radnici = await executeQuery(`
-        SELECT r.*, p.naziv as pozicija_naziv, f.naziv as firma_naziv, u.vrsta_ugovora
+        SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
+               r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
+               r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               p.naziv as pozicija_naziv, f.naziv as firma_naziv, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
@@ -26,7 +29,10 @@ const radniciController = {
     try {
       const radnici = await executeQuery(
         `
-        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova, u.vrsta_ugovora
+        SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
+               r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
+               r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               p.naziv as pozicija_naziv, p.opis_poslova, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
@@ -48,7 +54,10 @@ const radniciController = {
     try {
       const [radnik] = await executeQuery(
         `
-        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv, u.vrsta_ugovora
+        SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
+               r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
+               r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
@@ -73,6 +82,8 @@ const radniciController = {
       ime,
       prezime,
       jmbg,
+      grad,
+      adresa,
       pozicija_id,
       firma_id,
       datum_zaposlenja,
@@ -89,6 +100,8 @@ const radniciController = {
         !ime ||
         !prezime ||
         !jmbg ||
+        !grad ||
+        !adresa ||
         !pozicija_id ||
         !firma_id ||
         !datum_zaposlenja ||
@@ -110,14 +123,16 @@ const radniciController = {
       // Dodaj radnika u bazu
       const result = await executeQuery(
         `INSERT INTO radnici (
-          ime, prezime, jmbg, pozicija_id, firma_id, 
+          ime, prezime, jmbg, grad, adresa, pozicija_id, firma_id, 
           datum_zaposlenja, visina_zarade, tip_radnog_vremena, 
           tip_ugovora, datum_prestanka, napomene
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           ime,
           prezime,
           jmbg,
+          grad,
+          adresa,
           pozicija_id,
           firma_id,
           datum_zaposlenja,

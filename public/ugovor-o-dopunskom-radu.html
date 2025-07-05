@@ -334,6 +334,7 @@
             radnik_ime: radnik.ime,
             radnik_prezime: radnik.prezime,
             radnik_jmbg: radnik.jmbg,
+            radnik_grad: radnik.grad,
             radnik_adresa: radnik.adresa,
             pozicija_naziv: radnik.pozicija_naziv,
             opis_poslova: radnik.opis_poslova,
@@ -349,6 +350,68 @@
         }
       }
 
+      // Funkcija za transformaciju grada u genitiv (iz + grad)
+      function transformisiGradUPadez(grad) {
+        if (!grad) return "Bara"; // Default vrednost
+
+        // Ukloni razmake i pretvori u lowercase za poređenje
+        const gradLower = grad.trim().toLowerCase();
+
+        // Mapa najčešćih gradova sa njihovim padežnim oblicima
+        const gradoviPadezi = {
+          bar: "Bara",
+          budva: "Budve",
+          podgorica: "Podgorice",
+          nikšić: "Nikšića",
+          niksic: "Nikšića",
+          "herceg novi": "Herceg Novog",
+          cetinje: "Cetinja",
+          ulcinj: "Ulcinja",
+          kotor: "Kotora",
+          tivat: "Tivta",
+          pljevlja: "Pljevalja",
+          "bijelo polje": "Bijelog Polja",
+          berane: "Berana",
+          andrijevica: "Andrijevice",
+          danilovgrad: "Danilovgrada",
+          kolašin: "Kolašina",
+          kolasin: "Kolašina",
+          mojkovac: "Mojkovca",
+          plav: "Plava",
+          rožaje: "Rožaja",
+          rozaje: "Rožaja",
+          šavnik: "Šavnika",
+          savnik: "Šavnika",
+          žabljak: "Žabljaka",
+          zabljak: "Žabljaka",
+          petnjica: "Petnjice",
+          gusinje: "Gusinja",
+          tuzi: "Tuzija",
+        };
+
+        // Provjeri da li grad postoji u mapi
+        if (gradoviPadezi[gradLower]) {
+          return gradoviPadezi[gradLower];
+        }
+
+        // Osnovna pravila za nepoznate gradove
+        const gradOriginal = grad.trim();
+
+        // Gradovi koji se završavaju na -a (ženski rod)
+        if (gradOriginal.endsWith("a")) {
+          return gradOriginal.slice(0, -1) + "e";
+        }
+
+        // Gradovi koji se završavaju na -o (srednji rod)
+        if (gradOriginal.endsWith("o")) {
+          return gradOriginal.slice(0, -1) + "a";
+        }
+
+        // Gradovi koji se završavaju na suglasnik (muški rod)
+        // Dodaj -a na kraj
+        return gradOriginal + "a";
+      }
+
       function popuniUgovorSaPodacima(ugovor) {
         // Popuni podatke o firmi
         document.getElementById("firma-naziv").textContent = ugovor.firma_naziv;
@@ -360,17 +423,20 @@
         document.getElementById("radnik-ime-prezime").textContent =
           radnikImePrezime.toUpperCase();
         document.getElementById("radnik-jmbg").textContent = ugovor.radnik_jmbg;
-        document.getElementById("radnik-adresa").textContent =
-          ugovor.radnik_adresa || "Bara";
+
+        // Transformiši grad u odgovarajući padež
+        const gradUPadežu = transformisiGradUPadez(ugovor.radnik_grad);
+        document.getElementById("radnik-adresa").textContent = gradUPadežu;
 
         // Popuni poziciju
         document.getElementById("pozicija-naziv").textContent =
           ugovor.pozicija_naziv || "radnik";
 
-        // Popuni mesto rada - kombinuj firmu i adresu
-        const mestoRada = `${ugovor.firma_naziv} - ${
+        // Popuni mesto rada - kombinuj firmu i adresu sa ispravnim padežom
+        const firmaMestoUPadežu = transformisiGradUPadez(
           ugovor.firma_adresa || "Bar"
-        }`;
+        );
+        const mestoRada = `${ugovor.firma_naziv} u ${firmaMestoUPadežu}`;
         document.getElementById("mesto-rada").textContent = mestoRada;
 
         // Popuni datume
