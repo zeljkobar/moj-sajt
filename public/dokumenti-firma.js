@@ -167,6 +167,7 @@ function renderDokumenti() {
 
   // Dodaj ugovore o radu
   dokumenti.ugovori.forEach((ugovor) => {
+    const status = getUgovorStatus(ugovor);
     html += `
       <tr>
         <td>
@@ -181,12 +182,10 @@ function renderDokumenti() {
             ugovor.pozicija_naziv || ugovor.pozicija || "Nespecifikovano"
           }</small>
         </td>
-        <td>${formatDate(ugovor.datum_zaposljavanja)}</td>
+        <td>${formatDate(ugovor.datum_zaposlenja)}</td>
         <td>
-          <span class="document-status ${
-            ugovor.aktivan ? "status-active" : "status-inactive"
-          }">
-            ${ugovor.aktivan ? "Aktivan" : "Neaktivan"}
+          <span class="document-status ${status.cssClass}">
+            ${status.text}
           </span>
         </td>
         <td>
@@ -263,6 +262,29 @@ function formatDate(dateString) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function isUgovorAktivan(ugovor) {
+  // Ako nema datum_prestanka (null), ugovor je na neodređeno - aktivan
+  if (!ugovor.datum_prestanka) {
+    return true;
+  }
+
+  // Ako ima datum_prestanka, proverio da li je u budućnosti
+  const prestanak = new Date(ugovor.datum_prestanka);
+  const danas = new Date();
+  danas.setHours(0, 0, 0, 0); // Reset na početak dana
+
+  return prestanak >= danas;
+}
+
+function getUgovorStatus(ugovor) {
+  const aktivan = isUgovorAktivan(ugovor);
+  return {
+    aktivan: aktivan,
+    text: aktivan ? "Aktivan" : "Neaktivan",
+    cssClass: aktivan ? "status-active" : "status-inactive",
+  };
 }
 
 function showError(message) {
