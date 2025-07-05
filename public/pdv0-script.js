@@ -67,6 +67,7 @@ async function loadFirme() {
     if (response.ok) {
       firmeData = await response.json();
       displayFirmeList();
+      updateUIWithFirmeCount();
       console.log("Firme učitane:", firmeData.length);
     } else {
       console.error("Greška pri učitavanju firmi:", response.status);
@@ -77,6 +78,20 @@ async function loadFirme() {
     console.error("Greška:", error);
     document.getElementById("firme-lista").innerHTML =
       '<p style="color: red;">Greška pri komunikaciji sa serverom.</p>';
+  }
+}
+
+// Funkcija za ažuriranje UI-ja sa brojem firmi
+function updateUIWithFirmeCount() {
+  const brojFirmiEl = document.getElementById("broj-firmi");
+  const ukupnoFirmiEl = document.getElementById("ukupno-firmi");
+  const count = firmeData.length;
+
+  if (brojFirmiEl) {
+    brojFirmiEl.textContent = count;
+  }
+  if (ukupnoFirmiEl) {
+    ukupnoFirmiEl.textContent = count;
   }
 }
 
@@ -109,7 +124,7 @@ function updateProgress(current, total) {
   const percentage = (current / total) * 100;
 
   progressFill.style.width = percentage + "%";
-  progressText.textContent = `${current} / ${total} firmi obrađeno`;
+  progressText.innerHTML = `${current} / <span id="ukupno-firmi">${total}</span> firmi obrađeno`;
 }
 
 // Glavna funkcija za download svih PDV prijava

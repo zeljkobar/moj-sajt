@@ -2,6 +2,7 @@ node_modules/
 .DS_Store
 .env
 .env.production
+database/
 
 # IIS logs and temp files
 iisnode/
