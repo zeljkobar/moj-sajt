@@ -274,32 +274,10 @@ function editRadnik(id) {
 
 // Funkcija za generisanje ugovora iz tabele radnika
 async function generateUgovorFromTable(radnikId, firmaId) {
-  try {
-    // Kreiraj novi ugovor u bazi
-    const response = await fetch("/api/contracts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firma_id: firmaId,
-        radnik_id: radnikId,
-        datum: new Date().toISOString().split("T")[0],
-        tip_ugovora: "na_neodredjeno",
-        sadrzaj: "Ugovor o radu",
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      // Otvori stranicu sa ugovorom
-      window.open(`/ugovor-o-radu.html?ugovor=${result.contractId}`, "_blank");
-    } else {
-      alert("Greška pri kreiranje ugovora");
-    }
-  } catch (error) {
-    console.error("Greška:", error);
-    alert("Greška pri kreiranje ugovora");
-  }
+  // Jednostavno otvori ugovor - ugovor-o-radu.html će sam da učita podatke
+  // i neće kreirati novi red u bazi svaki put
+  window.open(
+    `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+    "_blank"
+  );
 }
