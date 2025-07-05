@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dokumenti firme | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      .documents-header {
+        background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+      .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #6c63ff;
+      }
+      .stat-card p {
+        color: #666;
+        margin: 0;
+      }
+      .quick-actions {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .action-btn {
+        background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+      }
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+        color: white;
+      }
+      .action-btn.success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      }
+      .action-btn.success:hover {
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      }
+      .documents-table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .table th {
+        background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+      }
+      .document-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .document-type i {
+        font-size: 1.2em;
+      }
+      .document-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .status-active {
+        background: #d4edda;
+        color: #155724;
+      }
+      .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.875rem;
+      }
+      .back-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+      .back-btn:hover {
+        background: #545b62;
+        color: white;
+        transform: translateY(-1px);
+      }
+      .loading-spinner {
+        text-align: center;
+        padding: 40px;
+      }
+      .no-documents {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard.html">
+          <img
+            src="/images/summasummarum_logo.svg"
+            alt="Logo"
+            height="30"
+            class="me-2"
+          />
+          Summa Summarum
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="/dashboard.html">
+            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+          </a>
+          <a class="nav-link" href="/firme.html">
+            <i class="fas fa-building me-1"></i>Firme
+          </a>
+          <a class="nav-link" href="/radnici.html">
+            <i class="fas fa-users me-1"></i>Radnici
+          </a>
+          <a class="nav-link" href="/api/logout">
+            <i class="fas fa-sign-out-alt me-1"></i>Odjava
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-4">
+      <!-- Back button -->
+      <a href="/firme.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Nazad na firme
+      </a>
+
+      <!-- Header -->
+      <div class="documents-header">
+        <h1 class="mb-3">
+          <i class="fas fa-file-alt me-2"></i>
+          Dokumenti - <span id="firmaNaziv">Učitava...</span>
+        </h1>
+        <p class="mb-0">Pregled svih dokumenata i ugovora za ovu firmu</p>
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Učitava...</span>
+        </div>
+        <p class="mt-3">Učitavam dokumente...</p>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="stats-cards d-none" id="statsContainer">
+        <div class="stat-card">
+          <h3 id="ugovoriBroj">0</h3>
+          <p>Ugovora o radu</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="pozajmiceBroj">0</h3>
+          <p>Pozajmice</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="ukupnoIznos">€0</h3>
+          <p>Ukupne pozajmice</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="ukupnoDokumenti">0</h3>
+          <p>Ukupno dokumenata</p>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions d-none" id="actionsContainer">
+        <h5 class="mb-3">
+          <i class="fas fa-plus-circle me-2"></i>
+          Brze akcije
+        </h5>
+        <a href="#" class="action-btn success" id="noviUgovorBtn">
+          <i class="fas fa-handshake me-1"></i>
+          Novi ugovor o radu
+        </a>
+        <a href="#" class="action-btn" id="novaPozajmicaBtn">
+          <i class="fas fa-money-bill-wave me-1"></i>
+          Nova pozajmnica
+        </a>
+        <div class="dropdown d-inline">
+          <button
+            class="action-btn dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
+            <i class="fas fa-ellipsis-h me-1"></i>
+            Ostalo
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#"
+                ><i class="fas fa-file-contract me-1"></i>Ugovor o delu</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#"
+                ><i class="fas fa-pen-fancy me-1"></i>Autorski ugovor</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" href="#"
+                ><i class="fas fa-file-signature me-1"></i>Aneks</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Documents table -->
+      <div class="documents-table d-none" id="documentsContainer">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Tip dokumenta</th>
+              <th>Opis</th>
+              <th>Datum kreiranja</th>
+              <th>Status</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody id="documentsTableBody">
+            <!-- Dokumenti će biti učitani dinamički -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No documents message -->
+      <div class="no-documents d-none" id="noDocuments">
+        <i class="fas fa-file-alt fs-1 text-muted mb-3"></i>
+        <h4>Nema dokumenata</h4>
+        <p>Ova firma još uvek nema kreirane dokumente.</p>
+        <p class="mt-3">
+          <a href="#" class="action-btn success" id="noviUgovorBtn2">
+            <i class="fas fa-plus me-1"></i>
+            Kreiraj prvi ugovor
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/dokumenti-firma.js"></script>
+  </body>
+</html>
