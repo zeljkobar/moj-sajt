@@ -8,3 +8,19 @@ database/
 iisnode/
 *.log
 logs/
+
+# SQL scripts and migration files
+*.sql
+JPR_REMOVAL_CHANGELOG.md
+add_test_user.js
+app.test.js
+check_admin.js
+compare_databases.js
+export_local_data.js
+export_local_database.js
+migrate_roles.js
+
+# IIS and web config files
+web.config.*
+web.config.minimal
+web.config.simple
