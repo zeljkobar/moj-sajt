@@ -5,12 +5,14 @@ const radniciController = {
   getAllRadnici: async (req, res) => {
     try {
       const radnici = await executeQuery(`
-        SELECT r.*, p.naziv as pozicija_naziv, f.naziv as firma_naziv 
+        SELECT r.*, p.naziv as pozicija_naziv, f.naziv as firma_naziv, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         ORDER BY r.prezime, r.ime
       `);
+
       res.json(radnici);
     } catch (error) {
       console.error("Greška pri dobijanju radnika:", error);
@@ -24,9 +26,10 @@ const radniciController = {
     try {
       const radnici = await executeQuery(
         `
-        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova 
+        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.firma_id = ? 
         ORDER BY r.prezime, r.ime
       `,
@@ -45,10 +48,11 @@ const radniciController = {
     try {
       const [radnik] = await executeQuery(
         `
-        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv 
+        SELECT r.*, p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv, u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.id = ?
       `,
         [id]
@@ -75,6 +79,7 @@ const radniciController = {
       visina_zarade,
       tip_radnog_vremena,
       tip_ugovora,
+      vrsta_ugovora,
       datum_prestanka,
       napomene,
     } = req.body;
@@ -87,7 +92,8 @@ const radniciController = {
         !pozicija_id ||
         !firma_id ||
         !datum_zaposlenja ||
-        !visina_zarade
+        !visina_zarade ||
+        !vrsta_ugovora
       ) {
         return res
           .status(400)
@@ -101,6 +107,7 @@ const radniciController = {
           .json({ message: "JMBG mora imati tačno 13 cifara" });
       }
 
+      // Dodaj radnika u bazu
       const result = await executeQuery(
         `INSERT INTO radnici (
           ime, prezime, jmbg, pozicija_id, firma_id, 
@@ -121,7 +128,34 @@ const radniciController = {
           napomene || null,
         ]
       );
-      res.json({ success: true, radnikId: result.insertId });
+
+      const radnikId = result.insertId;
+
+      // Automatski kreiraj ugovor za novog radnika
+      const vrstaUgovoraText = {
+        ugovor_o_radu: "Ugovor o radu",
+        ugovor_o_djelu: "Ugovor o djelu",
+        ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
+        autorski_ugovor: "Autorski ugovor",
+        ugovor_o_pozajmnici: "Ugovor o pozajmnici",
+      };
+
+      await executeQuery(
+        `INSERT INTO ugovori (
+          firma_id, radnik_id, datum, tip_ugovora, 
+          sadrzaj, vrsta_ugovora
+        ) VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          firma_id,
+          radnikId,
+          datum_zaposlenja,
+          tip_ugovora,
+          vrstaUgovoraText[vrsta_ugovora] || "Ugovor",
+          vrsta_ugovora,
+        ]
+      );
+
+      res.json({ success: true, radnikId: radnikId });
     } catch (error) {
       console.error("Greška pri dodavanju radnika:", error);
       console.error("Error message:", error.message);

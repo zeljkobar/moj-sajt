@@ -73,8 +73,20 @@ function displayRadnici() {
       na_odredjeno: "Određeno",
     };
 
+    // Formatiranje vrste ugovora
+    const vrstaUgovoraText = {
+      ugovor_o_radu: "Ugovor o radu",
+      ugovor_o_djelu: "Ugovor o djelu",
+      ugovor_o_dopunskom_radu: "Dopunski rad",
+      autorski_ugovor: "Autorski ugovor",
+      ugovor_o_pozajmnici: "Pozajmica",
+    };
+
     const row = document.createElement("tr");
     row.innerHTML = `
+            <td>${
+              vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
+            }</td>
             <td>${radnik.ime} ${radnik.prezime}</td>
             <td>${radnik.jmbg}</td>
             <td>${radnik.pozicija_naziv || "N/A"}</td>

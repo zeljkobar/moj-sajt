@@ -169,37 +169,38 @@
         .section {
           padding: 10px;
         }
-        
+
         table {
           font-size: 14px;
         }
-        
-        th, td {
+
+        th,
+        td {
           padding: 8px;
           min-width: 100px;
         }
-        
+
         /* Wrapper za tabelu */
         .table-responsive {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
         }
-        
+
         .btn {
           padding: 6px 12px;
           font-size: 12px;
           margin: 1px;
         }
-        
+
         .btn-group {
           text-align: center;
         }
-        
+
         /* Responsive search polje */
         #radniciSearchInput {
           font-size: 16px; /* Sprečava zoom na iOS */
         }
-        
+
         /* Dugmad u header-u */
         .btn-group .btn {
           display: block;
@@ -213,21 +214,22 @@
         .container {
           padding: 10px;
         }
-        
+
         .modal-content {
           width: 98%;
           padding: 10px;
         }
-        
+
         table {
           font-size: 12px;
         }
-        
-        th, td {
+
+        th,
+        td {
           padding: 6px;
           min-width: 80px;
         }
-        
+
         .btn {
           padding: 4px 8px;
           font-size: 11px;
@@ -235,40 +237,40 @@
           margin: 2px 0;
           width: 100%;
         }
-        
+
         /* Dugmad u formi imaju drugačiji stil */
         .form-buttons .btn {
           width: 45%;
           margin: 5px 2.5%;
           display: inline-block;
         }
-        
+
         /* Stack akcije dugmad vertikalno */
         td:last-child {
           min-width: 120px;
         }
-        
+
         h2 {
           font-size: 18px;
         }
-        
+
         h1 {
           font-size: 20px;
           text-align: center;
         }
-        
+
         /* Optimizacija search polja */
         #radniciSearchInput {
           padding: 8px 15px;
           font-size: 16px;
         }
-        
+
         /* Kompaktan prikaz counter-a */
         .col-md-6 {
           width: 100%;
           margin-bottom: 10px;
         }
-        
+
         .col-md-6.d-flex {
           justify-content: center;
         }
@@ -356,6 +358,7 @@
           <table id="radniciTable">
             <thead>
               <tr>
+                <th>Vrsta ugovora</th>
                 <th>Ime i prezime</th>
                 <th>JMBG</th>
                 <th>Pozicija</th>
@@ -491,6 +494,21 @@
             </select>
           </div>
 
+          <!-- Vrsta ugovora -->
+          <div class="form-group">
+            <label for="vrsta_ugovora">Vrsta ugovora:</label>
+            <select id="vrsta_ugovora" name="vrsta_ugovora" required>
+              <option value="">Izaberite vrstu ugovora</option>
+              <option value="ugovor_o_radu">Ugovor o radu</option>
+              <option value="ugovor_o_djelu">Ugovor o djelu</option>
+              <option value="ugovor_o_dopunskom_radu">
+                Ugovor o dopunskom radu
+              </option>
+              <option value="autorski_ugovor">Autorski ugovor</option>
+              <option value="ugovor_o_pozajmnici">Ugovor o pozajmnici</option>
+            </select>
+          </div>
+
           <!-- Datum prestanka (uslovni) -->
           <div
             class="form-group"
@@ -512,7 +530,10 @@
           </div>
 
           <!-- Dugmad -->
-          <div style="margin-top: 20px; text-align: center" class="form-buttons">
+          <div
+            style="margin-top: 20px; text-align: center"
+            class="form-buttons"
+          >
             <button
               type="submit"
               class="btn btn-success"
