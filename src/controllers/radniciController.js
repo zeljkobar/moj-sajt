@@ -7,7 +7,7 @@ const radniciController = {
       console.log("🔴 DEBUG: getAllRadnici pozvan!");
       console.log("🔴 Session exists:", !!req.session);
       console.log("🔴 User exists:", !!req.session?.user);
-      
+
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
         console.log("🔴 Vraćam 401 - nije autentifikovan");
@@ -48,7 +48,15 @@ const radniciController = {
       );
 
       console.log("🔴 Broj pronađenih radnika:", radnici.length);
-      console.log("🔴 Radnici:", radnici.map(r => ({ id: r.id, ime: r.ime, prezime: r.prezime, firma: r.firma_naziv })));
+      console.log(
+        "🔴 Radnici:",
+        radnici.map((r) => ({
+          id: r.id,
+          ime: r.ime,
+          prezime: r.prezime,
+          firma: r.firma_naziv,
+        }))
+      );
 
       res.json(radnici);
     } catch (error) {
@@ -120,11 +128,9 @@ const radniciController = {
       );
 
       if (!radnik) {
-        return res
-          .status(404)
-          .json({
-            message: "Radnik nije pronađen ili nemate dozvolu za pristup",
-          });
+        return res.status(404).json({
+          message: "Radnik nije pronađen ili nemate dozvolu za pristup",
+        });
       }
       res.json(radnik);
     } catch (error) {
