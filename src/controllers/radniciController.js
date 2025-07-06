@@ -1,10 +1,29 @@
 const { executeQuery } = require("../config/database");
 
 const radniciController = {
-  // GET /api/radnici - dobij sve radnike
+  // GET /api/radnici - dobij radnike za firme ulogovanog korisnika
   getAllRadnici: async (req, res) => {
     try {
-      const radnici = await executeQuery(`
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Dobij radnike samo za firme koje pripadaju ovom korisniku
+      const radnici = await executeQuery(
+        `
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
@@ -13,8 +32,11 @@ const radniciController = {
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
+        WHERE f.user_id = ?
         ORDER BY r.prezime, r.ime
-      `);
+      `,
+        [user.id]
+      );
 
       res.json(radnici);
     } catch (error) {
@@ -48,10 +70,28 @@ const radniciController = {
     }
   },
 
-  // GET /api/radnici/:id - dobij radnika po ID-u
+  // GET /api/radnici/:id - dobij radnika po ID-u (samo ako pripada korisniku)
   getRadnikById: async (req, res) => {
     const { id } = req.params;
     try {
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Dobij radnika samo ako pripada firmi ovog korisnika
       const [radnik] = await executeQuery(
         `
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
@@ -62,12 +102,17 @@ const radniciController = {
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
-        WHERE r.id = ?
+        WHERE r.id = ? AND f.user_id = ?
       `,
-        [id]
+        [id, user.id]
       );
+
       if (!radnik) {
-        return res.status(404).json({ message: "Radnik nije pronađen" });
+        return res
+          .status(404)
+          .json({
+            message: "Radnik nije pronađen ili nemate dozvolu za pristup",
+          });
       }
       res.json(radnik);
     } catch (error) {
@@ -76,7 +121,7 @@ const radniciController = {
     }
   },
 
-  // POST /api/radnici - dodaj novog radnika
+  // POST /api/radnici - dodaj novog radnika (samo u svoje firme)
   addRadnik: async (req, res) => {
     const {
       ime,
@@ -96,6 +141,35 @@ const radniciController = {
     } = req.body;
 
     try {
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Proveri da li firma pripada korisniku
+      const [firmaCheck] = await executeQuery(
+        "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+        [firma_id, user.id]
+      );
+
+      if (!firmaCheck) {
+        return res.status(403).json({
+          message: "Nemate dozvolu da dodajete radnike u ovu firmu",
+        });
+      }
+
       if (
         !ime ||
         !prezime ||
@@ -181,7 +255,7 @@ const radniciController = {
     }
   },
 
-  // PUT /api/radnici/:id - ažuriraj radnika
+  // PUT /api/radnici/:id - ažuriraj radnika (samo ako pripada korisniku)
   updateRadnik: async (req, res) => {
     const { id } = req.params;
     const {
@@ -202,6 +276,49 @@ const radniciController = {
     } = req.body;
 
     try {
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Proveri da li radnik pripada korisniku pre ažuriranja
+      const [radnikCheck] = await executeQuery(
+        `SELECT r.id FROM radnici r 
+         LEFT JOIN firme f ON r.firma_id = f.id 
+         WHERE r.id = ? AND f.user_id = ?`,
+        [id, user.id]
+      );
+
+      if (!radnikCheck) {
+        return res.status(403).json({
+          message: "Nemate dozvolu da ažurirate ovog radnika",
+        });
+      }
+
+      // Proveri da li nova firma pripada korisniku
+      const [firmaCheck] = await executeQuery(
+        "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+        [firma_id, user.id]
+      );
+
+      if (!firmaCheck) {
+        return res.status(403).json({
+          message: "Nemate dozvolu da dodelite radnika ovoj firmi",
+        });
+      }
+
       if (
         !ime ||
         !prezime ||
@@ -256,12 +373,44 @@ const radniciController = {
     }
   },
 
-  // DELETE /api/radnici/:id - obriši radnika
+  // DELETE /api/radnici/:id - obriši radnika (samo ako pripada korisniku)
   deleteRadnik: async (req, res) => {
     const { id } = req.params;
     const { force } = req.query; // Opcija za forsiranje brisanja
 
     try {
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Proveri da li radnik pripada korisniku
+      const [radnikCheck] = await executeQuery(
+        `SELECT r.id FROM radnici r 
+         LEFT JOIN firme f ON r.firma_id = f.id 
+         WHERE r.id = ? AND f.user_id = ?`,
+        [id, user.id]
+      );
+
+      if (!radnikCheck) {
+        return res.status(403).json({
+          success: false,
+          message: "Nemate dozvolu da obrišete ovog radnika",
+        });
+      }
+
       // Prvo proveri da li radnik ima ugovore
       const ugovori = await executeQuery(
         "SELECT COUNT(*) as count FROM ugovori WHERE radnik_id = ?",
