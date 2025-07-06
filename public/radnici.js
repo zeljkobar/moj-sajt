@@ -360,16 +360,28 @@ async function editRadnik(id) {
     document.getElementById("adresa").value = radnik.adresa || "";
     document.getElementById("pozicija_id").value = radnik.pozicija_id || "";
     document.getElementById("firma_id").value = radnik.firma_id || "";
-    document.getElementById("datum_zaposlenja").value =
-      radnik.datum_zaposlenja || "";
+
+    // Konvertuj datum zaposlenja u odgovarajući format za date input
+    if (radnik.datum_zaposlenja) {
+      const datumZaposlenja = new Date(radnik.datum_zaposlenja);
+      document.getElementById("datum_zaposlenja").value = datumZaposlenja
+        .toISOString()
+        .split("T")[0];
+    } else {
+      document.getElementById("datum_zaposlenja").value = "";
+    }
+
     document.getElementById("visina_zarade").value = radnik.visina_zarade || "";
     document.getElementById("tip_radnog_vremena").value =
       radnik.tip_radnog_vremena || "";
     document.getElementById("tip_ugovora").value = radnik.tip_ugovora || "";
 
-    // Ako je datum prestanka setovan, prikaži polje
+    // Ako je datum prestanka setovan, prikaži polje i konvertuj datum
     if (radnik.datum_prestanka) {
-      document.getElementById("datum_prestanka").value = radnik.datum_prestanka;
+      const datumPrestanka = new Date(radnik.datum_prestanka);
+      document.getElementById("datum_prestanka").value = datumPrestanka
+        .toISOString()
+        .split("T")[0];
       document.getElementById("datum_prestanka_group").style.display = "block";
       document.getElementById("datum_prestanka").required = true;
     }
