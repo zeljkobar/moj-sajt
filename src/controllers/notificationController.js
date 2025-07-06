@@ -47,7 +47,9 @@ const getNotifications = async (req, res) => {
         title,
         description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
         days: dana,
-        action: `/radnici.html`,
+        action: `/radnici.html?search=${encodeURIComponent(
+          radnik.ime + " " + radnik.prezime
+        )}`,
         timestamp: new Date(),
       });
     });

@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
   loadFirme();
   loadRadnici();
   setupSearchFunctionality();
+
+  // Proverava URL parametre za automatsko popunjavanje search polja
+  checkURLSearchParam();
 });
 
 // Učitavanje pozicija (samo za dropdown u formi)
@@ -410,5 +413,25 @@ async function generateUgovorFromTable(radnikId, firmaId) {
       `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
       "_blank"
     );
+  }
+}
+
+// Funkcija za čitanje URL parametara i automatsko popunjavanje search polja
+function checkURLSearchParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchTerm = urlParams.get("search");
+
+  if (searchTerm) {
+    // Čeka da se radnici učitaju, zatim popuni search polje
+    setTimeout(() => {
+      const searchInput = document.getElementById("radniciSearchInput");
+      if (searchInput) {
+        searchInput.value = decodeURIComponent(searchTerm);
+        searchInput.focus();
+
+        // Trigger search funkcionalnost
+        filterRadnici();
+      }
+    }, 500);
   }
 }

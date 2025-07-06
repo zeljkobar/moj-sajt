@@ -108,7 +108,6 @@ class NotificationManager {
       </div>
     `;
   }
-
   addEventListeners() {
     // Klik na obavještenje - idi na akciju
     document.querySelectorAll(".notification-item").forEach((item) => {
@@ -116,6 +115,7 @@ class NotificationManager {
         if (e.target.closest(".notification-dismiss")) return;
 
         const action = item.dataset.action;
+
         if (action && action !== "undefined") {
           window.location.href = action;
         }
