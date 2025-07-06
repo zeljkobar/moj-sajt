@@ -194,19 +194,32 @@
         </div>
       </div>
 
-      <!-- Brze akcije -->
+      <!-- Brze akcije i Obavještenja -->
       <div class="row">
-        <div class="col-12 mb-3">
+        <div class="col-lg-8 col-md-7 mb-4">
           <h4><i class="fas fa-bolt me-2"></i>Brze akcije</h4>
-        </div>
-        <!-- Quick actions will be dynamically loaded based on user role -->
-        <div id="quickActionsContainer">
-          <!-- Loading placeholder -->
-          <div class="col-12 text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Učitavanje...</span>
+          <!-- Quick actions will be dynamically loaded based on user role -->
+          <div id="quickActionsContainer">
+            <!-- Loading placeholder -->
+            <div class="col-12 text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Učitavanje...</span>
+              </div>
+              <p class="mt-2">Učitavam opcije...</p>
             </div>
-            <p class="mt-2">Učitavam opcije...</p>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-5 mb-4">
+          <h4><i class="fas fa-bell me-2"></i>Obavještenja</h4>
+          <div id="notifications-container" class="notifications-container">
+            <!-- Obavještenja će biti učitana dinamički -->
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Učitavanje obavještenja...</span>
+              </div>
+              <p class="mt-2">Učitavam obavještenja...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -472,5 +485,8 @@
         container.innerHTML = actionsHtml;
       }
     </script>
+
+    <!-- Obavještenja JavaScript -->
+    <script src="/notifications.js"></script>
   </body>
 </html>

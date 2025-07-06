@@ -9,6 +9,7 @@ const firmeRoutes = require("./src/routes/firmeRoutes");
 const contractRoutes = require("./src/routes/contractRoutes");
 const radnikRoutes = require("./src/routes/radnikRoutes");
 const pozicijeRoutes = require("./src/routes/pozicijeRoutes");
+const notificationRoutes = require("./src/routes/notificationRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const cors = require("cors");
@@ -195,6 +196,7 @@ app.use("/api/firme", firmeRoutes);
 app.use("/api", contractRoutes);
 app.use("/api/radnici", radnikRoutes);
 app.use("/api/pozicije", pozicijeRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 app.get(
