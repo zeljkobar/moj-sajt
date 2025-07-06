@@ -48,14 +48,27 @@ function initPage() {
 }
 
 function setupEventListeners() {
-  // Novi ugovor o radu dugmad
+  // Novi ugovor o radu dugmad - otvori modal umesto redirekcije
   const noviUgovorBtns = document.querySelectorAll(
     "#noviUgovorBtn, #noviUgovorBtn2"
   );
   noviUgovorBtns.forEach((btn) => {
     btn.addEventListener("click", function (e) {
       e.preventDefault();
-      window.location.href = `/radnici-firma.html?firmaId=${firmaId}`;
+
+      // Otvori modal za dodavanje radnika sa firmId
+      openRadnikModal({
+        firmId: firmaId,
+        onSuccess: function (result) {
+          console.log("Radnik je uspešno dodan:", result);
+          // Reload dokumenta da prikaži novi ugovor
+          loadDokumenti();
+          // Možda pokaži success poruku
+          showSuccessMessage(
+            "Radnik je uspešno dodan! Sada možete kreirati ugovor."
+          );
+        },
+      });
     });
   });
 
@@ -317,12 +330,26 @@ function editRadnik(radnikId) {
   window.location.href = `/radnici-firma.html?firmaId=${firmaId}&editId=${radnikId}`;
 }
 
-function viewPozajmica(pozajmicaId) {
-  // TODO: Kad napravimo pozajmice
-  alert("Pozajmice funkcionalnost će biti dodana uskoro!");
-}
+// Helper funkcija za prikazivanje success poruka
+function showSuccessMessage(message) {
+  // Kreiraj alert element
+  const alertDiv = document.createElement("div");
+  alertDiv.className =
+    "alert alert-success alert-dismissible fade show position-fixed";
+  alertDiv.style.cssText =
+    "top: 20px; right: 20px; z-index: 9999; max-width: 400px;";
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
 
-function editPozajmica(pozajmicaId) {
-  // TODO: Kad napravimo pozajmice
-  alert("Pozajmice funkcionalnost će biti dodana uskoro!");
+  // Dodaj u body
+  document.body.appendChild(alertDiv);
+
+  // Auto ukloni nakon 5 sekundi
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 5000);
 }
