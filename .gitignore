@@ -9,6 +9,9 @@ iisnode/
 *.log
 logs/
 
+# Cookie test files
+cookies*.txt
+
 # SQL scripts and migration files
 *.sql
 JPR_REMOVAL_CHANGELOG.md
