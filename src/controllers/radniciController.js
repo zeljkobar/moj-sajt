@@ -4,12 +4,18 @@ const radniciController = {
   // GET /api/radnici - dobij radnike za firme ulogovanog korisnika
   getAllRadnici: async (req, res) => {
     try {
+      console.log("🔴 DEBUG: getAllRadnici pozvan!");
+      console.log("🔴 Session exists:", !!req.session);
+      console.log("🔴 User exists:", !!req.session?.user);
+      
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
+        console.log("🔴 Vraćam 401 - nije autentifikovan");
         return res.status(401).json({ message: "Nije autentifikovan" });
       }
 
       const username = req.session.user.username;
+      console.log("🔴 Username iz sesije:", username);
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
@@ -18,8 +24,11 @@ const radniciController = {
       );
 
       if (!user) {
+        console.log("🔴 Korisnik nije pronađen za username:", username);
         return res.status(404).json({ message: "Korisnik nije pronađen" });
       }
+
+      console.log("🔴 User ID:", user.id);
 
       // Dobij radnike samo za firme koje pripadaju ovom korisniku
       const radnici = await executeQuery(
@@ -37,6 +46,9 @@ const radniciController = {
       `,
         [user.id]
       );
+
+      console.log("🔴 Broj pronađenih radnika:", radnici.length);
+      console.log("🔴 Radnici:", radnici.map(r => ({ id: r.id, ime: r.ime, prezime: r.prezime, firma: r.firma_naziv })));
 
       res.json(radnici);
     } catch (error) {
