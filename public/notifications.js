@@ -1,6 +1,7 @@
 // Obavještenja funkcionalnost
 class NotificationManager {
   constructor() {
+    console.log("🚀 NotificationManager se inicijalizuje...");
     this.notifications = [];
     this.updateInterval = null;
     this.init();
@@ -13,16 +14,21 @@ class NotificationManager {
 
   async loadNotifications() {
     try {
+      console.log("🔔 Učitavam obavještenja...");
       const response = await fetch("/api/notifications", {
         credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log("📨 Dobio obavještenja:", data);
         this.notifications = data.notifications || [];
         this.renderNotifications();
       } else {
-        console.error("Greška pri učitavanju obavještenja");
+        console.error(
+          "Greška pri učitavanju obavještenja - status:",
+          response.status
+        );
       }
     } catch (error) {
       console.error("Greška pri učitavanju obavještenja:", error);

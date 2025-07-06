@@ -55,6 +55,15 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
+
+      .user-card.border-success {
+        border-width: 2px !important;
+        box-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+      }
+
+      .user-card.border-success:hover {
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      }
     </style>
   </head>
 
@@ -140,7 +149,17 @@
             <div
               class="card-header d-flex justify-content-between align-items-center"
             >
-              <h5><i class="fas fa-users"></i> Lista korisnika</h5>
+              <h5>
+                <i class="fas fa-users"></i> Lista korisnika
+                <span
+                  id="newUsersCounter"
+                  class="badge bg-success ms-2"
+                  style="display: none"
+                >
+                  <i class="fas fa-star"></i>
+                  <span id="newUsersCount">0</span> novih
+                </span>
+              </h5>
               <button class="btn btn-success" onclick="loadUsers()">
                 <i class="fas fa-sync-alt"></i> Osvezi
               </button>
@@ -227,22 +246,90 @@
           return;
         }
 
-        const usersHtml = users
+        // Helper function to check if user is new (last 7 days)
+        function isNewUser(createdAt) {
+          const now = new Date();
+          const created = new Date(createdAt);
+          const diffTime = Math.abs(now - created);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays <= 7;
+        }
+
+        // Helper function to get days since registration
+        function getDaysSinceRegistration(createdAt) {
+          const now = new Date();
+          const created = new Date(createdAt);
+          const diffTime = Math.abs(now - created);
+          return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // Sort users - new users first, then by creation date
+        const sortedUsers = users.sort((a, b) => {
+          const aIsNew = isNewUser(a.created_at);
+          const bIsNew = isNewUser(b.created_at);
+
+          // If one is new and other is not, prioritize new
+          if (aIsNew && !bIsNew) return -1;
+          if (!aIsNew && bIsNew) return 1;
+
+          // If both are new or both are old, sort by created_at descending
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        // Count new users
+        const newUsersCount = users.filter((user) =>
+          isNewUser(user.created_at)
+        ).length;
+        const totalUsersCount = users.length;
+
+        // Update counter in header
+        const counterElement = document.getElementById("newUsersCounter");
+        const countElement = document.getElementById("newUsersCount");
+        if (newUsersCount > 0) {
+          countElement.textContent = newUsersCount;
+          counterElement.style.display = "inline-block";
+        } else {
+          counterElement.style.display = "none";
+        }
+
+        const usersHtml = sortedUsers
           .map((user) => {
             const roleInfo = roleConfig[user.role] || roleConfig["pdv"];
+            const isNew = isNewUser(user.created_at);
+            const daysSince = getDaysSinceRegistration(user.created_at);
+
             return `
             <div class="col-md-6 col-lg-4 mb-3">
-              <div class="card user-card">
+              <div class="card user-card ${isNew ? "border-success" : ""}">
                 <div class="card-body">
                   <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0">${user.ime} ${user.prezime}</h6>
+                    <h6 class="card-title mb-0">
+                      ${user.ime} ${user.prezime}
+                      ${
+                        isNew
+                          ? '<span class="badge bg-success ms-2"><i class="fas fa-star"></i> NOV</span>'
+                          : ""
+                      }
+                    </h6>
                     <span class="badge ${roleInfo.class} role-badge">${
               roleInfo.name
             }</span>
                   </div>
                   <p class="card-text small text-muted mb-2">
                     <i class="fas fa-user"></i> ${user.username}<br>
-                    <i class="fas fa-envelope"></i> ${user.email || "N/A"}
+                    <i class="fas fa-envelope"></i> ${user.email || "N/A"}<br>
+                    <i class="fas fa-calendar-plus"></i> Registrovan ${
+                      daysSince === 0
+                        ? "danas"
+                        : daysSince === 1
+                        ? "juče"
+                        : `pre ${daysSince} dana`
+                    }
+                    ${
+                      isNew
+                        ? '<span class="text-success fw-bold"> (NOVO!)</span>'
+                        : ""
+                    }
                   </p>
                   <small class="text-muted d-block mb-3">${
                     roleInfo.description
@@ -273,7 +360,37 @@
           })
           .join("");
 
-        container.innerHTML = `<div class="row">${usersHtml}</div>`;
+        // Add statistics header if there are new users
+        const statsHeader =
+          newUsersCount > 0
+            ? `
+          <div class="alert alert-success mb-4">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-users fa-2x me-3"></i>
+              <div>
+                <h5 class="mb-1">📊 Statistike novih korisnika</h5>
+                <p class="mb-0">
+                  <strong>${newUsersCount}</strong> ${
+                newUsersCount === 1
+                  ? "novi korisnik"
+                  : newUsersCount < 5
+                  ? "nova korisnika"
+                  : "novih korisnika"
+              } 
+                  u posledjih 7 dana od ukupno <strong>${totalUsersCount}</strong> korisnika.
+                  ${
+                    newUsersCount > 1
+                      ? "Novi korisnici su označeni zelenym badge-om i prikazani prvi."
+                      : "Novi korisnik je označen zelenim badge-om."
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        `
+            : "";
+
+        container.innerHTML = `${statsHeader}<div class="row">${usersHtml}</div>`;
       }
 
       async function changeUserRole(userId, newRole) {
