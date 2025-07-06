@@ -12,7 +12,7 @@ const getNotifications = async (req, res) => {
     if (userRole === "admin") {
       console.log("Admin je ulogovan, proveravam nove registracije...");
 
-      // Nove registracije u posledjih 7 dana (sve nove registracije osim admin)
+      // Nove registracije u poslednjih 7 dana (sve nove registracije osim admin)
       const noveRegistracijeQuery = `
         SELECT id, username, ime, prezime, email, role, created_at,
                DATEDIFF(CURDATE(), created_at) as dana_od_registracije
@@ -52,13 +52,13 @@ const getNotifications = async (req, res) => {
                 : ukupnoNovih < 5
                 ? "nova korisnika"
                 : "novih korisnika"
-            } u posledjih 7 dana. Kliknite da vidite sve.`,
+            } u poslednjih 7 dana. Kliknite da vidite sve.`,
             days: 0,
             action: `/admin-users.html`,
             timestamp: new Date(),
           });
         } else if (ukupnoNovih > 0) {
-          // Ako nema novih danas, ali ima u posledjih 7 dana
+          // Ako nema novih danas, ali ima u poslednjih 7 dana
           notifications.push({
             id: `nove_registracije_sedmica`,
             type: "info",
@@ -70,7 +70,7 @@ const getNotifications = async (req, res) => {
                 ? "nova korisnika"
                 : "novih korisnika"
             } ove sedmice`,
-            description: `Registrovali su se u posledjih 7 dana. Kliknite da upravljate njihovim dozvolama.`,
+            description: `Registrovali su se u poslednjih 7 dana. Kliknite da upravljate njihovim dozvolama.`,
             days: 1,
             action: `/admin-users.html`,
             timestamp: new Date(),
@@ -113,32 +113,63 @@ const getNotifications = async (req, res) => {
         AND r.datum_prestanka IS NOT NULL
         AND (r.datum_prestanka BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
              OR r.datum_prestanka < CURDATE())
-      ORDER BY r.datum_prestanka ASC
-      LIMIT 5
+      ORDER BY 
+        CASE 
+          WHEN r.datum_prestanka < CURDATE() THEN 0  -- Istekli prvi
+          ELSE 1 
+        END,
+        r.datum_prestanka ASC
+      LIMIT 10
     `;
 
     const ugovori = await executeQuery(ugovoriQuery, [userId]);
 
     ugovori.forEach((radnik) => {
       const dana = radnik.dana_do_isteka;
+
+      // Manual re-calculation za sigurnost
+      const prestanakDate = new Date(radnik.datum_prestanka);
+      const currentDate = new Date();
+      // Postavimo vreme na 00:00:00 za oba datuma za preciznu comparison
+      prestanakDate.setHours(0, 0, 0, 0);
+      currentDate.setHours(0, 0, 0, 0);
+      const diffTime = prestanakDate.getTime() - currentDate.getTime();
+      const manualDiffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      // Koristi manual calculation ako se razlikuje od SQL-a
+      const finalDana = dana !== manualDiffDays ? manualDiffDays : dana;
+
       let type, icon, title;
 
-      if (dana < 0) {
+      if (finalDana < 0) {
+        // Ugovor je već istekao - NAJVIŠA PRIORITET
         type = "urgent";
         icon = "🚨";
-        title = `Ugovor istekao (${Math.abs(dana)} dana)`;
-      } else if (dana <= 7) {
+        title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
+          Math.abs(finalDana) === 1 ? "dan" : "dana"
+        }`;
+      } else if (finalDana === 0) {
+        // Ugovor ističe danas - HITNO
         type = "urgent";
         icon = "⚠️";
-        title = `Ugovor ističe za ${dana} dana`;
-      } else if (dana <= 15) {
+        title = `Ugovor ističe danas!`;
+      } else if (finalDana <= 7) {
+        // Ugovor ističe u sljedećih 7 dana - HITNO
+        type = "urgent";
+        icon = "⚠️";
+        title = `Ugovor ističe za ${finalDana} ${
+          finalDana === 1 ? "dan" : "dana"
+        }`;
+      } else if (finalDana <= 15) {
+        // Ugovor ističe u sljedećih 15 dana - UPOZORENJE
         type = "warning";
         icon = "📋";
-        title = `Ugovor ističe za ${dana} dana`;
+        title = `Ugovor ističe za ${finalDana} dana`;
       } else {
+        // Ugovor ističe u sljedećih 30 dana - INFO
         type = "info";
         icon = "📅";
-        title = `Ugovor ističe za ${dana} dana`;
+        title = `Ugovor ističe za ${finalDana} dana`;
       }
 
       notifications.push({
@@ -147,7 +178,7 @@ const getNotifications = async (req, res) => {
         icon,
         title,
         description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
-        days: dana,
+        days: finalDana, // Koristi ispravljen broj dana
         action: `/radnici.html?search=${encodeURIComponent(
           radnik.ime + " " + radnik.prezime
         )}`,
@@ -294,11 +325,31 @@ const getNotifications = async (req, res) => {
     }
 
     // Sortiranje obavještenja po prioritetu
+    // 1. Istekli ugovori (negative days) - PRVI
+    // 2. Urgent notifikacije (pozitivni ili 0 days)
+    // 3. Warning notifikacije
+    // 4. Info notifikacije
     const priorityOrder = { urgent: 1, warning: 2, info: 3 };
     notifications.sort((a, b) => {
+      // Posebno sortiranje za istekle ugovore - oni su uvijek prvi
+      const aIstekao = a.days < 0;
+      const bIstekao = b.days < 0;
+
+      if (aIstekao && !bIstekao) return -1; // a je istekao, b nije - a je prvi
+      if (!aIstekao && bIstekao) return 1; // b je istekao, a nije - b je prvi
+
+      // Ako su oba istekla ili oba nisu, sortiramo po prioritetu
       if (priorityOrder[a.type] !== priorityOrder[b.type]) {
         return priorityOrder[a.type] - priorityOrder[b.type];
       }
+
+      // Ako su istog prioriteta, sortiramo po danima
+      // Za istekle ugovore (negative), najstariji prvi
+      if (aIstekao && bIstekao) {
+        return a.days - b.days; // -5 će biti prije -2 (stariji prije)
+      }
+
+      // Za buduće datume, najbliži prvi
       return a.days - b.days;
     });
 
