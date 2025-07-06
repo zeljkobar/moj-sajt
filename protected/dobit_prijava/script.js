@@ -59,7 +59,8 @@ let rezultat,
   preplaceniPorez,
   mjesecnaAkontacija,
   ukupnoGubici,
-  ukupnoKapGubici;
+  ukupnoKapGubici,
+  x38_vrijednost;
 
 // Podaci o firmama iz baze
 let firmeData = [];
@@ -165,38 +166,14 @@ inputs.forEach(function (input) {
   vrijednostiPolja[input.name] = 0;
   input.addEventListener("blur", function () {
     vrijednostiPolja[input.name] = parseFloat(input.value);
-    if (!vrijednostiPolja[input.name]) {
-      vrijednostiPolja[input.name] = 0;
-    }
+    if (!input.value) vrijednostiPolja[input.name] = 0;
+    console.log(vrijednostiPolja);
     preracun(vrijednostiPolja);
     update();
   });
 });
 
 function update() {
-  // Kalkulacija ukupnih povećanja (x15 = x05 do x14)
-  const ukupnaPovecanja =
-    (parseFloat(document.getElementById("x05").value) || 0) +
-    (parseFloat(document.getElementById("x06").value) || 0) +
-    (parseFloat(document.getElementById("x07").value) || 0) +
-    (parseFloat(document.getElementById("x08").value) || 0) +
-    (parseFloat(document.getElementById("x09").value) || 0) +
-    (parseFloat(document.getElementById("x10").value) || 0) +
-    (parseFloat(document.getElementById("x11").value) || 0) +
-    (parseFloat(document.getElementById("x12").value) || 0) +
-    (parseFloat(document.getElementById("x13").value) || 0) +
-    (parseFloat(document.getElementById("x14").value) || 0);
-  document.getElementById("x15").value = ukupnaPovecanja.toFixed(2);
-
-  // Kalkulacija ukupnih smanjenja (x21 = x16 do x20)
-  const ukupnaSmanjenja =
-    (parseFloat(document.getElementById("x16").value) || 0) +
-    (parseFloat(document.getElementById("x17").value) || 0) +
-    (parseFloat(document.getElementById("x18").value) || 0) +
-    (parseFloat(document.getElementById("x19").value) || 0) +
-    (parseFloat(document.getElementById("x20").value) || 0);
-  document.getElementById("x21").value = ukupnaSmanjenja.toFixed(2);
-
   document.getElementById("x36").value = dobit;
   document.getElementById("x37").value = gubitak;
   document.getElementById("x39").value = ostatakOporeziveDobiti;
@@ -226,7 +203,7 @@ function update() {
   document.getElementById("x62").value = mjesecnaAkontacija;
   document.getElementById("pg1_1").value = dobit;
   document.getElementById("pg1_2").value = ukupnoGubici;
-  document.getElementById("x38").value = document.getElementById("pg1_3").value;
+  document.getElementById("x38").value = x38_vrijednost;
   document.getElementById("pg2_1").value = document.getElementById("x42").value;
   document.getElementById("pg2_2").value = ukupnoKapGubici;
   document.getElementById("x44").value = document.getElementById("pg2_3").value;
@@ -235,85 +212,134 @@ function update() {
 function preracun(vrijednosti) {
   if (vrijednosti["x01"]) {
     rezultat =
-      vrijednosti["x01"] +
-      vrijednosti["x15"] -
+      vrijednosti["x01"] -
+      vrijednosti["x03"] +
+      vrijednosti["x04"] +
+      vrijednosti["x05"] -
+      vrijednosti["x06"] +
+      vrijednosti["x07"] +
+      vrijednosti["x08"] +
+      vrijednosti["x09"] +
+      vrijednosti["x10"] +
+      vrijednosti["x11"] +
+      vrijednosti["x12"] +
+      vrijednosti["x13"] +
+      vrijednosti["x14"] +
+      vrijednosti["x15"] +
+      vrijednosti["x16"] +
+      vrijednosti["x17"] +
+      vrijednosti["x18"] +
+      vrijednosti["x19"] +
+      vrijednosti["x20"] +
       vrijednosti["x21"] +
       vrijednosti["x22"] +
-      vrijednosti["x24"] -
-      vrijednosti["x25"] -
-      vrijednosti["x26"] -
-      vrijednosti["x27"] -
-      vrijednosti["x28"] -
-      vrijednosti["x29"] -
-      vrijednosti["x30"] -
-      vrijednosti["x31"] -
-      vrijednosti["x32"] -
-      vrijednosti["x33"] -
-      vrijednosti["x34"] +
-      vrijednosti["x35"];
-
-    if (rezultat > 0) {
-      dobit = rezultat;
-      gubitak = 0;
-    } else {
-      dobit = 0;
-      gubitak = Math.abs(rezultat);
-    }
-  } else {
-    rezultat =
-      vrijednosti["x02"] -
-      vrijednosti["x15"] +
-      vrijednosti["x21"] -
-      vrijednosti["x22"] -
+      vrijednosti["x23"] +
       vrijednosti["x24"] +
-      vrijednosti["x25"] +
-      vrijednosti["x26"] +
       vrijednosti["x27"] +
       vrijednosti["x28"] +
       vrijednosti["x29"] +
-      vrijednosti["x30"] +
-      vrijednosti["x31"] +
-      vrijednosti["x32"] +
-      vrijednosti["x33"] +
+      vrijednosti["x32"] -
+      vrijednosti["x33"] -
       vrijednosti["x34"] -
       vrijednosti["x35"];
 
-    if (rezultat > 0) {
-      gubitak = rezultat;
+    console.log("postoji dobit");
+    if (rezultat < 0) {
+      gubitak = Math.abs(rezultat);
+      dobit9 = 0;
+      dobit12 = 0;
+      dobit15 = 0;
       dobit = 0;
     } else {
+      dobit = rezultat;
       gubitak = 0;
+    }
+  } else {
+    rezultat =
+      vrijednosti["x02"] +
+      vrijednosti["x03"] -
+      vrijednosti["x04"] -
+      vrijednosti["x05"] +
+      vrijednosti["x06"] -
+      vrijednosti["x07"] -
+      vrijednosti["x08"] -
+      vrijednosti["x09"] -
+      vrijednosti["x10"] -
+      vrijednosti["x11"] -
+      vrijednosti["x12"] -
+      vrijednosti["x13"] -
+      vrijednosti["x14"] -
+      vrijednosti["x15"] -
+      vrijednosti["x16"] -
+      vrijednosti["x17"] -
+      vrijednosti["x18"] -
+      vrijednosti["x19"] -
+      vrijednosti["x20"] -
+      vrijednosti["x21"] -
+      vrijednosti["x22"] -
+      vrijednosti["x23"] -
+      vrijednosti["x24"] -
+      vrijednosti["x27"] -
+      vrijednosti["x28"] -
+      vrijednosti["x29"] -
+      vrijednosti["x32"] +
+      vrijednosti["x33"] +
+      vrijednosti["x34"] +
+      vrijednosti["x35"];
+    console.log("postoji gubitak");
+
+    if (rezultat < 0) {
       dobit = Math.abs(rezultat);
+      gubitak = 0;
+    } else {
+      gubitak = rezultat;
+      dobit = 0;
+      dobit9 = 0;
+      dobit12 = 0;
+      dobit15 = 0;
     }
   }
 
   kapDob = vrijednosti["x03"];
   kapGub = vrijednosti["x04"];
   ostatakOporeziveDobiti = 0;
-  ostatakOporeziveDobiti = dobit - vrijednosti["x38"];
+
+  // Izračunaj ukupne gubice za x38
+  ukupnoGubici =
+    vrijednostiPolja["pg1_21"] +
+    vrijednostiPolja["pg1_22"] +
+    vrijednostiPolja["pg1_23"] +
+    vrijednostiPolja["pg1_24"] +
+    vrijednostiPolja["pg1_25"];
+
+  // x38 se automatski popunjava sa ukupnim gubicima ranijih godina
+  x38_vrijednost = ukupnoGubici;
+
+  // Ali ako je ta vrednost veća od dobiti (x36), onda je jednaka dobiti
+  if (x38_vrijednost > dobit) {
+    x38_vrijednost = dobit;
+  }
+
+  ostatakOporeziveDobiti = dobit - x38_vrijednost;
   ostKapDob = kapDob - vrijednosti["x44"];
   poreskaOsnovica = ostatakOporeziveDobiti + ostKapDob;
 
   switch (true) {
-    case poreskaOsnovica <= 100000:
-      dobit9 = poreskaOsnovica * 0.09;
+    case poreskaOsnovica < 100000:
+      dobit9 = (poreskaOsnovica * 9) / 100;
       dobit12 = 0;
       dobit15 = 0;
       break;
-    case poreskaOsnovica > 100000 && poreskaOsnovica <= 1500000:
-      dobit9 = 100000 * 0.09;
-      dobit12 = (poreskaOsnovica - 100000) * 0.12;
+    case poreskaOsnovica < 1500000:
+      dobit9 = 9000;
+      dobit12 = ((poreskaOsnovica - 100000) * 12) / 100;
       dobit15 = 0;
-      break;
-    case poreskaOsnovica > 1500000:
-      dobit9 = 100000 * 0.09;
-      dobit12 = 1400000 * 0.12;
-      dobit15 = (poreskaOsnovica - 1500000) * 0.15;
       break;
     default:
-      dobit9 = 0;
-      dobit12 = 0;
-      dobit15 = 0;
+      dobit9 = 9000;
+      dobit12 = 168000;
+      dobit15 = ((poreskaOsnovica - 1500000) * 15) / 100;
+      break;
   }
 
   ukupnaDobit = dobit9 + dobit12 + dobit15;
@@ -325,17 +351,11 @@ function preracun(vrijednosti) {
     porezKojiSeDuguje = utvrdjenaPoreskaObaveza - ukupnoPlacenPorez;
     preplaceniPorez = 0;
   } else {
-    preplaceniPorez = ukupnoPlacenPorez - utvrdjenaPoreskaObaveza;
     porezKojiSeDuguje = 0;
+    preplaceniPorez = ukupnoPlacenPorez - utvrdjenaPoreskaObaveza;
   }
 
   mjesecnaAkontacija = (utvrdjenaPoreskaObaveza / 12).toFixed(2);
-  ukupnoGubici =
-    vrijednostiPolja["pg1_21"] +
-    vrijednostiPolja["pg1_22"] +
-    vrijednostiPolja["pg1_23"] +
-    vrijednostiPolja["pg1_24"] +
-    vrijednostiPolja["pg1_25"];
 
   ukupnoKapGubici =
     vrijednostiPolja["pg2_21"] +
