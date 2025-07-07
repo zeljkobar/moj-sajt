@@ -137,7 +137,7 @@ const getNotifications = async (req, res) => {
       // Koristi JavaScript calculation za preciznost (umjesto SQL DATEDIFF zbog timezone)
       const prestanakDate = new Date(radnik.datum_prestanka);
       const currentDate = new Date();
-      
+
       // Postavimo vreme na 00:00:00 za oba datuma za preciznu comparison
       prestanakDate.setHours(0, 0, 0, 0);
       currentDate.setHours(0, 0, 0, 0);
