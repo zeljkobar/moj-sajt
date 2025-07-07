@@ -10,6 +10,10 @@ router.get("/", authMiddleware, notificationController.getNotifications);
 router.get("/debug-sql", authMiddleware, notificationController.debugSQL);
 
 // GET /api/debug-ugovori - debug endpoint za ugovore
-router.get("/debug-ugovori", authMiddleware, notificationController.debugUgovori);
+router.get(
+  "/debug-ugovori",
+  authMiddleware,
+  notificationController.debugUgovori
+);
 
 module.exports = router;
