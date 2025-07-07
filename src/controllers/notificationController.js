@@ -3,21 +3,15 @@ const { executeQuery } = require("../config/database");
 // Dobijanje obavještenja za dashboard
 const getNotifications = async (req, res) => {
   try {
-    console.log("🔔 getNotifications pozvan za korisnika:", req.session.user);
     const userId = req.session.user.id;
     const userRole = req.session.user.role;
     const notifications = [];
 
     // ADMIN OBAVJEŠTENJA - samo za admin korisnike
     if (userRole === "admin") {
-      console.log("Admin je ulogovan, proveravam nove registracije...");
-      console.log("⚠️ ADMIN NOTIFIKACIJE: Koristeći JavaScript datum zbog server timezone problema");
-
-      // Nove registracije u poslednjih 7 dana (koristimo UTC datume)
+      // Nove registracije u poslednjih 7 dana (koristimo JavaScript datume)
       const today = new Date();
       const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-      
-      console.log(`📅 JavaScript datumi: danas=${today.toISOString().split('T')[0]}, 7 dana prije=${sevenDaysAgo.toISOString().split('T')[0]}`);
 
       const noveRegistracijeQuery = `
         SELECT id, username, ime, prezime, email, role, created_at
@@ -28,16 +22,18 @@ const getNotifications = async (req, res) => {
         LIMIT 10
       `;
 
-      const noveRegistracije = await executeQuery(noveRegistracijeQuery, [sevenDaysAgo.toISOString().split('T')[0]]);
-      
+      const noveRegistracije = await executeQuery(noveRegistracijeQuery, [
+        sevenDaysAgo.toISOString().split("T")[0],
+      ]);
+
       // Manual calculation za dane od registracije
-      noveRegistracije.forEach(user => {
+      noveRegistracije.forEach((user) => {
         const registrationDate = new Date(user.created_at);
         const diffTime = today.getTime() - registrationDate.getTime();
-        user.dana_od_registracije = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        user.dana_od_registracije = Math.floor(
+          diffTime / (1000 * 60 * 60 * 24)
+        );
       });
-      
-      console.log("Pronađene nove registracije:", noveRegistracije);
 
       // Dodaj sumarno obavještenje ako ima više novih korisnika
       if (noveRegistracije.length > 0) {
@@ -137,52 +133,16 @@ const getNotifications = async (req, res) => {
 
     const ugovori = await executeQuery(ugovoriQuery, [userId]);
 
-    // Dodatni debugging za server environment
-    console.log("🌐 SERVER DEBUGGING - Environment info:");
-    console.log(
-      "  Timezone:",
-      Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
-    console.log("  Current Date (JS):", new Date().toISOString());
-    console.log(
-      "  Current Date (Local):",
-      new Date().toLocaleDateString("sr-RS")
-    );
-
-    // DEBUG: Dodaj detaljne informacije za svaki ugovor
-    console.log("🔍 DEBUG UGOVORI - ukupno pronađeno:", ugovori.length);
-    console.log("⚠️ TIMEZONE ISSUE DETECTED: Koristeći ISKLJUČIVO JavaScript calculation zbog server/MySQL timezone problema");
-
-    ugovori.forEach((radnik, index) => {
-      const dana = radnik.dana_do_isteka;
-
-      // Manual re-calculation za sigurnost - IGNORIŠI SQL rezultat zbog timezone problema
+    ugovori.forEach((radnik) => {
+      // Koristi JavaScript calculation za preciznost (umjesto SQL DATEDIFF zbog timezone)
       const prestanakDate = new Date(radnik.datum_prestanka);
       const currentDate = new Date();
-
-      // DEBUG: Ispiši originalne datume
-      console.log(`📅 RADNIK ${index + 1} (${radnik.ime} ${radnik.prezime}):`);
-      console.log(`   - datum_prestanka iz DB: ${radnik.datum_prestanka}`);
-      console.log(`   - prestanakDate object: ${prestanakDate}`);
-      console.log(`   - currentDate object: ${currentDate}`);
-      console.log(`   - SQL dana_do_isteka: ${dana} (IGNORIRANO zbog timezone)`);
-
+      
       // Postavimo vreme na 00:00:00 za oba datuma za preciznu comparison
       prestanakDate.setHours(0, 0, 0, 0);
       currentDate.setHours(0, 0, 0, 0);
       const diffTime = prestanakDate.getTime() - currentDate.getTime();
-      const manualDiffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-      console.log(`   - Manual calculation: ${manualDiffDays} dana`);
-      console.log(
-        `   - Timezone offset: ${prestanakDate.getTimezoneOffset()} min`
-      );
-
-      // UVIJEK koristi manual calculation umjesto SQL-a
-      const finalDana = manualDiffDays;
-
-      console.log(`   - Final dana: ${finalDana} (force manual)`);
-      console.log(`   - SQL vs Manual razlika: ${dana !== manualDiffDays ? "DA" : "NE"} (${dana} vs ${manualDiffDays})`);
+      const finalDana = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
       let type, icon, title;
 
@@ -193,13 +153,11 @@ const getNotifications = async (req, res) => {
         title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
           Math.abs(finalDana) === 1 ? "dan" : "dana"
         }`;
-        console.log(`   ❌ EXPIRED: ${Math.abs(finalDana)} dana prije`);
       } else if (finalDana === 0) {
         // Ugovor ističe danas - HITNO
         type = "urgent";
         icon = "⚠️";
         title = `Ugovor ističe danas!`;
-        console.log(`   ⚠️ TODAY: Ističe danas`);
       } else if (finalDana <= 7) {
         // Ugovor ističe u sljedećih 7 dana - HITNO
         type = "urgent";
@@ -207,19 +165,16 @@ const getNotifications = async (req, res) => {
         title = `Ugovor ističe za ${finalDana} ${
           finalDana === 1 ? "dan" : "dana"
         }`;
-        console.log(`   ⚠️ URGENT: ${finalDana} dana`);
       } else if (finalDana <= 15) {
         // Ugovor ističe u sljedećih 15 dana - UPOZORENJE
         type = "warning";
         icon = "📋";
         title = `Ugovor ističe za ${finalDana} dana`;
-        console.log(`   ⚠️ WARNING: ${finalDana} dana`);
       } else {
         // Ugovor ističe u sljedećih 30 dana - INFO
         type = "info";
         icon = "📅";
         title = `Ugovor ističe za ${finalDana} dana`;
-        console.log(`   ℹ️ INFO: ${finalDana} dana`);
       }
 
       notifications.push({
@@ -228,14 +183,12 @@ const getNotifications = async (req, res) => {
         icon,
         title,
         description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
-        days: finalDana, // Koristi ispravljen broj dana
+        days: finalDana,
         action: `/radnici.html?search=${encodeURIComponent(
           radnik.ime + " " + radnik.prezime
         )}`,
         timestamp: new Date(),
       });
-
-      console.log(`   ✅ DODANO: ${title} (type: ${type})`);
     });
 
     // 2. NEAKTIVNE FIRME
@@ -405,12 +358,6 @@ const getNotifications = async (req, res) => {
       return a.days - b.days;
     });
 
-    console.log("📤 Šaljem obavještenja:", notifications.length);
-    console.log(
-      "📋 Lista obavještenja:",
-      notifications.map((n) => ({ id: n.id, type: n.type, title: n.title }))
-    );
-
     res.json({ notifications });
   } catch (error) {
     console.error("Greška pri dohvatanju obavještenja:", error);
@@ -418,101 +365,4 @@ const getNotifications = async (req, res) => {
   }
 };
 
-// DEBUG endpoint za SQL testiranje
-const debugSQL = async (req, res) => {
-  try {
-    console.log("=== DEBUG SQL TESTIRANJE ===");
-
-    // Proveri sve korisnike
-    const sviKorisnici = await executeQuery(`
-      SELECT id, username, ime, prezime, email, role, created_at,
-             DATEDIFF(CURDATE(), created_at) as dana_od_registracije
-      FROM users 
-      ORDER BY created_at DESC
-    `);
-    console.log("SVI KORISNICI:", sviKorisnici);
-
-    // Proveri nove registracije (novi upit)
-    const noveRegistracije = await executeQuery(`
-      SELECT id, username, ime, prezime, email, role, created_at,
-             DATEDIFF(CURDATE(), created_at) as dana_od_registracije
-      FROM users 
-      WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-        AND role != 'admin'
-      ORDER BY created_at DESC
-      LIMIT 5
-    `);
-    console.log("NOVE REGISTRACIJE (7 dana):", noveRegistracije);
-
-    // Proveri današnji datum
-    const trenutniDatum = await executeQuery(
-      "SELECT CURDATE() as danas, NOW() as sada"
-    );
-    console.log("TRENUTNI DATUM:", trenutniDatum);
-
-    res.json({
-      message: "Debug podaci su ispisani u konzoli",
-      sviKorisnici,
-      noveRegistracije,
-      trenutniDatum,
-    });
-  } catch (error) {
-    console.error("Debug SQL greška:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// DEBUG endpoint za ugovore
-const debugUgovori = async (req, res) => {
-  try {
-    const userId = req.session.user.id;
-    console.log("=== DEBUG UGOVORI ZA KORISNIKA ===", userId);
-
-    // Proveri sve ugovore
-    const sviUgovori = await executeQuery(
-      `
-      SELECT 
-        r.id, r.ime, r.prezime, r.datum_pocetka, r.datum_prestanka,
-        f.naziv as firma_naziv,
-        DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka,
-        CURDATE() as danas,
-        r.datum_prestanka < CURDATE() as je_istekao
-      FROM radnici r
-      JOIN firme f ON r.firma_id = f.id
-      WHERE f.user_id = ? 
-        AND r.datum_prestanka IS NOT NULL
-      ORDER BY r.datum_prestanka ASC
-    `,
-      [userId]
-    );
-
-    console.log("SVI UGOVORI:", sviUgovori);
-
-    // Proveri timezone info
-    const timezoneInfo = await executeQuery(`
-      SELECT 
-        @@session.time_zone as session_timezone,
-        @@system_time_zone as system_timezone,
-        CURDATE() as current_date,
-        NOW() as current_datetime,
-        UTC_TIMESTAMP() as utc_timestamp
-    `);
-
-    console.log("TIMEZONE INFO:", timezoneInfo);
-
-    res.json({
-      message: "Debug ugovori ispisani u konzoli",
-      ugovori: sviUgovori,
-      timezoneInfo,
-      serverTime: new Date(),
-      serverUTCTime: new Date().toISOString(),
-      nodeTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      processEnvTZ: process.env.TZ,
-    });
-  } catch (error) {
-    console.error("Debug ugovori greška:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports = { getNotifications, debugSQL, debugUgovori };
+module.exports = { getNotifications };
