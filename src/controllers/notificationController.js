@@ -124,20 +124,43 @@ const getNotifications = async (req, res) => {
 
     const ugovori = await executeQuery(ugovoriQuery, [userId]);
 
-    ugovori.forEach((radnik) => {
+    // Dodatni debugging za server environment
+    console.log("🌐 SERVER DEBUGGING - Environment info:");
+    console.log("  Timezone:", Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log("  Current Date (JS):", new Date().toISOString());
+    console.log("  Current Date (Local):", new Date().toLocaleDateString('sr-RS'));
+    
+    // DEBUG: Dodaj detaljne informacije za svaki ugovor
+    console.log("🔍 DEBUG UGOVORI - ukupno pronađeno:", ugovori.length);
+    
+    ugovori.forEach((radnik, index) => {
       const dana = radnik.dana_do_isteka;
 
       // Manual re-calculation za sigurnost
       const prestanakDate = new Date(radnik.datum_prestanka);
       const currentDate = new Date();
+      
+      // DEBUG: Ispiši originalne datume
+      console.log(`📅 RADNIK ${index + 1} (${radnik.ime} ${radnik.prezime}):`);
+      console.log(`   - datum_prestanka iz DB: ${radnik.datum_prestanka}`);
+      console.log(`   - prestanakDate object: ${prestanakDate}`);
+      console.log(`   - currentDate object: ${currentDate}`);
+      console.log(`   - SQL dana_do_isteka: ${dana}`);
+      
       // Postavimo vreme na 00:00:00 za oba datuma za preciznu comparison
       prestanakDate.setHours(0, 0, 0, 0);
       currentDate.setHours(0, 0, 0, 0);
       const diffTime = prestanakDate.getTime() - currentDate.getTime();
       const manualDiffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
+      console.log(`   - Manual calculation: ${manualDiffDays} dana`);
+      console.log(`   - Timezone offset: ${prestanakDate.getTimezoneOffset()} min`);
+      
       // Koristi manual calculation ako se razlikuje od SQL-a
       const finalDana = dana !== manualDiffDays ? manualDiffDays : dana;
+      
+      console.log(`   - Final dana: ${finalDana}`);
+      console.log(`   - SQL vs Manual razlika: ${dana !== manualDiffDays ? 'DA' : 'NE'}`);
 
       let type, icon, title;
 
@@ -148,11 +171,13 @@ const getNotifications = async (req, res) => {
         title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
           Math.abs(finalDana) === 1 ? "dan" : "dana"
         }`;
+        console.log(`   ❌ EXPIRED: ${Math.abs(finalDana)} dana prije`);
       } else if (finalDana === 0) {
         // Ugovor ističe danas - HITNO
         type = "urgent";
         icon = "⚠️";
         title = `Ugovor ističe danas!`;
+        console.log(`   ⚠️ TODAY: Ističe danas`);
       } else if (finalDana <= 7) {
         // Ugovor ističe u sljedećih 7 dana - HITNO
         type = "urgent";
@@ -160,16 +185,19 @@ const getNotifications = async (req, res) => {
         title = `Ugovor ističe za ${finalDana} ${
           finalDana === 1 ? "dan" : "dana"
         }`;
+        console.log(`   ⚠️ URGENT: ${finalDana} dana`);
       } else if (finalDana <= 15) {
         // Ugovor ističe u sljedećih 15 dana - UPOZORENJE
         type = "warning";
         icon = "📋";
         title = `Ugovor ističe za ${finalDana} dana`;
+        console.log(`   ⚠️ WARNING: ${finalDana} dana`);
       } else {
         // Ugovor ističe u sljedećih 30 dana - INFO
         type = "info";
         icon = "📅";
         title = `Ugovor ističe za ${finalDana} dana`;
+        console.log(`   ℹ️ INFO: ${finalDana} dana`);
       }
 
       notifications.push({
@@ -184,6 +212,8 @@ const getNotifications = async (req, res) => {
         )}`,
         timestamp: new Date(),
       });
+      
+      console.log(`   ✅ DODANO: ${title} (type: ${type})`);
     });
 
     // 2. NEAKTIVNE FIRME
@@ -410,4 +440,51 @@ const debugSQL = async (req, res) => {
   }
 };
 
-module.exports = { getNotifications, debugSQL };
+// DEBUG endpoint za ugovore
+const debugUgovori = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log("=== DEBUG UGOVORI ZA KORISNIKA ===", userId);
+
+    // Proveri sve ugovore
+    const sviUgovori = await executeQuery(`
+      SELECT 
+        r.id, r.ime, r.prezime, r.datum_pocetka, r.datum_prestanka,
+        f.naziv as firma_naziv,
+        DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka,
+        CURDATE() as danas,
+        r.datum_prestanka < CURDATE() as je_istekao
+      FROM radnici r
+      JOIN firme f ON r.firma_id = f.id
+      WHERE f.user_id = ? 
+        AND r.datum_prestanka IS NOT NULL
+      ORDER BY r.datum_prestanka ASC
+    `, [userId]);
+    
+    console.log("SVI UGOVORI:", sviUgovori);
+
+    // Proveri timezone info
+    const timezoneInfo = await executeQuery(`
+      SELECT 
+        @@session.time_zone as session_timezone,
+        @@system_time_zone as system_timezone,
+        CURDATE() as current_date,
+        NOW() as current_datetime
+    `);
+    
+    console.log("TIMEZONE INFO:", timezoneInfo);
+
+    res.json({
+      message: "Debug ugovori ispisani u konzoli",
+      ugovori: sviUgovori,
+      timezoneInfo,
+      serverTime: new Date(),
+      serverUTCTime: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Debug ugovori greška:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getNotifications, debugSQL, debugUgovori };
