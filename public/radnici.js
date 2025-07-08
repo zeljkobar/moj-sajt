@@ -4,15 +4,159 @@ let firme = [];
 let radnici = [];
 let filteredRadnici = []; // Za filtriranu listu radnika
 
+// Funkcija za otvaranje modala sa callback-om
+function openRadnikModalWithCallback() {
+  openRadnikModal({
+    onSuccess: function (result) {
+      alert("Radnik je uspešno dodan!");
+      loadRadnici();
+    },
+  });
+}
+
+// Osnovne modal funkcije
+function openRadnikModal() {
+  // Zatvori sve Bootstrap modale koji možda postoje
+  const existingBootstrapModals = document.querySelectorAll(".modal.fade");
+  existingBootstrapModals.forEach((modalEl) => {
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+    // Ukloni modal iz DOM-a
+    setTimeout(() => {
+      if (modalEl.parentNode) {
+        modalEl.remove();
+      }
+    }, 300);
+  });
+
+  resetModalForNew();
+  document.getElementById("radnikModal").style.display = "block";
+}
+
+function closeRadnikModal() {
+  console.log("closeRadnikModal je pozvana");
+  document.getElementById("radnikModal").style.display = "none";
+  resetModalForNew();
+}
+
+function resetModalForNew() {
+  // Reset naslov i dugme
+  document.getElementById("modalTitle").textContent = "Dodaj novog radnika";
+  document.getElementById("submitBtn").textContent = "Dodaj radnika";
+
+  // Reset formu
+  document.getElementById("radnikForm").reset();
+
+  // Sakrij datum prestanka polje
+  const datumPrestankaGroup = document.getElementById("datum_prestanka_group");
+  const datumPrestankaInput = document.getElementById("datum_prestanka");
+  if (datumPrestankaGroup && datumPrestankaInput) {
+    datumPrestankaGroup.style.display = "none";
+    datumPrestankaInput.required = false;
+  }
+
+  // Reset help text
+  const helpText = document.getElementById("radnoVremeHelp");
+  if (helpText) {
+    helpText.style.display = "none";
+  }
+
+  // Postavi današnji datum
+  const today = new Date().toISOString().split("T")[0];
+  const datumZaposlenjaField = document.getElementById("datum_zaposlenja");
+  if (datumZaposlenjaField) {
+    datumZaposlenjaField.value = today;
+  }
+}
+
+// Zatvaranje modala klikom van njega
+window.onclick = function (event) {
+  const radnikModal = document.getElementById("radnikModal");
+  if (event.target === radnikModal) {
+    console.log("Zatvaramo modal klikom van njega");
+    closeRadnikModal();
+  }
+
+  // Dodaj i zatvaranje Bootstrap modala ako kliknemo van njih
+  const sedmicniModal = document.getElementById("sedmicniOdmorModal");
+  if (sedmicniModal && event.target === sedmicniModal) {
+    closeSedmicniOdmorModal();
+  }
+};
+
 // Učitavanje podataka na početku
 document.addEventListener("DOMContentLoaded", function () {
   loadPozicije();
   loadFirme();
   loadRadnici();
-  setupSearchFunctionality();
 
-  // Proverava URL parametre za automatsko popunjavanje search polja
-  checkURLSearchParam();
+  // Event listener za submit forme radnika
+  const radnikForm = document.getElementById("radnikForm");
+  if (radnikForm) {
+    radnikForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      try {
+        const formData = new FormData(this);
+        const radnikId = formData.get("radnik_id");
+
+        // Određuj da li je to dodavanje novog ili editovanje postojećeg radnika
+        const isEdit = radnikId && radnikId.trim() !== "";
+        const url = isEdit ? `/api/radnici/${radnikId}` : "/api/radnici";
+        const method = isEdit ? "PUT" : "POST";
+
+        // Pripremi podatke
+        const radnikData = {
+          vrsta_ugovora: formData.get("vrsta_ugovora"),
+          ime: formData.get("ime"),
+          prezime: formData.get("prezime"),
+          jmbg: formData.get("jmbg"),
+          grad: formData.get("grad"),
+          adresa: formData.get("adresa"),
+          pozicija_id: formData.get("pozicija_id"),
+          firma_id: formData.get("firma_id"),
+          datum_zaposlenja: formData.get("datum_zaposlenja"),
+          visina_zarade: formData.get("visina_zarade"),
+          tip_radnog_vremena: formData.get("tip_radnog_vremena"),
+          tip_ugovora: formData.get("tip_ugovora"),
+          datum_prestanka: formData.get("datum_prestanka") || null,
+          napomene: formData.get("napomene"),
+        };
+
+        console.log("Šaljemo radnikData:", radnikData); // Debug log
+
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(radnikData),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Greška ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        // Prikaži poruku o uspešnoj operaciji
+        alert(
+          isEdit ? "Radnik je uspešno ažuriran!" : "Radnik je uspešno dodan!"
+        );
+
+        // Zatvori modal i resetuj podatke
+        closeRadnikModal();
+
+        // Osveži listu radnika
+        loadRadnici();
+      } catch (error) {
+        console.error("Greška pri dodavanju/uređivanju radnika:", error);
+        alert("Greška pri dodavanju/uređivanju radnika: " + error.message);
+      }
+    });
+  }
 });
 
 // Učitavanje pozicija (samo za dropdown u formi)
@@ -86,18 +230,24 @@ function displayRadnici() {
     };
 
     const row = document.createElement("tr");
+
+    // Formatuj datum prestanka
+    let datumPrestanka = "N/A";
+    if (radnik.datum_prestanka) {
+      const prestankDatum = new Date(radnik.datum_prestanka);
+      datumPrestanka = prestankDatum.toLocaleDateString("sr-RS");
+    }
+
     row.innerHTML = `
             <td>${
               vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
             }</td>
             <td>${radnik.ime} ${radnik.prezime}</td>
             <td>${radnik.jmbg}</td>
-            <td>${radnik.grad || "N/A"}</td>
-            <td>${radnik.adresa || "N/A"}</td>
             <td>${radnik.pozicija_naziv || "N/A"}</td>
             <td>${radnik.firma_naziv || "N/A"}</td>
             <td>${datumZaposlenja}</td>
-            <td>${radnik.visina_zarade || 0}€</td>
+            <td>${datumPrestanka}</td>
             <td>${radnoVremeText[radnik.tip_radnog_vremena] || "N/A"}</td>
             <td>${tipUgovoraText[radnik.tip_ugovora] || "N/A"}</td>
             <td>
@@ -170,107 +320,6 @@ function populateFirmeSelect() {
     select.appendChild(option);
   });
 }
-
-// Modal funkcije za radnike
-// Funkcija za otvaranje modala za kreiranje novog radnika
-function openRadnikModal() {
-  resetModalForNew();
-  document.getElementById("radnikModal").style.display = "block";
-}
-
-// Funkcija za resetovanje modala za kreiranje novog radnika
-function resetModalForNew() {
-  // Reset naslov i dugme
-  document.getElementById("modalTitle").textContent = "Dodaj novog radnika";
-  document.getElementById("submitBtn").textContent = "Dodaj radnika";
-
-  // Reset formu
-  document.getElementById("radnikForm").reset();
-
-  // Sakrij datum prestanka polje
-  document.getElementById("datum_prestanka_group").style.display = "none";
-  document.getElementById("datum_prestanka").required = false;
-
-  // Resetuj help text
-  document.getElementById("radnoVremeHelp").style.display = "none";
-
-  // Postavi današnji datum
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById("datum_zaposlenja").value = today;
-}
-
-function closeRadnikModal() {
-  document.getElementById("radnikModal").style.display = "none";
-  // Reset formu i sve što treba
-  resetModalForNew();
-}
-
-// Zatvaranje modala klikom van njega
-window.onclick = function (event) {
-  const radnikModal = document.getElementById("radnikModal");
-  if (event.target === radnikModal) {
-    closeRadnikModal();
-  }
-};
-
-// Form submit za dodavanje/uređivanje radnika
-document
-  .getElementById("radnikForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData);
-
-    // Proveri da li je uređivanje ili kreiranje
-    const radnikId = data.radnik_id;
-    const isEditing = radnikId && radnikId !== "";
-
-    // Ukloni radnik_id iz podataka ako je prazan (za kreiranje)
-    if (!isEditing) {
-      delete data.radnik_id;
-    }
-
-    try {
-      let response;
-      let successMessage;
-
-      if (isEditing) {
-        // Uređivanje postojećeg radnika
-        response = await fetch(`/api/radnici/${radnikId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        successMessage = "Radnik je uspešno ažuriran!";
-      } else {
-        // Kreiranje novog radnika
-        response = await fetch("/api/radnici", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        successMessage = "Radnik je uspešno dodan!";
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        alert(successMessage);
-        closeRadnikModal();
-        loadRadnici();
-      } else {
-        alert("Greška: " + result.message);
-      }
-    } catch (error) {
-      console.error("Greška pri obradi radnika:", error);
-      alert("Greška pri obradi radnika");
-    }
-  });
 
 // Funkcionalnost pretrage
 function setupSearchFunctionality() {
@@ -434,6 +483,8 @@ async function generateUgovorFromTable(radnikId, firmaId) {
     const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
     const radnik = await radnikResponse.json();
 
+    console.log("Podaci o radniku za ugovor:", radnik); // Debug log
+
     // Na osnovu vrste ugovora otvori odgovarajući template
     let ugovorUrl;
 
@@ -441,6 +492,7 @@ async function generateUgovorFromTable(radnikId, firmaId) {
       ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
     } else {
       // Default - ugovor o radu (ili bilo koja druga vrsta)
+      // Template ugovor-o-radu.html automatski prikazuje određeno/neodređeno na osnovu tip_ugovora polja
       ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
     }
 
@@ -485,15 +537,153 @@ document.addEventListener("click", function (event) {
 
 // Funkcija za generisanje dokumenata (osim ugovora)
 function generateDocument(radnikId, documentType) {
+  console.log("generateDocument pozvan sa:", radnikId, documentType);
+
   const radnik = radnici.find((r) => r.id == radnikId);
   if (!radnik) {
     alert("Radnik nije pronađen!");
     return;
   }
 
+  // Specijalni tretman za sedmični odmor - otvori modal za izbor dana
+  if (documentType === "sedmicni-odmor") {
+    console.log("Otvaram modal za sedmični odmor");
+    openSedmicniOdmorModal(radnikId, radnik.firma_id);
+    return;
+  }
+
   // Kreiramo URL sa parametrima kao što ih koristi modal (radnikId i firmaId)
   const url = `${documentType}.html?radnikId=${radnikId}&firmaId=${radnik.firma_id}`;
   window.open(url, "_blank");
+}
+
+// Modal za izbor dana sedmičnog odmora
+function openSedmicniOdmorModal(radnikId, firmaId) {
+  console.log("openSedmicniOdmorModal pozvan sa:", radnikId, firmaId);
+
+  const modalHtml = `
+    <div class="modal fade" id="sedmicniOdmorModal" tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-calendar-week me-2"></i>Izaberite dan sedmičnog odmora
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="danSedmicniSelect" class="form-label">Dan u nedelji:</label>
+              <select class="form-select" id="danSedmicniSelect">
+                <option value="ponedeljkom">Ponedeljkom</option>
+                <option value="utorkom">Utorkom</option>
+                <option value="sredom">Sredom</option>
+                <option value="četvrtkom">Četvrtkom</option>
+                <option value="petkom">Petkom</option>
+                <option value="subotom">Subotom</option>
+                <option value="nedeljom">Nedeljom</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="specificniDatumSedmicni" class="form-label">Ili specifičan datum (opciono):</label>
+              <input type="date" class="form-control" id="specificniDatumSedmicni">
+              <small class="form-text text-muted">Ako unesete datum, on će imati prioritet</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeSedmicniOdmorModal()">Otkaži</button>
+            <button type="button" class="btn btn-primary" onclick="potvrdiSedmicniOdmor(${radnikId}, ${firmaId})">
+              <i class="fas fa-check me-2"></i>Generiši dokument
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Ukloni postojeći modal ako postoji
+  const existingModal = document.getElementById("sedmicniOdmorModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  // Dodaj novi modal
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+  // Prikaži modal
+  const modal = new bootstrap.Modal(
+    document.getElementById("sedmicniOdmorModal")
+  );
+  modal.show();
+
+  // Dodaj event listener za automatsko uklanjanje iz DOM-a kada se modal zatvori
+  const modalElement = document.getElementById("sedmicniOdmorModal");
+  modalElement.addEventListener(
+    "hidden.bs.modal",
+    function () {
+      modalElement.remove();
+    },
+    { once: true }
+  );
+}
+
+// Funkcija za zatvaranje sedmičnog odmora modala
+function closeSedmicniOdmorModal() {
+  const modalElement = document.getElementById("sedmicniOdmorModal");
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+    } else {
+      // Ako nema Bootstrap instance, jednostavno ukloni element
+      modalElement.remove();
+    }
+  }
+}
+
+function potvrdiSedmicniOdmor(radnikId, firmaId) {
+  const specificniDatum = document.getElementById(
+    "specificniDatumSedmicni"
+  ).value;
+  const danSelect = document.getElementById("danSedmicniSelect").value;
+
+  let danOdmora;
+
+  if (specificniDatum) {
+    // Ako je unesen specifičan datum, formatuj ga
+    const datum = new Date(specificniDatum);
+    danOdmora = datum.toLocaleDateString("sr-RS");
+  } else {
+    // Inače koristi izabrani dan u nedelji
+    danOdmora = danSelect;
+  }
+
+  // Otvori dokument sa parametrima
+  const url = `sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}&danOdmora=${encodeURIComponent(
+    danOdmora
+  )}`;
+  window.open(url, "_blank");
+
+  // Zatvori modal i ukloni ga iz DOM-a
+  const modalElement = document.getElementById("sedmicniOdmorModal");
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+
+      // Ukloni modal iz DOM-a nakon animacije zatvaranja
+      modalElement.addEventListener(
+        "hidden.bs.modal",
+        function () {
+          modalElement.remove();
+        },
+        { once: true }
+      );
+    } else {
+      // Ako nema Bootstrap instance, jednostavno ukloni element
+      modalElement.remove();
+    }
+  }
 }
 
 // Funkcija za čitanje URL parametara i automatsko popunjavanje search polja

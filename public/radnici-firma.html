@@ -546,11 +546,96 @@
       }
 
       function generateSedmicniOdmor(radnikId) {
-        // Otvori sedmični odmor dokument
-        window.open(
-          `/sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}`,
-          "_blank"
+        // Otvori modal za izbor dana sedmičnog odmora
+        openSedmicniOdmorModal(radnikId, firmaId);
+      }
+
+      // Modal za izbor dana sedmičnog odmora
+      function openSedmicniOdmorModal(radnikId, firmaId) {
+        const modalHtml = `
+          <div class="modal fade" id="sedmicniOdmorModal" tabindex="-1">
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    <i class="fas fa-calendar-week me-2"></i>Izaberite dan sedmičnog odmora
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="danSedmicniSelect" class="form-label">Dan u nedelji:</label>
+                    <select class="form-select" id="danSedmicniSelect">
+                      <option value="ponedeljkom">Ponedeljkom</option>
+                      <option value="utorkom">Utorkom</option>
+                      <option value="sredom">Sredom</option>
+                      <option value="četvrtkom">Četvrtkom</option>
+                      <option value="petkom">Petkom</option>
+                      <option value="subotom">Subotom</option>
+                      <option value="nedeljom">Nedeljom</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="specificniDatumSedmicni" class="form-label">Ili specifičan datum (opciono):</label>
+                    <input type="date" class="form-control" id="specificniDatumSedmicni">
+                    <small class="form-text text-muted">Ako unesete datum, on će imati prioritet</small>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
+                  <button type="button" class="btn btn-primary" onclick="potvrdiSedmicniOdmor(${radnikId}, ${firmaId})">
+                    <i class="fas fa-check me-2"></i>Generiši dokument
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Ukloni postojeći modal ako postoji
+        const existingModal = document.getElementById("sedmicniOdmorModal");
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Dodaj novi modal
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+        // Prikaži modal
+        const modal = new bootstrap.Modal(
+          document.getElementById("sedmicniOdmorModal")
         );
+        modal.show();
+      }
+
+      function potvrdiSedmicniOdmor(radnikId, firmaId) {
+        const specificniDatum = document.getElementById(
+          "specificniDatumSedmicni"
+        ).value;
+        const danSelect = document.getElementById("danSedmicniSelect").value;
+
+        let danOdmora;
+
+        if (specificniDatum) {
+          // Ako je unesen specifičan datum, formatuj ga
+          const datum = new Date(specificniDatum);
+          danOdmora = datum.toLocaleDateString("sr-RS");
+        } else {
+          // Inače koristi izabrani dan u nedelji
+          danOdmora = danSelect;
+        }
+
+        // Otvori dokument sa parametrima
+        const url = `/sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}&danOdmora=${encodeURIComponent(
+          danOdmora
+        )}`;
+        window.open(url, "_blank");
+
+        // Zatvori modal
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("sedmicniOdmorModal")
+        );
+        modal.hide();
       }
 
       function generateMobing(radnikId) {
