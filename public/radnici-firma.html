@@ -164,6 +164,18 @@
           padding: 40px 15px;
         }
       }
+
+      /* Modal footer responsive */
+      @media (max-width: 768px) {
+        .modal-footer {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .modal-footer .btn {
+          width: 100%;
+          margin: 0;
+        }
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -462,8 +474,17 @@
                     }
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="generateUgovor(${radnikId})">
-                      <i class="fas fa-file-contract me-2"></i>Generiši ugovor
+                    <button type="button" class="btn btn-success" onclick="generateUgovor(${radnikId})">
+                      <i class="fas fa-file-contract me-2"></i>Ugovor
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="generateSedmicniOdmor(${radnikId})">
+                      <i class="fas fa-calendar-week me-2"></i>Sedmični odmor
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="generateMobing(${radnikId})">
+                      <i class="fas fa-shield-alt me-2"></i>Mobing
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="generatePotvrdaZaposlenja(${radnikId})">
+                      <i class="fas fa-certificate me-2"></i>Potvrda zaposlenja
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
                   </div>
@@ -522,6 +543,30 @@
       function editRadnik(radnikId) {
         // Preusmeri na glavnu radnici stranicu sa editId parametrom
         window.location.href = `/radnici.html?editId=${radnikId}&firmaId=${firmaId}`;
+      }
+
+      function generateSedmicniOdmor(radnikId) {
+        // Otvori sedmični odmor dokument
+        window.open(
+          `/sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+          "_blank"
+        );
+      }
+
+      function generateMobing(radnikId) {
+        // Otvori mobing dokument
+        window.open(
+          `/mobing.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+          "_blank"
+        );
+      }
+
+      function generatePotvrdaZaposlenja(radnikId) {
+        // Otvori potvrdu o zaposlenju
+        window.open(
+          `/potvrda-zaposlenja.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+          "_blank"
+        );
       }
     </script>
   </body>

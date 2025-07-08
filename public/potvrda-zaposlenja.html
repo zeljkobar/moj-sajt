@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potvrda o zaposlenju</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Times New Roman", serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+      .document-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        min-height: 297mm;
+        padding: 40px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-transform: uppercase;
+      }
+      .content {
+        line-height: 1.8;
+        text-align: justify;
+      }
+      .signature-section {
+        margin-top: 80px;
+        text-align: center;
+      }
+      .print-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+      @media print {
+        .print-btn {
+          display: none;
+        }
+        body {
+          background: white;
+          padding: 0;
+        }
+        .document-container {
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="btn btn-primary print-btn" onclick="window.print()">
+      <i class="fas fa-print me-2"></i>Štampaj
+    </button>
+
+    <div class="document-container">
+      <div class="header">
+        <div id="firmaHeader">
+          <h3 id="firmaNaziv">Učitavanje...</h3>
+          <p id="firmaAdresa">Učitavanje...</p>
+        </div>
+      </div>
+
+      <div class="title">POTVRDA O ZAPOSLENJU</div>
+
+      <div class="content">
+        <p>
+          Potvrđuje se da je <strong id="radnikIme">_________________</strong>,
+          JMBG <strong id="radnikJmbg">_________________</strong>, zaposlen/a u
+          <strong id="firmaNazivText">_________________</strong> sa sedištem u
+          <strong id="firmaAdresaText">_________________</strong>, PIB
+          <strong id="firmaPib">_________________</strong>.
+        </p>
+
+        <p><strong>Podaci o zaposlenju:</strong></p>
+        <ul>
+          <li>
+            <strong>Radno mesto:</strong>
+            <span id="radnikPozicija">_________________</span>
+          </li>
+          <li>
+            <strong>Datum zaposlenja:</strong>
+            <span id="datumZaposlenja">_________________</span>
+          </li>
+          <li>
+            <strong>Vrsta ugovora:</strong>
+            <span id="vrstaUgovora">_________________</span>
+          </li>
+          <li>
+            <strong>Tip ugovora:</strong>
+            <span id="tipUgovora">_________________</span>
+          </li>
+          <li>
+            <strong>Radno vreme:</strong>
+            <span id="radnoVreme">_________________</span>
+          </li>
+          <li>
+            <strong>Visina zarade:</strong>
+            <span id="visinaZarade">_________________</span> EUR
+          </li>
+        </ul>
+
+        <p>
+          Zaposleni/a redovno izvršava svoje radne obaveze u skladu sa ugovorom
+          o radu i internim aktima poslodavca.
+        </p>
+
+        <p>
+          Potvrda se izdaje na zahtev zaposlenog/e radi
+          <strong>_________________</strong>.
+        </p>
+
+        <p>Potvrda ne sme biti korišćena u druge svrhe.</p>
+      </div>
+
+      <div class="signature-section">
+        <p><strong>Mesto i datum:</strong> ________________________</p>
+        <br /><br />
+        <p><strong>POSLODAVAC</strong></p>
+        <br /><br />
+        <p>________________________</p>
+        <p id="firmaZastupnik">Direktor</p>
+        <br />
+        <p style="font-size: 12px; margin-top: 30px">MP</p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const radnikId = urlParams.get("radnikId");
+        const firmaId = urlParams.get("firmaId");
+
+        if (radnikId && firmaId) {
+          loadData(radnikId, firmaId);
+        }
+      });
+
+      async function loadData(radnikId, firmaId) {
+        try {
+          // Učitaj podatke o radniku
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnik = await radnikResponse.json();
+
+          // Učitaj podatke o firmi
+          const firmaResponse = await fetch(`/api/firme/id/${firmaId}`);
+          const firma = await firmaResponse.json();
+
+          // Mapiranje tipova ugovora
+          const tipUgovoraText = {
+            na_neodredjeno: "Na neodređeno vreme",
+            na_odredjeno: "Na određeno vreme",
+          };
+
+          const vrstaUgovoraText = {
+            ugovor_o_radu: "Ugovor o radu",
+            ugovor_o_djelu: "Ugovor o djelu",
+            ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
+            autorski_ugovor: "Autorski ugovor",
+          };
+
+          const radnoVremeText = {
+            puno_8h: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
+            skraceno_6h:
+              "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
+            skraceno_4h:
+              "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
+            skraceno_2h:
+              "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
+          };
+
+          // Popuni dokument
+          document.getElementById("firmaNaziv").textContent = firma.naziv;
+          document.getElementById(
+            "firmaAdresa"
+          ).textContent = `PIB: ${firma.pib} | ${firma.adresa}`;
+          document.getElementById("firmaNazivText").textContent = firma.naziv;
+          document.getElementById("firmaAdresaText").textContent = firma.adresa;
+          document.getElementById("firmaPib").textContent = firma.pib;
+
+          document.getElementById(
+            "radnikIme"
+          ).textContent = `${radnik.ime} ${radnik.prezime}`;
+          document.getElementById("radnikJmbg").textContent = radnik.jmbg;
+          document.getElementById("radnikPozicija").textContent =
+            radnik.pozicija_naziv || "Nespecifikovano";
+
+          // Formatiranje datuma
+          const datumZaposlenja = radnik.datum_zaposlenja
+            ? new Date(radnik.datum_zaposlenja).toLocaleDateString("sr-RS")
+            : "N/A";
+          document.getElementById("datumZaposlenja").textContent =
+            datumZaposlenja;
+
+          document.getElementById("vrstaUgovora").textContent =
+            vrstaUgovoraText[radnik.vrsta_ugovora] || "N/A";
+          document.getElementById("tipUgovora").textContent =
+            tipUgovoraText[radnik.tip_ugovora] || "N/A";
+          document.getElementById("radnoVreme").textContent =
+            radnoVremeText[radnik.tip_radnog_vremena] || "N/A";
+          document.getElementById("visinaZarade").textContent =
+            radnik.visina_zarade || "0";
+        } catch (error) {
+          console.error("Greška pri učitavanju podataka:", error);
+        }
+      }
+    </script>
+  </body>
+</html>
