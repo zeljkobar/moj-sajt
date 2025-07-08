@@ -488,12 +488,30 @@
       }
 
       async function generateUgovor(radnikId) {
-        // Jednostavno otvori ugovor - ugovor-o-radu.html će sam da učita podatke
-        // i neće kreirati novi red u bazi svaki put
-        window.open(
-          `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
-          "_blank"
-        );
+        try {
+          // Prvo dohvati podatke o radniku da vidiš vrstu ugovora
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnik = await radnikResponse.json();
+
+          // Na osnovu vrste ugovora otvori odgovarajući template
+          let ugovorUrl;
+
+          if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
+            ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
+          } else {
+            // Default - ugovor o radu (ili bilo koja druga vrsta)
+            ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
+          }
+
+          window.open(ugovorUrl, "_blank");
+        } catch (error) {
+          console.error("Greška pri dohvaćanju podataka o radniku:", error);
+          // Fallback - otvori ugovor o radu
+          window.open(
+            `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+            "_blank"
+          );
+        }
       }
     </script>
   </body>

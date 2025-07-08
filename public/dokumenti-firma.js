@@ -178,15 +178,27 @@ function renderDokumenti() {
 
   let html = "";
 
+  // Formatiranje vrste ugovora
+  const vrstaUgovoraText = {
+    ugovor_o_radu: "Ugovor o radu",
+    ugovor_o_djelu: "Ugovor o djelu",
+    ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
+    autorski_ugovor: "Autorski ugovor",
+    ugovor_o_pozajmnici: "Ugovor o pozajmnici",
+  };
+
   // Dodaj ugovore o radu
   dokumenti.ugovori.forEach((ugovor) => {
     const status = getUgovorStatus(ugovor);
+    const vrstaUgovora =
+      vrstaUgovoraText[ugovor.vrsta_ugovora] || "Ugovor o radu";
+
     html += `
       <tr>
         <td>
           <div class="document-type">
             <i class="fas fa-handshake text-success"></i>
-            Ugovor o radu
+            ${vrstaUgovora}
           </div>
         </td>
         <td>
@@ -317,12 +329,31 @@ function showError(message) {
 // ACTION FUNKCIJE
 // =============================================================================
 
-function viewUgovor(radnikId) {
-  // Otvori postojeći ugovor o radu
-  window.open(
-    `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
-    "_blank"
-  );
+async function viewUgovor(radnikId) {
+  try {
+    // Prvo dohvati podatke o radniku da vidiš vrstu ugovora
+    const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+    const radnik = await radnikResponse.json();
+
+    // Na osnovu vrste ugovora otvori odgovarajući template
+    let ugovorUrl;
+
+    if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
+      ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
+    } else {
+      // Default - ugovor o radu (ili bilo koja druga vrsta)
+      ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`;
+    }
+
+    window.open(ugovorUrl, "_blank");
+  } catch (error) {
+    console.error("Greška pri dohvaćanju podataka o radniku:", error);
+    // Fallback - otvori ugovor o radu
+    window.open(
+      `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+      "_blank"
+    );
+  }
 }
 
 function editRadnik(radnikId) {
