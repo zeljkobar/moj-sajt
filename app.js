@@ -165,24 +165,133 @@ app.get("/edit-profil.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/edit-profil.html");
 });
 
+// API ruta za pretragu
+app.get("/api/search", authMiddleware, async (req, res) => {
+  try {
+    const { q } = req.query;
+    const userId = req.session.user.id;
+    const { executeQuery } = require("./src/config/database");
+
+    if (!q || q.length < 2) {
+      return res.json({ results: [] });
+    }
+
+    const searchTerm = `%${q}%`;
+    const results = [];
+
+    // Pretraži firme
+    const firme = await executeQuery(
+      `
+      SELECT id, naziv, pdvBroj, pib 
+      FROM firme 
+      WHERE user_id = ? AND (naziv LIKE ? OR pdvBroj LIKE ? OR pib LIKE ?)
+      LIMIT 5
+    `,
+      [userId, searchTerm, searchTerm, searchTerm]
+    );
+
+    firme.forEach((firma) => {
+      results.push({
+        type: "firma",
+        id: firma.id,
+        category: "Firma",
+        title: firma.naziv,
+        subtitle: `PDV: ${firma.pdvBroj || "N/A"} | PIB: ${firma.pib || "N/A"}`,
+      });
+    });
+
+    // Pretraži radnike
+    const radnici = await executeQuery(
+      `
+      SELECT r.id, r.ime, r.prezime, r.firma_id, f.naziv as firma_naziv, p.naziv as pozicija_naziv
+      FROM radnici r
+      JOIN firme f ON r.firma_id = f.id
+      LEFT JOIN pozicije p ON r.pozicija_id = p.id
+      WHERE f.user_id = ? AND (r.ime LIKE ? OR r.prezime LIKE ? OR CONCAT(r.ime, ' ', r.prezime) LIKE ?)
+      LIMIT 5
+    `,
+      [userId, searchTerm, searchTerm, searchTerm]
+    );
+
+    radnici.forEach((radnik) => {
+      results.push({
+        type: "radnik",
+        id: radnik.id,
+        firmaId: radnik.firma_id,
+        category: "Radnik",
+        title: `${radnik.ime} ${radnik.prezime}`,
+        subtitle: `${radnik.firma_naziv} - ${
+          radnik.pozicija_naziv || "Nespecifikovano"
+        }`,
+      });
+    });
+
+    res.json({ results });
+  } catch (error) {
+    console.error("Greška pri pretrazi:", error);
+    res.status(500).json({ results: [] });
+  }
+});
+
 // API ruta za dashboard statistike
 app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
   try {
-    const username = req.session.user.username;
-    const firmeController = require("./src/controllers/firmeController");
-    const allFirme = await firmeController.readUserFirme(username);
+    const userId = req.session.user.id;
+    const { executeQuery } = require("./src/config/database");
 
-    const total = allFirme.length;
-    const aktivneCount = allFirme.filter((f) => f.status === "aktivan").length;
-    const naNuliCount = allFirme.filter((f) => f.status === "nula").length;
-    const procenatNaNuli =
-      total > 0 ? Math.round((naNuliCount / total) * 100) : 0;
+    // Osnovne statistike firmi
+    const firmeStats = await executeQuery(
+      "SELECT status, COUNT(*) as count FROM firme WHERE user_id = ? GROUP BY status",
+      [userId]
+    );
+
+    // Statistike radnika
+    const radniciStats = await executeQuery(
+      `
+      SELECT 
+        COUNT(*) as ukupno_radnici,
+        SUM(CASE WHEN datum_prestanka IS NULL OR datum_prestanka > CURDATE() THEN 1 ELSE 0 END) as aktivni_radnici
+      FROM radnici r 
+      JOIN firme f ON r.firma_id = f.id 
+      WHERE f.user_id = ?
+    `,
+      [userId]
+    );
+
+    // Ugovori ovaj mjesec
+    const ugovoriMjesec = await executeQuery(
+      `
+      SELECT COUNT(*) as count 
+      FROM radnici r 
+      JOIN firme f ON r.firma_id = f.id 
+      WHERE f.user_id = ? 
+        AND YEAR(r.datum_zaposlenja) = YEAR(CURDATE()) 
+        AND MONTH(r.datum_zaposlenja) = MONTH(CURDATE())
+    `,
+      [userId]
+    );
+
+    // Procesuiraj rezultate
+    const firmeMap = {};
+    firmeStats.forEach((stat) => {
+      firmeMap[stat.status] = stat.count;
+    });
+
+    const total = (firmeMap.aktivan || 0) + (firmeMap.nula || 0);
+    const aktivne = firmeMap.aktivan || 0;
+    const naNuli = firmeMap.nula || 0;
+    const procenatNaNuli = total > 0 ? Math.round((naNuli / total) * 100) : 0;
+
+    const aktivniRadnici = radniciStats[0]?.aktivni_radnici || 0;
+    const ugovoriMjesecCount = ugovoriMjesec[0]?.count || 0;
 
     res.json({
       total: total,
-      aktivne: aktivneCount,
-      naNuli: naNuliCount,
+      aktivne: aktivne,
+      naNuli: naNuli,
       procenatNaNuli: procenatNaNuli,
+      aktivniRadnici: aktivniRadnici,
+      ugovoriMjesec: ugovoriMjesecCount,
     });
   } catch (error) {
     console.error("Greška pri učitavanju dashboard statistika:", error);
