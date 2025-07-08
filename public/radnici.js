@@ -432,6 +432,7 @@ async function generateUgovorFromTable(radnikId, firmaId) {
 function checkURLSearchParam() {
   const urlParams = new URLSearchParams(window.location.search);
   const searchTerm = urlParams.get("search");
+  const editId = urlParams.get("editId");
 
   if (searchTerm) {
     // Čeka da se radnici učitaju, zatim popuni search polje
@@ -445,5 +446,17 @@ function checkURLSearchParam() {
         filterRadnici();
       }
     }, 500);
+  }
+
+  if (editId) {
+    // Čeka da se radnici učitaju, zatim otvori edit modal
+    setTimeout(() => {
+      editRadnik(editId);
+
+      // Ukloni editId iz URL-a da sprečiš ponovo otvaranje
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.delete("editId");
+      window.history.replaceState({}, "", newUrl.toString());
+    }, 1000); // Duži timeout da se učitaju i pozicije i firme
   }
 }

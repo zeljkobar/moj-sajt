@@ -124,8 +124,8 @@
         }
 
         .radnik-info .text-end .btn {
-          width: 48%;
-          margin: 2px 1%;
+          width: 32%;
+          margin: 2px 0.5%;
         }
 
         .pozicija-opis {
@@ -311,6 +311,11 @@
                               radnik.id
                             })">
                                 <i class="fas fa-eye"></i> Detalji
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="editRadnik(${
+                              radnik.id
+                            })">
+                                <i class="fas fa-edit"></i> Uredi
                             </button>
                             <button class="btn btn-success btn-sm" onclick="generateUgovor(${
                               radnik.id
@@ -512,6 +517,11 @@
             "_blank"
           );
         }
+      }
+
+      function editRadnik(radnikId) {
+        // Preusmeri na glavnu radnici stranicu sa editId parametrom
+        window.location.href = `/radnici.html?editId=${radnikId}&firmaId=${firmaId}`;
       }
     </script>
   </body>
