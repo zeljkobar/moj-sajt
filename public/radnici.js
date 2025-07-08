@@ -107,11 +107,38 @@ function displayRadnici() {
                 <button class="btn" onclick="deleteRadnik(${
                   radnik.id
                 })" style="background-color: #dc3545;">Obriši</button>
-                <button class="btn" onclick="generateUgovorFromTable(${
-                  radnik.id
-                }, ${
-      radnik.firma_id
-    })" style="background-color: #28a745;">Ugovor</button>
+                <div class="dropdown-container" style="display: inline-block; position: relative;">
+                    <button class="btn dropdown-btn" onclick="toggleDropdown(${
+                      radnik.id
+                    })" 
+                            style="background-color: #28a745;">
+                        📄 Dokumenta ▼
+                    </button>
+                    <div id="dropdown-${
+                      radnik.id
+                    }" class="dropdown-menu" style="display: none;">
+                        <a href="#" onclick="generateUgovorFromTable(${
+                          radnik.id
+                        }, ${radnik.firma_id}); closeDropdown(${radnik.id})">
+                            📋 Ugovor
+                        </a>
+                        <a href="#" onclick="generateDocument(${
+                          radnik.id
+                        }, 'sedmicni-odmor'); closeDropdown(${radnik.id})">
+                            🏖️ Sedmični odmor
+                        </a>
+                        <a href="#" onclick="generateDocument(${
+                          radnik.id
+                        }, 'mobing'); closeDropdown(${radnik.id})">
+                            ⚠️ Mobing
+                        </a>
+                        <a href="#" onclick="generateDocument(${
+                          radnik.id
+                        }, 'potvrda-zaposlenja'); closeDropdown(${radnik.id})">
+                            ✅ Potvrda o zaposlenju
+                        </a>
+                    </div>
+                </div>
             </td>
         `;
     tbody.appendChild(row);
@@ -426,6 +453,47 @@ async function generateUgovorFromTable(radnikId, firmaId) {
       "_blank"
     );
   }
+}
+
+// Dropdown funkcije za dokumenta
+function toggleDropdown(radnikId) {
+  const dropdown = document.getElementById(`dropdown-${radnikId}`);
+  const isVisible = dropdown.style.display === "block";
+
+  // Zatvori sve ostale dropdown-ove
+  document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    menu.style.display = "none";
+  });
+
+  // Toggle trenutni dropdown
+  dropdown.style.display = isVisible ? "none" : "block";
+}
+
+function closeDropdown(radnikId) {
+  const dropdown = document.getElementById(`dropdown-${radnikId}`);
+  dropdown.style.display = "none";
+}
+
+// Zatvori dropdown kada se klikne van njega
+document.addEventListener("click", function (event) {
+  if (!event.target.matches(".dropdown-btn")) {
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+      menu.style.display = "none";
+    });
+  }
+});
+
+// Funkcija za generisanje dokumenata (osim ugovora)
+function generateDocument(radnikId, documentType) {
+  const radnik = radnici.find((r) => r.id == radnikId);
+  if (!radnik) {
+    alert("Radnik nije pronađen!");
+    return;
+  }
+
+  // Kreiramo URL sa parametrima kao što ih koristi modal (radnikId i firmaId)
+  const url = `${documentType}.html?radnikId=${radnikId}&firmaId=${radnik.firma_id}`;
+  window.open(url, "_blank");
 }
 
 // Funkcija za čitanje URL parametara i automatsko popunjavanje search polja

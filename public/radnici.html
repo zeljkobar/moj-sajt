@@ -307,6 +307,89 @@
       .close:hover {
         color: black;
       }
+
+      /* Dropdown stilovi */
+      .dropdown-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-btn {
+        background-color: #28a745 !important;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        color: white;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .dropdown-btn:hover {
+        background-color: #218838 !important;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        min-width: 180px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        overflow: hidden;
+      }
+
+      .dropdown-menu a {
+        color: #333;
+        padding: 10px 15px;
+        text-decoration: none;
+        display: block;
+        font-size: 13px;
+        transition: background-color 0.3s;
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f8f9fa;
+      }
+
+      /* Responsive dropdown */
+      @media (max-width: 768px) {
+        .dropdown-menu {
+          min-width: 150px;
+          right: -20px;
+        }
+
+        .dropdown-menu a {
+          padding: 8px 12px;
+          font-size: 12px;
+        }
+
+        .dropdown-btn {
+          padding: 6px 8px;
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dropdown-container {
+          width: 100%;
+          margin-top: 5px;
+        }
+
+        .dropdown-btn {
+          width: 100%;
+          display: block;
+        }
+
+        .dropdown-menu {
+          width: 100%;
+          right: 0;
+          left: 0;
+        }
+      }
     </style>
   </head>
   <body>
