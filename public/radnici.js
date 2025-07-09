@@ -239,39 +239,48 @@ function displayRadnici() {
     }
 
     row.innerHTML = `
-            <td>${
-              vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
-            }</td>
-            <td>${radnik.ime} ${radnik.prezime}</td>
+            <td title="${radnik.ime} ${radnik.prezime}">${radnik.ime} ${
+      radnik.prezime
+    }</td>
             <td>${radnik.jmbg}</td>
-            <td>${radnik.pozicija_naziv || "N/A"}</td>
-            <td>${radnik.firma_naziv || "N/A"}</td>
+            <td title="${radnik.pozicija_naziv || "N/A"}">${
+      radnik.pozicija_naziv || "N/A"
+    }</td>
+            <td title="${radnik.firma_naziv || "N/A"}">${
+      radnik.firma_naziv || "N/A"
+    }</td>
             <td>${datumZaposlenja}</td>
             <td>${datumPrestanka}</td>
             <td>${radnoVremeText[radnik.tip_radnog_vremena] || "N/A"}</td>
             <td>${tipUgovoraText[radnik.tip_ugovora] || "N/A"}</td>
-            <td>
-                <button class="btn" onclick="editRadnik(${
-                  radnik.id
-                })">Uredi</button>
-                <button class="btn" onclick="deleteRadnik(${
-                  radnik.id
-                })" style="background-color: #dc3545;">Obriši</button>
-                <div class="dropdown-container" style="display: inline-block; position: relative;">
-                    <button class="btn dropdown-btn" onclick="toggleDropdown(${
+            <td>${
+              vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
+            }</td>
+            <td style="min-width: 90px;">
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <button class="btn btn-sm" onclick="editRadnik(${
                       radnik.id
-                    })" 
-                            style="background-color: #28a745;">
-                        📄 Dokumenta ▼
-                    </button>
-                    <div id="dropdown-${
+                    })" style="font-size: 11px; padding: 4px 8px; width: 100%;">Uredi</button>
+                    <button class="btn btn-sm" onclick="deleteRadnik(${
                       radnik.id
-                    }" class="dropdown-menu" style="display: none;">
-                        <a href="#" onclick="generateUgovorFromTable(${
+                    })" style="background-color: #dc3545; font-size: 11px; padding: 4px 8px; width: 100%;">Obriši</button>
+                    <div class="dropdown-container" style="position: relative; width: 100%;">
+                        <button class="btn btn-sm dropdown-btn" onclick="toggleDropdown(${
                           radnik.id
-                        }, ${radnik.firma_id}); closeDropdown(${radnik.id})">
-                            📋 Ugovor
-                        </a>
+                        })" 
+                                style="background-color: #28a745; font-size: 11px; padding: 4px 8px; width: 100%;">
+                            📄 Dokumenta ▼
+                        </button>
+                        <div id="dropdown-${
+                          radnik.id
+                        }" class="dropdown-menu" style="display: none;">
+                            <a href="#" onclick="generateUgovorFromTable(${
+                              radnik.id
+                            }, ${radnik.firma_id}); closeDropdown(${
+      radnik.id
+    })">
+                                📋 Ugovor
+                            </a>
                         <a href="#" onclick="generateDocument(${
                           radnik.id
                         }, 'sedmicni-odmor'); closeDropdown(${radnik.id})">
@@ -288,6 +297,7 @@ function displayRadnici() {
                             ✅ Potvrda o zaposlenju
                         </a>
                     </div>
+                </div>
                 </div>
             </td>
         `;
@@ -510,20 +520,40 @@ async function generateUgovorFromTable(radnikId, firmaId) {
 // Dropdown funkcije za dokumenta
 function toggleDropdown(radnikId) {
   const dropdown = document.getElementById(`dropdown-${radnikId}`);
+  const dropdownBtn = dropdown.previousElementSibling; // dugme koje je kliknuto
   const isVisible = dropdown.style.display === "block";
 
   // Zatvori sve ostale dropdown-ove
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
     menu.style.display = "none";
+    menu.classList.remove("dropdown-up"); // ukloni klasu za otvaranje prema gore
   });
 
   // Toggle trenutni dropdown
-  dropdown.style.display = isVisible ? "none" : "block";
+  if (isVisible) {
+    dropdown.style.display = "none";
+  } else {
+    dropdown.style.display = "block";
+
+    // Proveri da li dropdown treba da se otvori prema gore
+    const dropdownRect = dropdown.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - dropdownRect.bottom;
+    const spaceAbove = dropdownRect.top;
+
+    // Ako nema dovoljno prostora ispod (manje od visine dropdown-a), otvori prema gore
+    if (spaceBelow < 200 && spaceAbove > spaceBelow) {
+      dropdown.classList.add("dropdown-up");
+    } else {
+      dropdown.classList.remove("dropdown-up");
+    }
+  }
 }
 
 function closeDropdown(radnikId) {
   const dropdown = document.getElementById(`dropdown-${radnikId}`);
   dropdown.style.display = "none";
+  dropdown.classList.remove("dropdown-up");
 }
 
 // Zatvori dropdown kada se klikne van njega
@@ -531,6 +561,7 @@ document.addEventListener("click", function (event) {
   if (!event.target.matches(".dropdown-btn")) {
     document.querySelectorAll(".dropdown-menu").forEach((menu) => {
       menu.style.display = "none";
+      menu.classList.remove("dropdown-up");
     });
   }
 });

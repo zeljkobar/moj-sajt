@@ -61,6 +61,118 @@
         text-align: left;
         border-bottom: 1px solid #ddd;
         white-space: nowrap;
+        vertical-align: top;
+      }
+
+      /* Ograničavanje širine određenih kolona za bolji prikaz */
+      table th:nth-child(1),
+      table td:nth-child(1) {
+        /* Ime i prezime */
+        max-width: 180px;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.3;
+      }
+
+      table th:nth-child(3),
+      table td:nth-child(3) {
+        /* Pozicija */
+        max-width: 150px;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.3;
+      }
+
+      table th:nth-child(4),
+      table td:nth-child(4) {
+        /* Firma */
+        max-width: 160px;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.3;
+      }
+
+      /* JMBG kolona uža - uvek 13 karaktera */
+      table th:nth-child(2),
+      table td:nth-child(2) {
+        /* JMBG */
+        min-width: 110px;
+        max-width: 110px;
+        font-family: monospace; /* Bolji prikaz brojeva */
+      }
+
+      /* Datumi kompaktni */
+      table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
+      table th:nth-child(6), table td:nth-child(6) {
+        /* Datum prestanka */
+        min-width: 85px;
+        max-width: 85px;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
+      /* Radno vreme i tip ugovora */
+      table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
+      table th:nth-child(8), table td:nth-child(8) {
+        /* Tip ugovora */
+        max-width: 120px;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+
+      /* Vrsta ugovora pre akcija */
+      table th:nth-child(9),
+      table td:nth-child(9) {
+        /* Vrsta ugovora */
+        max-width: 130px;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.3;
+      }
+
+      /* Akcije kolona optimizovana širina za vertikalna dugmad */
+      table th:nth-child(10),
+      table td:nth-child(10) {
+        /* Akcije */
+        min-width: 95px;
+        max-width: 95px;
+        white-space: nowrap;
+        vertical-align: top;
+      }
+
+      /* Stilovi za kompaktna dugmad u akcije koloni */
+      .btn-sm {
+        font-size: 11px !important;
+        padding: 4px 8px !important;
+        border-radius: 3px;
+        margin: 1px 0;
+      }
+
+      .dropdown-btn.btn-sm {
+        background-color: #28a745 !important;
+        color: white;
+        border: none;
+      }
+
+      .dropdown-btn.btn-sm:hover {
+        background-color: #218838 !important;
+      }
+
+      /* Poboljšanje prikaza dropdown menija */
+      .dropdown-content {
+        max-width: 200px;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+
+      .dropdown-content a {
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 1.4;
+        padding: 8px 12px;
       }
       th {
         background-color: #f8f9fa;
@@ -194,6 +306,65 @@
           min-width: 100px;
         }
 
+        /* Responsive ograničavanje širine kolona na malim ekranima */
+        table th:nth-child(1),
+        table td:nth-child(1) {
+          /* Ime i prezime */
+          max-width: 140px;
+          min-width: 120px;
+        }
+
+        table th:nth-child(3),
+        table td:nth-child(3) {
+          /* Pozicija */
+          max-width: 120px;
+          min-width: 100px;
+        }
+
+        table th:nth-child(4),
+        table td:nth-child(4) {
+          /* Firma */
+          max-width: 120px;
+          min-width: 100px;
+        }
+
+        table th:nth-child(2),
+        table td:nth-child(2) {
+          /* JMBG */
+          min-width: 100px;
+          max-width: 100px;
+          font-family: monospace;
+        }
+
+        table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
+        table th:nth-child(6), table td:nth-child(6) {
+          /* Datum prestanka */
+          min-width: 75px;
+          max-width: 75px;
+          font-size: 12px;
+        }
+
+        table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
+        table th:nth-child(8), table td:nth-child(8) {
+          /* Tip ugovora */
+          max-width: 100px;
+          min-width: 80px;
+        }
+
+        table th:nth-child(9),
+        table td:nth-child(9) {
+          /* Vrsta ugovora */
+          max-width: 110px;
+          min-width: 90px;
+        }
+
+        table th:nth-child(10),
+        table td:nth-child(10) {
+          /* Akcije */
+          min-width: 85px;
+          max-width: 85px;
+        }
+
         /* Wrapper za tabelu */
         .table-responsive {
           overflow-x: auto;
@@ -242,6 +413,66 @@
         td {
           padding: 6px;
           min-width: 80px;
+        }
+
+        /* Još kompaktniji prikaz na malim telefonima */
+        table th:nth-child(1),
+        table td:nth-child(1) {
+          /* Ime i prezime */
+          max-width: 100px;
+          min-width: 90px;
+        }
+
+        table th:nth-child(3),
+        table td:nth-child(3) {
+          /* Pozicija */
+          max-width: 90px;
+          min-width: 80px;
+        }
+
+        table th:nth-child(4),
+        table td:nth-child(4) {
+          /* Firma */
+          max-width: 90px;
+          min-width: 80px;
+        }
+
+        table th:nth-child(2),
+        table td:nth-child(2) {
+          /* JMBG */
+          min-width: 90px;
+          max-width: 90px;
+          font-size: 11px;
+          font-family: monospace;
+        }
+
+        table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
+        table th:nth-child(6), table td:nth-child(6) {
+          /* Datum prestanka */
+          min-width: 70px;
+          max-width: 70px;
+          font-size: 10px;
+        }
+
+        table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
+        table th:nth-child(8), table td:nth-child(8) {
+          /* Tip ugovora */
+          max-width: 80px;
+          min-width: 70px;
+        }
+
+        table th:nth-child(9),
+        table td:nth-child(9) {
+          /* Vrsta ugovora */
+          max-width: 90px;
+          min-width: 80px;
+        }
+
+        table th:nth-child(10),
+        table td:nth-child(10) {
+          /* Akcije */
+          min-width: 80px;
+          max-width: 80px;
         }
 
         .btn {
@@ -356,6 +587,13 @@
         overflow: hidden;
       }
 
+      /* Dropdown koji se otvara prema gore kada je blizu dna */
+      .dropdown-menu.dropdown-up {
+        top: auto;
+        bottom: 100%;
+        box-shadow: 0px -8px 16px 0px rgba(0, 0, 0, 0.2);
+      }
+
       .dropdown-menu a {
         color: #333;
         padding: 10px 15px;
@@ -455,15 +693,15 @@
           <table id="radniciTable">
             <thead>
               <tr>
-                <th>Vrsta ugovora</th>
                 <th>Ime i prezime</th>
                 <th>JMBG</th>
                 <th>Pozicija</th>
                 <th>Firma</th>
-                <th>Datum zaposlenja</th>
-                <th>Datum prestanka</th>
+                <th>Datum<br />zaposlenja</th>
+                <th>Datum<br />prestanka</th>
                 <th>Radno vreme</th>
                 <th>Tip ugovora</th>
+                <th>Vrsta ugovora</th>
                 <th>Akcije</th>
               </tr>
             </thead>

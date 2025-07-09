@@ -259,15 +259,19 @@
 
       <div class="signature-section">
         <div style="width: 100%; text-align: right; margin-top: 60px">
-          <p style="margin-bottom: 40px"><strong>DIREKTOR</strong></p>
+          <p style="margin-bottom: 10px"><strong>DIREKTOR</strong></p>
           <p
             style="
+              margin-bottom: 5px;
               border-bottom: 1px solid black;
               width: 200px;
               margin-left: auto;
             "
           >
-            ________________________
+            &nbsp;
+          </p>
+          <p style="margin-bottom: 0; font-size: 12px" id="direktorImePrezime">
+            Ime i prezime direktora
           </p>
         </div>
       </div>
@@ -302,6 +306,14 @@
 
           // Popuni naziv firme u tekstu
           document.getElementById("firmaNazivText").textContent = firma.naziv;
+
+          // Popuni ime direktora iz baze podataka
+          const direktorElement = document.getElementById("direktorImePrezime");
+          if (firma.direktor_ime_prezime) {
+            direktorElement.textContent = firma.direktor_ime_prezime;
+          } else {
+            direktorElement.textContent = "Ime i prezime direktora";
+          }
 
           // Popuni ime i prezime radnika
           document.getElementById(
