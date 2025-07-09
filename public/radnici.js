@@ -91,6 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPozicije();
   loadFirme();
   loadRadnici();
+  
+  // Postavi funkcionalnost pretrage
+  setupSearchFunctionality();
 
   // Event listener za submit forme radnika
   const radnikForm = document.getElementById("radnikForm");
@@ -157,6 +160,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+  
+  // Proveri URL parametre za pretragu ili editovanje
+  checkURLSearchParam();
 });
 
 // Učitavanje pozicija (samo za dropdown u formi)
