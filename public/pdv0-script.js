@@ -1,5 +1,17 @@
 let firmeData = [];
 
+// Funkcija za čišćenje naziva firme za ime fajla
+function cleanFilename(name) {
+  return name
+    .replace(/[<>:"/\\|?*]/g, '') // Ukloni nedozvoljene karaktere za fajlove
+    .replace(/\s+/g, '_') // Zameni razmake sa _
+    .replace(/[čćžđš]/gi, function(match) {
+      const replacements = {'č': 'c', 'ć': 'c', 'ž': 'z', 'đ': 'd', 'š': 's'};
+      return replacements[match.toLowerCase()];
+    }) // Zameni srpska slova
+    .substring(0, 50); // Ograniči na 50 karaktera
+}
+
 // Funkcija za download XML fajla
 function download(filename, text) {
   const element = document.createElement("a");
@@ -155,11 +167,12 @@ async function downloadAllPDV() {
     // Obradi svaku firmu
     for (let i = 0; i < firmeData.length; i++) {
       const firma = firmeData[i];
-      console.log(`Obrađujem: ${firma.ime}`);
+      console.log(`Obrađujem: ${firma.naziv}`);
 
       // Kreiraj XML
       const xmlContent = createZeroXML(firma, mjesec);
-      const filename = `${firma.ime}-00${mjesec.padStart(2, "0")}.xml`;
+      const cleanNaziv = cleanFilename(firma.naziv);
+      const filename = `${cleanNaziv}-00${mjesec.padStart(2, "0")}.xml`;
 
       // Download fajl
       download(filename, xmlContent);
