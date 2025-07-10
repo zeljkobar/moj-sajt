@@ -3,7 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Ugovor o dopunskom radu - Summa Summarum"
+    />
+    <meta name="author" content="Summa Summarum" />
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="site.webmanifest" />
+
     <title>Ugovor o dopunskom radu</title>
+    <link rel="stylesheet" href="global-components.css" />
+
+    <!-- PDF Export biblioteka -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
       body {
         font-family: "Times New Roman", serif;
@@ -59,9 +90,10 @@
         height: 50px;
         width: 100%;
       }
-      .print-button {
+      .print-button,
+      .pdf-button,
+      .word-button {
         position: fixed;
-        top: 20px;
         right: 20px;
         background-color: #007bff;
         color: white;
@@ -70,10 +102,40 @@
         border-radius: 5px;
         cursor: pointer;
         font-size: 14px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+        justify-content: center;
       }
+
+      .print-button {
+        top: 20px;
+        background-color: #007bff;
+      }
+
+      .pdf-button {
+        top: 80px;
+        background-color: #dc3545;
+      }
+
+      .word-button {
+        top: 140px;
+        background-color: #6f42c1;
+      }
+
+      .print-button:hover,
+      .pdf-button:hover,
+      .word-button:hover {
+        opacity: 0.8;
+      }
+
       @media print {
-        .print-button {
-          display: none;
+        .print-button,
+        .pdf-button,
+        .word-button {
+          display: none !important;
         }
         body {
           background-color: white;
@@ -99,9 +161,9 @@
     </style>
   </head>
   <body>
-    <button class="print-button" onclick="window.print()">
-      🖨️ Štampaj ugovor
-    </button>
+    <button class="print-button" onclick="window.print()">🖨️ Štampaj</button>
+    <button class="pdf-button" onclick="downloadPDF()">📄 PDF</button>
+    <button class="word-button" onclick="downloadWordCompact()">📝 Word</button>
 
     <div class="container">
       <p style="text-align: center; margin-bottom: 20px">
@@ -519,6 +581,214 @@
           popuniUgovor(1);
         }
       });
+
+      // ============================================
+      // PDF EXPORT FUNKCIJA
+      // ============================================
+      async function downloadPDF() {
+        try {
+          // Sakrij dugmad tokom snimanja
+          document.querySelector(".print-button").style.display = "none";
+          document.querySelector(".pdf-button").style.display = "none";
+          document.querySelector(".word-button").style.display = "none";
+
+          const { jsPDF } = window.jspdf;
+          const element = document.querySelector(".container");
+
+          // Kreiranje canvas-a od HTML-a
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+
+          const imgWidth = 210;
+          const pageHeight = 295;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+
+          let position = 0;
+
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          // Generisanje imena fajla
+          const radnikIme =
+            document.getElementById("radnik-ime-prezime")?.textContent ||
+            "Radnik";
+          const firmaNaziv =
+            document.getElementById("firma-naziv")?.textContent || "Firma";
+          const fileName = `Ugovor_Dopunski_${radnikIme.replace(
+            /\s+/g,
+            "_"
+          )}_${firmaNaziv.replace(/\s+/g, "_")}.pdf`;
+
+          pdf.save(fileName);
+
+          // Pokaži dugmad ponovo
+          document.querySelector(".print-button").style.display = "flex";
+          document.querySelector(".pdf-button").style.display = "flex";
+          document.querySelector(".word-button").style.display = "flex";
+        } catch (error) {
+          console.error("Greška pri kreiranju PDF-a:", error);
+          alert("Greška pri kreiranju PDF-a. Pokušajte ponovo.");
+          document.querySelector(".print-button").style.display = "flex";
+          document.querySelector(".pdf-button").style.display = "flex";
+          document.querySelector(".word-button").style.display = "flex";
+        }
+      }
+
+      // ============================================
+      // WORD EXPORT KOMPAKT FUNKCIJA
+      // ============================================
+      function downloadWordCompact() {
+        try {
+          // Uzmi sadržaj ugovora
+          const container = document.querySelector(".container");
+          let content = container.innerHTML;
+
+          // Optimizuj sadržaj za kompaktni format
+          content = content.replace(/<br\s*\/?>/gi, " ");
+          content = content.replace(/\s+/g, " ");
+
+          // Generisanje naziva fajla
+          const radnikIme =
+            document.getElementById("radnik-ime-prezime")?.textContent ||
+            "Radnik";
+          const firmaNaziv =
+            document.getElementById("firma-naziv")?.textContent || "Firma";
+          const fileName = `Ugovor_Dopunski_Kompakt_${radnikIme.replace(
+            /\s+/g,
+            "_"
+          )}_${firmaNaziv.replace(/\s+/g, "_")}.doc`;
+
+          // Kreiranje kompaktnog Word dokumenta
+          const wordContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+              <meta charset='utf-8'>
+              <title>Ugovor o dopunskom radu - Kompakt</title>
+              <!--[if gte mso 9]>
+              <xml>
+                <w:WordDocument>
+                  <w:View>Print</w:View>
+                  <w:Zoom>90</w:Zoom>
+                  <w:DoNotPromptForConvert/>
+                </w:WordDocument>
+              </xml>
+              <![endif]-->
+              <style>
+                @page {
+                  size: A4;
+                  margin: 1cm 0.7cm 1cm 0.7cm;
+                }
+                body { 
+                  font-family: 'Times New Roman', serif; 
+                  font-size: 11pt;
+                  line-height: 1.2;
+                  margin: 0;
+                  padding: 0;
+                  color: #000;
+                  background: white;
+                }
+                h1 { 
+                  font-size: 14pt; 
+                  font-weight: bold;
+                  margin: 10px 0 15px 0; 
+                  text-transform: uppercase; 
+                  text-align: center;
+                  letter-spacing: 0.5px;
+                }
+                h2 { 
+                  font-size: 12pt; 
+                  margin: 10px 0 5px 0; 
+                  text-align: center;
+                }
+                p {
+                  margin: 4px 0;
+                  text-align: justify;
+                  text-indent: 0;
+                }
+                .article { 
+                  margin: 8px 0;
+                  page-break-inside: avoid;
+                }
+                .signature-section { 
+                  display: table;
+                  width: 100%;
+                  margin-top: 25px;
+                  page-break-inside: avoid;
+                }
+                .signature { 
+                  display: table-cell;
+                  text-align: center; 
+                  width: 45%; 
+                  vertical-align: bottom;
+                }
+                .signature-line { 
+                  border-bottom: 1px solid #000; 
+                  margin-bottom: 3px; 
+                  height: 25px;
+                  width: 180px;
+                  margin-left: auto;
+                  margin-right: auto;
+                }
+                strong {
+                  font-weight: bold;
+                }
+                ul, ol {
+                  margin: 4px 0;
+                  padding-left: 15px;
+                }
+                li {
+                  margin: 1px 0;
+                  line-height: 1.1;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="legal-text">
+                ${content}
+              </div>
+            </body>
+            </html>
+          `;
+
+          // Kreiranje blob-a i download-a
+          const blob = new Blob([wordContent], {
+            type: "application/msword;charset=utf-8",
+          });
+
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error(
+            "Greška pri kreiranju kompaktnog Word dokumenta:",
+            error
+          );
+          alert(
+            "Greška pri kreiranju kompaktnog Word dokumenta. Pokušajte ponovo."
+          );
+        }
+      }
     </script>
   </body>
 </html>
