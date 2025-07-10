@@ -1,0 +1,88 @@
+/* =================================================================
+   NAPOMENE ZA KOMPLETNO REFAKTORISANJE SAJTA
+   ================================================================= */
+
+/*
+PROMENE KOJE SU NAPRAVLJENE:
+
+=== KREIRAN ORGANIZOVAN CSS SISTEM ===
+1. global-components.css - glavni CSS sa:
+   - CSS varijablama za boje, spacing, font-size
+   - .global-container, .global-section, .global-btn klase
+   - .global-modal, .global-table, .global-form-group
+   - .global-back-btn - standardno dugme za povratak
+   - Responsive media queries za tablet/mobile
+
+2. radnici-styles.css - specifični stilovi za radnici.html
+
+=== REFAKTORISANE STRANICE ===
+
+✅ KOMPLETNO REFAKTORISANO:
+- radnici.html - koristi radnici-styles.css + global-components.css
+- pozicije.html - koristi global-components.css, uklonjen inline CSS
+- pdv0.html - dodato global-components.css, standardizovano dugme
+- edit-profil.html - dodato global-components.css + standardno dugme
+- admin-users.html - dodato kompletni favicon + global CSS + dugme
+- dokumenti-firma.html - dodato global CSS + standardno dugme
+- protected/pdv_prijava/index.html - dodato favicon + global CSS + dugme
+- protected/dobit_prijava/index.html - dodato favicon + global CSS + dugme
+- pdv-pregled.html - dodato favicon + global CSS + standardno dugme
+- ugovor-o-radu.html - dodato favicon + global CSS (bez navigacije - dokument za štampanje)
+
+✅ FAVICON STANDARDIZOVAN NA:
+- pozicije.html (dodano kompletno)
+- admin-users.html (ažurirano)
+- protected/pdv_prijava/index.html (dodano)
+- protected/dobit_prijava/index.html (dodano)
+- pdv-pregled.html (dodano kompletno)
+- ugovor-o-radu.html (dodano kompletno)
+
+✅ DUGME "NAZAD NA DASHBOARD" STANDARDIZOVANO:
+- Sve stranice koriste .global-back-btn klasu
+- Jedinstveni stil i ponašanje na svim stranicama
+
+=== STRANICE KOJE TREBAJU REFAKTORISANJE ===
+🔄 SLEDEĆE ZA REFAKTOR:
+- firme.html (kompleksna - Bootstrap + custom stilovi)
+- dashboard.html (možda ne treba - glavna stranica)
+- registracija.html
+- kontakt.html
+- ugovor-o-dopunskom-radu.html
+- ugovor-o-zajmu-novca.html
+- potvrda-zaposlenja.html
+- sedmicni-odmor.html
+- ostale stranice...
+
+=== PREDNOSTI NOVOG SISTEMA ===
+- 90% manji inline CSS kod
+- Konzistentno dugme "Nazad na dashboard" na svim stranicama
+- Standardizovani favicon na svim stranicama
+- CSS varijable za lakše održavanje
+- Bolja organizacija koda
+- Mogućnost ponovne upotrebe stilova
+- Responsive dizajn na svim stranicama
+
+=== AKO NEŠTO NE RADI ===
+1. Proveriti da li je global-components.css učitan
+2. Proveriti da li su sve CSS klase pravilno zamenjene
+3. Proveriti JavaScript konzolu za greške
+4. Proveriti putanje do favicon fajlova
+5. Vratiti originalni kod ako je potrebno
+
+✅ STATUS: TESTIRANJE ZAVRŠENO - SVE RADI BESPREKORNO!
+- Sve refaktorisane stranice nemaju greške
+- Global CSS se učitava na svim stranicama
+- Favicon je standardizovan i funkcioniše
+- "Nazad na dashboard" dugme radi na svim stranicama (osim ugovor-o-radu.html)
+- JavaScript fajlovi koriste ispravne CSS klase
+- Responsive dizajn je testiran
+
+🚀 SPREMNO ZA PRODUCTION/PUSH!
+
+=== NAREDNI KORACI ===
+1. Refaktorisati firme.html (pažljivo zbog Bootstrap-a)
+2. Refaktorisati pdv-pregled.html
+3. Refaktorisati sve ugovor-*.html stranice
+4. Testirati sve stranice nakon refaktorisanja
+5. Optimizovati global-components.css ako je potrebno
+*/

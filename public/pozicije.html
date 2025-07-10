@@ -3,134 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Upravljanje pozicijama - Summa Summarum"
+    />
+    <meta name="author" content="Summa Summarum" />
     <title>Upravljanje pozicijama | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css" />
-    <style>
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .btn-group {
-        margin-bottom: 20px;
-      }
-      .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        margin: 5px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-      .btn:hover {
-        background-color: #0056b3;
-      }
-      .btn-success {
-        background-color: #28a745;
-      }
-      .btn-success:hover {
-        background-color: #1e7e34;
-      }
-      .section {
-        background: white;
-        padding: 20px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-      th,
-      td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-      th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-      .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 80vh;
-        overflow-y: auto;
-      }
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .close:hover {
-        color: black;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      .form-group input,
-      .form-group textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      .form-group textarea {
-        height: 100px;
-        resize: vertical;
-      }
-    </style>
+    <link rel="stylesheet" href="global-components.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>Upravljanje pozicijama</h1>
+    <div class="global-container">
+      <h1 class="global-page-title">Upravljanje pozicijama</h1>
 
-      <div class="btn-group">
-        <button class="btn btn-success" onclick="openPozicijaModal()">
+      <div class="global-btn-group">
+        <button
+          class="global-btn global-btn-success"
+          onclick="openPozicijaModal()"
+        >
           + Dodaj novu poziciju
         </button>
-        <a
-          href="radnici.html"
-          class="btn"
-          style="background-color: #17a2b8; color: white"
-        >
+        <a href="radnici.html" class="global-btn global-btn-info">
           👥 Nazad na radnike
         </a>
-        <a href="dashboard.html" class="btn">← Nazad na dashboard</a>
+        <a href="dashboard.html" class="global-back-btn"
+          >← Nazad na dashboard</a
+        >
       </div>
 
-      <div class="section">
+      <div class="global-section">
         <h2>Pozicije i opisi poslova</h2>
-        <table id="pozicijeTable">
+        <table class="global-table" id="pozicijeTable">
           <thead>
             <tr>
               <th>Naziv pozicije</th>
@@ -146,16 +71,18 @@
     </div>
 
     <!-- Modal za dodavanje pozicije -->
-    <div id="pozicijaModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closePozicijaModal()">&times;</span>
+    <div id="pozicijaModal" class="global-modal">
+      <div class="global-modal-content">
+        <span class="global-modal-close" onclick="closePozicijaModal()"
+          >&times;</span
+        >
         <h2>Dodaj novu poziciju</h2>
         <form id="pozicijaForm">
-          <div class="form-group">
+          <div class="global-form-group">
             <label for="naziv">Naziv pozicije:</label>
             <input type="text" id="naziv" name="naziv" required />
           </div>
-          <div class="form-group">
+          <div class="global-form-group">
             <label for="opis_poslova">Opis poslova:</label>
             <textarea
               id="opis_poslova"
@@ -164,8 +91,14 @@
               placeholder="Unesite detaljjan opis poslova za ovu poziciju..."
             ></textarea>
           </div>
-          <button type="submit" class="btn btn-success">Dodaj poziciju</button>
-          <button type="button" class="btn" onclick="closePozicijaModal()">
+          <button type="submit" class="global-btn global-btn-success">
+            Dodaj poziciju
+          </button>
+          <button
+            type="button"
+            class="global-btn"
+            onclick="closePozicijaModal()"
+          >
             Otkaži
           </button>
         </form>
@@ -173,17 +106,19 @@
     </div>
 
     <!-- Edit Pozicija Modal -->
-    <div id="editPozicijaModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEditPozicijaModal()">&times;</span>
+    <div id="editPozicijaModal" class="global-modal">
+      <div class="global-modal-content">
+        <span class="global-modal-close" onclick="closeEditPozicijaModal()"
+          >&times;</span
+        >
         <h2>Uredi poziciju</h2>
         <form id="editPozicijaForm">
           <input type="hidden" id="editPozicijaId" />
-          <div class="form-group">
+          <div class="global-form-group">
             <label for="editNaziv">Naziv pozicije:</label>
             <input type="text" id="editNaziv" name="naziv" required />
           </div>
-          <div class="form-group">
+          <div class="global-form-group">
             <label for="editOpisPoslova">Opis poslova:</label>
             <textarea
               id="editOpisPoslova"
@@ -192,8 +127,14 @@
               placeholder="Unesite detaljjan opis poslova za ovu poziciju..."
             ></textarea>
           </div>
-          <button type="submit" class="btn btn-success">Sačuvaj izmene</button>
-          <button type="button" class="btn" onclick="closeEditPozicijaModal()">
+          <button type="submit" class="global-btn global-btn-success">
+            Sačuvaj izmene
+          </button>
+          <button
+            type="button"
+            class="global-btn"
+            onclick="closeEditPozicijaModal()"
+          >
             Otkaži
           </button>
         </form>

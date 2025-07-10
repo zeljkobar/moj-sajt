@@ -13,696 +13,68 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="radnici-styles.css" />
     <style>
-      .container {
-        max-width: 95%;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .btn-group {
-        margin-bottom: 20px;
-      }
-      .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        margin: 5px;
-        background-color: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-      }
-      .btn:hover {
-        background-color: #0056b3;
-      }
-      .btn-success {
-        background-color: #28a745;
-      }
-      .btn-success:hover {
-        background-color: #1e7e34;
-      }
-      .section {
-        background: white;
-        padding: 20px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        font-size: 14px;
-      }
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-        white-space: nowrap;
-        vertical-align: top;
-      }
-
-      /* Ograničavanje širine određenih kolona za bolji prikaz */
-      table th:nth-child(1),
-      table td:nth-child(1) {
-        /* Ime i prezime */
-        max-width: 180px;
-        white-space: normal;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.3;
-      }
-
-      table th:nth-child(3),
-      table td:nth-child(3) {
-        /* Pozicija */
-        max-width: 150px;
-        white-space: normal;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.3;
-      }
-
-      table th:nth-child(4),
-      table td:nth-child(4) {
-        /* Firma */
-        max-width: 160px;
-        white-space: normal;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.3;
-      }
-
-      /* JMBG kolona uža - uvek 13 karaktera */
-      table th:nth-child(2),
-      table td:nth-child(2) {
-        /* JMBG */
-        min-width: 110px;
-        max-width: 110px;
-        font-family: monospace; /* Bolji prikaz brojeva */
-      }
-
-      /* Datumi kompaktni */
-      table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
-      table th:nth-child(6), table td:nth-child(6) {
-        /* Datum prestanka */
-        min-width: 85px;
-        max-width: 85px;
-        white-space: nowrap;
-        font-size: 13px;
-      }
-
-      /* Radno vreme i tip ugovora */
-      table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
-      table th:nth-child(8), table td:nth-child(8) {
-        /* Tip ugovora */
-        max-width: 120px;
-        white-space: normal;
-        word-wrap: break-word;
-      }
-
-      /* Vrsta ugovora pre akcija */
-      table th:nth-child(9),
-      table td:nth-child(9) {
-        /* Vrsta ugovora */
-        max-width: 130px;
-        white-space: normal;
-        word-wrap: break-word;
-        line-height: 1.3;
-      }
-
-      /* Akcije kolona optimizovana širina za vertikalna dugmad */
-      table th:nth-child(10),
-      table td:nth-child(10) {
-        /* Akcije */
-        min-width: 95px;
-        max-width: 95px;
-        white-space: nowrap;
-        vertical-align: top;
-      }
-
-      /* Stilovi za kompaktna dugmad u akcije koloni */
-      .btn-sm {
-        font-size: 11px !important;
-        padding: 4px 8px !important;
-        border-radius: 3px;
-        margin: 1px 0;
-      }
-
-      .dropdown-btn.btn-sm {
-        background-color: #28a745 !important;
-        color: white;
-        border: none;
-      }
-
-      .dropdown-btn.btn-sm:hover {
-        background-color: #218838 !important;
-      }
-
-      /* Poboljšanje prikaza dropdown menija */
-      .dropdown-content {
-        max-width: 200px;
-        white-space: normal;
-        word-wrap: break-word;
-      }
-
-      .dropdown-content a {
-        white-space: normal;
-        word-wrap: break-word;
-        line-height: 1.4;
-        padding: 8px 12px;
-      }
-      th {
-        background-color: #f8f9fa;
-        font-weight: bold;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1055; /* Veći od Bootstrap modala (1050) */
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        overflow-y: auto;
-      }
-      .modal-content {
-        background-color: white;
-        margin: 20px auto;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        top: 10px;
-      }
-
-      /* Dodaj stilove za bolji prikaz dugih formi */
-      @media (max-height: 800px) {
-        .modal-content {
-          margin: 10px auto;
-          max-height: 95vh;
-        }
-      }
-
-      .modal h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #333;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 10px;
-      }
-
-      /* Layout za formu u dva stubca */
-      .form-row {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 15px;
-      }
-
-      .form-col {
-        flex: 1;
-      }
-
-      .form-col .form-group {
-        margin-bottom: 0;
-      }
-
-      /* Dodaj boju za dugmad */
-      .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-        margin: 2px;
-        transition: background-color 0.3s;
-      }
-
-      .btn-success {
-        background-color: #28a745;
-        color: white;
-      }
-
-      .btn-success:hover {
-        background-color: #218838;
-      }
-
-      .btn:not(.btn-success) {
-        background-color: #6c757d;
-        color: white;
-      }
-
-      .btn:not(.btn-success):hover {
-        background-color: #5a6268;
-      }
-
-      /* CSS za search polje */
-      #radniciSearchInput:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        outline: none;
-      }
-
-      /* Poboljšanja za responsive dizajn */
-      @media (max-width: 768px) {
-        .form-row {
-          flex-direction: column;
-          gap: 0;
-        }
-
-        .modal-content {
-          width: 95%;
-          margin: 5px auto;
-          padding: 15px;
-        }
-
-        .form-col .form-group {
-          margin-bottom: 15px;
-        }
-
-        /* Responsive tabela - horizontal scroll */
-        .section {
-          padding: 10px;
-        }
-
-        table {
-          font-size: 14px;
-        }
-
-        th,
-        td {
-          padding: 8px;
-          min-width: 100px;
-        }
-
-        /* Responsive ograničavanje širine kolona na malim ekranima */
-        table th:nth-child(1),
-        table td:nth-child(1) {
-          /* Ime i prezime */
-          max-width: 140px;
-          min-width: 120px;
-        }
-
-        table th:nth-child(3),
-        table td:nth-child(3) {
-          /* Pozicija */
-          max-width: 120px;
-          min-width: 100px;
-        }
-
-        table th:nth-child(4),
-        table td:nth-child(4) {
-          /* Firma */
-          max-width: 120px;
-          min-width: 100px;
-        }
-
-        table th:nth-child(2),
-        table td:nth-child(2) {
-          /* JMBG */
-          min-width: 100px;
-          max-width: 100px;
-          font-family: monospace;
-        }
-
-        table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
-        table th:nth-child(6), table td:nth-child(6) {
-          /* Datum prestanka */
-          min-width: 75px;
-          max-width: 75px;
-          font-size: 12px;
-        }
-
-        table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
-        table th:nth-child(8), table td:nth-child(8) {
-          /* Tip ugovora */
-          max-width: 100px;
-          min-width: 80px;
-        }
-
-        table th:nth-child(9),
-        table td:nth-child(9) {
-          /* Vrsta ugovora */
-          max-width: 110px;
-          min-width: 90px;
-        }
-
-        table th:nth-child(10),
-        table td:nth-child(10) {
-          /* Akcije */
-          min-width: 85px;
-          max-width: 85px;
-        }
-
-        /* Wrapper za tabelu */
-        .table-responsive {
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-
-        .btn {
-          padding: 6px 12px;
-          font-size: 12px;
-          margin: 1px;
-        }
-
-        .btn-group {
-          text-align: center;
-        }
-
-        /* Responsive search polje */
-        #radniciSearchInput {
-          font-size: 16px; /* Sprečava zoom na iOS */
-        }
-
-        /* Dugmad u header-u */
-        .btn-group .btn {
-          display: block;
-          width: 100%;
-          margin: 5px 0;
-        }
-      }
-
-      /* Dodatni stilovi za male telefone */
-      @media (max-width: 480px) {
-        .container {
-          padding: 10px;
-        }
-
-        .modal-content {
-          width: 98%;
-          padding: 10px;
-        }
-
-        table {
-          font-size: 12px;
-        }
-
-        th,
-        td {
-          padding: 6px;
-          min-width: 80px;
-        }
-
-        /* Još kompaktniji prikaz na malim telefonima */
-        table th:nth-child(1),
-        table td:nth-child(1) {
-          /* Ime i prezime */
-          max-width: 100px;
-          min-width: 90px;
-        }
-
-        table th:nth-child(3),
-        table td:nth-child(3) {
-          /* Pozicija */
-          max-width: 90px;
-          min-width: 80px;
-        }
-
-        table th:nth-child(4),
-        table td:nth-child(4) {
-          /* Firma */
-          max-width: 90px;
-          min-width: 80px;
-        }
-
-        table th:nth-child(2),
-        table td:nth-child(2) {
-          /* JMBG */
-          min-width: 90px;
-          max-width: 90px;
-          font-size: 11px;
-          font-family: monospace;
-        }
-
-        table th:nth-child(5), table td:nth-child(5), /* Datum zaposlenja */
-        table th:nth-child(6), table td:nth-child(6) {
-          /* Datum prestanka */
-          min-width: 70px;
-          max-width: 70px;
-          font-size: 10px;
-        }
-
-        table th:nth-child(7), table td:nth-child(7), /* Radno vreme */
-        table th:nth-child(8), table td:nth-child(8) {
-          /* Tip ugovora */
-          max-width: 80px;
-          min-width: 70px;
-        }
-
-        table th:nth-child(9),
-        table td:nth-child(9) {
-          /* Vrsta ugovora */
-          max-width: 90px;
-          min-width: 80px;
-        }
-
-        table th:nth-child(10),
-        table td:nth-child(10) {
-          /* Akcije */
-          min-width: 80px;
-          max-width: 80px;
-        }
-
-        .btn {
-          padding: 4px 8px;
-          font-size: 11px;
-          display: block;
-          margin: 2px 0;
-          width: 100%;
-        }
-
-        /* Dugmad u formi imaju drugačiji stil */
-        .form-buttons .btn {
-          width: 45%;
-          margin: 5px 2.5%;
-          display: inline-block;
-        }
-
-        /* Stack akcije dugmad vertikalno */
-        td:last-child {
-          min-width: 120px;
-        }
-
-        h2 {
-          font-size: 18px;
-        }
-
-        h1 {
-          font-size: 20px;
-          text-align: center;
-        }
-
-        /* Optimizacija search polja */
-        #radniciSearchInput {
-          padding: 8px 15px;
-          font-size: 16px;
-        }
-
-        /* Kompaktan prikaz counter-a */
-        .col-md-6 {
-          width: 100%;
-          margin-bottom: 10px;
-        }
-
-        .col-md-6.d-flex {
-          justify-content: center;
-        }
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      .form-group textarea {
-        height: 100px;
-        resize: vertical;
-      }
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .close:hover {
-        color: black;
-      }
-
-      /* Dropdown stilovi */
-      .dropdown-container {
-        position: relative;
-        display: inline-block;
-      }
-
-      .dropdown-btn {
-        background-color: #28a745 !important;
-        padding: 8px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        color: white;
-        font-size: 12px;
-        white-space: nowrap;
-      }
-
-      .dropdown-btn:hover {
-        background-color: #218838 !important;
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background-color: white;
-        min-width: 180px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 2000;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-        overflow: hidden;
-      }
-
-      /* Dropdown koji se otvara prema gore kada je blizu dna */
-      .dropdown-menu.dropdown-up {
-        top: auto;
-        bottom: 100%;
-        box-shadow: 0px -8px 16px 0px rgba(0, 0, 0, 0.2);
-      }
-
-      .dropdown-menu a {
-        color: #333;
-        padding: 10px 15px;
-        text-decoration: none;
-        display: block;
-        font-size: 13px;
-        transition: background-color 0.3s;
-      }
-
-      .dropdown-menu a:hover {
-        background-color: #f8f9fa;
-      }
-
-      /* Responsive dropdown */
-      @media (max-width: 768px) {
-        .dropdown-menu {
-          min-width: 150px;
-          right: -20px;
-        }
-
-        .dropdown-menu a {
-          padding: 8px 12px;
-          font-size: 12px;
-        }
-
-        .dropdown-btn {
-          padding: 6px 8px;
-          font-size: 11px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .dropdown-container {
-          width: 100%;
-          margin-top: 5px;
-        }
-
-        .dropdown-btn {
-          width: 100%;
-          display: block;
-        }
-
-        .dropdown-menu {
-          width: 100%;
-          right: 0;
-          left: 0;
-        }
-      }
+      /* Zadržani specifični stilovi koji nisu pokriveni novim CSS-om */
+      /* Zadržani specifični stilovi koji nisu pokriveni novim CSS-om */
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="radnici-container">
       <h1>Upravljanje radnicima</h1>
 
-      <div class="btn-group">
-        <button class="btn btn-success" onclick="openRadnikModal()">
+      <div class="radnici-btn-group">
+        <button
+          class="radnici-btn radnici-btn-success"
+          onclick="openRadnikModal()"
+        >
           + Dodaj novog radnika
         </button>
         <a
           href="pozicije.html"
-          class="btn"
+          class="radnici-btn"
           style="background-color: #17a2b8; color: white"
         >
           📋 Pregled pozicija
         </a>
-        <a href="dashboard.html" class="btn">← Nazad na dashboard</a>
+        <a href="dashboard.html" class="radnici-btn">← Nazad na dashboard</a>
       </div>
 
       <!-- Search polje za radnike -->
-      <div class="section">
-        <div class="row mb-3">
+      <div class="radnici-section">
+        <div class="row radnici-mb-3">
           <div class="col-md-6">
             <input
               type="text"
               id="radniciSearchInput"
-              class="form-control"
+              class="form-control radnici-search-input"
               placeholder="🔍 Pretražuj radnike po imenu, prezimenu, JMBG, poziciji ili firmi..."
-              style="
-                border-radius: 25px;
-                border: 2px solid #e9ecef;
-                padding: 12px 20px;
-                transition: border-color 0.3s ease;
-              "
             />
           </div>
-          <div class="col-md-6 d-flex align-items-center">
-            <span class="text-muted">
+          <div class="col-md-6 radnici-d-flex radnici-align-items-center">
+            <span class="radnici-text-muted">
               Prikazano: <strong id="radniciCount">0</strong> radnik(a)
             </span>
           </div>
         </div>
       </div>
 
-      <div class="section">
+      <div class="radnici-section">
         <h2>Radnici</h2>
-        <div class="table-responsive">
-          <table id="radniciTable">
+        <div class="radnici-table-responsive">
+          <table id="radniciTable" class="radnici-table">
             <thead>
               <tr>
-                <th>Ime i prezime</th>
-                <th>JMBG</th>
-                <th>Pozicija</th>
-                <th>Firma</th>
-                <th>Datum<br />zaposlenja</th>
-                <th>Datum<br />prestanka</th>
-                <th>Radno vreme</th>
-                <th>Tip ugovora</th>
-                <th>Vrsta ugovora</th>
-                <th>Akcije</th>
+                <th class="col-name">Ime i prezime</th>
+                <th class="col-jmbg">JMBG</th>
+                <th class="col-position">Pozicija</th>
+                <th class="col-company">Firma</th>
+                <th class="col-date">Datum<br />zaposlenja</th>
+                <th class="col-date">Datum<br />prestanka</th>
+                <th class="col-work-time">Radno vreme</th>
+                <th class="col-contract-type">Tip ugovora</th>
+                <th class="col-contract-kind">Vrsta ugovora</th>
+                <th class="col-actions">Akcije</th>
               </tr>
             </thead>
             <tbody>
@@ -714,14 +86,16 @@
     </div>
 
     <!-- Modal za dodavanje radnika -->
-    <div id="radnikModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeRadnikModal()">&times;</span>
+    <div id="radnikModal" class="radnici-modal">
+      <div class="radnici-modal-content">
+        <span class="radnici-modal-close" onclick="closeRadnikModal()"
+          >&times;</span
+        >
         <h2 id="modalTitle">Dodaj novog radnika</h2>
         <form id="radnikForm">
           <input type="hidden" id="radnik_id" name="radnik_id" />
           <!-- Vrsta ugovora - PRVO POLJE -->
-          <div class="form-group">
+          <div class="radnici-form-group">
             <label for="vrsta_ugovora">Vrsta ugovora:</label>
             <select
               id="vrsta_ugovora"
@@ -741,15 +115,15 @@
           </div>
 
           <!-- Osnovni podaci -->
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
+          <div class="radnici-form-row">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="ime">Ime:</label>
                 <input type="text" id="ime" name="ime" required />
               </div>
             </div>
-            <div class="form-col">
-              <div class="form-group">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="prezime">Prezime:</label>
                 <input type="text" id="prezime" name="prezime" required />
               </div>
@@ -757,9 +131,9 @@
           </div>
 
           <!-- JMBG i Grad -->
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
+          <div class="radnici-form-row">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="jmbg">JMBG:</label>
                 <input
                   type="text"
@@ -772,8 +146,8 @@
                 />
               </div>
             </div>
-            <div class="form-col">
-              <div class="form-group">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="grad">Grad:</label>
                 <input
                   type="text"
@@ -787,7 +161,7 @@
           </div>
 
           <!-- Adresa -->
-          <div class="form-group">
+          <div class="radnici-form-group">
             <label for="adresa">Adresa:</label>
             <input
               type="text"
@@ -799,17 +173,17 @@
           </div>
 
           <!-- Pozicija i firma -->
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
+          <div class="radnici-form-row">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="pozicija_id">Pozicija:</label>
                 <select id="pozicija_id" name="pozicija_id" required>
                   <option value="">Izaberite poziciju</option>
                 </select>
               </div>
             </div>
-            <div class="form-col">
-              <div class="form-group">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="firma_id">Firma:</label>
                 <select id="firma_id" name="firma_id" required>
                   <option value="">Izaberite firmu</option>
@@ -819,9 +193,9 @@
           </div>
 
           <!-- Datum i zarada -->
-          <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
+          <div class="radnici-form-row">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="datum_zaposlenja">Datum zaposlenja:</label>
                 <input
                   type="date"
@@ -831,8 +205,8 @@
                 />
               </div>
             </div>
-            <div class="form-col">
-              <div class="form-group">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
                 <label for="visina_zarade">Visina zarade (€):</label>
                 <input
                   type="number"
@@ -847,7 +221,7 @@
           </div>
 
           <!-- Radno vreme -->
-          <div class="form-group">
+          <div class="radnici-form-group">
             <label for="tip_radnog_vremena">Radno vreme:</label>
             <select id="tip_radnog_vremena" name="tip_radnog_vremena" required>
               <option value="puno_8h">
@@ -872,7 +246,7 @@
           </div>
 
           <!-- Tip ugovora -->
-          <div class="form-group">
+          <div class="radnici-form-group">
             <label for="tip_ugovora">Tip ugovora:</label>
             <select
               id="tip_ugovora"
@@ -887,7 +261,7 @@
 
           <!-- Datum prestanka (uslovni) -->
           <div
-            class="form-group"
+            class="radnici-form-group"
             id="datum_prestanka_group"
             style="display: none"
           >
@@ -896,7 +270,7 @@
           </div>
 
           <!-- Napomene -->
-          <div class="form-group">
+          <div class="radnici-form-group">
             <label for="napomene">Napomene:</label>
             <textarea
               id="napomene"
@@ -906,19 +280,20 @@
           </div>
 
           <!-- Dugmad -->
-          <div
-            style="margin-top: 20px; text-align: center"
-            class="form-buttons"
-          >
+          <div class="radnici-form-buttons">
             <button
               type="submit"
-              class="btn btn-success"
+              class="radnici-btn radnici-btn-success"
               style="margin-right: 10px"
               id="submitBtn"
             >
               Dodaj radnika
             </button>
-            <button type="button" class="btn" onclick="closeRadnikModal()">
+            <button
+              type="button"
+              class="radnici-btn"
+              onclick="closeRadnikModal()"
+            >
               Otkaži
             </button>
           </div>

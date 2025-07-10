@@ -3,6 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PDV Obrazac - Summa Summarum" />
+    <meta name="author" content="Summa Summarum" />
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../../public/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../public/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="../../public/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="../../public/site.webmanifest" />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link
@@ -11,6 +34,7 @@
     />
 
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../../public/global-components.css" />
     <title>PDV Obrazac</title>
   </head>
   <body>
@@ -418,7 +442,11 @@
       <button id="xmlButton">
         <i class="fas fa-file-code"></i> Preuzmi kao XML
       </button>
-      <button id="backButton" onclick="window.location.href='/dashboard.html'">
+      <button
+        id="backButton"
+        class="global-back-btn"
+        onclick="window.location.href='/dashboard.html'"
+      >
         <i class="fas fa-arrow-left"></i> Nazad na dashboard
       </button>
     </div>

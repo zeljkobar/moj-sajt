@@ -30,12 +30,12 @@ function displayPozicije() {
       pozicija.opis_poslova.length > 100 ? "..." : ""
     }</td>
             <td>
-                <button class="btn" onclick="editPozicija(${
+                <button class="global-btn" onclick="editPozicija(${
                   pozicija.id
                 })">Uredi</button>
-                <button class="btn" onclick="deletePozicija(${
+                <button class="global-btn global-btn-danger" onclick="deletePozicija(${
                   pozicija.id
-                })" style="background-color: #dc3545;">Obriši</button>
+                })">Obriši</button>
             </td>
         `;
     tbody.appendChild(row);

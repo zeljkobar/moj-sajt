@@ -1,0 +1,662 @@
+/* =================================================================
+   GLOBALNI CSS - ZAJEDNIČKE KOMPONENTE
+   ================================================================= */
+
+/* CSS VARIJABLE */
+:root {
+  /* Boje */
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --primary-dark: #004494;
+  --success-color: #28a745;
+  --success-hover: #218838;
+  --success-dark: #1e7e34;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --warning-color: #ffc107;
+  --warning-hover: #e0a800;
+  --info-color: #17a2b8;
+  --info-hover: #138496;
+  --secondary-color: #6c757d;
+  --secondary-hover: #5a6268;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+
+  /* Focus boje */
+  --focus-color: #667eea;
+  --focus-shadow: rgba(102, 126, 234, 0.25);
+
+  /* Gradienti */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --gradient-danger: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-warning: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+
+  /* Spacing */
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 15px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+  --spacing-xxl: 40px;
+
+  /* Border radius */
+  --border-radius-sm: 4px;
+  --border-radius: 8px;
+  --border-radius-lg: 15px;
+  --border-radius-xl: 25px;
+
+  /* Shadows */
+  --box-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --box-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --box-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+
+  /* Font sizes */
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* =================================================================
+   FAVICON & META - STANDARDNO ZA SVE STRANICE
+   ================================================================= */
+/* Ove meta tagove dodaj u <head> svake stranice:
+
+<link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png" />
+<link rel="manifest" href="/site.webmanifest" />
+
+*/
+
+/* =================================================================
+   GLOBALNI KONTEJNERI
+   ================================================================= */
+
+.global-container {
+  max-width: 95%;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.global-section {
+  background: white;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow-sm);
+}
+
+.global-card {
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  transition: all var(--transition-normal);
+  margin-bottom: var(--spacing-lg);
+}
+
+.global-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-lg);
+}
+
+/* =================================================================
+   DUGMAD - STANDARDNA
+   ================================================================= */
+
+.global-btn {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  margin: var(--spacing-xs);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  transition: all var(--transition-normal);
+  line-height: 1.5;
+}
+
+.global-btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Button varijante */
+.global-btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.global-btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  color: white;
+}
+
+.global-btn-success {
+  background: var(--gradient-success);
+  color: white;
+}
+
+.global-btn-success:hover {
+  box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+  color: white;
+}
+
+.global-btn-danger {
+  background: var(--gradient-danger);
+  color: white;
+}
+
+.global-btn-danger:hover {
+  box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+  color: white;
+}
+
+.global-btn-info {
+  background: var(--gradient-info);
+  color: white;
+}
+
+.global-btn-info:hover {
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+  color: white;
+}
+
+.global-btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.global-btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  color: white;
+}
+
+/* Button veličine */
+.global-btn-sm {
+  padding: 6px 12px;
+  font-size: var(--font-size-sm);
+}
+
+.global-btn-lg {
+  padding: 12px 24px;
+  font-size: var(--font-size-lg);
+  border-radius: var(--border-radius);
+}
+
+.global-btn-xl {
+  padding: 15px 30px;
+  font-size: var(--font-size-xl);
+  border-radius: var(--border-radius-lg);
+}
+
+/* =================================================================
+   BACK TO DASHBOARD DUGME - STANDARDNO
+   ================================================================= */
+
+.global-back-btn {
+  background: var(--gradient-info);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius-xl);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-normal);
+  margin: var(--spacing-sm) 0;
+}
+
+.global-back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+.global-back-btn i {
+  font-size: 0.9em;
+}
+
+/* =================================================================
+   HEADER KOMPONENTE
+   ================================================================= */
+
+.global-header {
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.global-header h1 {
+  margin: 0;
+  font-size: var(--font-size-xxl);
+  font-weight: 600;
+}
+
+.global-header p {
+  margin: var(--spacing-sm) 0 0 0;
+  opacity: 0.9;
+}
+
+/* =================================================================
+   TABELE - STANDARDNE
+   ================================================================= */
+
+.global-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  background: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.global-table th,
+.global-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: top;
+}
+
+.global-table th {
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.global-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.global-table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--border-radius);
+}
+
+/* =================================================================
+   MODAL KOMPONENTE
+   ================================================================= */
+
+.global-modal {
+  display: none;
+  position: fixed;
+  z-index: 1055;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.global-modal-content {
+  background-color: white;
+  margin: var(--spacing-lg) auto;
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-lg);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  top: var(--spacing-sm);
+  box-shadow: var(--box-shadow-xl);
+}
+
+.global-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.global-modal-close {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.global-modal-close:hover {
+  color: #333;
+}
+
+/* =================================================================
+   FORM KOMPONENTE
+   ================================================================= */
+
+.global-form-row {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.global-form-col {
+  flex: 1;
+}
+
+.global-form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.global-form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: #333;
+}
+
+.global-form-group input,
+.global-form-group select,
+.global-form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e9ecef;
+  border-radius: var(--border-radius-sm);
+  box-sizing: border-box;
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-normal);
+}
+
+.global-form-group input:focus,
+.global-form-group select:focus,
+.global-form-group textarea:focus {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 0.2rem var(--focus-shadow);
+  outline: none;
+}
+
+.global-form-group textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.global-form-buttons {
+  margin-top: var(--spacing-xl);
+  text-align: center;
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+/* =================================================================
+   SEARCH KOMPONENTE
+   ================================================================= */
+
+.global-search-input {
+  border-radius: var(--border-radius-xl) !important;
+  border: 2px solid #e9ecef !important;
+  padding: 12px 20px !important;
+  transition: border-color var(--transition-normal) !important;
+  font-size: var(--font-size-lg) !important;
+}
+
+.global-search-input:focus {
+  border-color: var(--focus-color) !important;
+  box-shadow: 0 0 0 0.2rem var(--focus-shadow) !important;
+  outline: none !important;
+}
+
+/* =================================================================
+   NOTIFICATION KOMPONENTE
+   ================================================================= */
+
+.global-alert {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid transparent;
+}
+
+.global-alert-success {
+  background: var(--gradient-success);
+  color: white;
+}
+
+.global-alert-danger {
+  background: var(--gradient-danger);
+  color: white;
+}
+
+.global-alert-warning {
+  background: var(--gradient-warning);
+  color: #333;
+}
+
+.global-alert-info {
+  background: var(--gradient-info);
+  color: white;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN
+   ================================================================= */
+
+@media (max-width: 768px) {
+  .global-container {
+    padding: var(--spacing-md);
+  }
+
+  .global-section {
+    padding: var(--spacing-md);
+  }
+
+  .global-modal-content {
+    width: 95%;
+    margin: var(--spacing-xs) auto;
+    padding: var(--spacing-lg);
+  }
+
+  .global-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .global-form-col .global-form-group {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .global-table {
+    font-size: var(--font-size-sm);
+  }
+
+  .global-table th,
+  .global-table td {
+    padding: 8px;
+  }
+
+  .global-btn {
+    padding: 8px 16px;
+    font-size: var(--font-size-sm);
+  }
+
+  .global-header {
+    padding: var(--spacing-lg);
+  }
+
+  .global-header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .global-form-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .global-form-buttons .global-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .global-container {
+    padding: var(--spacing-sm);
+  }
+
+  .global-modal-content {
+    width: 98%;
+    padding: var(--spacing-md);
+  }
+
+  .global-table {
+    font-size: var(--font-size-xs);
+  }
+
+  .global-table th,
+  .global-table td {
+    padding: 6px;
+  }
+
+  .global-btn {
+    padding: 6px 12px;
+    font-size: var(--font-size-xs);
+  }
+
+  .global-header {
+    padding: var(--spacing-md);
+  }
+
+  .global-header h1 {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* =================================================================
+   UTILITY KLASE
+   ================================================================= */
+
+.global-text-center {
+  text-align: center;
+}
+.global-text-left {
+  text-align: left;
+}
+.global-text-right {
+  text-align: right;
+}
+
+.global-d-flex {
+  display: flex;
+}
+.global-d-block {
+  display: block;
+}
+.global-d-inline-block {
+  display: inline-block;
+}
+
+.global-align-items-center {
+  align-items: center;
+}
+.global-justify-content-center {
+  justify-content: center;
+}
+.global-justify-content-between {
+  justify-content: space-between;
+}
+
+.global-mb-1 {
+  margin-bottom: var(--spacing-xs);
+}
+.global-mb-2 {
+  margin-bottom: var(--spacing-sm);
+}
+.global-mb-3 {
+  margin-bottom: var(--spacing-md);
+}
+.global-mb-4 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.global-mt-1 {
+  margin-top: var(--spacing-xs);
+}
+.global-mt-2 {
+  margin-top: var(--spacing-sm);
+}
+.global-mt-3 {
+  margin-top: var(--spacing-md);
+}
+.global-mt-4 {
+  margin-top: var(--spacing-lg);
+}
+
+.global-p-1 {
+  padding: var(--spacing-xs);
+}
+.global-p-2 {
+  padding: var(--spacing-sm);
+}
+.global-p-3 {
+  padding: var(--spacing-md);
+}
+.global-p-4 {
+  padding: var(--spacing-lg);
+}
+
+.global-text-muted {
+  color: var(--secondary-color);
+}
+.global-text-primary {
+  color: var(--primary-color);
+}
+.global-text-success {
+  color: var(--success-color);
+}
+.global-text-danger {
+  color: var(--danger-color);
+}
+.global-text-warning {
+  color: var(--warning-color);
+}
+.global-text-info {
+  color: var(--info-color);
+}
+
+.global-fw-bold {
+  font-weight: 600;
+}
+.global-fw-normal {
+  font-weight: 400;
+}
+
+.global-w-100 {
+  width: 100%;
+}
+.global-h-100 {
+  height: 100%;
+}

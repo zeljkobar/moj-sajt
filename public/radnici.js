@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPozicije();
   loadFirme();
   loadRadnici();
-  
+
   // Postavi funkcionalnost pretrage
   setupSearchFunctionality();
 
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-  
+
   // Proveri URL parametre za pretragu ili editovanje
   checkURLSearchParam();
 });
@@ -245,33 +245,37 @@ function displayRadnici() {
     }
 
     row.innerHTML = `
-            <td title="${radnik.ime} ${radnik.prezime}">${radnik.ime} ${
-      radnik.prezime
-    }</td>
-            <td>${radnik.jmbg}</td>
-            <td title="${radnik.pozicija_naziv || "N/A"}">${
-      radnik.pozicija_naziv || "N/A"
-    }</td>
-            <td title="${radnik.firma_naziv || "N/A"}">${
+            <td class="col-name" title="${radnik.ime} ${radnik.prezime}">${
+      radnik.ime
+    } ${radnik.prezime}</td>
+            <td class="col-jmbg">${radnik.jmbg}</td>
+            <td class="col-position" title="${
+              radnik.pozicija_naziv || "N/A"
+            }">${radnik.pozicija_naziv || "N/A"}</td>
+            <td class="col-company" title="${radnik.firma_naziv || "N/A"}">${
       radnik.firma_naziv || "N/A"
     }</td>
-            <td>${datumZaposlenja}</td>
-            <td>${datumPrestanka}</td>
-            <td>${radnoVremeText[radnik.tip_radnog_vremena] || "N/A"}</td>
-            <td>${tipUgovoraText[radnik.tip_ugovora] || "N/A"}</td>
-            <td>${
+            <td class="col-date">${datumZaposlenja}</td>
+            <td class="col-date">${datumPrestanka}</td>
+            <td class="col-work-time">${
+              radnoVremeText[radnik.tip_radnog_vremena] || "N/A"
+            }</td>
+            <td class="col-contract-type">${
+              tipUgovoraText[radnik.tip_ugovora] || "N/A"
+            }</td>
+            <td class="col-contract-kind">${
               vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
             }</td>
-            <td style="min-width: 90px;">
+            <td class="col-actions" style="min-width: 90px;">
                 <div style="display: flex; flex-direction: column; gap: 3px;">
-                    <button class="btn btn-sm" onclick="editRadnik(${
+                    <button class="radnici-btn radnici-btn-sm" onclick="editRadnik(${
                       radnik.id
                     })" style="font-size: 11px; padding: 4px 8px; width: 100%;">Uredi</button>
-                    <button class="btn btn-sm" onclick="deleteRadnik(${
+                    <button class="radnici-btn radnici-btn-sm" onclick="deleteRadnik(${
                       radnik.id
                     })" style="background-color: #dc3545; font-size: 11px; padding: 4px 8px; width: 100%;">Obriši</button>
-                    <div class="dropdown-container" style="position: relative; width: 100%;">
-                        <button class="btn btn-sm dropdown-btn" onclick="toggleDropdown(${
+                    <div class="radnici-dropdown-container" style="position: relative; width: 100%;">
+                        <button class="radnici-btn radnici-btn-sm radnici-dropdown-btn" onclick="toggleDropdown(${
                           radnik.id
                         })" 
                                 style="background-color: #28a745; font-size: 11px; padding: 4px 8px; width: 100%;">
@@ -279,7 +283,7 @@ function displayRadnici() {
                         </button>
                         <div id="dropdown-${
                           radnik.id
-                        }" class="dropdown-menu" style="display: none;">
+                        }" class="radnici-dropdown-menu" style="display: none;">
                             <a href="#" onclick="generateUgovorFromTable(${
                               radnik.id
                             }, ${radnik.firma_id}); closeDropdown(${
@@ -564,7 +568,7 @@ function closeDropdown(radnikId) {
 
 // Zatvori dropdown kada se klikne van njega
 document.addEventListener("click", function (event) {
-  if (!event.target.matches(".dropdown-btn")) {
+  if (!event.target.matches(".radnici-dropdown-btn")) {
     document.querySelectorAll(".dropdown-menu").forEach((menu) => {
       menu.style.display = "none";
       menu.classList.remove("dropdown-up");
