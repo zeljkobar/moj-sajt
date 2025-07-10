@@ -138,6 +138,19 @@
           box-shadow: none;
           padding: 20px;
         }
+
+        /* Ukloni header i footer sa datumom i linkom */
+        @page {
+          margin: 0.5in;
+          size: A4;
+        }
+
+        /* Sakrij default browser header/footer */
+        html,
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
       }
     </style>
   </head>
@@ -302,10 +315,10 @@
           Zaposleni ima pravo na godisnji odmor u trajanju od po 2 radna dana za
           svaki mjesec rada. Godišnji odmor se pored vremena iz prethodnog stava
           uvećava prema dužini radnog staža:<br />
-          - O d 5 do 15 godina – 1 radni dan<br />
-          - O d 15 do 25 godina – 2 radna dana<br />
-          - O d 25 do 35 godina – 3 radna dana<br />
-          - P reko 35 godina – 5 radnih dana
+          - Od 5 do 15 godina – 1 radni dan<br />
+          - Od 15 do 25 godina – 2 radna dana<br />
+          - Od 25 do 35 godina – 3 radna dana<br />
+          - Preko 35 godina – 5 radnih dana
         </p>
         <p>
           Zaposleni ima pravo na odsustvo sa rada ( plaćeno odn. neplaćeno) u

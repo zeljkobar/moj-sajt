@@ -144,6 +144,19 @@
           box-shadow: none;
           padding: 20px;
         }
+
+        /* Ukloni header i footer sa datumom i linkom */
+        @page {
+          margin: 0.5in;
+          size: A4;
+        }
+
+        /* Sakrij default browser header/footer */
+        html,
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
       }
       .placeholder {
         background-color: #f0f8ff;
