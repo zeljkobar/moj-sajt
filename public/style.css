@@ -328,6 +328,111 @@ footer {
   color: #6b7280;
 }
 
+/* Sekcija "Šta dobijate registracijom" */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-gradient-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="60" cy="40" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.feature-card {
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.feature-card:hover::before {
+  left: 100%;
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  margin: 0 auto;
+}
+
+.feature-card .feature-icon i {
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon i {
+  transform: scale(1.1);
+}
+
+.text-purple {
+  color: #8b5cf6 !important;
+}
+
+.text-orange {
+  color: #f97316 !important;
+}
+
+.text-blue {
+  color: #3b82f6 !important;
+}
+
+.text-green {
+  color: #10b981 !important;
+}
+
+.bg-rgba-white-10 {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border: none;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+}
+
 /* Responsive dizajn */
 @media (max-width: 768px) {
   .notifications-container {
@@ -351,4 +456,104 @@ footer {
   .notification-description {
     font-size: 12px;
   }
+}
+
+/* Responsive design za feature kartice */
+@media (max-width: 1199px) {
+  .feature-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .bg-gradient-primary .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .feature-card {
+    padding: 1.5rem !important;
+  }
+
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .feature-icon i {
+    font-size: 1.5rem !important;
+  }
+
+  .display-6 {
+    font-size: 1.8rem !important;
+  }
+
+  .btn-warning.btn-lg {
+    padding: 12px 30px !important;
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .bg-gradient-primary {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .feature-card h5 {
+    font-size: 1.1rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Animacija za kartice */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.feature-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.feature-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.feature-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.feature-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.feature-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.feature-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.feature-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+.feature-card:nth-child(8) {
+  animation-delay: 0.8s;
+}
+.feature-card:nth-child(9) {
+  animation-delay: 0.9s;
+}
+
+/* Dodaj smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
