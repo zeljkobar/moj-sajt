@@ -9,7 +9,7 @@ async function getUserByUsername(username) {
     const users = await executeQuery(query, [username]);
     return users.length > 0 ? users[0] : null;
   } catch (error) {
-    console.error("Greška pri dobijanju korisnika:", error);
+
     return null;
   }
 }
@@ -36,7 +36,7 @@ async function createUser(userData) {
 
     return result.insertId;
   } catch (error) {
-    console.error("Greška pri kreiranju korisnika:", error);
+
     throw error;
   }
 }
@@ -75,7 +75,7 @@ const authController = {
           .json({ message: "Pogrešno korisničko ime ili lozinka" });
       }
     } catch (error) {
-      console.error("Greška pri login-u:", error);
+
       res.status(500).json({ message: "Greška servera" });
     }
   },
@@ -194,14 +194,14 @@ const authController = {
         jmbg,
       });
 
-      console.log(`✅ Novi korisnik registrovan: ${username} (ID: ${userId})`);
+
 
       res.json({
         success: true,
         message: "Registracija je uspešna! Možete se ulogovati.",
       });
     } catch (error) {
-      console.error("Greška pri registraciji:", error);
+
 
       // Specifične MySQL greške
       if (error.code === "ER_DUP_ENTRY") {

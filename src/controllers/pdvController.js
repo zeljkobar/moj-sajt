@@ -5,7 +5,51 @@ exports.getPDVOverview = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const today = new Date();
-    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1); // 1. dan mjeseca
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1; // JavaScript months are 0-indexed
+    const currentDay = today.getDate();
+
+    // Determine target month based on business logic:
+    // If day <= 20: target = PREVIOUS month (PDV that should have been submitted)
+    // If day > 20: target = CURRENT month (PDV that needs to be submitted)
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      // We're in submission period for PREVIOUS month
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+    // If day > 20, we show CURRENT month (default values above)
+
+    // Create target month string directly (avoid timezone issues)
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`;
+
+    // Kalkuliraj dane do roka za ciljni mjesec
+    const danaDoRoka = () => {
+      const danas = new Date();
+      const currentDay = danas.getDate();
+
+      // Rok za target mjesec je 15. dan sljedećeg mjeseca
+      let rokMonth = targetMonth + 1;
+      let rokYear = targetYear;
+
+      if (rokMonth > 12) {
+        rokMonth = 1;
+        rokYear++;
+      }
+
+      const rok = new Date(rokYear, rokMonth - 1, 15); // month je 0-indexed u Date()
+      const diff = Math.ceil((rok - danas) / (1000 * 60 * 60 * 24));
+      return diff;
+    };
+
+    const daysToDeadline = danaDoRoka();
 
     // Dohvati sve PDV firme korisnika sa statusom prijava
     const pdvData = await executeQuery(
@@ -22,11 +66,10 @@ exports.getPDVOverview = async (req, res) => {
         pp.napomena,
         CASE 
           WHEN pp.predano = 1 THEN 'predano'
-          WHEN DAY(CURDATE()) > 15 THEN 'kasni'
-          WHEN (15 - DAY(CURDATE())) <= 3 THEN 'uskoro'
-          ELSE 'na_vremenu'
+          WHEN ? < 0 THEN 'kasni'
+          WHEN ? <= 3 THEN 'uskoro'
+          ELSE 'nepredano'
         END as status,
-        (15 - DAY(CURDATE())) as dana_do_roka,
         CASE 
           WHEN f.status = 'nula' THEN 1
           ELSE 0
@@ -40,40 +83,29 @@ exports.getPDVOverview = async (req, res) => {
         CASE 
           WHEN f.status = 'nula' THEN 5
           WHEN pp.predano = 1 THEN 4
-          WHEN DAY(CURDATE()) > 15 THEN 1
-          WHEN (15 - DAY(CURDATE())) <= 3 THEN 2
+          WHEN ? < 0 THEN 1
+          WHEN ? <= 3 THEN 2
           ELSE 3
         END,
         f.naziv ASC
     `,
-      [currentMonth.toISOString().split("T")[0], userId]
+      [
+        daysToDeadline,
+        daysToDeadline,
+        targetMonthString,
+        userId,
+        daysToDeadline,
+        daysToDeadline,
+      ]
     );
-
-    // Kalkuliraj dane do roka (15. dan mjeseca)
-    const danaDoRoka = () => {
-      const danas = new Date();
-      let rok = new Date(danas.getFullYear(), danas.getMonth(), 15);
-
-      // Ako je prošao 15., rok je 15. sljedećeg mjeseca
-      if (danas.getDate() > 15) {
-        rok = new Date(danas.getFullYear(), danas.getMonth() + 1, 15);
-      }
-
-      const diff = Math.ceil((rok - danas) / (1000 * 60 * 60 * 24));
-      return diff;
-    };
 
     const rokInfo = {
       dana_do_roka: danaDoRoka(),
-      rok_datum: new Date(
-        today.getFullYear(),
-        today.getMonth() + (today.getDate() > 15 ? 1 : 0),
-        15
-      ),
-      trenutni_mjesec: currentMonth.toLocaleString("sr-RS", {
-        year: "numeric",
-        month: "long",
-      }),
+      rok_datum: `${targetYear}-${targetMonth.toString().padStart(2, "0")}-15`,
+      trenutni_mjesec: `${targetYear}-${targetMonth
+        .toString()
+        .padStart(2, "0")}`,
+      target_month: targetMonthString,
     };
 
     res.json({
@@ -82,7 +114,6 @@ exports.getPDVOverview = async (req, res) => {
       rok_info: rokInfo,
     });
   } catch (error) {
-    console.error("Greška pri dohvatanju PDV pregleda:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -95,7 +126,27 @@ exports.markAsSubmitted = async (req, res) => {
     const { napomena } = req.body;
 
     const today = new Date();
-    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1;
+    const currentDay = today.getDate();
+
+    // Determine target month (same logic as getPDVOverview)
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      // We're in submission period for PREVIOUS month
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+    // If day > 20, we show CURRENT month
+
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`;
 
     // Provjeri da li firma pripada korisniku
     const [firma] = await executeQuery(
@@ -118,20 +169,87 @@ exports.markAsSubmitted = async (req, res) => {
         napomena = VALUES(napomena),
         updated_at = CURRENT_TIMESTAMP
     `,
-      [
-        firmaId,
-        currentMonth.toISOString().split("T")[0],
-        napomena || null,
-        userId,
-      ]
+      [firmaId, targetMonthString, napomena || null, userId]
     );
+
+    // Provjeri da li su sve PDV prijave predane za trenutni mjesec
+    const [stats] = await executeQuery(
+      `
+      SELECT 
+        COUNT(*) as ukupno_firmi,
+        SUM(CASE WHEN pp.predano = 1 THEN 1 ELSE 0 END) as predano_firmi
+      FROM firme f
+      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND pp.mjesec = ?
+      WHERE f.user_id = ? 
+        AND f.pdvBroj IS NOT NULL 
+        AND f.pdvBroj != ''
+        AND f.status = 'aktivan'
+    `,
+      [targetMonthString, userId]
+    );
+
+    let autoCreatedNextMonth = false;
+
+    // Ako su sve prijave predane, automatski kreiraj novi mjesec
+    if (stats.ukupno_firmi > 0 && stats.predano_firmi === stats.ukupno_firmi) {
+      // Kreiraj novi mjesec (sljedeći mjesec)
+      let nextMonth = targetMonth + 1;
+      let nextYear = targetYear;
+
+      if (nextMonth > 12) {
+        nextMonth = 1;
+        nextYear++;
+      }
+
+      const nextMonthString = `${nextYear}-${nextMonth
+        .toString()
+        .padStart(2, "0")}-01`;
+
+      // Provjeri da li novi mjesec već postoji
+      const [existingEntries] = await executeQuery(
+        `
+        SELECT COUNT(*) as count 
+        FROM pdv_prijave pp
+        JOIN firme f ON pp.firma_id = f.id
+        WHERE f.user_id = ? AND pp.mjesec = ?
+      `,
+        [userId, nextMonthString]
+      );
+
+      // Kreiraj entries samo ako ne postoje
+      if (existingEntries.count === 0) {
+        const pdvFirme = await executeQuery(
+          `
+          SELECT id FROM firme 
+          WHERE user_id = ? 
+            AND pdvBroj IS NOT NULL 
+            AND pdvBroj != ''
+            AND status = 'aktivan'
+        `,
+          [userId]
+        );
+
+        for (const firma of pdvFirme) {
+          await executeQuery(
+            `
+            INSERT IGNORE INTO pdv_prijave (firma_id, mjesec, predano, user_id)
+            VALUES (?, ?, 0, ?)
+          `,
+            [firma.id, nextMonthString, userId]
+          );
+        }
+
+        autoCreatedNextMonth = true;
+      }
+    }
 
     res.json({
       success: true,
       message: "PDV prijava je označena kao predana",
+      autoCreatedNextMonth: autoCreatedNextMonth,
+      allSubmitted: stats.predano_firmi === stats.ukupno_firmi,
     });
   } catch (error) {
-    console.error("Greška pri označavanju PDV prijave:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -143,7 +261,27 @@ exports.unmarkSubmitted = async (req, res) => {
     const { firmaId } = req.params;
 
     const today = new Date();
-    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1;
+    const currentDay = today.getDate();
+
+    // Determine target month (same logic as getPDVOverview)
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      // We're in submission period for PREVIOUS month
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+    // If day > 20, we show CURRENT month
+
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`;
 
     // Provjeri da li firma pripada korisniku
     const [firma] = await executeQuery(
@@ -162,7 +300,7 @@ exports.unmarkSubmitted = async (req, res) => {
       SET predano = 0, datum_predanja = NULL, updated_at = CURRENT_TIMESTAMP
       WHERE firma_id = ? AND mjesec = ?
     `,
-      [firmaId, currentMonth.toISOString().split("T")[0]]
+      [firmaId, targetMonthString]
     );
 
     res.json({
@@ -170,7 +308,6 @@ exports.unmarkSubmitted = async (req, res) => {
       message: "Oznaka predano je uklonjena",
     });
   } catch (error) {
-    console.error("Greška pri uklanjanju oznake:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -214,7 +351,6 @@ exports.createNewMonth = async (req, res) => {
       firme_count: pdvFirme.length,
     });
   } catch (error) {
-    console.error("Greška pri kreiranju novog mjeseca:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -260,7 +396,6 @@ exports.getPDVHistory = async (req, res) => {
       istorija: istorija,
     });
   } catch (error) {
-    console.error("Greška pri dohvatanju istorije:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -296,7 +431,6 @@ exports.getPDVStatistics = async (req, res) => {
       statistike: stats,
     });
   } catch (error) {
-    console.error("Greška pri dohvatanju statistika:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };

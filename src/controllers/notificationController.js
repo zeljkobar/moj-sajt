@@ -245,55 +245,96 @@ const getNotifications = async (req, res) => {
       });
     });
 
-    // 4. PDV ROKOVI
+    // 4. PDV ROKOVI - koristi ispravljena business logic
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1;
+
+    // Determine target month (same logic as pdvController)
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`;
+
+    // Calculate days to deadline
+    let rokMonth = targetMonth + 1;
+    let rokYear = targetYear;
+    if (rokMonth > 12) {
+      rokMonth = 1;
+      rokYear++;
+    }
+    const rok = new Date(rokYear, rokMonth - 1, 15);
+    const daysToDeadline = Math.ceil((rok - today) / (1000 * 60 * 60 * 24));
+
     const pdvRokoviQuery = `
       SELECT 
         f.id, 
         f.naziv,
-        CASE 
-          WHEN DAY(CURDATE()) <= 15 THEN 
-            DATEDIFF(
-              DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(CURDATE()), '-15')), 
-              CURDATE()
-            )
-          ELSE 
-            DATEDIFF(
-              DATE(CONCAT(
-                YEAR(DATE_ADD(CURDATE(), INTERVAL 1 MONTH)), '-', 
-                MONTH(DATE_ADD(CURDATE(), INTERVAL 1 MONTH)), '-15'
-              )), 
-              CURDATE()
-            )
-        END as dana_do_roka
+        ? as dana_do_roka
       FROM firme f
-      WHERE f.user_id = ?
-      HAVING dana_do_roka <= 7 AND dana_do_roka >= 0
-      ORDER BY dana_do_roka ASC
-      LIMIT 3
+      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND pp.mjesec = ?
+      WHERE f.user_id = ? 
+        AND f.pdvBroj IS NOT NULL 
+        AND f.pdvBroj != ''
+        AND f.status != 'nula'
+        AND (pp.predano IS NULL OR pp.predano = 0)
+        AND ? <= 7 AND ? >= -5
+      ORDER BY f.naziv ASC
+      LIMIT 10
     `;
 
-    const pdvRokovi = await executeQuery(pdvRokoviQuery, [userId]);
+    const pdvRokovi = await executeQuery(pdvRokoviQuery, [
+      daysToDeadline,
+      targetMonthString,
+      userId,
+      daysToDeadline,
+      daysToDeadline,
+    ]);
 
     pdvRokovi.forEach((firma) => {
       const dana = firma.dana_do_roka;
-      let type, icon;
+      let type, icon, title;
 
-      if (dana === 0) {
+      if (dana < 0) {
+        // Rok je prošao
         type = "urgent";
         icon = "🚨";
+        title = `PDV rok prošao prije ${Math.abs(dana)} ${
+          Math.abs(dana) === 1 ? "dan" : "dana"
+        }!`;
+      } else if (dana === 0) {
+        // Rok je danas
+        type = "urgent";
+        icon = "🚨";
+        title = "PDV rok DANAS!";
       } else if (dana <= 3) {
+        // Rok je u sljedećih 3 dana
         type = "urgent";
         icon = "⚠️";
+        title = `PDV rok za ${dana} ${dana === 1 ? "dan" : "dana"}`;
       } else {
+        // Rok je u sljedećih 7 dana
         type = "warning";
         icon = "📊";
+        title = `PDV rok za ${dana} dana`;
       }
 
       notifications.push({
         id: `pdv_${firma.id}`,
         type,
         icon,
-        title: dana === 0 ? "PDV rok DANAS!" : `PDV rok za ${dana} dana`,
+        title,
         description: `${firma.naziv} - prijava PDV-a`,
         days: dana,
         action: `/pdv_prijava/index.html`,
@@ -360,7 +401,7 @@ const getNotifications = async (req, res) => {
 
     res.json({ notifications });
   } catch (error) {
-    console.error("Greška pri dohvatanju obavještenja:", error);
+
     res.status(500).json({ error: "Greška pri dohvatanju obavještenja" });
   }
 };

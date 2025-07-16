@@ -28,7 +28,7 @@ const pozicijeController = {
       );
       res.json(pozicije);
     } catch (error) {
-      console.error("Greška pri dobijanju pozicija:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -66,7 +66,7 @@ const pozicijeController = {
       }
       res.json(pozicija);
     } catch (error) {
-      console.error("Greška pri dobijanju pozicije:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -104,7 +104,7 @@ const pozicijeController = {
       );
       res.json({ success: true, pozicijaId: result.insertId });
     } catch (error) {
-      console.error("Greška pri dodavanju pozicije:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -155,7 +155,7 @@ const pozicijeController = {
       );
       res.json({ success: true, message: "Pozicija je uspešno ažurirana" });
     } catch (error) {
-      console.error("Greška pri ažuriranju pozicije:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -199,7 +199,7 @@ const pozicijeController = {
       ]);
       res.json({ success: true, message: "Pozicija je uspešno obrisana" });
     } catch (error) {
-      console.error("Greška pri brisanju pozicije:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },

@@ -10,7 +10,6 @@ exports.getUsers = async (req, res) => {
     );
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -37,8 +36,6 @@ exports.createUser = async (req, res) => {
       .status(201)
       .json({ msg: "Korisnik kreiran uspešno", id: result.insertId });
   } catch (error) {
-    console.error("Error creating user:", error);
-
     if (error.code === "ER_DUP_ENTRY") {
       return res
         .status(400)
@@ -69,7 +66,6 @@ exports.getCurrentUser = async (req, res) => {
 
     res.json(users[0]);
   } catch (error) {
-    console.error("Error fetching current user:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -125,8 +121,6 @@ exports.updateProfile = async (req, res) => {
 
     res.json({ msg: "Profil je uspešno ažuriran" });
   } catch (error) {
-    console.error("Error updating profile:", error);
-
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({ msg: "Email već postoji" });
     }
@@ -138,28 +132,17 @@ exports.updateProfile = async (req, res) => {
 // PUT /api/users/change-password - Change current user's password
 exports.changePassword = async (req, res) => {
   try {
-    console.log("Change password request received");
-    console.log("Session:", req.session);
-    console.log("Session user:", req.session?.user);
-
     if (!req.session || !req.session.user) {
       return res.status(401).json({ msg: "Korisnik nije autentifikovan" });
     }
 
     const username = req.session.user.username;
-    console.log("Username from session:", username);
 
     if (!username) {
       return res.status(400).json({ msg: "Username nije pronađen u sesiji" });
     }
 
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    console.log("Request body:", {
-      hasCurrentPassword: !!currentPassword,
-      hasNewPassword: !!newPassword,
-      hasConfirmPassword: !!confirmPassword,
-      newPasswordLength: newPassword?.length,
-    });
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({ msg: "Sva polja su obavezna" });
@@ -217,7 +200,6 @@ exports.changePassword = async (req, res) => {
 
     res.json({ msg: "Lozinka je uspešno promenjena" });
   } catch (error) {
-    console.error("Error changing password:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -236,7 +218,6 @@ exports.getUserById = async (req, res) => {
 
     res.json(users[0]);
   } catch (error) {
-    console.error("Error fetching user:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -257,8 +238,6 @@ exports.updateUser = async (req, res) => {
 
     res.json({ msg: "Korisnik ažuriran uspešno" });
   } catch (error) {
-    console.error("Error updating user:", error);
-
     if (error.code === "ER_DUP_ENTRY") {
       return res
         .status(400)
@@ -282,7 +261,6 @@ exports.deleteUser = async (req, res) => {
 
     res.json({ msg: "Korisnik obrisan uspešno" });
   } catch (error) {
-    console.error("Error deleting user:", error);
     res.status(500).json({ msg: "Server error" });
   }
 };

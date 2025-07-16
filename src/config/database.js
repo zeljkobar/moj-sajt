@@ -12,11 +12,11 @@ const dbConfig = {
   waitForConnections: true,
   connectionLimit: 5,
   queueLimit: 0,
-  acquireTimeout: 10000,
-  timeout: 10000,
-  reconnect: true,
   idleTimeout: 300000, // 5 minutes
   maxIdle: 2,
+  // MySQL2 specific options
+  charset: "utf8mb4",
+  timezone: "+00:00",
 };
 
 // Create connection pool

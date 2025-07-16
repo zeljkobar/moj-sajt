@@ -10,7 +10,6 @@ const firmeController = {
       );
       return users.length > 0 ? users[0].id : null;
     } catch (error) {
-      console.error("Greška pri dobijanju user_id:", error);
       return null;
     }
   },
@@ -33,10 +32,6 @@ const firmeController = {
 
       return firme;
     } catch (error) {
-      console.error(
-        `Greška pri čitanju firmi za korisnika ${username}:`,
-        error
-      );
       return [];
     }
   },
@@ -53,7 +48,6 @@ const firmeController = {
 
       res.json({ firme });
     } catch (error) {
-      console.error("Greška pri dobijanju firmi:", error);
       res.status(500).json({ message: "Greška pri dobijanju firmi" });
     }
   },
@@ -83,7 +77,6 @@ const firmeController = {
 
       res.json(aktivneFirme);
     } catch (error) {
-      console.error("Greška pri dobijanju aktivnih firmi:", error);
       res.status(500).json({ message: "Greška pri dobijanju aktivnih firmi" });
     }
   },
@@ -113,7 +106,6 @@ const firmeController = {
 
       res.json(firmeNaNuli);
     } catch (error) {
-      console.error("Greška pri dobijanju firmi na nuli:", error);
       res.status(500).json({ message: "Greška pri dobijanju firmi na nuli" });
     }
   },
@@ -187,18 +179,12 @@ const firmeController = {
         ]
       );
 
-      console.log(
-        `✅ Nova firma dodana: ${naziv} (PIB: ${pib}) za korisnika ${username}`
-      );
-
       res.json({
         success: true,
         message: "Firma je uspešno dodana",
         firmaId: result.insertId,
       });
     } catch (error) {
-      console.error("Greška pri dodavanju firme:", error);
-
       if (error.code === "ER_DUP_ENTRY") {
         return res.status(400).json({
           message: "Firma sa ovim PIB-om već postoji",
@@ -272,16 +258,11 @@ const firmeController = {
         ]
       );
 
-      console.log(
-        `✅ Firma ažurirana: ${naziv} (PIB: ${pib}) za korisnika ${username}`
-      );
-
       res.json({
         success: true,
         message: "Firma je uspešno ažurirana",
       });
     } catch (error) {
-      console.error("Greška pri ažuriranju firme:", error);
       res.status(500).json({ message: "Greška pri ažuriranju firme" });
     }
   },
@@ -323,16 +304,11 @@ const firmeController = {
         [userId, pib]
       );
 
-      console.log(
-        `✅ Firma obrisana: ${existingFirma[0].naziv} (PIB: ${pib}) za korisnika ${username}`
-      );
-
       res.json({
         success: true,
         message: "Firma je uspešno obrisana",
       });
     } catch (error) {
-      console.error("Greška pri brisanju firme:", error);
       res.status(500).json({ message: "Greška pri brisanju firme" });
     }
   },
@@ -369,7 +345,6 @@ const firmeController = {
 
       res.json(firma[0]);
     } catch (error) {
-      console.error("Greška pri dobijanju firme:", error);
       res.status(500).json({ message: "Greška pri dobijanju firme" });
     }
   },
@@ -396,7 +371,6 @@ const firmeController = {
       }
       res.json(firma);
     } catch (error) {
-      console.error(error);
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -414,7 +388,6 @@ const firmeController = {
       }
       res.json(radnik);
     } catch (error) {
-      console.error(error);
       res.status(500).json({ message: "Greška na serveru" });
     }
   },

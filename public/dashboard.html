@@ -510,9 +510,7 @@
             document.getElementById("navbar-username").textContent =
               userData.ime + " " + userData.prezime;
           }
-        } catch (error) {
-          console.error("Error loading user data:", error);
-        }
+        } catch (error) {}
       }
 
       async function loadStatistics() {
@@ -527,9 +525,7 @@
           animateCounter("aktivneFirme", stats.aktivne);
           animateCounter("aktivniRadnici", stats.aktivniRadnici || 0);
           animateCounter("ugovoriMjesec", stats.ugovoriMjesec || 0);
-        } catch (error) {
-          console.error("Greška pri učitavanju statistika:", error);
-        }
+        } catch (error) {}
       }
 
       // Animacija brojeva
@@ -552,6 +548,31 @@
         }, stepTime);
       }
 
+      // Format month string to readable name
+      function formatMonth(dateString) {
+        if (!dateString) return "";
+
+        const monthNames = [
+          "januar",
+          "februar",
+          "mart",
+          "april",
+          "maj",
+          "juni",
+          "juli",
+          "august",
+          "septembar",
+          "oktobar",
+          "novembar",
+          "decembar",
+        ];
+
+        const [year, month] = dateString.split("-");
+        const monthIndex = parseInt(month) - 1;
+
+        return `${monthNames[monthIndex]} ${year}`;
+      }
+
       // Učitaj PDV status
       async function loadPDVStatus() {
         try {
@@ -572,9 +593,34 @@
 
             // Ažuriraj UI
             document.getElementById("pdvCurrentMonth").textContent =
-              rokInfo.trenutni_mjesec || "Trenutni mjesec";
-            document.getElementById("daysCount").textContent =
-              rokInfo.dana_do_roka || 0;
+              formatMonth(rokInfo.trenutni_mjesec) || "Trenutni mjesec";
+
+            // Ažuriraj prikaz dana do roka
+            const days = rokInfo.dana_do_roka || 0;
+            const daysCountElement = document.getElementById("daysCount");
+            const daysLeftBadge = document.getElementById("pdvDaysLeft");
+
+            if (days < 0) {
+              daysCountElement.textContent = `Kasni ${Math.abs(days)}`;
+              daysLeftBadge.innerHTML = `<i class="fas fa-exclamation-triangle me-1"></i>Kasni ${Math.abs(
+                days
+              )} ${Math.abs(days) === 1 ? "dan" : "dana"}`;
+              daysLeftBadge.className = "badge bg-danger fs-6";
+            } else if (days === 0) {
+              daysCountElement.textContent = "Rok danas";
+              daysLeftBadge.innerHTML = `<i class="fas fa-clock me-1"></i>Rok DANAS!`;
+              daysLeftBadge.className = "badge bg-warning fs-6";
+            } else {
+              daysCountElement.textContent = days;
+              daysLeftBadge.innerHTML = `<i class="fas fa-clock me-1"></i>${days} ${
+                days === 1 ? "dan" : "dana"
+              } do roka`;
+              if (days <= 3) {
+                daysLeftBadge.className = "badge bg-warning fs-6";
+              } else {
+                daysLeftBadge.className = "badge bg-primary fs-6";
+              }
+            }
 
             animateCounter("pdvUkupno", ukupno);
             animateCounter("pdvPredano", predano);
@@ -587,40 +633,17 @@
             document.getElementById("pdvProgress").textContent = progress + "%";
             document.getElementById("pdvProgressBar").style.width =
               progress + "%";
-
-            // Promijeni boju badge-a na osnovu dana do roka
-            const daysLeftBadge = document.getElementById("pdvDaysLeft");
-            const days = rokInfo.dana_do_roka || 0;
-
-            if (days < 0) {
-              daysLeftBadge.className = "badge bg-danger fs-6";
-            } else if (days <= 3) {
-              daysLeftBadge.className = "badge bg-warning fs-6";
-            } else {
-              daysLeftBadge.className = "badge bg-primary fs-6";
-            }
           }
-        } catch (error) {
-          console.error("Greška pri učitavanju PDV statusa:", error);
-        }
+        } catch (error) {}
       }
 
       // Setup Quick Search
       function setupQuickSearch() {
-        console.log("Setting up quick search...");
-
         const searchInput = document.getElementById("quickSearch");
         const searchResults = document.getElementById("searchResults");
         const clearButton = document.getElementById("clearSearch");
 
-        console.log("Search elements:", {
-          searchInput,
-          searchResults,
-          clearButton,
-        });
-
         if (!searchInput || !searchResults || !clearButton) {
-          console.error("Search elements not found!");
           return;
         }
 
@@ -628,7 +651,6 @@
 
         searchInput.addEventListener("input", function () {
           const query = this.value.trim();
-          console.log("Search input:", query);
 
           clearTimeout(searchTimeout);
 
@@ -643,7 +665,6 @@
         });
 
         clearButton.addEventListener("click", function () {
-          console.log("Clear button clicked");
           searchInput.value = "";
           searchResults.classList.add("d-none");
           searchInput.focus();
@@ -655,8 +676,6 @@
             searchResults.classList.add("d-none");
           }
         });
-
-        console.log("Quick search setup completed");
       }
 
       // Izvrši pretragu
@@ -676,11 +695,9 @@
           if (response.ok) {
             const data = await response.json();
             results = data.results || [];
-            console.log("API search results:", results);
           } else {
             // Fallback na mock podatke ako API ne radi
             results = await mockSearch(query);
-            console.log("Mock search results:", results);
           }
 
           if (results.length === 0) {
@@ -709,7 +726,6 @@
 
           searchResults.classList.remove("d-none");
         } catch (error) {
-          console.error("Greška pri pretrazi:", error);
           // Fallback na mock podatke
           const results = await mockSearch(query);
           if (results.length > 0) {
@@ -809,7 +825,6 @@
 
           displayQuickActions(userRole);
         } catch (error) {
-          console.error("Error loading user role:", error);
           // Fallback to basic options
           displayQuickActions("pdv");
         }

@@ -40,7 +40,7 @@ const radniciController = {
 
       res.json(radnici);
     } catch (error) {
-      console.error("Greška pri dobijanju radnika:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -65,7 +65,7 @@ const radniciController = {
       );
       res.json(radnici);
     } catch (error) {
-      console.error("Greška pri dobijanju radnika po firmi:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -114,7 +114,7 @@ const radniciController = {
       }
       res.json(radnik);
     } catch (error) {
-      console.error("Greška pri dobijanju radnika:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -244,9 +244,9 @@ const radniciController = {
 
       res.json({ success: true, radnikId: radnikId });
     } catch (error) {
-      console.error("Greška pri dodavanju radnika:", error);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
+
+
+
       res
         .status(500)
         .json({ message: "Greška na serveru", error: error.message });
@@ -366,7 +366,7 @@ const radniciController = {
 
       res.json({ success: true, message: "Radnik je uspešno ažuriran" });
     } catch (error) {
-      console.error("Greška pri ažuriranju radnika:", error);
+
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -438,7 +438,7 @@ const radniciController = {
             : "Radnik je uspešno obrisan",
       });
     } catch (error) {
-      console.error("Greška pri brisanju radnika:", error);
+
 
       // Specifično rukovanje foreign key greškom
       if (error.code === "ER_ROW_IS_REFERENCED_2") {

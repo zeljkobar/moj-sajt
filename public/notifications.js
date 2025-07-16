@@ -191,3 +191,77 @@ window.addEventListener("beforeunload", () => {
     window.notificationManager.stopAutoUpdate();
   }
 });
+
+// Globalna funkcija za prikazivanje toast notifikacija
+function showNotification(message, type = "info") {
+  // Kreiraj toast container ako ne postoji
+  let toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-container";
+    toastContainer.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    `;
+    document.body.appendChild(toastContainer);
+  }
+
+  // Kreiraj toast element
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.style.cssText = `
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  `;
+
+  // Stilovi prema tipu
+  const styles = {
+    success: "background-color: #10b981;",
+    error: "background-color: #ef4444;",
+    warning: "background-color: #f59e0b;",
+    info: "background-color: #3b82f6;",
+  };
+
+  toast.style.cssText += styles[type] || styles.info;
+  toast.textContent = message;
+
+  // Dodaj toast u container
+  toastContainer.appendChild(toast);
+
+  // Animacija ulaska
+  setTimeout(() => {
+    toast.style.transform = "translateX(0)";
+  }, 100);
+
+  // Ukloni nakon 4 sekunde
+  const timeout = setTimeout(() => {
+    removeToast(toast);
+  }, 4000);
+
+  // Ukloni na klik
+  toast.addEventListener("click", () => {
+    clearTimeout(timeout);
+    removeToast(toast);
+  });
+
+  function removeToast(toastElement) {
+    toastElement.style.transform = "translateX(100%)";
+    setTimeout(() => {
+      if (toastElement.parentNode) {
+        toastElement.parentNode.removeChild(toastElement);
+      }
+    }, 300);
+  }
+}

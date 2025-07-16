@@ -15,12 +15,6 @@ const requireRole = (allowedRoles) => {
 
     // Check if user has required role
     if (!allowedRoles.includes(userRole)) {
-      console.log(
-        `🚫 Access denied for role ${userRole}. Required: ${allowedRoles.join(
-          ", "
-        )}`
-      );
-
       if (req.path.startsWith("/api/")) {
         return res.status(403).json({
           msg: "Nemate dozvolu za pristup ovoj funkcionalnosti",
@@ -43,7 +37,6 @@ const requireRole = (allowedRoles) => {
       }
     }
 
-    console.log(`✅ Access granted for role ${userRole}`);
     next();
   };
 };

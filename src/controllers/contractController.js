@@ -10,7 +10,7 @@ exports.addContract = async (req, res) => {
     );
     res.json({ success: true, contractId: result.insertId });
   } catch (error) {
-    console.error("Greška pri dodavanju ugovora:", error);
+
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -31,7 +31,7 @@ exports.getAllContracts = async (req, res) => {
     );
     res.json(contracts);
   } catch (error) {
-    console.error("Greška pri dobijanju ugovora:", error);
+
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -58,7 +58,7 @@ exports.getContractById = async (req, res) => {
     }
     res.json(contract);
   } catch (error) {
-    console.error("Greška pri dobijanju ugovora:", error);
+
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -74,7 +74,7 @@ exports.updateContract = async (req, res) => {
     );
     res.json({ success: true, message: "Ugovor je uspešno ažuriran" });
   } catch (error) {
-    console.error("Greška pri ažuriranju ugovora:", error);
+
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -86,7 +86,7 @@ exports.deleteContract = async (req, res) => {
     await executeQuery("DELETE FROM ugovori WHERE id = ?", [id]);
     res.json({ success: true, message: "Ugovor je uspešno obrisan" });
   } catch (error) {
-    console.error("Greška pri brisanju ugovora:", error);
+
     res.status(500).json({ message: "Greška na serveru" });
   }
 };

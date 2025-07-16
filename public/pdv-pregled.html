@@ -192,6 +192,7 @@
       </div>
     </div>
 
+    <script src="notifications.js"></script>
     <script src="script.js"></script>
     <script>
       // PDV Pregled funkcionalnost
@@ -233,7 +234,6 @@
               '<div class="no-data">Greška pri učitavanju podataka</div>';
           }
         } catch (error) {
-          console.error("Greška:", error);
           showNotification("Greška pri povezivanju sa serverom", "error");
           container.innerHTML =
             '<div class="no-data">Greška pri povezivanju sa serverom</div>';
@@ -244,7 +244,7 @@
       function updateStatusCard(rokInfo) {
         document.getElementById(
           "mjesecNaziv"
-        ).textContent = `PDV Prijave - ${rokInfo.trenutni_mjesec}`;
+        ).textContent = `PDV Prijave - ${formatMonth(rokInfo.trenutni_mjesec)}`;
 
         const rokElement = document.getElementById("rokInfo");
         const dana = rokInfo.dana_do_roka;
@@ -353,6 +353,51 @@
         }
       }
 
+      // Optimizovana funkcija za ažuriranje status firme bez API poziva
+      function updateFirmaStatus(firmaId, predano) {
+        let firmaUpdated = false;
+
+        // Pronađi firmu u aktivnim firmama
+        const aktivnaFirma = aktivneFirme.find((f) => f.id == firmaId);
+        if (aktivnaFirma) {
+          // Ažuriraj lokalne podatke za aktivnu firmu
+          aktivnaFirma.predano = predano ? 1 : 0;
+          aktivnaFirma.status = predano ? "predano" : "nepredano";
+          if (predano) {
+            aktivnaFirma.datum_predanja = new Date().toISOString();
+          } else {
+            aktivnaFirma.datum_predanja = null;
+          }
+
+          // Ponovo renduj aktivne firme sa ažuriranim podacima
+          renderFirme(aktivneFirme);
+
+          // Ažuriraj statistike za aktivne
+          updateStats();
+          firmaUpdated = true;
+        }
+
+        // Pronađi firmu u neaktivnim firmama
+        const neaktivnaFirma = neaktivneFirme.find((f) => f.id == firmaId);
+        if (neaktivnaFirma) {
+          // Ažuriraj lokalne podatke za neaktivnu firmu
+          neaktivnaFirma.predano = predano ? 1 : 0;
+          neaktivnaFirma.status = predano ? "predano" : "nepredano";
+          if (predano) {
+            neaktivnaFirma.datum_predanja = new Date().toISOString();
+          } else {
+            neaktivnaFirma.datum_predanja = null;
+          }
+
+          // Ponovo renduj neaktivne firme sa ažuriranim podacima
+          renderNeaktivneFirme();
+
+          // Ažuriraj statistike za neaktivne
+          loadInactiveStatistics();
+          firmaUpdated = true;
+        }
+      }
+
       // Označi kao predano
       async function markAsSubmitted(firmaId) {
         const napomena = prompt("Napomena (opcionalno):");
@@ -379,16 +424,32 @@
           const data = await response.json();
 
           if (data.success) {
+            // Prikaži osnovnu poruku
             showNotification("PDV prijava je označena kao predana", "success");
-            // Force reload data with small delay
-            setTimeout(async () => {
-              await loadPDVPregled();
-            }, 500);
+
+            // Prikaži dodatnu poruku ako su sve prijave predane
+            if (data.allSubmitted && data.autoCreatedNextMonth) {
+              setTimeout(() => {
+                showNotification(
+                  "🎉 Sve PDV prijave su predane! Automatski je kreiran novi mjesec.",
+                  "success"
+                );
+              }, 2000);
+            } else if (data.allSubmitted) {
+              setTimeout(() => {
+                showNotification(
+                  "🎉 Sve PDV prijave su predane za ovaj mjesec!",
+                  "success"
+                );
+              }, 2000);
+            }
+
+            // Koristi optimizovanu funkciju umjesto reload-a
+            updateFirmaStatus(firmaId, true);
           } else {
             showNotification(data.message || "Greška pri označavanju", "error");
           }
         } catch (error) {
-          console.error("Greška:", error);
           showNotification("Greška pri povezivanju sa serverom", "error");
         } finally {
           // Re-enable button
@@ -427,10 +488,8 @@
 
           if (data.success) {
             showNotification("Oznaka predano je uklonjena", "success");
-            // Force reload data with small delay
-            setTimeout(async () => {
-              await loadPDVPregled();
-            }, 500);
+            // Koristi optimizovanu funkciju umjesto reload-a
+            updateFirmaStatus(firmaId, false);
           } else {
             showNotification(
               data.message || "Greška pri uklanjanju oznake",
@@ -438,7 +497,6 @@
             );
           }
         } catch (error) {
-          console.error("Greška:", error);
           showNotification("Greška pri povezivanju sa serverom", "error");
         } finally {
           // Re-enable button
@@ -538,6 +596,23 @@
         container.innerHTML = html;
       }
 
+      // Lokalno ažuriranje statistika bez API poziva
+      function updateStats() {
+        if (aktivneFirme.length > 0) {
+          const predane = aktivneFirme.filter((f) => f.predano).length;
+          const ukupno = aktivneFirme.length;
+          const procenat = Math.round((predane / ukupno) * 100);
+
+          const stats = {
+            ukupno_pdv_firmi: ukupno,
+            predane_prijave: predane,
+            procenat_predanih: procenat,
+          };
+
+          renderStatistics(stats);
+        }
+      }
+
       // Učitaj statistike za aktivne firme
       async function loadStatistics() {
         try {
@@ -547,9 +622,7 @@
           if (data.success) {
             renderStatistics(data.statistike);
           }
-        } catch (error) {
-          console.error("Greška pri učitavanju statistika:", error);
-        }
+        } catch (error) {}
       }
 
       // Učitaj statistike za neaktivne firme
@@ -584,7 +657,6 @@
             showNotification("Greška pri učitavanju historije", "error");
           }
         } catch (error) {
-          console.error("Greška:", error);
           showNotification("Greška pri povezivanju sa serverom", "error");
         }
       }
@@ -631,12 +703,28 @@
       // Kreiraj novi mjesec
       function createNewMonth() {
         const today = new Date();
-        const nextMonth = new Date(
-          today.getFullYear(),
-          today.getMonth() + 1,
-          1
-        );
-        const monthString = nextMonth.toISOString().slice(0, 7); // YYYY-MM
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+        const currentDay = today.getDate();
+
+        // Determine target month for PDV based on business logic (same as backend)
+        let targetMonth = currentMonth;
+        let targetYear = currentYear;
+
+        if (currentDay <= 20) {
+          // We're in submission period for PREVIOUS month
+          targetMonth = currentMonth - 1;
+          if (targetMonth < 1) {
+            targetMonth = 12;
+            targetYear--;
+          }
+        }
+        // If day > 20, we show CURRENT month
+
+        // Create month string directly (avoid timezone issues)
+        const monthString = `${targetYear}-${targetMonth
+          .toString()
+          .padStart(2, "0")}`;
 
         document.getElementById("newMjesec").value = monthString;
         document.getElementById("newMonthModal").style.display = "block";
@@ -674,7 +762,6 @@
             );
           }
         } catch (error) {
-          console.error("Greška:", error);
           showNotification("Greška pri povezivanju sa serverom", "error");
         }
       }
@@ -688,9 +775,7 @@
           if (data.success) {
             renderStatistics(data.statistike);
           }
-        } catch (error) {
-          console.error("Greška pri učitavanju statistika:", error);
-        }
+        } catch (error) {}
       }
       function renderStatistics(stats) {
         const container = document.getElementById("statsGrid");
