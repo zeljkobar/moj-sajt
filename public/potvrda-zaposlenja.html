@@ -123,7 +123,7 @@
 
         <p>
           Potvrda se izdaje na zahtev zaposlenog/e radi
-          <strong>_________________</strong>.
+          <strong id="potvrdaRazlog">_________________</strong>.
         </p>
 
         <p>Potvrda ne sme biti korišćena u druge svrhe.</p>
@@ -220,6 +220,14 @@
           console.error("Greška pri učitavanju podataka:", error);
         }
       }
+      // Dinamički ubaci razlog iz URL-a
+      (function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const razlog = urlParams.get("razlog");
+        if (razlog) {
+          document.getElementById("potvrdaRazlog").textContent = razlog;
+        }
+      })();
     </script>
   </body>
 </html>

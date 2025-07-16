@@ -593,9 +593,91 @@ function generateDocument(radnikId, documentType) {
     return;
   }
 
+  // Novi modal za potvrdu o zaposlenju
+  if (documentType === "potvrda-zaposlenja") {
+    openPotvrdaModal(radnikId, radnik.firma_id);
+    return;
+  }
+
   // Kreiramo URL sa parametrima kao što ih koristi modal (radnikId i firmaId)
   const url = `${documentType}.html?radnikId=${radnikId}&firmaId=${radnik.firma_id}`;
   window.open(url, "_blank");
+}
+
+// Modal za unos razloga izdavanja potvrde o zaposlenju
+function openPotvrdaModal(radnikId, firmaId) {
+  const modalHtml = `
+    <div class="modal fade" id="potvrdaModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-file-alt me-2"></i>Razlog izdavanja potvrde
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="razlogPotvrdaInput" class="form-label">Za šta vam je potrebna potvrda?</label>
+              <input type="text" class="form-control" id="razlogPotvrdaInput" placeholder="npr. otvaranje računa u banci" maxlength="100" autofocus>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closePotvrdaModal()">Otkaži</button>
+            <button type="button" class="btn btn-primary" onclick="potvrdiPotvrdaModal(${radnikId}, ${firmaId})">
+              <i class="fas fa-check me-2"></i>Generiši potvrdu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Ukloni postojeći modal ako postoji
+  const existingModal = document.getElementById("potvrdaModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+  const modal = new bootstrap.Modal(document.getElementById("potvrdaModal"));
+  modal.show();
+
+  // Ukloni iz DOM-a kad se zatvori
+  const modalElement = document.getElementById("potvrdaModal");
+  modalElement.addEventListener(
+    "hidden.bs.modal",
+    function () {
+      modalElement.remove();
+    },
+    { once: true }
+  );
+}
+
+function closePotvrdaModal() {
+  const modalElement = document.getElementById("potvrdaModal");
+  if (modalElement) {
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+      modal.hide();
+    } else {
+      modalElement.remove();
+    }
+  }
+}
+
+function potvrdiPotvrdaModal(radnikId, firmaId) {
+  const razlog = document.getElementById("razlogPotvrdaInput").value.trim();
+  if (!razlog) {
+    alert("Unesite razlog izdavanja potvrde.");
+    return;
+  }
+  // Otvori potvrdu sa razlogom kao GET parametar
+  const url = `potvrda-zaposlenja.html?radnikId=${radnikId}&firmaId=${firmaId}&razlog=${encodeURIComponent(
+    razlog
+  )}`;
+  window.open(url, "_blank");
+  closePotvrdaModal();
 }
 
 // Modal za izbor dana sedmičnog odmora
