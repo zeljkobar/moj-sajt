@@ -27,10 +27,12 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, f.naziv as firma_naziv
+               p.naziv as pozicija_naziv, f.naziv as firma_naziv,
+               u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE f.user_id = ?
         ORDER BY r.prezime, r.ime
       `,
@@ -52,9 +54,11 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, p.opis_poslova
+               p.naziv as pozicija_naziv, p.opis_poslova,
+               u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.firma_id = ? 
         ORDER BY r.prezime, r.ime
       `,
@@ -93,10 +97,12 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv
+               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv,
+               u.vrsta_ugovora
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.id = ? AND f.user_id = ?
       `,
         [id, user.id]

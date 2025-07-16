@@ -235,6 +235,10 @@ function displayRadnici() {
       ugovor_o_pozajmnici: "Pozajmica",
     };
 
+    // Debug log za proveru podataka
+    console.log("Radnik vrsta_ugovora:", radnik.vrsta_ugovora);
+    console.log("Mapiranje rezultat:", vrstaUgovoraText[radnik.vrsta_ugovora]);
+
     const row = document.createElement("tr");
 
     // Formatuj datum prestanka
