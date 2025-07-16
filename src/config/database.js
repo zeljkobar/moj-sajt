@@ -10,8 +10,13 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "summasum_local",
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 5,
   queueLimit: 0,
+  acquireTimeout: 10000,
+  timeout: 10000,
+  reconnect: true,
+  idleTimeout: 300000, // 5 minutes
+  maxIdle: 2,
 };
 
 // Create connection pool
@@ -35,12 +40,18 @@ async function testConnection() {
 
 // Execute query with error handling
 async function executeQuery(sql, params = []) {
+  let connection;
   try {
-    const [rows] = await pool.execute(sql, params);
+    connection = await pool.getConnection();
+    const [rows] = await connection.execute(sql, params);
     return rows;
   } catch (error) {
     console.error("Database query error:", error);
     throw error;
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
@@ -51,14 +62,18 @@ async function getConnection() {
 
 // Execute SQL script file
 async function executeSQLScript(scriptPath) {
+  let connection;
   try {
     const script = fs.readFileSync(scriptPath, "utf8");
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     await connection.query(script);
     console.log("✅ SQL script executed successfully");
-    connection.release();
   } catch (error) {
     console.error("❌ Error executing SQL script:", error.message);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
