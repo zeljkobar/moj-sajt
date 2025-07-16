@@ -23,12 +23,11 @@ const pozicijeController = {
 
       // Dobij pozicije samo za ovog korisnika
       const pozicije = await executeQuery(
-        "SELECT * FROM pozicije WHERE user_id = ? ORDER BY naziv",
+        "SELECT id, naziv, opis_poslova FROM pozicije WHERE user_id = ? ORDER BY naziv",
         [user.id]
       );
       res.json(pozicije);
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -66,7 +65,6 @@ const pozicijeController = {
       }
       res.json(pozicija);
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -104,7 +102,6 @@ const pozicijeController = {
       );
       res.json({ success: true, pozicijaId: result.insertId });
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -155,7 +152,6 @@ const pozicijeController = {
       );
       res.json({ success: true, message: "Pozicija je uspešno ažurirana" });
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -199,7 +195,6 @@ const pozicijeController = {
       ]);
       res.json({ success: true, message: "Pozicija je uspešno obrisana" });
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },

@@ -27,11 +27,10 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, f.naziv as firma_naziv, u.vrsta_ugovora
+               p.naziv as pozicija_naziv, f.naziv as firma_naziv
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
-        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE f.user_id = ?
         ORDER BY r.prezime, r.ime
       `,
@@ -40,7 +39,6 @@ const radniciController = {
 
       res.json(radnici);
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -54,10 +52,9 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, p.opis_poslova, u.vrsta_ugovora
+               p.naziv as pozicija_naziv, p.opis_poslova
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
-        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.firma_id = ? 
         ORDER BY r.prezime, r.ime
       `,
@@ -65,7 +62,6 @@ const radniciController = {
       );
       res.json(radnici);
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -97,11 +93,10 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv, u.vrsta_ugovora
+               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv
         FROM radnici r 
         LEFT JOIN pozicije p ON r.pozicija_id = p.id 
         LEFT JOIN firme f ON r.firma_id = f.id 
-        LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.id = ? AND f.user_id = ?
       `,
         [id, user.id]
@@ -114,7 +109,6 @@ const radniciController = {
       }
       res.json(radnik);
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -244,9 +238,6 @@ const radniciController = {
 
       res.json({ success: true, radnikId: radnikId });
     } catch (error) {
-
-
-
       res
         .status(500)
         .json({ message: "Greška na serveru", error: error.message });
@@ -366,7 +357,6 @@ const radniciController = {
 
       res.json({ success: true, message: "Radnik je uspešno ažuriran" });
     } catch (error) {
-
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
@@ -438,8 +428,6 @@ const radniciController = {
             : "Radnik je uspešno obrisan",
       });
     } catch (error) {
-
-
       // Specifično rukovanje foreign key greškom
       if (error.code === "ER_ROW_IS_REFERENCED_2") {
         res.status(400).json({

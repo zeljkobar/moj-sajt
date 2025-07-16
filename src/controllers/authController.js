@@ -9,7 +9,6 @@ async function getUserByUsername(username) {
     const users = await executeQuery(query, [username]);
     return users.length > 0 ? users[0] : null;
   } catch (error) {
-
     return null;
   }
 }
@@ -36,7 +35,6 @@ async function createUser(userData) {
 
     return result.insertId;
   } catch (error) {
-
     throw error;
   }
 }
@@ -75,7 +73,6 @@ const authController = {
           .json({ message: "Pogrešno korisničko ime ili lozinka" });
       }
     } catch (error) {
-
       res.status(500).json({ message: "Greška servera" });
     }
   },
@@ -154,33 +151,29 @@ const authController = {
         });
       }
 
-      // Proveri da li korisnik već postoji
-      const existingUserByUsername = await getUserByUsername(username);
-      if (existingUserByUsername) {
-        return res.status(400).json({
-          message: "Korisnik sa ovim korisničkim imenom već postoji",
-        });
-      }
-
-      // Proveri email i JMBG
-      const existingUserByEmail = await executeQuery(
-        "SELECT id FROM users WHERE email = ?",
-        [email]
+      // Proveri da li korisnik već postoji (optimizovano u jednom upitu)
+      const existingUserQuery = await executeQuery(
+        "SELECT username, email, jmbg FROM users WHERE username = ? OR email = ? OR jmbg = ?",
+        [username, email, jmbg]
       );
-      if (existingUserByEmail.length > 0) {
-        return res.status(400).json({
-          message: "Korisnik sa ovim email-om već postoji",
-        });
-      }
 
-      const existingUserByJmbg = await executeQuery(
-        "SELECT id FROM users WHERE jmbg = ?",
-        [jmbg]
-      );
-      if (existingUserByJmbg.length > 0) {
-        return res.status(400).json({
-          message: "Korisnik sa ovim JMBG-om već postoji",
-        });
+      if (existingUserQuery.length > 0) {
+        const existing = existingUserQuery[0];
+        if (existing.username === username) {
+          return res.status(400).json({
+            message: "Korisnik sa ovim korisničkim imenom već postoji",
+          });
+        }
+        if (existing.email === email) {
+          return res.status(400).json({
+            message: "Korisnik sa ovim email-om već postoji",
+          });
+        }
+        if (existing.jmbg === jmbg) {
+          return res.status(400).json({
+            message: "Korisnik sa ovim JMBG-om već postoji",
+          });
+        }
       }
 
       // Kreiraj novog korisnika
@@ -194,15 +187,11 @@ const authController = {
         jmbg,
       });
 
-
-
       res.json({
         success: true,
         message: "Registracija je uspešna! Možete se ulogovati.",
       });
     } catch (error) {
-
-
       // Specifične MySQL greške
       if (error.code === "ER_DUP_ENTRY") {
         return res.status(400).json({
