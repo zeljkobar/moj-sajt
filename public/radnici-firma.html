@@ -101,6 +101,17 @@
         margin-bottom: 20px;
       }
 
+      /* Status badge stilovi */
+      .badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      /* Otkaz info stilovi */
+      .radnik-details .text-muted {
+        font-size: 0.875rem;
+      }
+
       /* Responsive poboljšanja */
       @media (max-width: 768px) {
         .firm-header {
@@ -124,8 +135,10 @@
         }
 
         .radnik-info .text-end .btn {
-          width: 32%;
-          margin: 2px 0.5%;
+          width: 48%;
+          margin: 1px;
+          font-size: 0.8rem;
+          padding: 4px 8px;
         }
 
         .pozicija-opis {
@@ -152,7 +165,7 @@
 
         .radnik-info .text-end .btn {
           width: 100%;
-          margin: 2px 0;
+          margin: 1px 0;
         }
 
         .back-btn {
@@ -162,6 +175,13 @@
 
         .empty-state {
           padding: 40px 15px;
+        }
+
+        .badge {
+          font-size: 0.7rem;
+          display: block;
+          margin-top: 5px;
+          margin-left: 0 !important;
         }
       }
 
@@ -284,13 +304,34 @@
           const response = await fetch(`/api/radnici/firma/${firmaId}`);
           const radnici = await response.json();
 
+          // Učitaj otkaze za ovu firmu
+          let otkazi = [];
+          try {
+            const otkaziResponse = await fetch(`/api/otkazi/firma/${firmaId}`);
+            const otkaziData = await otkaziResponse.json();
+            if (otkaziData.success) {
+              otkazi = otkaziData.data || [];
+              console.log("Učitani otkazi za firmu:", firmaId, otkazi);
+            }
+          } catch (otkazError) {
+            console.warn("Nema otkaza za ovu firmu:", otkazError);
+          }
+
+          // Kreiraj mapu otkaza po radnik_id za brzu pretragu
+          const otkaziMap = {};
+          otkazi.forEach((otkaz) => {
+            otkaziMap[otkaz.radnik_id] = otkaz;
+          });
+
+          console.log("OtkaziMap:", otkaziMap);
+
           document.getElementById("loadingSpinner").style.display = "none";
 
           if (radnici.length === 0) {
             document.getElementById("emptyState").classList.remove("d-none");
             setupDodajRadnikaBtn(); // Setup dugme i za empty state
           } else {
-            displayRadnici(radnici);
+            displayRadnici(radnici, otkaziMap);
           }
         } catch (error) {
           console.error("Greška pri učitavanju radnika:", error);
@@ -299,41 +340,62 @@
         }
       }
 
-      function displayRadnici(radnici) {
+      function displayRadnici(radnici, otkaziMap = {}) {
         const container = document.getElementById("radniciContainer");
 
         const radniciHtml = radnici
           .map((radnik) => {
             const isHighlighted =
               highlightRadnikId && radnik.id == highlightRadnikId;
+
+            // Proveri da li radnik ima otkaz
+            const otkaz = otkaziMap[radnik.id];
+
+            // Izračunaj status
+            let statusClass,
+              statusText,
+              otkazInfo = "";
+
+            if (otkaz) {
+              statusClass = "bg-danger";
+              statusText = "Otkazan";
+              otkazInfo = `<p class="text-muted mb-0"><small>
+                  <i class="fas fa-calendar me-1"></i> ${formatDate(
+                    otkaz.datum_otkaza
+                  )} - 
+                  ${
+                    otkaz.tip_otkaza === "sporazumni_raskid"
+                      ? "Sporazumni raskid"
+                      : "Istek ugovora"
+                  }
+              </small></p>`;
+            } else {
+              // Standardna logika za aktivan/neaktivan
+              const aktivan =
+                !radnik.datum_prestanka ||
+                new Date(radnik.datum_prestanka) >= new Date();
+              statusClass = aktivan ? "bg-success" : "bg-secondary";
+              statusText = aktivan ? "Aktivan" : "Neaktivan";
+            }
+
             return `
                 <div class="radnik-card ${
                   isHighlighted ? "highlighted-radnik" : ""
                 }" id="radnik-${radnik.id}">
                     <div class="radnik-info">
                         <div class="radnik-details">
-                            <h5>${radnik.ime} ${radnik.prezime}</h5>
+                            <h5>
+                                ${radnik.ime} ${radnik.prezime}
+                                <span class="badge ${statusClass} ms-2">${statusText}</span>
+                            </h5>
                             <p><strong>JMBG:</strong> ${radnik.jmbg}</p>
                             <p><strong>Pozicija:</strong> ${
                               radnik.pozicija_naziv || "N/A"
                             }</p>
+                            ${otkazInfo}
                         </div>
                         <div class="text-end">
-                            <button class="btn btn-primary btn-sm" onclick="viewRadnikDetails(${
-                              radnik.id
-                            })">
-                                <i class="fas fa-eye"></i> Detalji
-                            </button>
-                            <button class="btn btn-warning btn-sm" onclick="editRadnik(${
-                              radnik.id
-                            })">
-                                <i class="fas fa-edit"></i> Uredi
-                            </button>
-                            <button class="btn btn-success btn-sm" onclick="generateUgovor(${
-                              radnik.id
-                            })">
-                                <i class="fas fa-file-contract"></i> Ugovor
-                            </button>
+                            ${generateActionButtons(radnik, otkaz)}
                         </div>
                     </div>
                     ${
@@ -369,11 +431,109 @@
         }
       }
 
+      // Helper funkcija za generiranje dugmića na osnovu status radnika
+      function generateActionButtons(radnik, otkaz) {
+        console.log(
+          "generateActionButtons - radnik:",
+          radnik.id,
+          radnik.ime,
+          radnik.prezime,
+          "otkaz:",
+          otkaz
+        );
+
+        let buttons = `
+            <button class="btn btn-primary btn-sm" onclick="viewRadnikDetails(${radnik.id})">
+                <i class="fas fa-eye"></i> Detalji
+            </button>
+        `;
+
+        if (otkaz) {
+          console.log("Generiram dugme za otkaz sa ID:", otkaz.id);
+          // Ako je otkazan - dugme za pregled otkaza
+          buttons += `
+              <button class="btn btn-info btn-sm" onclick="viewOtkaz(${otkaz.id}, '${otkaz.tip_otkaza}', ${radnik.id})">
+                  <i class="fas fa-file-alt"></i> Otkaz
+              </button>
+          `;
+        } else {
+          console.log("Radnik nema otkaz, generiram standardna dugmad");
+          // Ako NIJE otkazan - standardna dugmad + otkaz
+          buttons += `
+              <button class="btn btn-warning btn-sm" onclick="editRadnik(${radnik.id})">
+                  <i class="fas fa-edit"></i> Uredi
+              </button>
+              <button class="btn btn-success btn-sm" onclick="generateUgovor(${radnik.id})">
+                  <i class="fas fa-file-contract"></i> Ugovor
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="openOtkazModal(${radnik.id})">
+                  <i class="fas fa-user-times"></i> Otkaz
+              </button>
+          `;
+        }
+
+        return buttons;
+      }
+
+      // Helper funkcija za formatiranje datuma
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("sr-RS", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      }
+
       async function viewRadnikDetails(radnikId) {
         try {
           // Dohvati detaljne podatke o radniku
           const response = await fetch(`/api/radnici/id/${radnikId}`);
           const radnik = await response.json();
+
+          // Dohvati otkaz podatke ako postoje
+          let otkazInfo = "";
+          try {
+            const otkaziResponse = await fetch(`/api/otkazi/firma/${firmaId}`);
+            const otkaziData = await otkaziResponse.json();
+            if (otkaziData.success) {
+              const otkaz = otkaziData.data.find(
+                (o) => o.radnik_id === radnikId
+              );
+              if (otkaz) {
+                otkazInfo = `
+                  <div class="col-12 mt-3">
+                    <h6 class="fw-bold mb-3 text-danger">
+                      <i class="fas fa-exclamation-triangle me-2"></i>Informacije o otkazu
+                    </h6>
+                    <div class="alert alert-danger">
+                      <p><strong>Tip otkaza:</strong> ${
+                        otkaz.tip_otkaza === "sporazumni_raskid"
+                          ? "Sporazumni raskid"
+                          : "Istek ugovora"
+                      }</p>
+                      <p><strong>Datum otkaza:</strong> ${formatDate(
+                        otkaz.datum_otkaza
+                      )}</p>
+                      ${
+                        otkaz.razlog_otkaza
+                          ? `<p><strong>Razlog:</strong> ${otkaz.razlog_otkaza}</p>`
+                          : ""
+                      }
+                      <button class="btn btn-sm btn-outline-danger" onclick="viewOtkaz(${
+                        otkaz.id
+                      }, '${otkaz.tip_otkaza}', ${radnikId})">
+                        <i class="fas fa-file-alt me-1"></i>Pregled otkaz dokumenta
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }
+            }
+          } catch (otkazError) {
+            console.warn("Greška pri učitavanju otkaza:", otkazError);
+          }
 
           // Formatiranje datuma
           const datumZaposlenja = radnik.datum_zaposlenja
@@ -442,6 +602,7 @@
                             : ""
                         }
                       </div>
+                      ${otkazInfo}
                     </div>
                     <div class="row mt-3">
                       <div class="col-md-6">
@@ -652,6 +813,141 @@
           `/potvrda-zaposlenja.html?radnikId=${radnikId}&firmaId=${firmaId}`,
           "_blank"
         );
+      }
+
+      // Funkcija za otvaranje otkaz modala
+      function openOtkazModal(radnikId) {
+        const modalHtml = `
+          <div class="modal fade" id="otkazModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    <i class="fas fa-user-times me-2"></i>Otkaz radnika
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="otkazForm">
+                    <input type="hidden" name="radnik_id" value="${radnikId}">
+                    
+                    <div class="mb-3">
+                      <label for="tipOtkaza" class="form-label">Tip otkaza:</label>
+                      <select class="form-select" name="tip_otkaza" id="tipOtkaza" required>
+                        <option value="">Izaberite tip otkaza</option>
+                        <option value="sporazumni_raskid">Sporazumni raskid</option>
+                        <option value="istek_ugovora">Istek ugovora na određeno</option>
+                      </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="datumOtkaza" class="form-label">Datum otkaza:</label>
+                      <input type="date" class="form-control" name="datum_otkaza" id="datumOtkaza" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="razlogOtkaza" class="form-label">Razlog otkaza (opciono):</label>
+                      <textarea class="form-control" name="razlog_otkaza" id="razlogOtkaza" rows="3" 
+                                placeholder="Unesite razlog otkaza..."></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
+                  <button type="button" class="btn btn-danger" onclick="submitOtkaz()">
+                    <i class="fas fa-check me-2"></i>Kreiraj otkaz
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Ukloni postojeći modal ako postoji
+        const existingModal = document.getElementById("otkazModal");
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Dodaj novi modal
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+        // Postavi današnji datum kao default
+        document.getElementById("datumOtkaza").value = new Date()
+          .toISOString()
+          .split("T")[0];
+
+        // Prikaži modal
+        const modal = new bootstrap.Modal(
+          document.getElementById("otkazModal")
+        );
+        modal.show();
+      }
+
+      // Funkcija za slanje otkaz podataka
+      async function submitOtkaz() {
+        try {
+          const form = document.getElementById("otkazForm");
+          const formData = new FormData(form);
+
+          const otkazData = {
+            radnik_id: formData.get("radnik_id"),
+            tip_otkaza: formData.get("tip_otkaza"),
+            datum_otkaza: formData.get("datum_otkaza"),
+            razlog_otkaza: formData.get("razlog_otkaza"),
+          };
+
+          console.log("Šaljem otkaz podatke:", otkazData);
+
+          const response = await fetch("/api/otkazi", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(otkazData),
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            alert("Otkaz je uspešno kreiran!");
+
+            // Zatvori modal
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("otkazModal")
+            );
+            modal.hide();
+
+            // Reload radnike da prikaži promenu
+            loadRadnici();
+          } else {
+            alert(
+              "Greška pri kreiranju otkaza: " + (result.message || result.error)
+            );
+          }
+        } catch (error) {
+          console.error("Greška pri slanju otkaza:", error);
+          alert("Greška pri kreiranju otkaza!");
+        }
+      }
+
+      // Funkcija za pregled otkaz dokumenta
+      function viewOtkaz(otkazId, tipOtkaza, radnikId) {
+        console.log("viewOtkaz pozvan sa:", { otkazId, tipOtkaza, radnikId });
+
+        let documentUrl;
+
+        if (tipOtkaza === "sporazumni_raskid") {
+          documentUrl = `/sporazumni-raskid.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
+        } else if (tipOtkaza === "istek_ugovora") {
+          documentUrl = `/istek-ugovora.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
+        } else {
+          console.error("Nepoznat tip otkaza:", tipOtkaza);
+          return;
+        }
+
+        console.log("Otvaramo dokument URL:", documentUrl);
+        window.open(documentUrl, "_blank");
       }
     </script>
   </body>

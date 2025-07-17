@@ -52,6 +52,13 @@
         >
           📋 Pregled pozicija
         </a>
+        <a
+          href="otkazi.html"
+          class="radnici-btn"
+          style="background-color: #dc3545; color: white"
+        >
+          🚪 Pregled otkaza
+        </a>
         <a href="dashboard.html" class="radnici-btn">← Nazad na dashboard</a>
       </div>
 
@@ -89,6 +96,7 @@
                 <th class="col-work-time">Radno vreme</th>
                 <th class="col-contract-type">Tip ugovora</th>
                 <th class="col-contract-kind">Vrsta ugovora</th>
+                <th class="col-status">Status</th>
                 <th class="col-actions">Akcije</th>
               </tr>
             </thead>
@@ -385,6 +393,135 @@
         document.getElementById("datum_zaposlenja").value = today;
       });
     </script>
+
+    <!-- Modal za otkaz -->
+    <div id="otkazModal" class="radnici-modal">
+      <div class="radnici-modal-content">
+        <span class="radnici-modal-close" onclick="closeOtkazModal()"
+          >&times;</span
+        >
+        <h2 id="otkazModalTitle">Otkaz radnika</h2>
+        <form id="otkazForm">
+          <input type="hidden" id="otkaz_radnik_id" name="radnik_id" />
+
+          <!-- Podaci o radniku (readonly) -->
+          <div class="radnici-form-group">
+            <label>Radnik:</label>
+            <input
+              type="text"
+              id="otkaz_radnik_info"
+              readonly
+              class="readonly-field"
+            />
+          </div>
+
+          <div class="radnici-form-group">
+            <label>Firma:</label>
+            <input
+              type="text"
+              id="otkaz_firma_info"
+              readonly
+              class="readonly-field"
+            />
+          </div>
+
+          <div class="radnici-form-row">
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
+                <label>Datum zaposlenja:</label>
+                <input
+                  type="text"
+                  id="otkaz_datum_zaposlenja"
+                  readonly
+                  class="readonly-field"
+                />
+              </div>
+            </div>
+            <div class="radnici-form-col">
+              <div class="radnici-form-group">
+                <label>Tip ugovora:</label>
+                <input
+                  type="text"
+                  id="otkaz_tip_ugovora"
+                  readonly
+                  class="readonly-field"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="radnici-form-group"
+            id="otkaz_datum_prestanka_group"
+            style="display: none"
+          >
+            <label>Datum prestanka ugovora (na određeno):</label>
+            <input
+              type="text"
+              id="otkaz_datum_prestanka_ugovora"
+              readonly
+              class="readonly-field"
+            />
+          </div>
+
+          <!-- Polja za unos -->
+          <div class="radnici-form-group">
+            <label for="tip_otkaza">Tip otkaza:</label>
+            <select
+              id="tip_otkaza"
+              name="tip_otkaza"
+              required
+              onchange="handleTipOtkazaChange()"
+            >
+              <option value="">Izaberite tip otkaza</option>
+              <option value="sporazumni_raskid">Sporazumni raskid</option>
+              <option value="istek_ugovora">Istek ugovora na određeno</option>
+            </select>
+          </div>
+
+          <div class="radnici-form-group">
+            <label for="datum_otkaza">Datum otkaza/prestanka:</label>
+            <input type="date" id="datum_otkaza" name="datum_otkaza" required />
+          </div>
+
+          <div class="radnici-form-group">
+            <label for="razlog_otkaza">Razlog:</label>
+            <textarea
+              id="razlog_otkaza"
+              name="razlog_otkaza"
+              rows="3"
+              placeholder="Unesite razlog otkaza..."
+            ></textarea>
+          </div>
+
+          <div class="radnici-form-group">
+            <button
+              type="button"
+              id="createOtkazBtn"
+              onclick="saveOtkaz()"
+              class="radnici-btn radnici-btn-success"
+            >
+              � Sačuvaj u bazu
+            </button>
+            <button
+              type="button"
+              id="generateOtkazBtn"
+              class="radnici-btn radnici-btn-primary"
+              style="display: none"
+            >
+              � Generiši dokument
+            </button>
+            <button
+              type="button"
+              onclick="closeOtkazModal()"
+              class="radnici-btn radnici-btn-secondary"
+            >
+              Otkaži
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>

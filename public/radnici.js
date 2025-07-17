@@ -4,6 +4,25 @@ let firme = [];
 let radnici = [];
 let filteredRadnici = []; // Za filtriranu listu radnika
 
+// Funkcija za formatiranje datuma u YYYY-MM-DD format
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
+}
+
+// Funkcija za dobijanje teksta vrste ugovora
+function getVrstaUgovoraText(vrstaUgovora) {
+  const vrstaUgovoraText = {
+    ugovor_o_radu: "Ugovor o radu",
+    ugovor_o_djelu: "Ugovor o djelu",
+    ugovor_o_dopunskom_radu: "Dopunski rad",
+    autorski_ugovor: "Autorski ugovor",
+    ugovor_o_pozajmnici: "Pozajmica",
+  };
+  return vrstaUgovoraText[vrstaUgovora] || "Nije definisano";
+}
+
 // Funkcija za otvaranje modala sa callback-om
 function openRadnikModalWithCallback() {
   openRadnikModal({
@@ -83,6 +102,12 @@ window.onclick = function (event) {
   const sedmicniModal = document.getElementById("sedmicniOdmorModal");
   if (sedmicniModal && event.target === sedmicniModal) {
     closeSedmicniOdmorModal();
+  }
+
+  // Zatvaranje otkaz modala
+  const otkazModal = document.getElementById("otkazModal");
+  if (otkazModal && event.target === otkazModal) {
+    closeOtkazModal();
   }
 };
 
@@ -169,10 +194,25 @@ document.addEventListener("DOMContentLoaded", function () {
 async function loadPozicije() {
   try {
     const response = await fetch("/api/pozicije");
-    pozicije = await response.json();
-    populatePozicijeSelect();
+    if (response.ok) {
+      pozicije = await response.json();
+      console.log("Pozicije loaded:", pozicije);
+      console.log("Is pozicije array:", Array.isArray(pozicije));
+
+      if (Array.isArray(pozicije)) {
+        populatePozicijeSelect();
+      } else {
+        console.error("Pozicije is not an array:", pozicije);
+        pozicije = [];
+      }
+    } else {
+      const errorData = await response.json();
+      console.error("Error loading pozicije:", response.status, errorData);
+      pozicije = [];
+    }
   } catch (error) {
     console.error("Greška pri učitavanju pozicija:", error);
+    pozicije = []; // Set to empty array on error
   }
 }
 
@@ -270,6 +310,15 @@ function displayRadnici() {
             <td class="col-contract-kind">${
               vrstaUgovoraText[radnik.vrsta_ugovora] || "Nije definisano"
             }</td>
+            <td class="col-status">
+                <span class="status-badge ${
+                  radnik.status === "otkazan"
+                    ? "status-terminated"
+                    : "status-active"
+                }">
+                    ${radnik.status === "otkazan" ? "🚪 Otkazan" : "✅ Aktivan"}
+                </span>
+            </td>
             <td class="col-actions" style="min-width: 90px;">
                 <div style="display: flex; flex-direction: column; gap: 3px;">
                     <button class="radnici-btn radnici-btn-sm" onclick="editRadnik(${
@@ -309,6 +358,11 @@ function displayRadnici() {
                           radnik.id
                         }, 'potvrda-zaposlenja'); closeDropdown(${radnik.id})">
                             ✅ Potvrda o zaposlenju
+                        </a>
+                        <a href="#" onclick="openOtkazModal(${
+                          radnik.id
+                        }); closeDropdown(${radnik.id})">
+                            🚪 Otkaz
                         </a>
                     </div>
                 </div>
@@ -843,5 +897,225 @@ function checkURLSearchParam() {
       newUrl.searchParams.delete("editId");
       window.history.replaceState({}, "", newUrl.toString());
     }, 1000); // Duži timeout da se učitaju i pozicije i firme
+  }
+}
+
+// =================================================================
+// OTKAZ FUNKCIONALNOSTI
+// =================================================================
+
+async function openOtkazModal(radnikId) {
+  const radnik = radnici.find((r) => r.id == radnikId);
+  if (!radnik) {
+    alert("Radnik nije pronađen!");
+    return;
+  }
+
+  const firma = firme.find((f) => f.id == radnik.firma_id);
+  let pozicija = null;
+  if (Array.isArray(pozicije)) {
+    pozicija = pozicije.find((p) => p.id == radnik.pozicija_id);
+  } else {
+    console.error("Pozicije is not an array in openOtkazModal:", pozicije);
+  }
+
+  // Proveři da li radnik već ima otkaz
+  let postojeciOtkaz = null;
+  try {
+    const otkazResponse = await fetch(`/api/otkazi/radnik/${radnikId}`);
+    if (otkazResponse.ok) {
+      const otkazData = await otkazResponse.json();
+      if (otkazData.success && otkazData.otkaz) {
+        postojeciOtkaz = otkazData.otkaz;
+      }
+    }
+  } catch (error) {
+    console.warn("Greška pri proveravanju postojećeg otkaza:", error);
+  }
+
+  // Popuni readonly polja
+  document.getElementById("otkaz_radnik_id").value = radnik.id;
+  document.getElementById(
+    "otkaz_radnik_info"
+  ).value = `${radnik.ime} ${radnik.prezime} (${radnik.jmbg})`;
+  document.getElementById("otkaz_firma_info").value = firma
+    ? firma.naziv
+    : "N/A";
+  document.getElementById("otkaz_datum_zaposlenja").value = formatDate(
+    radnik.datum_zaposlenja
+  );
+  document.getElementById("otkaz_tip_ugovora").value = getVrstaUgovoraText(
+    radnik.vrsta_ugovora
+  );
+
+  // Prikaži datum prestanka ako je ugovor na određeno i ima datum prestanka
+  const datumPrestankaGroup = document.getElementById(
+    "otkaz_datum_prestanka_group"
+  );
+  const datumPrestankaField = document.getElementById(
+    "otkaz_datum_prestanka_ugovora"
+  );
+
+  if (radnik.tip_ugovora === "odredjeno" && radnik.datum_prestanka) {
+    datumPrestankaGroup.style.display = "block";
+    datumPrestankaField.value = formatDate(radnik.datum_prestanka);
+  } else {
+    datumPrestankaGroup.style.display = "none";
+    datumPrestankaField.value = "";
+  }
+
+  // Dobij reference na form elementi i dugmad
+  const tipOtkazaField = document.getElementById("tip_otkaza");
+  const datumOtkazaField = document.getElementById("datum_otkaza");
+  const razlogOtkazaField = document.getElementById("razlog_otkaza");
+  const createBtn = document.getElementById("createOtkazBtn");
+  const generateBtn = document.getElementById("generateOtkazBtn");
+  const modalTitle = document.getElementById("otkazModalTitle");
+
+  if (postojeciOtkaz) {
+    // POSTOJEĆI OTKAZ - popuni podacima i omogući generisanje dokumenta
+    console.log("Radnik već ima otkaz:", postojeciOtkaz);
+
+    tipOtkazaField.value = postojeciOtkaz.tip_otkaza;
+    datumOtkazaField.value = formatDate(postojeciOtkaz.datum_otkaza);
+    razlogOtkazaField.value = postojeciOtkaz.razlog_otkaza || "";
+
+    // Onemogući editovanje polja
+    tipOtkazaField.disabled = true;
+    datumOtkazaField.disabled = true;
+    razlogOtkazaField.disabled = true;
+
+    // Prikaži dugme za generisanje, sakrij kreiranje
+    createBtn.style.display = "none";
+    generateBtn.style.display = "inline-block";
+    generateBtn.onclick = () => generateOtkazFromModal(postojeciOtkaz);
+
+    modalTitle.textContent = "Pregled postojećeg otkaza";
+  } else {
+    // NOVI OTKAZ - resetuj polja i omogući kreiranje
+    console.log("Radnik nema otkaz, prikazujem prazan form");
+
+    tipOtkazaField.value = "";
+    datumOtkazaField.value = new Date().toISOString().split("T")[0];
+    razlogOtkazaField.value = "";
+
+    // Omogući editovanje polja
+    tipOtkazaField.disabled = false;
+    datumOtkazaField.disabled = false;
+    razlogOtkazaField.disabled = false;
+
+    // Prikaži dugme za kreiranje, sakrij generisanje
+    createBtn.style.display = "inline-block";
+    generateBtn.style.display = "none";
+
+    modalTitle.textContent = "Kreiranje otkaza radnika";
+  }
+
+  // Prikaži modal
+  document.getElementById("otkazModal").style.display = "block";
+}
+
+function closeOtkazModal() {
+  document.getElementById("otkazModal").style.display = "none";
+}
+
+function handleTipOtkazaChange() {
+  const tipOtkaza = document.getElementById("tip_otkaza").value;
+  const radnikId = document.getElementById("otkaz_radnik_id").value;
+  const radnik = radnici.find((r) => r.id == radnikId);
+
+  if (tipOtkaza === "istek_ugovora" && radnik && radnik.datum_prestanka) {
+    // Ako je istek ugovora i postoji datum prestanka, postavi taj datum
+    document.getElementById("datum_otkaza").value = radnik.datum_prestanka;
+  }
+}
+
+function generateOtkazDocument() {
+  const radnikId = document.getElementById("otkaz_radnik_id").value;
+  const tipOtkaza = document.getElementById("tip_otkaza").value;
+
+  if (!tipOtkaza) {
+    alert("Molimo izaberite tip otkaza!");
+    return;
+  }
+
+  // Za sada generišemo osnovni dokument - kasnije ćete dodati specifičan sadržaj
+  if (tipOtkaza === "sporazumni_raskid") {
+    generateDocument(radnikId, "sporazumni-raskid");
+  } else if (tipOtkaza === "istek_ugovora") {
+    generateDocument(radnikId, "istek-ugovora");
+  }
+}
+
+// Funkcija za generisanje dokumenta iz postojećeg otkaza
+function generateOtkazFromModal(otkaz) {
+  console.log("Generišem dokument za postojeći otkaz:", otkaz);
+
+  const radnikId = otkaz.radnik_id;
+  const tipOtkaza = otkaz.tip_otkaza;
+
+  // Generiši odgovarajući dokument na osnovu tipa otkaza
+  if (tipOtkaza === "sporazumni_raskid") {
+    const url = `sporazumni-raskid.html?radnikId=${radnikId}&firmaId=${otkaz.firma_id}&otkazId=${otkaz.id}`;
+    window.open(url, "_blank");
+  } else if (tipOtkaza === "istek_ugovora") {
+    const url = `istek-ugovora.html?radnikId=${radnikId}&firmaId=${otkaz.firma_id}&otkazId=${otkaz.id}`;
+    window.open(url, "_blank");
+  } else {
+    alert(`Tip otkaza "${tipOtkaza}" nije podržan za generisanje dokumenta.`);
+  }
+
+  // Zatvori modal
+  document.getElementById("otkazModal").style.display = "none";
+}
+
+// Funkcija za snimanje novog otkaza u bazu
+async function saveOtkaz() {
+  try {
+    // Uzmi vrednosti iz forme
+    const radnikId = document.getElementById("otkaz_radnik_id").value;
+    const tipOtkaza = document.getElementById("tip_otkaza").value;
+    const datumOtkaza = document.getElementById("datum_otkaza").value;
+    const razlogOtkaza = document.getElementById("razlog_otkaza").value;
+
+    // Validacija
+    if (!radnikId || !tipOtkaza || !datumOtkaza) {
+      alert("Sva obavezna polja moraju biti popunjena!");
+      return;
+    }
+
+    // Pripremi podatke za slanje
+    const otkazData = {
+      radnik_id: radnikId,
+      tip_otkaza: tipOtkaza,
+      datum_otkaza: datumOtkaza,
+      razlog_otkaza: razlogOtkaza || "",
+    };
+
+    console.log("Šaljem otkaz podatke:", otkazData);
+
+    // Pošalji POST zahtev
+    const response = await fetch("/api/otkazi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(otkazData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      alert("Otkaz je uspešno sačuvan!");
+      closeOtkazModal();
+      loadRadnici(); // Osveži listu radnika
+    } else {
+      alert(
+        "Greška pri snimanju otkaza: " + (result.message || "Nepoznata greška")
+      );
+    }
+  } catch (error) {
+    console.error("Greška pri snimanju otkaza:", error);
+    alert("Greška pri snimanju otkaza: " + error.message);
   }
 }

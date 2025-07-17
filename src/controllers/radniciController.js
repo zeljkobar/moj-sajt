@@ -27,6 +27,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               r.status,
                p.naziv as pozicija_naziv, f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 
@@ -54,6 +55,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               r.status,
                p.naziv as pozicija_naziv, p.opis_poslova,
                u.vrsta_ugovora
         FROM radnici r 
@@ -97,6 +99,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               r.status,
                p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 

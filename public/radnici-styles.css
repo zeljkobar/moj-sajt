@@ -360,6 +360,53 @@
 }
 
 /* =================================================================
+   READONLY POLJA
+   ================================================================= */
+
+.readonly-field {
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  color: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
+.readonly-field:focus {
+  box-shadow: none !important;
+  border-color: #dee2e6 !important;
+}
+
+/* =================================================================
+   STATUS BADGE STILOVI
+   ================================================================= */
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-terminated {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.col-status {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* =================================================================
    RESPONSIVE - TABLET (768px)
    ================================================================= */
 

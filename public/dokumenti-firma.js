@@ -12,6 +12,7 @@ let firmaNaziv = null;
 let dokumenti = {
   ugovori: [],
   pozajmice: [],
+  otkazi: [],
 };
 
 // =============================================================================
@@ -61,7 +62,7 @@ function setupEventListeners() {
         firmId: firmaId,
         onSuccess: function (result) {
           console.log("Radnik je uspešno dodan:", result);
-          // Reload dokumenta da prikaži novi ugovor
+          // Reload dokumenta da prikaže novi ugovor
           loadDokumenti();
           // Možda pokaži success poruku
           showSuccessMessage(
@@ -103,6 +104,28 @@ async function loadDokumenti() {
       dokumenti.ugovori = [];
     }
 
+    // Učitaj otkaze za ovu firmu
+    try {
+      const otkaziResponse = await fetch(`/api/otkazi/firma/${firmaId}`);
+      const otkaziData = await otkaziResponse.json();
+
+      if (otkaziResponse.ok && otkaziData.success) {
+        dokumenti.otkazi = Array.isArray(otkaziData.data)
+          ? otkaziData.data
+          : [];
+        console.log("Učitani otkazi:", dokumenti.otkazi);
+      } else {
+        console.warn(
+          "Greška pri učitavanju otkaza:",
+          otkaziData.message || otkaziData.error
+        );
+        dokumenti.otkazi = [];
+      }
+    } catch (otkazError) {
+      console.warn("Nema otkaza za ovu firmu:", otkazError);
+      dokumenti.otkazi = [];
+    }
+
     // TODO: Učitaj pozajmice kad napravimo tabelu
     // const pozajmiceResponse = await fetch(`/api/pozajmice/firma/${firmaId}`);
     dokumenti.pozajmice = []; // Placeholder
@@ -140,7 +163,10 @@ function showContainers() {
   });
 
   // Prikaži tabelu ili "nema dokumenata" poruku
-  const totalDokumenti = dokumenti.ugovori.length + dokumenti.pozajmice.length;
+  const totalDokumenti =
+    dokumenti.ugovori.length +
+    dokumenti.pozajmice.length +
+    dokumenti.otkazi.length;
 
   if (totalDokumenti > 0) {
     const documentsContainer = document.getElementById("documentsContainer");
@@ -158,7 +184,8 @@ function showContainers() {
 function updateStats() {
   const ugovoriBroj = dokumenti.ugovori.length;
   const pozajmiceBroj = dokumenti.pozajmice.length;
-  const ukupnoDokumenti = ugovoriBroj + pozajmiceBroj;
+  const otkaziBroj = dokumenti.otkazi.length;
+  const ukupnoDokumenti = ugovoriBroj + pozajmiceBroj + otkaziBroj;
 
   // TODO: Kad napravimo pozajmice, izračunaj ukupan iznos
   const ukupnoIznos = 0;
@@ -166,9 +193,7 @@ function updateStats() {
   // Update UI
   document.getElementById("ugovoriBroj").textContent = ugovoriBroj;
   document.getElementById("pozajmiceBroj").textContent = pozajmiceBroj;
-  document.getElementById(
-    "ukupnoIznos"
-  ).textContent = `€${ukupnoIznos.toLocaleString()}`;
+  document.getElementById("otkaziBroj").textContent = otkaziBroj;
   document.getElementById("ukupnoDokumenti").textContent = ukupnoDokumenti;
 }
 
@@ -224,6 +249,48 @@ function renderDokumenti() {
               ugovor.id
             })" title="Uredi">
               <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  // Dodaj otkaze
+  dokumenti.otkazi.forEach((otkaz) => {
+    const tipOtkaza =
+      otkaz.tip_otkaza === "sporazumni_raskid"
+        ? "Sporazumni raskid"
+        : "Istek ugovora";
+
+    html += `
+      <tr>
+        <td>
+          <div class="document-type">
+            <i class="fas fa-user-times text-danger"></i>
+            ${tipOtkaza}
+          </div>
+        </td>
+        <td>
+          <strong>${otkaz.ime} ${otkaz.prezime}</strong><br>
+          <small class="text-muted">${
+            otkaz.pozicija_naziv || "Nespecifikovano"
+          }</small>
+        </td>
+        <td>${formatDate(otkaz.datum_otkaza)}</td>
+        <td>
+          <span class="document-status status-inactive">
+            Otkazan
+          </span>
+        </td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-primary btn-sm" onclick="viewOtkaz(${
+              otkaz.id
+            }, '${otkaz.tip_otkaza}', ${
+      otkaz.radnik_id
+    }, ${firmaId})" title="Pregled dokumenta">
+              <i class="fas fa-eye"></i>
             </button>
           </div>
         </td>
@@ -290,6 +357,13 @@ function formatDate(dateString) {
 }
 
 function isUgovorAktivan(ugovor) {
+  // Prvo proverio da li je radnik otkazan
+  const otkaz = dokumenti.otkazi.find((o) => o.radnik_id === ugovor.id);
+  if (otkaz) {
+    // Ako postoji otkaz, ugovor nije aktivan
+    return false;
+  }
+
   // Ako nema datum_prestanka (null), ugovor je na neodređeno - aktivan
   if (!ugovor.datum_prestanka) {
     return true;
@@ -359,6 +433,22 @@ async function viewUgovor(radnikId) {
 function editRadnik(radnikId) {
   // Otvori edit radnika
   window.location.href = `/radnici-firma.html?firmaId=${firmaId}&editId=${radnikId}`;
+}
+
+// Funkcija za pregled otkaz dokumenata
+function viewOtkaz(otkazId, tipOtkaza, radnikId, firmaId) {
+  let documentUrl;
+
+  if (tipOtkaza === "sporazumni_raskid") {
+    documentUrl = `/sporazumni-raskid.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
+  } else if (tipOtkaza === "istek_ugovora") {
+    documentUrl = `/istek-ugovora.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
+  } else {
+    console.error("Nepoznat tip otkaza:", tipOtkaza);
+    return;
+  }
+
+  window.open(documentUrl, "_blank");
 }
 
 // Helper funkcija za prikazivanje success poruka
