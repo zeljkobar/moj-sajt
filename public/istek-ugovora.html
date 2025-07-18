@@ -38,6 +38,14 @@
         right: 20px;
         z-index: 1000;
       }
+      .two-column-section {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .two-column-section td {
+        width: 50%;
+        vertical-align: top;
+      }
       @media print {
         .print-btn {
           display: none;
@@ -51,6 +59,23 @@
           margin: 0;
           padding: 20px;
         }
+        .two-column-section {
+          width: 100% !important;
+          border-collapse: collapse !important;
+        }
+        .two-column-section td {
+          width: 50% !important;
+          vertical-align: top !important;
+        }
+        .potvrda-prijema {
+          page-break-before: always;
+        }
+      }
+      @media (max-width: 768px) {
+        .two-column-section {
+          flex-direction: column !important;
+          gap: 20px !important;
+        }
       }
     </style>
   </head>
@@ -61,44 +86,49 @@
 
     <div class="document-container">
       <div class="header">
-        <h2><strong>OBAVEŠTENJE O ISTEKU UGOVORA O RADU</strong></h2>
+        <h2><strong>RJEŠENJE O ISTEKU UGOVORA O RADU</strong></h2>
       </div>
 
       <div class="content">
-        <div style="margin-bottom: 30px">
-          <p>
-            <strong>POSLODAVAC:</strong>
-            <span id="nazivFirme">__________________</span>
-          </p>
-          <p>
-            <strong>Sa sedištem:</strong>
-            <span id="adresaFirme">__________________</span>
-          </p>
-          <p>
-            <strong>PIB:</strong> <span id="pibFirme">__________________</span>
-          </p>
-          <p>
-            <strong>Matični broj:</strong>
-            <span id="maticniBrojFirme">__________________</span>
-          </p>
-        </div>
+        <table
+          style="width: 100%; margin-bottom: 30px; border-collapse: collapse"
+          class="two-column-section"
+        >
+          <tr>
+            <td style="width: 50%; vertical-align: top; padding-right: 20px">
+              <p>
+                <strong>POSLODAVAC:</strong>
+                <span id="nazivFirme">__________________</span>
+              </p>
+              <p>
+                <strong>Sa sedištem:</strong>
+                <span id="adresaFirme">__________________</span>
+              </p>
+              <p>
+                <strong>PIB:</strong>
+                <span id="pibFirme">__________________</span>
+              </p>
+            </td>
 
-        <div style="margin-bottom: 30px">
-          <p>
-            <strong>Za:</strong> <span id="imeRadnika">__________________</span>
-          </p>
-          <p>
-            <strong>JMBG:</strong>
-            <span id="jmbgRadnika">__________________</span>
-          </p>
-          <p>
-            <strong>Sa prebivalištem:</strong>
-            <span id="adresaRadnika">__________________</span>
-          </p>
-        </div>
+            <td style="width: 50%; vertical-align: top; padding-left: 20px">
+              <p>
+                <strong>Zaposleni:</strong>
+                <span id="imeRadnika">__________________</span>
+              </p>
+              <p>
+                <strong>JMBG:</strong>
+                <span id="jmbgRadnika">__________________</span>
+              </p>
+              <p>
+                <strong>Sa prebivalištem:</strong>
+                <span id="adresaRadnika">__________________</span>
+              </p>
+            </td>
+          </tr>
+        </table>
 
         <div style="margin: 30px 0">
-          <p style="text-align: center"><strong>OBAVEŠTENJE</strong></p>
+          <p style="text-align: center"><strong>OBAVJEŠTENJE</strong></p>
 
           <p>
             Obaveštavamo Vas da Vam
@@ -106,7 +136,7 @@
               >dana <span id="datumIsteka">__________________</span></strong
             >
             ističe ugovor o radu na određeno vreme koji je zaključen dana
-            <span id="datumZaposlenja">__________________</span>.
+            <span id="datumZaposlenja">__________________</span>
           </p>
 
           <p>
@@ -124,7 +154,7 @@
           <ul>
             <li>
               Vrati svu dokumentaciju, ključeve, opremu i ostala sredstva rada
-              koja su Vam bila poverena
+              koja su Vam bila povjerena
             </li>
             <li>Izvršiti primopredaju posla sa odgovornim licem kompanije</li>
             <li>Završiti sve započete obaveze u okviru svoje nadležnosti</li>
@@ -137,7 +167,7 @@
 
           <p>
             <strong>Razlog prestanka:</strong> Istek ugovora o radu na određeno
-            vreme
+            vrijeme
           </p>
 
           <p>Hvala Vam na dosadašnjoj saradnji i angažovanju.</p>
@@ -149,16 +179,16 @@
             <span id="datumObaveštenja">__________________</span>
           </p>
           <p>
-            <strong>Mesto:</strong>
+            <strong>Mjesto:</strong>
             <span id="mestoFirme">__________________</span>
           </p>
-          <p style="margin-top: 30px">____________________</p>
+          <p style="margin-top: 20px">____________________</p>
           <p><strong>POSLODAVAC</strong></p>
           <p><span id="zastupnikFirme">__________________</span></p>
-          <p style="font-size: 12px; margin-top: 20px">M.P.</p>
         </div>
 
         <div
+          class="potvrda-prijema"
           style="
             margin-top: 40px;
             border-top: 1px solid #ccc;
@@ -167,8 +197,9 @@
         >
           <h5><strong>POTVRDA PRIJEMA</strong></h5>
           <p>
-            Ovim potvrđujem da sam primio/la obaveštenje o isteku ugovora o radu
-            dana <span id="datumPrijebraObaveštenja">__________________</span>.
+            Ovim potvrđujem da sam primio/la obavejštenje o isteku ugovora o
+            radu dana
+            <span id="datumPrijebraObaveštenja">__________________</span>.
           </p>
 
           <div
@@ -316,10 +347,8 @@
         document.getElementById("nazivFirme").textContent = firma.naziv || "";
         document.getElementById("adresaFirme").textContent = firma.adresa || "";
         document.getElementById("pibFirme").textContent = firma.pib || "";
-        document.getElementById("maticniBrojFirme").textContent =
-          firma.maticni_broj || "";
         document.getElementById("zastupnikFirme").textContent =
-          firma.direktor || "Direktor";
+          firma.direktor_ime_prezime || "Direktor";
 
         document.getElementById(
           "imeRadnika"
