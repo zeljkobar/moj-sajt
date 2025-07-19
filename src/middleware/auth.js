@@ -1,7 +1,10 @@
 const path = require("path");
 const fs = require("fs");
 
-// Middleware za autentifikaciju
+//              <h1><i class="fas fa-lock text-danger"></i> Pristup zabranjen</h1>
+              <p>Morate biti prijavljeni da biste pristupili ovoj stranici.</p>
+              <p><small>Debug: Fallback HTML verzija</small></p>
+              <a href="/prijava.html" class="btn"><i class="fas fa-sign-in-alt"></i> Prijavite se</a>dleware za autentifikaciju
 const authMiddleware = (req, res, next) => {
   if (req.session && req.session.user) {
     req.user = req.session.user; // Postavi req.user na osnovu session-a
@@ -60,7 +63,7 @@ const authMiddleware = (req, res, next) => {
               <h1><i class="fas fa-lock text-danger"></i> Pristup zabranjen</h1>
               <p>Morate biti prijavljeni da biste pristupili ovoj stranici.</p>
               <p><small>Debug: Fallback HTML verzija</small></p>
-              <a href="/" class="btn"><i class="fas fa-sign-in-alt"></i> Prijavite se</a>
+              <a href="/prijava.html" class="btn"><i class="fas fa-sign-in-alt"></i> Prijavite se</a>
               <a href="/registracija.html" class="btn"><i class="fas fa-user-plus"></i> Registrujte se</a>
             </div>
           </body>

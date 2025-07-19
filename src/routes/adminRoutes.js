@@ -10,7 +10,10 @@ const { pool } = require("../config/database");
 // Middleware za proveru admin pristupa
 const adminMiddleware = (req, res, next) => {
   console.log("Admin middleware - req.user:", req.user); // Debug log
-  if (req.user && (req.user.role === "admin" || req.user.username === "admin")) {
+  if (
+    req.user &&
+    (req.user.role === "admin" || req.user.username === "admin")
+  ) {
     next();
   } else {
     console.log("Admin access denied for user:", req.user); // Debug log
