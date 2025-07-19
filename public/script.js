@@ -7,6 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const pdvLink = document.getElementById("pdvLink");
   const pdv0Link = document.getElementById("pdv0Link");
 
+  // Dugmići za login/registraciju u navbar-u
+  const loginButtons = document.querySelector(
+    ".d-flex.align-items-center.ms-lg-3"
+  );
+
   // Provera statusa autentifikacije
   fetch("/api/check-auth", {
     credentials: "include",
@@ -17,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (data.authenticated) {
         const userRole = data.user.role;
 
-        if (loginForm) loginForm.classList.add("d-none");
+        // Sakrij login dugmiće, prikaži user panel
+        if (loginButtons) loginButtons.classList.add("d-none");
         if (userPanel) userPanel.classList.remove("d-none");
         if (welcomeMsg)
           welcomeMsg.textContent = `Dobrodošao, ${data.user.username}!`;
@@ -30,7 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
           pdv0Link.classList.remove("d-none");
         }
       } else {
-        if (loginForm) loginForm.classList.remove("d-none");
+        // Prikaži login dugmiće, sakrij user panel
+        if (loginButtons) loginButtons.classList.remove("d-none");
         if (userPanel) userPanel.classList.add("d-none");
         if (welcomeMsg) welcomeMsg.textContent = "";
         if (pdvLink) pdvLink.classList.add("d-none");
@@ -38,28 +45,33 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  // Login submit
-  if (loginForm) {
+  // Login submit (samo za login stranicu)
+  if (loginForm && window.location.pathname === "/prijava.html") {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
 
       const username = e.target.username.value;
       const password = e.target.password.value;
 
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        credentials: "include",
-      });
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+          credentials: "include",
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok) {
-        // Preusmeri na dashboard
-        window.location.href = "/dashboard.html";
-      } else {
-        alert(data.message || "Neispravni podaci");
+        if (res.ok) {
+          // Uspešna prijava - preusmeri na dashboard
+          window.location.href = "/dashboard.html";
+        } else {
+          alert(data.message || "Neispravni podaci za prijavu");
+        }
+      } catch (error) {
+        console.error("Greška pri prijavi:", error);
+        alert("Greška pri povezivanju sa serverom");
       }
     });
   }
