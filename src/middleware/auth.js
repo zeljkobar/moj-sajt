@@ -1,10 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 
-//              <h1><i class="fas fa-lock text-danger"></i> Pristup zabranjen</h1>
-              <p>Morate biti prijavljeni da biste pristupili ovoj stranici.</p>
-              <p><small>Debug: Fallback HTML verzija</small></p>
-              <a href="/prijava.html" class="btn"><i class="fas fa-sign-in-alt"></i> Prijavite se</a>dleware za autentifikaciju
+// Middleware za autentifikaciju
 const authMiddleware = (req, res, next) => {
   if (req.session && req.session.user) {
     req.user = req.session.user; // Postavi req.user na osnovu session-a
