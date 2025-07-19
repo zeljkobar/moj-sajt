@@ -4,6 +4,7 @@ const fs = require("fs");
 // Middleware za autentifikaciju
 const authMiddleware = (req, res, next) => {
   if (req.session && req.session.user) {
+    req.user = req.session.user; // Postavi req.user na osnovu session-a
     next(); // korisnik je autentifikovan
   } else {
     // Check if this is an API/AJAX request

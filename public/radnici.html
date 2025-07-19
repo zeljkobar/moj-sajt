@@ -31,10 +31,18 @@
     <link rel="stylesheet" href="radnici-styles.css" />
     <style>
       /* Zadržani specifični stilovi koji nisu pokriveni novim CSS-om */
-      /* Zadržani specifični stilovi koji nisu pokriveni novim CSS-om */
+      /* Sticky navigation compensation */
+      body {
+        padding-top: 0; /* Navigation CSS će dodati svoj padding */
+      }
+      .radnici-container {
+        margin-top: 0; /* Uklanjamo jer navigacija ima svoj padding */
+        padding: 20px; /* Dodajemo padding umesto margin */
+      }
     </style>
   </head>
   <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
     <div class="radnici-container">
       <h1>Upravljanje radnicima</h1>
 
@@ -59,7 +67,7 @@
         >
           🚪 Pregled otkaza
         </a>
-        <a href="dashboard.html" class="radnici-btn">← Nazad na dashboard</a>
+        <!-- Uklanjamo "Nazad na dashboard" dugme jer imamo navigaciju -->
       </div>
 
       <!-- Search polje za radnike -->
@@ -524,5 +532,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./components/navigation.js"></script>
   </body>
 </html>
