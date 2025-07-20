@@ -1,0 +1,235 @@
+const { executeQuery } = requ    const result = await executeQuery(
+      `INSERT INTO pozajmice (firma_id, radnik_id, iznos, svrha, broj_ugovora, 
+       datum_izdavanja, datum_dospeća, napomene) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        firma_id || null,
+        radnik_id || null,
+        iznos || null,
+        svrha || null,
+        broj_ugovora || null,
+        datum_izdavanja || null,
+        datum_dospeća || null,
+        napomene || null,
+      ]
+    );database");
+
+// Kreiraj novu pozajmnicu
+exports.createPozajmica = async (req, res) => {
+  const {
+    firma_id,
+    radnik_id,
+    iznos,
+    svrha,
+    broj_ugovora,
+    datum_izdavanja,
+    datum_dospeća,
+    napomene,
+  } = req.body;
+
+  try {
+    // Proveri da li broj ugovora već postoji
+    const existingContract = await executeQuery(
+      "SELECT id FROM pozajmnice WHERE broj_ugovora = ?",
+      [broj_ugovora]
+    );
+
+    if (existingContract.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Broj ugovora već postoji",
+      });
+    }
+
+    const result = await executeQuery(
+      `INSERT INTO pozajmnice (firma_id, radnik_id, iznos, svrha, broj_ugovora, 
+       datum_izdavanja, datum_dospeća, napomene) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        firma_id,
+        radnik_id,
+        iznos,
+        svrha,
+        broj_ugovora,
+        datum_izdavanja,
+        datum_dospeća,
+        napomene,
+      ]
+    );
+
+    res.json({
+      success: true,
+      pozajmnicaId: result.insertId,
+      message: "Pozajmica je uspešno kreirana",
+    });
+  } catch (error) {
+    console.error("Error creating pozajmica:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri kreiranju pozajmnice",
+    });
+  }
+};
+
+// Dohvati sve pozajmnice
+exports.getAllPozajmnice = async (req, res) => {
+  try {
+    const pozajmnice = await executeQuery(
+      `SELECT p.*, 
+              f.naziv as firma_naziv,
+              r.ime as radnik_ime, r.prezime as radnik_prezime
+       FROM pozajmnice p
+       LEFT JOIN firme f ON p.firma_id = f.id
+       LEFT JOIN radnici r ON p.radnik_id = r.id  
+       ORDER BY p.datum_izdavanja DESC`
+    );
+    res.json(pozajmnice);
+  } catch (error) {
+    console.error("Error fetching pozajmnice:", error);
+    res.status(500).json({ message: "Greška pri dohvatanju pozajmica" });
+  }
+};
+
+// Dohvati pozajmnicu po ID-u sa svim podacima
+exports.getPozajmnicaById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [pozajmica] = await executeQuery(
+      `SELECT p.*, 
+              f.naziv as firma_naziv, f.adresa as firma_adresa, f.pib as firma_pib, 
+              f.direktor_ime_prezime, f.grad as firma_grad,
+              r.ime as radnik_ime, r.prezime as radnik_prezime, r.jmbg as radnik_jmbg
+       FROM pozajmnice p
+       LEFT JOIN firme f ON p.firma_id = f.id
+       LEFT JOIN radnici r ON p.radnik_id = r.id  
+       WHERE p.id = ?`,
+      [id]
+    );
+
+    if (!pozajmica) {
+      return res.status(404).json({ message: "Pozajmica nije pronađena" });
+    }
+
+    res.json(pozajmica);
+  } catch (error) {
+    console.error("Error fetching pozajmica:", error);
+    res.status(500).json({ message: "Greška pri dohvatanju pozajmice" });
+  }
+};
+
+// Ažuriraj pozajmnicu
+exports.updatePozajmica = async (req, res) => {
+  const { id } = req.params;
+  const {
+    firma_id,
+    radnik_id,
+    iznos,
+    svrha,
+    broj_ugovora,
+    datum_izdavanja,
+    datum_dospeća,
+    status,
+    napomene,
+  } = req.body;
+
+  try {
+    await executeQuery(
+      `UPDATE pozajmice SET 
+       firma_id = ?, radnik_id = ?, iznos = ?, svrha = ?, broj_ugovora = ?, 
+       datum_izdavanja = ?, datum_dospeća = ?, status = ?, napomene = ?
+       WHERE id = ?`,
+      [
+        firma_id || null,
+        radnik_id || null,
+        iznos || null,
+        svrha || null,
+        broj_ugovora || null,
+        datum_izdavanja || null,
+        datum_dospeća || null,
+        status || null,
+        napomene || null,
+        id,
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "Pozajmica je uspešno ažurirana",
+    });
+  } catch (error) {
+    console.error("Error updating pozajmica:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri ažuriranju pozajmice",
+    });
+  }
+};
+
+// Obriši pozajmnicu
+exports.deletePozajmica = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await executeQuery("DELETE FROM pozajmnice WHERE id = ?", [id]);
+    res.json({
+      success: true,
+      message: "Pozajmica je uspešno obrisana",
+    });
+  } catch (error) {
+    console.error("Error deleting pozajmica:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri brisanju pozajmice",
+    });
+  }
+};
+
+// Generiši sledeći broj ugovora
+exports.getNextBrojUgovora = async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear().toString().slice(-2); // poslednje 2 cifre godine
+
+    // Dohvati poslednji broj za trenutnu godinu
+    const lastContract = await executeQuery(
+      "SELECT broj_ugovora FROM pozajmnice WHERE broj_ugovora LIKE ? ORDER BY id DESC LIMIT 1",
+      [`%/${currentYear}`]
+    );
+
+    let nextNumber = 1;
+    if (lastContract.length > 0) {
+      const lastNumber = lastContract[0].broj_ugovora
+        .split("/")[0]
+        .replace("br.", "");
+      nextNumber = parseInt(lastNumber) + 1;
+    }
+
+    const nextBroj = `br.${nextNumber}/${currentYear}`;
+    res.json({ broj_ugovora: nextBroj });
+  } catch (error) {
+    console.error("Error generating next broj ugovora:", error);
+    res.status(500).json({ message: "Greška pri generisanju broja ugovora" });
+  }
+};
+
+// Dohvati pozajmice za određenu firmu
+exports.getPozajmiceByFirma = async (req, res) => {
+  const { firmaId } = req.params;
+
+  try {
+    const pozajmice = await executeQuery(
+      `SELECT p.*, 
+              f.naziv as firma_naziv, f.adresa as firma_adresa, f.pib as firma_pib, f.grad as firma_grad,
+              r.ime as radnik_ime, r.prezime as radnik_prezime, r.jmbg as radnik_jmbg
+       FROM pozajmnice p
+       LEFT JOIN firme f ON p.firma_id = f.id
+       LEFT JOIN radnici r ON p.radnik_id = r.id
+       WHERE p.firma_id = ?
+       ORDER BY p.created_at DESC`,
+      [firmaId]
+    );
+
+    res.json(pozajmice);
+  } catch (error) {
+    console.error("Error fetching pozajmice by firma:", error);
+    res.status(500).json({ message: "Greška pri dohvatanju pozajmica" });
+  }
+};

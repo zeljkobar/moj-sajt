@@ -107,9 +107,7 @@ async function loadDokumenti() {
     showLoading(true);
 
     // Učitaj postojeće ugovore o radu
-    const ugovoriResponse = await fetch(`/api/radnici/firma/${firmaId}`, {
-      credentials: "include",
-    });
+    const ugovoriResponse = await fetch(`/api/radnici/firma/${firmaId}`);
     const ugovoriData = await ugovoriResponse.json();
 
     if (ugovoriResponse.ok) {
@@ -122,9 +120,7 @@ async function loadDokumenti() {
 
     // Učitaj otkaze za ovu firmu
     try {
-      const otkaziResponse = await fetch(`/api/otkazi/firma/${firmaId}`, {
-        credentials: "include",
-      });
+      const otkaziResponse = await fetch(`/api/otkazi/firma/${firmaId}`);
       const otkaziData = await otkaziResponse.json();
 
       if (otkaziResponse.ok && otkaziData.success) {
@@ -146,21 +142,14 @@ async function loadDokumenti() {
 
     // Učitaj pozajmice za ovu firmu
     try {
-      const pozajmiceResponse = await fetch(`/api/pozajmice/firma/${firmaId}`, {
-        credentials: "include",
-      });
+      const pozajmiceResponse = await fetch(`/api/pozajmice/firma/${firmaId}`);
       const pozajmiceData = await pozajmiceResponse.json();
 
-      if (pozajmiceResponse.ok && pozajmiceData.success) {
-        dokumenti.pozajmice = Array.isArray(pozajmiceData.pozajmice)
-          ? pozajmiceData.pozajmice
-          : [];
+      if (pozajmiceResponse.ok) {
+        dokumenti.pozajmice = Array.isArray(pozajmiceData) ? pozajmiceData : [];
         console.log("Učitane pozajmice:", dokumenti.pozajmice);
       } else {
-        console.warn(
-          "Greška pri učitavanju pozajmica:",
-          pozajmiceData.message || pozajmiceData.error
-        );
+        console.warn("Greška pri učitavanju pozajmica:", pozajmiceData.error);
         dokumenti.pozajmice = [];
       }
     } catch (pozajmiceError) {
@@ -451,9 +440,7 @@ function showError(message) {
 async function viewUgovor(radnikId) {
   try {
     // Prvo dohvati podatke o radniku da vidiš vrstu ugovora
-    const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`, {
-      credentials: "include",
-    });
+    const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
     const radnik = await radnikResponse.json();
 
     // Na osnovu vrste ugovora otvori odgovarajući template
@@ -539,9 +526,7 @@ async function openPozajmnicaModal() {
     document.getElementById("datum_izdavanja").value = today;
 
     // Generiši sledeći broj ugovora
-    const nextBrojResponse = await fetch("/api/pozajmice/next-broj", {
-      credentials: "include",
-    });
+    const nextBrojResponse = await fetch("/api/pozajmice/next-broj");
     if (nextBrojResponse.ok) {
       const data = await nextBrojResponse.json();
       document.getElementById("broj_ugovora").value = data.broj_ugovora;
@@ -563,9 +548,7 @@ async function openPozajmnicaModal() {
 
 async function loadRadniciFirme() {
   try {
-    const response = await fetch(`/api/radnici/firma/${firmaId}`, {
-      credentials: "include",
-    });
+    const response = await fetch(`/api/radnici/firma/${firmaId}`);
     if (response.ok) {
       const radnici = await response.json();
       const radnikSelect = document.getElementById("radnik_id");
@@ -703,19 +686,12 @@ function viewPozajmica(pozajmnicaId) {
 async function editPozajmica(pozajmicaId) {
   try {
     // Učitaj podatke o pozajmici
-    const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
-      credentials: "include",
-    });
+    const response = await fetch(`/api/pozajmice/${pozajmicaId}`);
     if (!response.ok) {
       throw new Error("Pozajmica nije pronađena");
     }
 
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || "Greška pri učitavanju pozajmice");
-    }
-
-    const pozajmica = data.pozajmica;
+    const pozajmica = await response.json();
 
     // Popuni formu sa postojećim podacima
     document.getElementById("firma_id").value = pozajmica.firma_id;

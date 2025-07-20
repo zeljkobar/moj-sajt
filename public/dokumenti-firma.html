@@ -329,6 +329,155 @@
       </div>
     </div>
 
+    <!-- Modal za kreiranje pozajmnice -->
+    <div
+      class="modal fade"
+      id="pozajmnicaModal"
+      tabindex="-1"
+      aria-labelledby="pozajmnicaModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="pozajmnicaModalLabel">
+              <i class="fas fa-money-bill-wave me-2"></i>Nova pozajmica
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Zatvori"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="pozajmnicaForm">
+              <!-- Hidden fields -->
+              <input type="hidden" id="firma_id" name="firma_id" />
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="broj_ugovora" class="form-label"
+                    >Broj ugovora *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="broj_ugovora"
+                    name="broj_ugovora"
+                    readonly
+                  />
+                  <div class="form-text">Automatski se generiše</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="datum_izdavanja" class="form-label"
+                    >Datum izdavanja *</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="datum_izdavanja"
+                    name="datum_izdavanja"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="radnik_id" class="form-label"
+                    >Zajmodavac (radnik) *</label
+                  >
+                  <select
+                    class="form-select"
+                    id="radnik_id"
+                    name="radnik_id"
+                    required
+                  >
+                    <option value="">Izaberite radnika</option>
+                  </select>
+                  <div class="form-text">Obično direktor firme</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="iznos" class="form-label">Iznos (EUR) *</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="iznos"
+                    name="iznos"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="svrha" class="form-label">Svrha pozajmice *</label>
+                <select class="form-select" id="svrha" name="svrha" required>
+                  <option value="">Izaberite svrhu</option>
+                  <option value="obaveze_zarade">Obaveze za zarade</option>
+                  <option value="obaveze_dobavljaci">
+                    Obaveze prema dobavljačima
+                  </option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="datum_dospeća" class="form-label"
+                  >Datum dospeća</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="datum_dospeća"
+                  name="datum_dospeća"
+                />
+                <div class="form-text">
+                  Kada treba da se vrati pozajmica (opciono)
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="napomene" class="form-label">Napomene</label>
+                <textarea
+                  class="form-control"
+                  id="napomene"
+                  name="napomene"
+                  rows="3"
+                  placeholder="Dodatne napomene o pozajmici..."
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="savePozajmnicaBtn"
+            >
+              <i class="fas fa-save me-1"></i>Sačuvaj pozajmnicu
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="savePozajmnicaAndGenerateBtn"
+              style="display: none"
+            >
+              <i class="fas fa-file-pdf me-1"></i>Sačuvaj i generiši dokument
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/radnik-modal.js"></script>
     <script src="/dokumenti-firma.js"></script>

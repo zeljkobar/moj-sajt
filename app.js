@@ -13,6 +13,7 @@ const notificationRoutes = require("./src/routes/notificationRoutes");
 const pdvRoutes = require("./src/routes/pdvRoutes");
 const otkazRoutes = require("./src/routes/otkazRoutes");
 const adminRoutes = require("./src/routes/adminRoutes");
+const pozajmnicaRoutes = require("./src/routes/pozajmnicaRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const cors = require("cors");
@@ -44,17 +45,6 @@ app.use(
     credentials: true, // Omogući slanje cookies/session
   })
 );
-
-// Debug middleware - loguj sve zahteve
-app.use((req, res, next) => {
-  console.log(`📥 ${new Date().toISOString()} - ${req.method} ${req.path}`);
-  console.log(`   Headers:`, {
-    "user-agent": req.headers["user-agent"],
-    accept: req.headers.accept,
-    "content-type": req.headers["content-type"],
-  });
-  next();
-});
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -311,6 +301,7 @@ app.use("/api/pozicije", pozicijeRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/pdv", pdvRoutes);
 app.use("/api/otkazi", otkazRoutes);
+app.use("/api/pozajmice", pozajmnicaRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
