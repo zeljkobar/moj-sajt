@@ -113,7 +113,7 @@ class Navigation {
     document.body.insertAdjacentHTML("afterbegin", navHTML);
 
     // Kratka pauza da se osiguramo da je HTML dodat u DOM
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Učitaj informacije o korisniku
     await this.loadUserInfo();
@@ -123,6 +123,9 @@ class Navigation {
 
     // Dodaj event listenere
     this.attachEventListeners();
+
+    // Inicijalizuj Bootstrap komponente
+    this.initializeBootstrap();
   }
 
   // Učitava informacije o trenutnom korisniku
@@ -146,21 +149,12 @@ class Navigation {
         }
 
         // Prikaži admin meni ako je korisnik admin
-        console.log("User role:", userData.role); // Debug log
-        console.log("Checking for admin menu element..."); // Debug log
-
         const adminMenu = document.getElementById("adminMenu");
-        console.log("Admin menu element found:", adminMenu); // Debug log
 
         if (userData.role === "admin") {
           if (adminMenu) {
             adminMenu.style.display = "block";
-            console.log("Admin menu shown successfully"); // Debug log
-          } else {
-            console.error("Admin menu element not found in DOM"); // Debug log
           }
-        } else {
-          console.log("User is not admin, role is:", userData.role); // Debug log
         }
       } else {
         console.error("Auth check failed with status:", response.status);
@@ -194,7 +188,10 @@ class Navigation {
       logoutBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         try {
-          const response = await fetch("/api/auth/logout", { method: "POST" });
+          const response = await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include",
+          });
           if (response.ok) {
             window.location.href = "/index.html";
           }
@@ -204,6 +201,56 @@ class Navigation {
         }
       });
     }
+  }
+
+  // Inicijalizuje Bootstrap komponente
+  initializeBootstrap() {
+    // Proverava da li je Bootstrap dostupan
+    if (typeof window.bootstrap === "undefined") {
+      // Pokušaj ponovo nakon kratke pauze
+      setTimeout(() => this.initializeBootstrap(), 500);
+      return;
+    }
+
+    // Čekaj da se DOM potpuno završi
+    setTimeout(() => {
+      // Inicijalizuj sve dropdown komponente
+      const dropdownElements = document.querySelectorAll(".dropdown-toggle");
+
+      dropdownElements.forEach((element, index) => {
+        try {
+          // Uništi postojeću instancu ako postoji
+          const existingDropdown = bootstrap.Dropdown.getInstance(element);
+          if (existingDropdown) {
+            existingDropdown.dispose();
+          }
+
+          // Kreiraj novu instancu
+          new bootstrap.Dropdown(element);
+        } catch (error) {
+          console.error(
+            `❌ Greška pri inicijalizaciji dropdown ${index + 1}:`,
+            error
+          );
+        }
+      });
+
+      // Inicijalizuj navbar toggle za mobile
+      const navbarToggler = document.querySelector(".navbar-toggler");
+      if (navbarToggler) {
+        try {
+          const navbarCollapse = document.querySelector(".navbar-collapse");
+          if (navbarCollapse) {
+            new bootstrap.Collapse(navbarCollapse, { toggle: false });
+          }
+        } catch (error) {
+          console.error(
+            "❌ Greška pri inicijalizaciji navbar collapse:",
+            error
+          );
+        }
+      }
+    }, 100);
   }
 }
 
@@ -310,6 +357,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Inicijalizuj navigaciju
   const nav = new Navigation();
   await nav.init();
+
+  // Dodatno čekanje da se svi drugi skriptovi završe
+  setTimeout(() => {
+    nav.initializeBootstrap();
+  }, 1000);
 });
 
 // Export za module sisteme

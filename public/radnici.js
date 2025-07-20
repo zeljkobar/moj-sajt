@@ -276,8 +276,6 @@ function displayRadnici() {
     };
 
     // Debug log za proveru podataka
-    console.log("Radnik vrsta_ugovora:", radnik.vrsta_ugovora);
-    console.log("Mapiranje rezultat:", vrstaUgovoraText[radnik.vrsta_ugovora]);
 
     const row = document.createElement("tr");
 
@@ -591,8 +589,8 @@ function toggleDropdown(radnikId) {
   const dropdownBtn = dropdown.previousElementSibling; // dugme koje je kliknuto
   const isVisible = dropdown.style.display === "block";
 
-  // Zatvori sve ostale dropdown-ove
-  document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+  // Zatvori sve ostale dropdown-ove (samo radnici dropdown-ove)
+  document.querySelectorAll(".radnici-dropdown-menu").forEach((menu) => {
     menu.style.display = "none";
     menu.classList.remove("dropdown-up"); // ukloni klasu za otvaranje prema gore
   });
@@ -627,7 +625,7 @@ function closeDropdown(radnikId) {
 // Zatvori dropdown kada se klikne van njega
 document.addEventListener("click", function (event) {
   if (!event.target.matches(".radnici-dropdown-btn")) {
-    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    document.querySelectorAll(".radnici-dropdown-menu").forEach((menu) => {
       menu.style.display = "none";
       menu.classList.remove("dropdown-up");
     });
