@@ -2,6 +2,9 @@ const { executeQuery } = require("../config/database");
 
 // Kreiraj novu pozajmicu
 exports.createPozajmica = async (req, res) => {
+  console.log("=== CREATE POZAJMICA ===");
+  console.log("Request body:", req.body);
+
   const {
     firma_id,
     radnik_id,
@@ -12,6 +15,17 @@ exports.createPozajmica = async (req, res) => {
     datum_dospeća,
     napomene,
   } = req.body;
+
+  console.log("Extracted values:", {
+    firma_id,
+    radnik_id,
+    iznos,
+    svrha,
+    broj_ugovora,
+    datum_izdavanja,
+    datum_dospeća,
+    napomene,
+  });
 
   try {
     // Proveri da li broj ugovora već postoji
@@ -49,10 +63,13 @@ exports.createPozajmica = async (req, res) => {
       message: "Pozajmica je uspešno kreirana",
     });
   } catch (error) {
-    console.error("Error creating pozajmica:", error);
+    console.error("=== ERROR CREATING POZAJMICA ===");
+    console.error("Error details:", error);
+    console.error("Stack trace:", error.stack);
     res.status(500).json({
       success: false,
       message: "Greška pri kreiranju pozajmice",
+      error: error.message,
     });
   }
 };

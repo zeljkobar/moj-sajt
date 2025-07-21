@@ -4,14 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ugovor o zajmu novca</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link async function loadPozajmnicaData() { try { const urlParams = new
+    URLSearchParams(window.location.search); const pozajmnicaId =
+    urlParams.get("pozajmicaId"); const firmaId = urlParams.get("firmaId");
+    console.log("=== LOADING POZAJMICA DATA ==="); console.log("Full URL:",
+    window.location.href); console.log("Search params:",
+    window.location.search); console.log("pozajmicaId from URL:", pozajmnicaId);
+    console.log("firmaId from URL:", firmaId); if (!pozajmnicaId) {
+    console.error("ERROR: pozajmicaId is missing!"); alert("Greška: Nedostaje ID
+    pozajmice"); return;
+    }f="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
+    <!-- PDF Export biblioteka -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
       body {
         font-family: "Times New Roman", serif;
@@ -77,9 +87,69 @@
         padding: 50px;
         font-size: 18px;
       }
+
+      .print-button,
+      .pdf-button,
+      .word-button {
+        position: fixed;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .print-button {
+        top: 20px;
+        background-color: #007bff;
+      }
+
+      .pdf-button {
+        top: 80px;
+        background-color: #dc3545;
+      }
+
+      .word-button {
+        top: 140px;
+        background-color: #6f42c1;
+      }
+
+      .print-button:hover,
+      .pdf-button:hover,
+      .word-button:hover {
+        opacity: 0.8;
+      }
+
+      @media print {
+        .print-button,
+        .pdf-button,
+        .word-button {
+          display: none !important;
+        }
+        body {
+          margin: 0;
+        }
+        .ugovor-container {
+          padding: 20px;
+          box-shadow: none;
+        }
+      }
     </style>
   </head>
   <body>
+    <button class="print-button" onclick="window.print()">🖨️ Štampaj</button>
+    <button class="pdf-button" onclick="downloadPDF()">📄 PDF</button>
+    <button class="word-button" onclick="downloadWord()">📝 Word</button>
+
     <div class="loading" id="loading">
       <i class="fas fa-spinner fa-spin"></i>
       Učitavam podatke...
@@ -179,15 +249,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="no-print">
-      <button class="btn btn-primary me-2" onclick="window.print()">
-        <i class="fas fa-print me-1"></i>Odštampaj
-      </button>
-      <button class="btn btn-secondary" onclick="window.close()">
-        <i class="fas fa-times me-1"></i>Zatvori
-      </button>
     </div>
 
     <script>
@@ -331,16 +392,51 @@
           "osamsto",
           "devetsto",
         ];
+        const thousands = [
+          "",
+          "jedna hiljada",
+          "dve hiljade",
+          "tri hiljade",
+          "četiri hiljade",
+          "pet hiljada",
+          "šest hiljada",
+          "sedam hiljada",
+          "osam hiljada",
+          "devet hiljada",
+        ];
 
-        // Jednostavna implementacija za brojeve do 999
         const number = Math.floor(parseFloat(num));
-        if (number === 0) return "nula";
-        if (number > 999) return number.toString(); // Fallback za velike brojeve
+        if (number === 0) return "nula eura";
+        if (number > 99999) return number.toString() + " eura"; // Fallback za vrlo velike brojeve
 
         let result = "";
-        const h = Math.floor(number / 100);
-        const t = Math.floor((number % 100) / 10);
-        const o = number % 10;
+
+        // Hiljade (1000-9999)
+        const th = Math.floor(number / 1000);
+        if (th > 0) {
+          if (th >= 10) {
+            // Za brojeve veće od 10000, potrebna je kompleksnija logika
+            const thHundreds = Math.floor(th / 100);
+            const thTens = Math.floor((th % 100) / 10);
+            const thOnes = th % 10;
+
+            if (thHundreds > 0) result += hundreds[thHundreds] + " ";
+            if (thTens === 1) result += teens[thOnes] + " ";
+            else {
+              if (thTens > 0) result += tens[thTens] + " ";
+              if (thOnes > 0 && thTens !== 1) result += ones[thOnes] + " ";
+            }
+            result += "hiljada ";
+          } else {
+            result += thousands[th] + " ";
+          }
+        }
+
+        // Stotine, desetice i jedinice (0-999)
+        const remainder = number % 1000;
+        const h = Math.floor(remainder / 100);
+        const t = Math.floor((remainder % 100) / 10);
+        const o = remainder % 10;
 
         if (h > 0) result += hundreds[h] + " ";
         if (t === 1) result += teens[o] + " ";
@@ -350,6 +446,188 @@
         }
 
         return result.trim() + " eura";
+      }
+
+      // ============================================
+      // PDF EXPORT FUNKCIJA
+      // ============================================
+      async function downloadPDF() {
+        try {
+          // Sakrij dugmad tokom snimanja
+          document.querySelector(".print-button").style.display = "none";
+          document.querySelector(".pdf-button").style.display = "none";
+          document.querySelector(".word-button").style.display = "none";
+
+          const { jsPDF } = window.jspdf;
+          const element = document.querySelector(".ugovor-container");
+
+          // Kreiranje canvas-a od HTML-a
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+
+          const imgWidth = 210;
+          const pageHeight = 295;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+
+          let position = 0;
+
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          // Generisanje imena fajla
+          const brojUgovora =
+            document.getElementById("brojUgovora")?.textContent || "001";
+          const firmaNaziv =
+            document.getElementById("firmaNaziv")?.textContent || "Firma";
+          const fileName = `Ugovor_o_zajmu_${brojUgovora.replace(
+            /[\/\s]/g,
+            "_"
+          )}_${firmaNaziv.replace(/\s+/g, "_")}.pdf`;
+
+          pdf.save(fileName);
+
+          // Pokaži dugmad ponovo
+          document.querySelector(".print-button").style.display = "flex";
+          document.querySelector(".pdf-button").style.display = "flex";
+          document.querySelector(".word-button").style.display = "flex";
+        } catch (error) {
+          console.error("Greška pri kreiranju PDF-a:", error);
+          alert("Greška pri kreiranju PDF-a. Pokušajte ponovo.");
+          document.querySelector(".print-button").style.display = "flex";
+          document.querySelector(".pdf-button").style.display = "flex";
+          document.querySelector(".word-button").style.display = "flex";
+        }
+      }
+
+      // ============================================
+      // WORD EXPORT FUNKCIJA
+      // ============================================
+      function downloadWord() {
+        try {
+          // Uzmi sadržaj ugovora
+          const container = document.querySelector(".ugovor-container");
+          let content = container.innerHTML;
+
+          // Očisti sadržaj za Word format
+          content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+          content = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+          content = content.replace(/class="[^"]*"/g, "");
+          content = content.replace(/id="[^"]*"/g, "");
+
+          // Generisanje naziva fajla
+          const brojUgovora =
+            document.getElementById("brojUgovora")?.textContent || "001";
+          const firmaNaziv =
+            document.getElementById("firmaNaziv")?.textContent || "Firma";
+          const fileName = `Ugovor_o_zajmu_${brojUgovora.replace(
+            /[\/\s]/g,
+            "_"
+          )}_${firmaNaziv.replace(/\s+/g, "_")}.doc`;
+
+          // Kreiranje Word dokumenta
+          const wordContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+              <meta charset='utf-8'>
+              <title>Ugovor o zajmu novca</title>
+              <!--[if gte mso 9]>
+              <xml>
+                <w:WordDocument>
+                  <w:View>Print</w:View>
+                  <w:Zoom>90</w:Zoom>
+                  <w:DoNotPromptForConvert/>
+                  <w:DoNotShowMarkupDialog/>
+                  <w:DoNotDisplayPageBoundaries/>
+                  <w:DoNotValidateAgainstSchema/>
+                  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+                  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+                  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+                  <w:Compatibility>
+                    <w:BreakWrappedTables/>
+                    <w:SnapToGridInCell/>
+                    <w:WrapTextWithPunct/>
+                    <w:UseAsianBreakRules/>
+                  </w:Compatibility>
+                  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+                </w:WordDocument>
+              </xml>
+              <![endif]-->
+              <style>
+                @page {
+                  size: A4;
+                  margin: 2cm 1.5cm 2cm 1.5cm;
+                }
+                body {
+                  font-family: 'Times New Roman', serif;
+                  font-size: 12pt;
+                  line-height: 1.4;
+                  margin: 0;
+                  padding: 20px;
+                }
+                .header {
+                  text-align: center;
+                  margin-bottom: 30px;
+                  font-weight: bold;
+                  font-size: 16pt;
+                }
+                .clan {
+                  margin-bottom: 20px;
+                  text-align: justify;
+                }
+                .clan-broj {
+                  font-weight: bold;
+                  text-align: center;
+                  margin: 15px 0 10px 0;
+                }
+                .potpis-sekcija {
+                  display: flex;
+                  justify-content: space-between;
+                  margin-top: 60px;
+                }
+                .potpis {
+                  text-align: center;
+                  width: 45%;
+                }
+              </style>
+            </head>
+            <body>
+              ${content}
+            </body>
+            </html>
+          `;
+
+          // Kreiranje blob-a i download linka
+          const blob = new Blob([wordContent], {
+            type: "application/msword;charset=utf-8",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          console.log("Word dokument je uspešno kreiran:", fileName);
+        } catch (error) {
+          console.error("Greška pri kreiranju Word dokumenta:", error);
+          alert("Greška pri kreiranju Word dokumenta. Pokušajte ponovo.");
+        }
       }
     </script>
   </body>

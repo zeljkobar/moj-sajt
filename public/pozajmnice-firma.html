@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pozajmnice Firme - Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="global-components.css" />
+    <style>
+      .pozajmica-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+      }
+      .pozajmica-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .status-aktivna {
+        border-left-color: #dc3545;
+      }
+      .status-delimicno-vracena {
+        border-left-color: #ffc107;
+      }
+      .status-potpuno-vracena {
+        border-left-color: #28a745;
+      }
+
+      .povracaj-row {
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 5px 0;
+        padding: 10px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+      }
+
+      .stat-card.danger {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+      }
+      .stat-card.warning {
+        background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+      }
+      .stat-card.success {
+        background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+      }
+
+      .loading-spinner {
+        text-align: center;
+        padding: 50px;
+        font-size: 18px;
+        color: #666;
+      }
+
+      .fa-spin {
+        animation: fa-spin 2s infinite linear;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navigation će biti automatski ubačena ovde -->
+
+    <div class="container mt-4">
+      <!-- Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 class="mb-0">
+                <i class="fas fa-hand-holding-usd me-3 text-primary"></i>
+                <span id="firmaNaziv">Pozajmnice Firme</span>
+              </h1>
+              <p class="text-muted mb-0" id="firmaInfo">
+                Pregled pozajmica i povraćaja
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="dodajPozajmnicu()">
+                <i class="fas fa-plus me-2"></i>Nova pozajmica
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistike -->
+      <div class="row mb-4" id="statistikeContainer" style="display: none">
+        <div class="col-6 col-lg-3 mb-3">
+          <div class="stat-card danger">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-uppercase mb-1">Ukupno pozajmljeno</h6>
+                <h3 class="mb-0" id="ukupnoPozajmljeno">0€</h3>
+              </div>
+              <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3">
+          <div class="stat-card warning">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-uppercase mb-1">Ukupno vraćeno</h6>
+                <h3 class="mb-0" id="ukupnoVraceno">0€</h3>
+              </div>
+              <i class="fas fa-hand-holding-usd fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3">
+          <div class="stat-card success">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-uppercase mb-1">Preostalo dugovanje</h6>
+                <h3 class="mb-0" id="ukupnoPreostalo">0€</h3>
+              </div>
+              <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3 mb-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-uppercase mb-1">Broj pozajmica</h6>
+                <h3 class="mb-0" id="brojPozajmica">0</h3>
+              </div>
+              <i class="fas fa-list fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingSpinner" class="loading-spinner">
+        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+        <div>Učitavam pozajmnice...</div>
+      </div>
+
+      <!-- Lista pozajmica -->
+      <div id="pozajmniceContainer"></div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="text-center py-5 d-none">
+        <i class="fas fa-hand-holding-usd fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Nema pozajmica za ovu firmu</h4>
+        <p class="text-muted">
+          Kliknite "Nova pozajmica" da dodate prvu pozajmnicu.
+        </p>
+      </div>
+    </div>
+
+    <!-- Modal za dodavanje pozajmice -->
+    <div class="modal fade" id="pozajmicaModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-plus-circle me-2"></i>Nova pozajmica
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="pozajmicaForm">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="broj_ugovora" class="form-label"
+                      >Broj ugovora*</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="broj_ugovora"
+                      name="broj_ugovora"
+                      placeholder="Automatski se generiše"
+                      readonly
+                    />
+                    <div class="form-text">Automatski se generiše</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="datum_pozajmice" class="form-label"
+                      >Datum izdavanja*</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="datum_pozajmice"
+                      name="datum_pozajmice"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="radnik_id" class="form-label"
+                      >Zaposlenik (radnik)*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="radnik_id"
+                      name="radnik_id"
+                      required
+                    >
+                      <option value="">Izaberite radnika...</option>
+                    </select>
+                    <div class="form-text">Obično direktor firme</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="iznos" class="form-label">Iznos (EUR)*</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="iznos"
+                      name="iznos"
+                      step="0.01"
+                      min="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="svrha_pozajmice" class="form-label"
+                      >Svrha pozajmice*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="svrha_pozajmice"
+                      name="svrha_pozajmice"
+                      required
+                    >
+                      <option value="">Izaberite svrhu</option>
+                      <option value="obaveze_zarade">Obaveze za zarade</option>
+                      <option value="obaveze_dobavljaci">
+                        Obaveze prema dobavljačima
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="datum_dospijetja" class="form-label"
+                      >Datum dospeća</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="datum_dospijetja"
+                      name="datum_dospijetja"
+                    />
+                    <div class="form-text">
+                      Kada treba da se vrati pozajmica (opciono)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="napomena" class="form-label">Napomene</label>
+                <textarea
+                  class="form-control"
+                  id="napomena"
+                  name="napomena"
+                  rows="3"
+                  placeholder="Dodatne napomene o pozajmici..."
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Otkaži
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Sačuvaj pozajmicu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za dodavanje povraćaja -->
+    <div class="modal fade" id="povracajModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-plus-circle me-2"></i>Dodaj povraćaj
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="povracajForm">
+            <div class="modal-body">
+              <input type="hidden" id="pozajmica_id_povracaj" />
+
+              <div class="mb-3">
+                <label class="form-label">Pozajmica:</label>
+                <div class="alert alert-info" id="pozajmicaInfo"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="iznos_povracaja" class="form-label"
+                  >Iznos povraćaja (€)*</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="iznos_povracaja"
+                  step="0.01"
+                  min="0.01"
+                  required
+                />
+                <div class="form-text">
+                  Maksimalno: <span id="maxPovracaj">0€</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="datum_povracaja" class="form-label"
+                  >Datum povraćaja*</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="datum_povracaja"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="napomena_povracaj" class="form-label"
+                  >Napomena</label
+                >
+                <textarea
+                  class="form-control"
+                  id="napomena_povracaj"
+                  rows="3"
+                  placeholder="Dodatne informacije..."
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Otkaži
+              </button>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i>Sačuvaj povraćaj
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="components/navigation.js"></script>
+    <script src="pozajmnice-firma.js"></script>
+  </body>
+</html>
