@@ -183,6 +183,11 @@ async function renderPozajmice() {
                                     title="Dodaj povraćaj">
                                 <i class="fas fa-plus"></i> Povraćaj
                             </button>
+                            <button class="btn btn-secondary btn-sm" onclick="otvoriOdlukuOPovracaju(${
+                              pozajmica.id
+                            })" title="Otvori odluku o povraćaju pozajmice">
+                                <i class="fas fa-file-contract"></i> Odluka
+                            </button>
                             <button class="btn btn-info btn-sm" onclick="toggleDetalje(${
                               pozajmica.id
                             })" title="Prikaži/sakrij detalje">
@@ -584,7 +589,7 @@ function formatDate(dateString) {
 function getStatusText(status) {
   const statusMap = {
     aktivna: "Aktivna",
-    delimicno_vracena: "Delimi¸cno vraćena",
+    delimicno_vracena: "Djelimično vraćena",
     potpuno_vracena: "Potpuno vraćena",
   };
   return statusMap[status] || status;
@@ -738,5 +743,51 @@ async function obrisiPozajmicu(pozajmicaId) {
   } catch (error) {
     console.error("Greška pri brisanju pozajmice:", error);
     showNotification("Greška pri komunikaciji sa serverom", "error");
+  }
+}
+
+// ============================================
+// ODLUKA O POVRAĆAJU POZAJMICE
+// ============================================
+
+async function otvoriOdlukuOPovracaju(pozajmicaId) {
+  try {
+    const pozajmica = pozajmice.find((p) => p.id == pozajmicaId);
+
+    if (!pozajmica) {
+      showNotification("Pozajmica nije pronađena", "error");
+      return;
+    }
+
+    // Učitaj povraćaje direktno iz API-ja
+    const povracaji = await loadPovracajeForPozajmica(pozajmicaId);
+
+    if (!povracaji || povracaji.length === 0) {
+      showNotification(
+        "Ne možete kreirati odluku jer pozajmica nema evidentirane povraćaje",
+        "warning"
+      );
+      return;
+    }
+
+    // Uzmi poslednji povraćaj (najnoviji)
+    const poslednjiPovracaj = povracaji.sort(
+      (a, b) => new Date(b.datum_povracaja) - new Date(a.datum_povracaja)
+    )[0];
+
+    if (!poslednjiPovracaj) {
+      showNotification(
+        "Ne možete kreirati odluku jer pozajmica nema validne povraćaje",
+        "warning"
+      );
+      return;
+    }
+
+    // Otvori odluku u novom tabu
+    const url = `/odluka-o-povracaju.html?povracajId=${poslednjiPovracaj.id}`;
+    window.open(url, "_blank");
+  } catch (error) {
+    console.error("Greška pri otvaranju odluke:", error);
+    showNotification("Greška pri otvaranju odluke o povraćaju", "error");
   }
 }
