@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 3000;
+const { executeQuery } = require("./src/config/database");
 const userRoutes = require("./src/routes/userRoutes");
 const authRoutes = require("./src/routes/authRoutes");
 const firmeRoutes = require("./src/routes/firmeRoutes");
@@ -237,6 +238,206 @@ app.get("/api/search", authMiddleware, async (req, res) => {
   }
 });
 
+// Specifični search endpoint-i
+app.get("/api/firme/search", authMiddleware, async (req, res) => {
+  try {
+    const { q } = req.query;
+    const userId = req.session.user.id;
+
+    if (!q || q.length < 2) {
+      return res.json([]);
+    }
+
+    const searchTerm = `%${q}%`;
+    const firme = await executeQuery(
+      `
+      SELECT id, naziv, grad, pib, status
+      FROM firme 
+      WHERE user_id = ? AND (naziv LIKE ? OR grad LIKE ? OR pib LIKE ?)
+      ORDER BY naziv
+      LIMIT 10
+    `,
+      [userId, searchTerm, searchTerm, searchTerm]
+    );
+
+    const results = firme.map((firma) => ({
+      id: firma.id,
+      naziv: firma.naziv,
+      grad: firma.grad,
+      aktivna: firma.status === "aktivan",
+    }));
+
+    res.json(results);
+  } catch (error) {
+    console.error("Greška pri pretrazi firmi:", error);
+    res.status(500).json([]);
+  }
+});
+
+app.get("/api/radnici/search", authMiddleware, async (req, res) => {
+  try {
+    const { q } = req.query;
+    const userId = req.session.user.id;
+
+    if (!q || q.length < 2) {
+      return res.json([]);
+    }
+
+    const searchTerm = `%${q}%`;
+    const radnici = await executeQuery(
+      `
+      SELECT r.id, r.ime, r.prezime, f.naziv as firma, p.naziv as pozicija
+      FROM radnici r
+      JOIN firme f ON r.firma_id = f.id
+      LEFT JOIN pozicije p ON r.pozicija_id = p.id
+      WHERE f.user_id = ? AND (r.ime LIKE ? OR r.prezime LIKE ? OR CONCAT(r.ime, ' ', r.prezime) LIKE ?)
+      ORDER BY r.ime, r.prezime
+      LIMIT 10
+    `,
+      [userId, searchTerm, searchTerm, searchTerm]
+    );
+
+    const results = radnici.map((radnik) => ({
+      id: radnik.id,
+      ime: radnik.ime,
+      prezime: radnik.prezime,
+      firma: radnik.firma,
+      pozicija: radnik.pozicija || "Nespecifikovano",
+    }));
+
+    res.json(results);
+  } catch (error) {
+    console.error("Greška pri pretrazi radnika:", error);
+    res.status(500).json([]);
+  }
+});
+
+app.get("/api/ugovori/search", authMiddleware, async (req, res) => {
+  try {
+    const { q } = req.query;
+    const userId = req.session.user.id;
+
+    if (!q || q.length < 2) {
+      return res.json([]);
+    }
+
+    const searchTerm = `%${q}%`;
+
+    // Pretraži radnike kao osnovne ugovore
+    const ugovori = await executeQuery(
+      `
+      SELECT r.id, r.ime, r.prezime, r.datum_zaposlenja, r.datum_prestanka, f.naziv as firma
+      FROM radnici r
+      JOIN firme f ON r.firma_id = f.id
+      WHERE f.user_id = ? AND (r.ime LIKE ? OR r.prezime LIKE ? OR CONCAT(r.ime, ' ', r.prezime) LIKE ?)
+      ORDER BY r.datum_zaposlenja DESC
+      LIMIT 10
+    `,
+      [userId, searchTerm, searchTerm, searchTerm]
+    );
+
+    const results = ugovori.map((ugovor) => ({
+      id: ugovor.id,
+      tip: ugovor.datum_prestanka ? "Sporazumni raskid" : "Ugovor o radu",
+      radnik: `${ugovor.ime} ${ugovor.prezime}`,
+      datum: ugovor.datum_zaposlenja,
+    }));
+
+    res.json(results);
+  } catch (error) {
+    console.error("Greška pri pretrazi ugovora:", error);
+    res.status(500).json([]);
+  }
+});
+
+// Endpoint-i za firmu detalje
+app.get("/api/firme/:id", authMiddleware, async (req, res) => {
+  try {
+    const firmaId = req.params.id;
+    const userId = req.session.user.id;
+
+    const firma = await executeQuery(
+      "SELECT * FROM firme WHERE id = ? AND user_id = ?",
+      [firmaId, userId]
+    );
+
+    if (firma.length === 0) {
+      return res.status(404).json({ message: "Firma nije pronađena" });
+    }
+
+    res.json(firma[0]);
+  } catch (error) {
+    console.error("Greška pri učitavanju firme:", error);
+    res.status(500).json({ message: "Greška pri učitavanju firme" });
+  }
+});
+
+app.get("/api/firme/:id/radnici", authMiddleware, async (req, res) => {
+  try {
+    const firmaId = req.params.id;
+    const userId = req.session.user.id;
+
+    // Prvo proveri da li firma pripada korisniku
+    const firma = await executeQuery(
+      "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+      [firmaId, userId]
+    );
+
+    if (firma.length === 0) {
+      return res.status(404).json({ message: "Firma nije pronađena" });
+    }
+
+    const radnici = await executeQuery(
+      `
+      SELECT r.*, p.naziv as pozicija_naziv
+      FROM radnici r
+      LEFT JOIN pozicije p ON r.pozicija_id = p.id
+      WHERE r.firma_id = ?
+      ORDER BY r.ime, r.prezime
+      `,
+      [firmaId]
+    );
+
+    res.json(radnici);
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika:", error);
+    res.status(500).json({ message: "Greška pri učitavanju radnika" });
+  }
+});
+
+app.get("/api/firme/:id/pozajmice", authMiddleware, async (req, res) => {
+  try {
+    const firmaId = req.params.id;
+    const userId = req.session.user.id;
+
+    // Prvo proveri da li firma pripada korisniku
+    const firma = await executeQuery(
+      "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+      [firmaId, userId]
+    );
+
+    if (firma.length === 0) {
+      return res.status(404).json({ message: "Firma nije pronađena" });
+    }
+
+    const pozajmice = await executeQuery(
+      `
+      SELECT p.*, r.ime, r.prezime
+      FROM pozajmice p
+      JOIN radnici r ON p.radnik_id = r.id
+      WHERE r.firma_id = ?
+      ORDER BY p.created_at DESC
+      `,
+      [firmaId]
+    );
+
+    res.json(pozajmice);
+  } catch (error) {
+    console.error("Greška pri učitavanju pozajmica:", error);
+    res.status(500).json({ message: "Greška pri učitavanju pozajmica" });
+  }
+});
+
 // API ruta za dashboard statistike
 app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
   try {
@@ -317,6 +518,129 @@ app.use("/api/pozajmice", pozajmnicaRoutes);
 app.use("/api/povracaji", povracajRoutes);
 app.use("/api/odluka", odlukaRoutes);
 app.use("/api/admin", adminRoutes);
+
+// API endpoint za poslednje aktivnosti
+app.get("/api/activities", authMiddleware, async (req, res) => {
+  try {
+    const activities = [];
+
+    // Poslednji kreirani radnici (ugovori) - koristimo datum_zaposlenja
+    const recentRadnici = await executeQuery(`
+      SELECT r.ime, r.prezime, f.naziv as firma_naziv, r.datum_zaposlenja as created_at, 'radnik' as tip
+      FROM radnici r 
+      LEFT JOIN firme f ON r.firma_id = f.id 
+      WHERE r.datum_zaposlenja IS NOT NULL 
+      ORDER BY r.datum_zaposlenja DESC 
+      LIMIT 3
+    `);
+
+    recentRadnici.forEach((radnik) => {
+      activities.push({
+        tip: "ugovor",
+        title: "Kreiran ugovor o radu",
+        description: `${radnik.ime} ${radnik.prezime} - ${
+          radnik.firma_naziv || "Nepoznata firma"
+        }`,
+        created_at: radnik.created_at,
+        icon: "fas fa-file-contract",
+        iconClass: "text-primary",
+      });
+    });
+
+    // Poslednje kreirane pozajmice - proveravamo da li ima created_at
+    try {
+      const recentPozajmice = await executeQuery(`
+        SELECT p.iznos, r.ime, r.prezime, f.naziv as firma_naziv, p.created_at, 'pozajmica' as tip
+        FROM pozajmnice p 
+        LEFT JOIN radnici r ON p.radnik_id = r.id 
+        LEFT JOIN firme f ON p.firma_id = f.id 
+        WHERE p.created_at IS NOT NULL 
+        ORDER BY p.created_at DESC 
+        LIMIT 2
+      `);
+
+      recentPozajmice.forEach((pozajmica) => {
+        activities.push({
+          tip: "pozajmica",
+          title: "Odobrena pozajmica",
+          description: `${pozajmica.ime} ${pozajmica.prezime} - ${pozajmica.iznos}€`,
+          created_at: pozajmica.created_at,
+          icon: "fas fa-money-bill-wave",
+          iconClass: "text-warning",
+        });
+      });
+    } catch (pozajmiceError) {
+      console.log(
+        "Pozajmice tabela možda nema created_at kolonu:",
+        pozajmiceError.message
+      );
+      // Ako nema created_at, koristimo datum_izdavanja
+      const recentPozajmiceAlt = await executeQuery(`
+        SELECT p.iznos, r.ime, r.prezime, f.naziv as firma_naziv, p.datum_izdavanja as created_at, 'pozajmica' as tip
+        FROM pozajmnice p 
+        LEFT JOIN radnici r ON p.radnik_id = r.id 
+        LEFT JOIN firme f ON p.firma_id = f.id 
+        WHERE p.datum_izdavanja IS NOT NULL 
+        ORDER BY p.datum_izdavanja DESC 
+        LIMIT 2
+      `);
+
+      recentPozajmiceAlt.forEach((pozajmica) => {
+        activities.push({
+          tip: "pozajmica",
+          title: "Odobrena pozajmica",
+          description: `${pozajmica.ime} ${pozajmica.prezime} - ${pozajmica.iznos}€`,
+          created_at: pozajmica.created_at,
+          icon: "fas fa-money-bill-wave",
+          iconClass: "text-warning",
+        });
+      });
+    }
+
+    // Poslednje kreirane firme - proveravamo da li ima created_at
+    try {
+      const recentFirme = await executeQuery(`
+        SELECT naziv, created_at, 'firma' as tip
+        FROM firme 
+        WHERE created_at IS NOT NULL 
+        ORDER BY created_at DESC 
+        LIMIT 2
+      `);
+
+      recentFirme.forEach((firma) => {
+        activities.push({
+          tip: "firma",
+          title: "Dodana nova firma",
+          description: `${firma.naziv}`,
+          created_at: firma.created_at,
+          icon: "fas fa-building",
+          iconClass: "text-success",
+        });
+      });
+    } catch (firmeError) {
+      console.log(
+        "Firme tabela možda nema created_at kolonu:",
+        firmeError.message
+      );
+      // Ako firme nemaju created_at, možemo preskočiti ili koristiti neki drugi datum
+    }
+
+    // Sortiraj sve aktivnosti po datumu
+    activities.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Vrati samo prvih 5
+    res.json({
+      success: true,
+      activities: activities.slice(0, 5),
+    });
+  } catch (error) {
+    console.error("Error fetching activities:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri dohvaćanju aktivnosti",
+    });
+  }
+});
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 app.get(

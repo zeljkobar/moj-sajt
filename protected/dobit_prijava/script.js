@@ -94,6 +94,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       firmeData = data.firme || [];
       console.log("Firme učitane:", firmeData.length);
       populateFirmeDropdown();
+
+      // Provjeri URL parametre za automatsko biranje firme
+      const urlParams = new URLSearchParams(window.location.search);
+      const firmaId = urlParams.get("firmaId");
+      if (firmaId) {
+        console.log("Automatsko biranje firme ID:", firmaId);
+        autoSelectFirma(firmaId);
+      }
     }
   } catch (error) {
     console.error("Greška pri učitavanju firmi:", error);
@@ -159,6 +167,36 @@ function populateFirmeDropdown() {
   });
 
   console.log("Dropdown popunjen sa", firmeData.length, "firmi");
+}
+
+// Funkcija za automatsko biranje firme na osnovu ID-ja
+function autoSelectFirma(firmaId) {
+  console.log("autoSelectFirma pozvano sa ID:", firmaId);
+
+  // Pronađi firmu po ID-ju
+  const firma = firmeData.find((f) => f.id == firmaId);
+  if (!firma) {
+    console.warn("Firma sa ID", firmaId, "nije pronađena");
+    return;
+  }
+
+  console.log("Pronađena firma:", firma);
+
+  // Selektuj firmu u dropdown-u (koristimo PIB kao value)
+  if (select) {
+    select.value = firma.pib;
+
+    // Aktiviraj funkcionalnost za popunjavanje podataka firme
+    // Postavi globalne varijable
+    izabranaFirma = firma.pib;
+    naziv = firma.naziv;
+    pib = firma.pib;
+    adresa = firma.adresa;
+
+    console.log("Firma automatski izabrana:", firma.naziv);
+  } else {
+    console.error("mySelect element nije pronađen!");
+  }
 }
 
 // dodaje sve inpute u niz vrijednostiPolja

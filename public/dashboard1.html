@@ -48,6 +48,64 @@
         border-left-color: #198754;
       }
 
+      /* Quick Search Styles */
+      .search-container {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .search-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f1f1;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .search-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .search-item:last-child {
+        border-bottom: none;
+      }
+
+      .search-category {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .search-title {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .search-subtitle {
+        font-size: 0.9rem;
+        color: #6c757d;
+      }
+
+      #quickSearchInput:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
       .stat-number {
         font-size: 2.5rem;
         font-weight: bold;
@@ -249,6 +307,50 @@
       </div>
     </section>
 
+    <!-- Quick Search Section -->
+    <div class="container py-3">
+      <div class="search-container">
+        <div style="position: relative">
+          <input
+            type="text"
+            id="quickSearchInput"
+            placeholder="Pretražite firme, radnike, ugovore..."
+            style="
+              width: 100%;
+              padding: 12px 45px 12px 16px;
+              border: 1px solid #ddd;
+              border-radius: 25px;
+              font-size: 1rem;
+              outline: none;
+              transition: all 0.3s;
+            "
+          />
+          <button
+            id="clearSearch"
+            style="
+              position: absolute;
+              right: 12px;
+              top: 50%;
+              transform: translateY(-50%);
+              background: none;
+              border: none;
+              font-size: 1.2rem;
+              color: #999;
+              cursor: pointer;
+              display: none;
+            "
+          >
+            ×
+          </button>
+        </div>
+        <div
+          id="searchResults"
+          class="search-results"
+          style="display: none"
+        ></div>
+      </div>
+    </div>
+
     <div class="container py-4">
       <!-- Statistike -->
       <div class="row mb-4">
@@ -409,38 +511,18 @@
               Poslednje aktivnosti
             </h5>
 
-            <div class="activity-item recent">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="mb-1">Kreiran ugovor o radu</h6>
-                  <p class="mb-1 text-muted">Marko Petrović - Tehnos d.o.o.</p>
-                  <small class="text-muted">Pre 2 sata</small>
-                </div>
-                <i class="fas fa-file-contract text-primary"></i>
+            <!-- Loading placeholder -->
+            <div class="activities-loading text-center py-3">
+              <div
+                class="spinner-border spinner-border-sm text-info"
+                role="status"
+              >
+                <span class="visually-hidden">Učitavanje...</span>
               </div>
+              <div class="mt-2 text-muted">Učitavanje aktivnosti...</div>
             </div>
 
-            <div class="activity-item success">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="mb-1">PDV prijava poslana</h6>
-                  <p class="mb-1 text-muted">Mira Trade d.o.o. - Januar 2025</p>
-                  <small class="text-muted">Juče u 14:30</small>
-                </div>
-                <i class="fas fa-check-circle text-success"></i>
-              </div>
-            </div>
-
-            <div class="activity-item warning">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h6 class="mb-1">Odobrena pozajmica</h6>
-                  <p class="mb-1 text-muted">Ana Jovanović - 2.500€</p>
-                  <small class="text-muted">Pre 2 dana</small>
-                </div>
-                <i class="fas fa-money-bill-wave text-warning"></i>
-              </div>
-            </div>
+            <!-- Aktivnosti će se učitati ovde dinamički -->
 
             <div class="text-center mt-3">
               <button class="btn btn-outline-info">
@@ -497,82 +579,23 @@
               Aktivne pozajmice
             </h5>
 
-            <div class="mb-3 p-3 border border-primary rounded">
+            <!-- Loading placeholder -->
+            <div class="pozajmice-loading text-center py-3">
               <div
-                class="d-flex justify-content-between align-items-center mb-2"
+                class="spinner-border spinner-border-sm text-warning"
+                role="status"
               >
-                <div>
-                  <strong>Ana Jovanović</strong>
-                  <br /><small class="text-muted">Tehnos d.o.o.</small>
-                </div>
-                <div class="text-end">
-                  <h6 class="text-primary mb-0">2.500€</h6>
-                  <small class="text-success">Aktivna</small>
-                </div>
+                <span class="visually-hidden">Učitavanje...</span>
               </div>
-              <small class="text-muted">Datum odobrenja: 15.01.2025</small>
+              <div class="mt-2 text-muted">Učitavanje pozajmica...</div>
             </div>
 
-            <div class="mb-3 p-3 border border-info rounded">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <div>
-                  <strong>Marko Petrović</strong>
-                  <br /><small class="text-muted">Mira Trade d.o.o.</small>
-                </div>
-                <div class="text-end">
-                  <h6 class="text-primary mb-0">1.200€</h6>
-                  <small class="text-success">Aktivna</small>
-                </div>
-              </div>
-              <small class="text-muted">Datum odobrenja: 28.12.2024</small>
-            </div>
-
-            <div class="mb-3 p-3 border border-warning rounded">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <div>
-                  <strong>Stefan Nikolić</strong>
-                  <br /><small class="text-muted">Adriatic Solutions</small>
-                </div>
-                <div class="text-end">
-                  <h6 class="text-primary mb-0">800€</h6>
-                  <small class="text-warning">Dogovor za povraćaj</small>
-                </div>
-              </div>
-              <small class="text-muted">Datum odobrenja: 05.11.2024</small>
-            </div>
+            <!-- Pozajmice će se učitati ovde dinamički -->
 
             <div class="d-grid">
               <button class="btn btn-outline-warning">
                 <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
               </button>
-            </div>
-          </div>
-
-          <!-- Sistem notifikacije -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-bell text-info me-2"></i>
-              Notifikacije
-            </h5>
-
-            <div class="alert alert-warning alert-sm">
-              <strong><i class="fas fa-clock me-1"></i> PDV rok!</strong><br />
-              7 firmi ima PDV rok za 7 dana
-            </div>
-
-            <div class="alert alert-info alert-sm">
-              <strong><i class="fas fa-file-contract me-1"></i> Ugovori</strong
-              ><br />
-              2 ugovora ističe ovog meseca
-            </div>
-
-            <div class="alert alert-success alert-sm">
-              <strong><i class="fas fa-check me-1"></i> Završeno</strong><br />
-              Sve PDV prijave za Januar poslane
             </div>
           </div>
         </div>
@@ -598,6 +621,9 @@
         // loadDashboardStats();
 
         console.log("Dashboard učitan");
+
+        // Setup quick search
+        setupQuickSearch();
       });
 
       // Funkcije za učitavanje podataka
@@ -770,6 +796,249 @@
         }
       }
 
+      // Funkcija za učitavanje aktivnosti iz baze
+      async function loadActivities() {
+        try {
+          const response = await fetch("/api/activities", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Activities API response:", data);
+            updateActivitiesSection(data.activities);
+          } else {
+            console.error("Greška pri učitavanju aktivnosti");
+          }
+        } catch (error) {
+          console.error("Greška pri povezivanju sa activities API:", error);
+        }
+      }
+
+      // Funkcija za ažuriranje sekcije sa aktivnostima
+      function updateActivitiesSection(activities) {
+        const container = document
+          .querySelector(".quick-action-card h5 i.fa-history")
+          .closest(".quick-action-card");
+
+        // Sakrij loader
+        const loader = container.querySelector(".activities-loading");
+        if (loader) {
+          loader.style.display = "none";
+        }
+
+        if (activities.length === 0) {
+          // Prikaži poruku da nema aktivnosti
+          const noActivities = document.createElement("div");
+          noActivities.className = "text-center py-3 text-muted mb-3";
+          noActivities.innerHTML = `
+            <i class="fas fa-history fa-2x mb-2 text-info"></i>
+            <div>Nema zabeleženih aktivnosti</div>
+          `;
+          container.insertBefore(
+            noActivities,
+            container.querySelector(".text-center")
+          );
+          return;
+        }
+
+        // Dodaj stvarne aktivnosti
+        activities.forEach((activity) => {
+          const activityElement = createActivityElement(activity);
+          container.insertBefore(
+            activityElement,
+            container.querySelector(".text-center")
+          );
+        });
+      }
+
+      // Kreiranje HTML elementa za aktivnost
+      function createActivityElement(activity) {
+        const div = document.createElement("div");
+
+        // Formatiranje vremena
+        const timeAgo = getTimeAgo(activity.created_at);
+
+        // Određivanje CSS klase na osnovu tipa
+        let itemClass = "recent";
+        if (activity.tip === "pozajmica") {
+          itemClass = "warning";
+        } else if (activity.tip === "firma") {
+          itemClass = "success";
+        }
+
+        div.className = `activity-item ${itemClass}`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="mb-1">${activity.title}</h6>
+              <p class="mb-1 text-muted">${activity.description}</p>
+              <small class="text-muted">${timeAgo}</small>
+            </div>
+            <i class="${activity.icon} ${activity.iconClass}"></i>
+          </div>
+        `;
+
+        return div;
+      }
+
+      // Funkcija za izračunavanje "pre koliko vremena"
+      function getTimeAgo(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInMs = now - date;
+        const diffInMinutes = Math.floor(diffInMs / 60000);
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        const diffInDays = Math.floor(diffInHours / 24);
+
+        if (diffInMinutes < 60) {
+          return diffInMinutes <= 1
+            ? "Pre minut"
+            : `Pre ${diffInMinutes} minuta`;
+        } else if (diffInHours < 24) {
+          return diffInHours === 1
+            ? "Pre sat vremena"
+            : `Pre ${diffInHours} sati`;
+        } else if (diffInDays === 1) {
+          return "Juče";
+        } else if (diffInDays < 7) {
+          return `Pre ${diffInDays} dana`;
+        } else {
+          return date.toLocaleDateString("sr-RS");
+        }
+      }
+
+      // Funkcija za učitavanje pozajmica iz baze
+      async function loadPozajmice() {
+        try {
+          const response = await fetch("/api/pozajmice", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Pozajmice API response:", data);
+            updatePozajmiceSection(data.pozajmice);
+          } else {
+            console.error("Greška pri učitavanju pozajmica");
+          }
+        } catch (error) {
+          console.error("Greška pri povezivanju sa pozajmice API:", error);
+        }
+      }
+
+      // Funkcija za ažuriranje sekcije sa pozajmicama
+      function updatePozajmiceSection(pozajmice) {
+        const container = document
+          .querySelector(".quick-action-card h5 i.fa-coins")
+          .closest(".quick-action-card");
+
+        // Sakrij loader
+        const loader = container.querySelector(".pozajmice-loading");
+        if (loader) {
+          loader.style.display = "none";
+        }
+
+        // Filtruj aktivne pozajmice (preostalo_dugovanje > 0 ili status === 'aktivna')
+        const aktivnePozajmice = pozajmice.filter(
+          (p) =>
+            p.status === "aktivna" &&
+            (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
+        );
+
+        if (aktivnePozajmice.length === 0) {
+          // Prikaži poruku da nema aktivnih pozajmica
+          const noPozajmice = document.createElement("div");
+          noPozajmice.className = "text-center py-3 text-muted mb-3";
+          noPozajmice.innerHTML = `
+            <i class="fas fa-piggy-bank fa-2x mb-2 text-warning"></i>
+            <div>Nema aktivnih pozajmica</div>
+          `;
+          container.insertBefore(
+            noPozajmice,
+            container.querySelector(".d-grid")
+          );
+          return;
+        }
+
+        // Prikaži samo prvih 3 pozajmice
+        const pozajmiceZaPrikaz = aktivnePozajmice.slice(0, 3);
+
+        // Dodaj stvarne pozajmice
+        pozajmiceZaPrikaz.forEach((pozajmica) => {
+          const pozajmicaElement = createPozajmicaElement(pozajmica);
+          container.insertBefore(
+            pozajmicaElement,
+            container.querySelector(".d-grid")
+          );
+        });
+      }
+
+      // Kreiranje HTML elementa za pozajmicu
+      function createPozajmicaElement(pozajmica) {
+        const div = document.createElement("div");
+
+        // Formatiranje datuma
+        const datumOdobrenja = new Date(
+          pozajmica.datum_izdavanja
+        ).toLocaleDateString("sr-RS");
+
+        // Koristim različite kolone ovisno o tome šta postoji
+        const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;
+        const preostaloIznos =
+          pozajmica.preostalo_dugovanje !== undefined
+            ? pozajmica.preostalo_dugovanje
+            : ukupanIznos;
+        const vraćenoIznos =
+          pozajmica.ukupno_vraceno || ukupanIznos - preostaloIznos;
+
+        // Određivanje boje na osnovu statusa
+        let borderClass = "border-primary";
+        let statusClass = "text-success";
+        let statusText = "Aktivna";
+
+        if (preostaloIznos > 0 && vraćenoIznos > 0) {
+          // Izračunaj procenat vraćenog
+          const vraćeniProcenat = (vraćenoIznos / ukupanIznos) * 100;
+
+          if (vraćeniProcenat > 50) {
+            borderClass = "border-info";
+            statusClass = "text-info";
+            statusText = "U toku vraćanja";
+          } else if (vraćeniProcenat < 20) {
+            borderClass = "border-warning";
+            statusClass = "text-warning";
+            statusText = "Početak vraćanja";
+          }
+        }
+
+        div.className = `mb-3 p-3 border ${borderClass} rounded`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong>${pozajmica.radnik_ime} ${
+          pozajmica.radnik_prezime
+        }</strong>
+              <br /><small class="text-muted">${
+                pozajmica.firma_naziv || "Nepoznata firma"
+              }</small>
+            </div>
+            <div class="text-end">
+              <h6 class="text-primary mb-0">${preostaloIznos}€</h6>
+              <small class="${statusClass}">${statusText}</small>
+            </div>
+          </div>
+          <small class="text-muted">Datum odobrenja: ${datumOdobrenja}</small>
+          ${
+            vraćenoIznos > 0 && ukupanIznos !== preostaloIznos
+              ? `<br><small class="text-info">Vraćeno: ${vraćenoIznos}€ od ${ukupanIznos}€</small>`
+              : ""
+          }
+        `;
+
+        return div;
+      }
+
       // Funkcija za učitavanje notifikacija iz baze
       async function loadNotifications() {
         try {
@@ -863,11 +1132,13 @@
         return div;
       }
 
-      // Učitaj notifikacije, statistike i PDV podatke kada se stranica učita
+      // Učitaj notifikacije, statistike, PDV podatke, pozajmice i aktivnosti kada se stranica učita
       document.addEventListener("DOMContentLoaded", function () {
         loadNotifications();
         loadDashboardStats();
         loadPDVData();
+        loadPozajmice();
+        loadActivities();
       });
 
       // Kalendar interakcija
@@ -879,6 +1150,175 @@
           }
         });
       });
+
+      // Quick Search funkcionalnost
+      function setupQuickSearch() {
+        const searchInput = document.getElementById("quickSearchInput");
+        const clearButton = document.getElementById("clearSearch");
+        const searchResults = document.getElementById("searchResults");
+        let searchTimeout;
+
+        searchInput.addEventListener("input", function () {
+          const query = this.value.trim();
+
+          if (query.length > 0) {
+            clearButton.style.display = "block";
+
+            // Debounce search
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+              performSearch(query);
+            }, 300);
+          } else {
+            clearButton.style.display = "none";
+            searchResults.style.display = "none";
+          }
+        });
+
+        clearButton.addEventListener("click", function () {
+          searchInput.value = "";
+          this.style.display = "none";
+          searchResults.style.display = "none";
+          searchInput.focus();
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener("click", function (e) {
+          if (!e.target.closest(".search-container")) {
+            searchResults.style.display = "none";
+          }
+        });
+      }
+
+      function performSearch(query) {
+        const searchResults = document.getElementById("searchResults");
+
+        // Show loading
+        searchResults.innerHTML =
+          '<div class="search-item">Pretražujem...</div>';
+        searchResults.style.display = "block";
+
+        // Try API calls with proper authentication
+        Promise.all([
+          fetch(`/api/firme/search?q=${encodeURIComponent(query)}`, {
+            credentials: "include",
+          }).catch(() => null),
+          fetch(`/api/radnici/search?q=${encodeURIComponent(query)}`, {
+            credentials: "include",
+          }).catch(() => null),
+          fetch(`/api/ugovori/search?q=${encodeURIComponent(query)}`, {
+            credentials: "include",
+          }).catch(() => null),
+        ])
+          .then((responses) => {
+            // Process valid responses
+            const promises = responses.map((r) => {
+              if (r && r.ok) {
+                return r.json();
+              } else {
+                return Promise.resolve([]);
+              }
+            });
+            return Promise.all(promises);
+          })
+          .then(([firme, radnici, ugovori]) => {
+            displaySearchResults(
+              firme || [],
+              radnici || [],
+              ugovori || [],
+              query
+            );
+          })
+          .catch((error) => {
+            console.error("Search error:", error);
+            displaySearchResults([], [], [], query);
+          });
+      }
+
+      function displaySearchResults(firme, radnici, ugovori, query) {
+        const searchResults = document.getElementById("searchResults");
+        let html = "";
+
+        const totalResults = firme.length + radnici.length + ugovori.length;
+
+        if (totalResults === 0) {
+          html = `<div class="search-item">
+            <div class="search-title">Nema rezultata za "${query}"</div>
+          </div>`;
+        } else {
+          // Firme results
+          if (firme.length > 0) {
+            firme.slice(0, 3).forEach((firma) => {
+              html += `<div class="search-item" onclick="navigateToResult('firma', ${
+                firma.id
+              })">
+                <div class="search-category">Firma</div>
+                <div class="search-title">${firma.naziv}</div>
+                <div class="search-subtitle">${firma.grad || "N/A"} • ${
+                firma.aktivna ? "Aktivna" : "Neaktivna"
+              }</div>
+              </div>`;
+            });
+          }
+
+          // Radnici results
+          if (radnici.length > 0) {
+            radnici.slice(0, 3).forEach((radnik) => {
+              html += `<div class="search-item" onclick="navigateToResult('radnik', ${radnik.id})">
+                <div class="search-category">Radnik</div>
+                <div class="search-title">${radnik.ime} ${radnik.prezime}</div>
+                <div class="search-subtitle">${radnik.pozicija} • ${radnik.firma}</div>
+              </div>`;
+            });
+          }
+
+          // Ugovori results
+          if (ugovori.length > 0) {
+            ugovori.slice(0, 3).forEach((ugovor) => {
+              html += `<div class="search-item" onclick="navigateToResult('ugovor', ${ugovor.id})">
+                <div class="search-category">Ugovor</div>
+                <div class="search-title">${ugovor.tip}</div>
+                <div class="search-subtitle">${ugovor.radnik} • ${ugovor.datum}</div>
+              </div>`;
+            });
+          }
+
+          // Show more results if needed
+          if (totalResults > 9) {
+            html += `<div class="search-item" onclick="showAllResults('${query}')">
+              <div class="search-title text-primary">Prikaži sve rezultate (${totalResults})</div>
+            </div>`;
+          }
+        }
+
+        searchResults.innerHTML = html;
+        searchResults.style.display = "block";
+      }
+
+      function navigateToResult(type, id) {
+        const searchResults = document.getElementById("searchResults");
+        searchResults.style.display = "none";
+
+        switch (type) {
+          case "firma":
+            window.location.href = `firma-detalji.html?id=${id}`;
+            break;
+          case "radnik":
+            window.location.href = `radnici.html?highlight=${id}`;
+            break;
+          case "ugovor":
+            window.location.href = `ugovor-o-radu.html?id=${id}`;
+            break;
+          default:
+            console.log("Unknown result type:", type);
+        }
+      }
+
+      function showAllResults(query) {
+        window.location.href = `search-results.html?q=${encodeURIComponent(
+          query
+        )}`;
+      }
     </script>
   </body>
 </html>

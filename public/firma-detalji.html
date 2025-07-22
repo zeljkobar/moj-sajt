@@ -238,11 +238,17 @@
             <div class="row">
               <div class="col-md-6">
                 <h5 class="text-primary mb-3">HR Operacije</h5>
-                <button class="btn btn-primary quick-action-btn">
+                <button
+                  class="btn btn-primary quick-action-btn"
+                  onclick="openRadnikModal({firmId: currentFirmaId, onSuccess: function() { loadRadnici(currentFirmaId); }})"
+                >
                   <i class="fas fa-user-plus me-2"></i>Dodaj novog radnika
                 </button>
-                <button class="btn btn-success quick-action-btn">
-                  <i class="fas fa-file-contract me-2"></i>Kreiraj ugovor o radu
+                <button
+                  class="btn btn-success quick-action-btn"
+                  onclick="window.location.href='/pozicije.html'"
+                >
+                  <i class="fas fa-briefcase me-2"></i>Upravljanje pozicijama
                 </button>
                 <button class="btn btn-info quick-action-btn">
                   <i class="fas fa-handshake me-2"></i>Sporazumni raskid
@@ -256,11 +262,18 @@
                 <button class="btn btn-success quick-action-btn">
                   <i class="fas fa-money-bill-wave me-2"></i>Nova pozajmica
                 </button>
-                <button class="btn btn-primary quick-action-btn">
+                <button
+                  class="btn btn-primary quick-action-btn"
+                  onclick="window.open(`/pdv_prijava/index.html?firmaId=${currentFirmaId}`, '_blank')"
+                >
                   <i class="fas fa-receipt me-2"></i>Generiši PDV prijavu
                 </button>
-                <button class="btn btn-info quick-action-btn">
-                  <i class="fas fa-file-export me-2"></i>Izvezi porešku prijavu
+                <button
+                  class="btn btn-info quick-action-btn"
+                  onclick="window.open(`/dobit_prijava/index.html?firmaId=${currentFirmaId}`, '_blank')"
+                >
+                  <i class="fas fa-file-export me-2"></i>Generiši poresku
+                  prijavu
                 </button>
                 <button class="btn btn-warning quick-action-btn">
                   <i class="fas fa-calendar-check me-2"></i>Proveri rokove
@@ -305,9 +318,14 @@
           <div class="p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h4>Upravljanje radnicima</h4>
-              <button class="btn btn-primary">
-                <i class="fas fa-user-plus me-2"></i>Dodaj radnika
-              </button>
+              <div>
+                <button
+                  class="btn btn-primary"
+                  onclick="openRadnikModal({firmId: currentFirmaId, onSuccess: function() { loadRadnici(currentFirmaId); }})"
+                >
+                  <i class="fas fa-user-plus me-2"></i>Dodaj radnika
+                </button>
+              </div>
             </div>
 
             <!-- Mini tabs za radnike -->
@@ -381,7 +399,56 @@
                   </table>
                 </div>
               </div>
-              <!-- Ostali pill tabovi... -->
+
+              <!-- Neaktivni radnici tab -->
+              <div class="tab-pane fade" id="neaktivni-radnici">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Ime i prezime</th>
+                        <th>Pozicija</th>
+                        <th>Datum zaposlenja</th>
+                        <th>Datum prestanka</th>
+                        <th>Razlog prestanka</th>
+                        <th>Akcije</th>
+                      </tr>
+                    </thead>
+                    <tbody id="neaktivniRadniciTabela">
+                      <tr>
+                        <td colspan="6" class="text-center text-muted">
+                          Učitavanje...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Ugovori koji ističu tab -->
+              <div class="tab-pane fade" id="ugovori-detalji">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Ime i prezime</th>
+                        <th>Pozicija</th>
+                        <th>Datum zaposlenja</th>
+                        <th>Ugovor ističe</th>
+                        <th>Dani do isteka</th>
+                        <th>Akcije</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ugovoriIstekuTabela">
+                      <tr>
+                        <td colspan="6" class="text-center text-muted">
+                          Učitavanje...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -536,30 +603,417 @@
       </div>
     </div>
 
+    <!-- Modal za detalje radnika -->
+    <div
+      class="modal fade"
+      id="radnikDetaljModal"
+      tabindex="-1"
+      aria-labelledby="radnikDetaljModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="radnikDetaljModalLabel">
+              <i class="fas fa-user me-2"></i>Detalji radnika:
+              <span id="modalRadnikIme">Loading...</span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <!-- Leva kolona -->
+              <div class="col-md-6">
+                <h6 class="text-primary mb-3">Osnovni podaci</h6>
+                <div class="mb-3">
+                  <strong>Ime i prezime:</strong>
+                  <span id="modalRadnikImePrezime">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>JMBG:</strong> <span id="modalRadnikJMBG">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Adresa:</strong> <span id="modalRadnikAdresa">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Pozicija:</strong>
+                  <span id="modalRadnikPozicija">-</span>
+                </div>
+
+                <h6 class="text-success mb-3 mt-4">Finansijski podaci</h6>
+                <div class="mb-3">
+                  <strong>Visina zarade:</strong>
+                  <span id="modalRadnikZarada">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Radno vrijeme:</strong>
+                  <span id="modalRadnikRadnoVreme">-</span>
+                </div>
+              </div>
+
+              <!-- Desna kolona -->
+              <div class="col-md-6">
+                <h6 class="text-info mb-3">Podaci o zaposlenju</h6>
+                <div class="mb-3">
+                  <strong>Firma:</strong> <span id="modalRadnikFirma">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Datum zaposlenja:</strong>
+                  <span id="modalRadnikDatumZaposlenja">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Tip ugovora:</strong>
+                  <span id="modalRadnikTipUgovora">-</span>
+                </div>
+                <div class="mb-3">
+                  <strong>Važi do:</strong>
+                  <span id="modalRadnikVaziDo">-</span>
+                </div>
+
+                <h6 class="text-warning mb-3 mt-4">Dodatne informacije</h6>
+                <div class="mb-3">
+                  <strong>Napomene:</strong>
+                  <span id="modalRadnikNapomene">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Opis poslova -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <h6 class="text-secondary mb-3">Opis poslova</h6>
+                <div class="bg-light p-3 rounded">
+                  <p id="modalRadnikOpisPoslova" class="mb-0 text-muted">
+                    Učitavanje...
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="generisiUgovorModal()"
+            >
+              <i class="fas fa-file-contract me-1"></i>Ugovor
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="sedmicniOdmorModal()"
+            >
+              <i class="fas fa-calendar-alt me-1"></i>Sedmični odmor
+            </button>
+            <button
+              type="button"
+              class="btn btn-warning"
+              onclick="mobingModal()"
+            >
+              <i class="fas fa-exclamation-triangle me-1"></i>Mobing
+            </button>
+            <button
+              type="button"
+              class="btn btn-info"
+              onclick="potvrdaZaposlenjaModal()"
+            >
+              <i class="fas fa-certificate me-1"></i>Potvrda zaposlenja
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Zatvori
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za editovanje radnika -->
+    <div
+      class="modal fade"
+      id="editRadnikModal"
+      tabindex="-1"
+      aria-labelledby="editRadnikModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title" id="editRadnikModalLabel">
+              <i class="fas fa-user-edit me-2"></i>Uredi radnika
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editRadnikForm">
+              <input type="hidden" id="edit_radnik_id" name="radnik_id" />
+
+              <!-- Osnovni podaci -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_ime" class="form-label">Ime:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit_ime"
+                      name="ime"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_prezime" class="form-label"
+                      >Prezime:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit_prezime"
+                      name="prezime"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- JMBG i Grad -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_jmbg" class="form-label">JMBG:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit_jmbg"
+                      name="jmbg"
+                      required
+                      maxlength="13"
+                      pattern="[0-9]{13}"
+                      title="JMBG mora imati tačno 13 cifara"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_grad" class="form-label">Grad:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit_grad"
+                      name="grad"
+                      placeholder="Bar, Budva, Podgorica..."
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Adresa -->
+              <div class="mb-3">
+                <label for="edit_adresa" class="form-label">Adresa:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="edit_adresa"
+                  name="adresa"
+                  placeholder="Ulica i broj, Bar 85000"
+                  required
+                />
+              </div>
+
+              <!-- Pozicija i firma -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_pozicija_id" class="form-label"
+                      >Pozicija:</label
+                    >
+                    <select
+                      class="form-select"
+                      id="edit_pozicija_id"
+                      name="pozicija_id"
+                      required
+                    >
+                      <option value="">Izaberite poziciju</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_firma_id" class="form-label">Firma:</label>
+                    <select
+                      class="form-select"
+                      id="edit_firma_id"
+                      name="firma_id"
+                      required
+                    >
+                      <option value="">Izaberite firmu</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Datum zaposlenja i zarada -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_datum_zaposlenja" class="form-label"
+                      >Datum zaposlenja:</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="edit_datum_zaposlenja"
+                      name="datum_zaposlenja"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_visina_zarade" class="form-label"
+                      >Visina zarade (€):</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="edit_visina_zarade"
+                      name="visina_zarade"
+                      step="0.01"
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Radno vreme -->
+              <div class="mb-3">
+                <label for="edit_tip_radnog_vremena" class="form-label"
+                  >Radno vreme:</label
+                >
+                <select
+                  class="form-select"
+                  id="edit_tip_radnog_vremena"
+                  name="tip_radnog_vremena"
+                  required
+                >
+                  <option value="puno_8h">
+                    Puno radno vreme (8 sati dnevno / 40 sati nedeljno)
+                  </option>
+                  <option value="skraceno_6h">
+                    Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)
+                  </option>
+                  <option value="skraceno_4h">
+                    Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)
+                  </option>
+                  <option value="skraceno_2h">
+                    Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)
+                  </option>
+                </select>
+              </div>
+
+              <!-- Tip ugovora -->
+              <div class="mb-3">
+                <label for="edit_tip_ugovora" class="form-label"
+                  >Tip ugovora:</label
+                >
+                <select
+                  class="form-select"
+                  id="edit_tip_ugovora"
+                  name="tip_ugovora"
+                  required
+                  onchange="toggleEditDatumPrestanka()"
+                >
+                  <option value="na_neodredjeno">Na neodređeno vreme</option>
+                  <option value="na_odredjeno">Na određeno vreme</option>
+                </select>
+              </div>
+
+              <!-- Datum prestanka (uslovni) -->
+              <div
+                class="mb-3"
+                id="edit_datum_prestanka_group"
+                style="display: none"
+              >
+                <label for="edit_datum_prestanka" class="form-label"
+                  >Datum prestanka rada:</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="edit_datum_prestanka"
+                  name="datum_prestanka"
+                />
+              </div>
+
+              <!-- Napomene -->
+              <div class="mb-3">
+                <label for="edit_napomene" class="form-label">Napomene:</label>
+                <textarea
+                  class="form-control"
+                  id="edit_napomene"
+                  name="napomene"
+                  rows="3"
+                  placeholder="Dodatne napomene o zaposlenju..."
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="submitEditRadnik()"
+            >
+              <i class="fas fa-save me-1"></i>Sačuvaj izmene
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    <script src="radnik-modal.js"></script>
+    <script src="firma-detalji.js"></script>
     <script>
-      // Simulacija učitavanja podataka firme
-      document.addEventListener("DOMContentLoaded", function () {
-        // Ovde bi se učitali stvarni podaci iz baze
-        console.log("Firma detalji stranica učitana");
+      // Globalna funkcija za toggle datum prestanka u edit modalu
+      function toggleEditDatumPrestanka() {
+        const tipUgovora = document.getElementById("edit_tip_ugovora").value;
+        const datumPrestankaGroup = document.getElementById(
+          "edit_datum_prestanka_group"
+        );
 
-        // Primer dinamičkog učitavanja
-        // loadFirmaData();
-      });
-
-      function loadFirmaData() {
-        // Ajax poziv za učitavanje podataka firme
-        // Ažuriranje DOM elemenata sa podacima
-      }
-
-      // Tab aktivacija sa URL parametrima
-      const urlParams = new URLSearchParams(window.location.search);
-      const activeTab = urlParams.get("tab");
-      if (activeTab) {
-        const tabButton = document.querySelector(`#${activeTab}-tab`);
-        if (tabButton) {
-          tabButton.click();
+        if (tipUgovora === "na_odredjeno") {
+          datumPrestankaGroup.style.display = "block";
+          document.getElementById("edit_datum_prestanka").required = true;
+        } else {
+          datumPrestankaGroup.style.display = "none";
+          document.getElementById("edit_datum_prestanka").required = false;
+          document.getElementById("edit_datum_prestanka").value = "";
         }
       }
     </script>

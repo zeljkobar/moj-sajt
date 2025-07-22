@@ -215,6 +215,11 @@ function renderFirms() {
               }, '${firm.naziv.replace(/'/g, "\\'")}')">
                 <i class="fas fa-file-alt"></i>
               </button>
+              <button class="edit-btn" onclick="viewFirmaDetalji(${
+                firm.id
+              })" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="Detalji firme">
+                <i class="fas fa-info-circle"></i>
+              </button>
               <button class="delete-btn" data-pib="${
                 firm.pib
               }" data-naziv="${firm.naziv.replace(/"/g, "&quot;")}">
@@ -597,7 +602,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Funkcija za pregled radnika po firmi
 function viewRadnici(firmaId) {
-  window.location.href = `/radnici-firma.html?firmaId=${firmaId}`;
+  window.location.href = `/firma-detalji.html?id=${firmaId}&tab=radnici`;
 }
 
 // Funkcija za pregled pozajmica po firmi
@@ -612,4 +617,9 @@ function viewDokumenti(firmaId, firmaNaziv) {
   window.location.href = `/dokumenti-firma.html?firmaId=${firmaId}&naziv=${encodeURIComponent(
     firmaNaziv
   )}`;
+}
+
+// Funkcija za pregled detalja firme
+function viewFirmaDetalji(firmaId) {
+  window.location.href = `/firma-detalji.html?id=${firmaId}`;
 }

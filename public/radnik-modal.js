@@ -399,17 +399,23 @@ class RadnikModal {
     try {
       const response = await fetch("/api/firme");
       if (response.ok) {
-        const firme = await response.json();
+        const firmeData = await response.json();
+        // Koristi isti pattern kao u edit modalu: data.firme || data
+        const firme = firmeData.firme || firmeData;
         const firmaSelect = document.getElementById("firma_id");
 
         if (firmaSelect) {
           firmaSelect.innerHTML = '<option value="">Izaberite firmu</option>';
-          firme.forEach((firma) => {
-            const option = document.createElement("option");
-            option.value = firma.id;
-            option.textContent = firma.naziv;
-            firmaSelect.appendChild(option);
-          });
+          if (Array.isArray(firme)) {
+            firme.forEach((firma) => {
+              const option = document.createElement("option");
+              option.value = firma.id;
+              option.textContent = firma.naziv;
+              firmaSelect.appendChild(option);
+            });
+          } else {
+            console.error("Firme nisu u nizu formatu:", firme);
+          }
         }
       }
     } catch (error) {
@@ -422,18 +428,24 @@ class RadnikModal {
     try {
       const response = await fetch("/api/pozicije");
       if (response.ok) {
-        const pozicije = await response.json();
+        const pozicijeData = await response.json();
+        // Koristi isti pattern kao za firme
+        const pozicije = pozicijeData.pozicije || pozicijeData;
         const pozicijaSelect = document.getElementById("pozicija_id");
 
         if (pozicijaSelect) {
           pozicijaSelect.innerHTML =
             '<option value="">Izaberite poziciju</option>';
-          pozicije.forEach((pozicija) => {
-            const option = document.createElement("option");
-            option.value = pozicija.id;
-            option.textContent = pozicija.naziv;
-            pozicijaSelect.appendChild(option);
-          });
+          if (Array.isArray(pozicije)) {
+            pozicije.forEach((pozicija) => {
+              const option = document.createElement("option");
+              option.value = pozicija.id;
+              option.textContent = pozicija.naziv;
+              pozicijaSelect.appendChild(option);
+            });
+          } else {
+            console.error("Pozicije nisu u nizu formatu:", pozicije);
+          }
         }
       }
     } catch (error) {
