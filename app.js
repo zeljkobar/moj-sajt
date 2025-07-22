@@ -159,6 +159,16 @@ app.get("/edit-profil.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/edit-profil.html");
 });
 
+// Zaštićena ruta za dashboard1 (nova optimizovana verzija)
+app.get("/dashboard1.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/dashboard1.html");
+});
+
+// Zaštićena ruta za firma-detalji (nova stranica sa tabovima)
+app.get("/firma-detalji.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/firma-detalji.html");
+});
+
 // API ruta za pretragu
 app.get("/api/search", authMiddleware, async (req, res) => {
   try {

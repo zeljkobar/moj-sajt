@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="global-components.css" />
+    <style>
+      .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 4px solid #0d6efd;
+        height: 100%;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-card.warning {
+        border-left-color: #ffc107;
+      }
+
+      .stat-card.danger {
+        border-left-color: #dc3545;
+      }
+
+      .stat-card.success {
+        border-left-color: #198754;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+
+      .quick-action-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+
+      .quick-action-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .quick-action-btn {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+      }
+
+      .quick-action-btn:last-child {
+        margin-bottom: 0;
+      }
+
+      .pdv-calendar-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+      }
+
+      .firma-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid #0d6efd;
+      }
+
+      .firma-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+      }
+
+      .firma-card.warning {
+        border-left-color: #ffc107;
+      }
+
+      .firma-card.danger {
+        border-left-color: #dc3545;
+      }
+
+      .activity-item {
+        border-left: 3px solid #e9ecef;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      .activity-item.recent {
+        border-left-color: #0d6efd;
+      }
+
+      .activity-item.success {
+        border-left-color: #198754;
+      }
+
+      .activity-item.warning {
+        border-left-color: #ffc107;
+      }
+
+      .calendar-day {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        text-align: center;
+        margin: 0.125rem;
+        min-height: 60px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .calendar-day:hover {
+        background: #f8f9fa;
+        border-color: #0d6efd;
+      }
+
+      .calendar-day.today {
+        background: #0d6efd;
+        color: white;
+        font-weight: bold;
+      }
+
+      .calendar-day.deadline {
+        background: #fff3cd;
+        border-color: #ffc107;
+      }
+
+      .calendar-day.overdue {
+        background: #f8d7da;
+        border-color: #dc3545;
+      }
+
+      .calendar-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #dc3545;
+      }
+
+      .welcome-section {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Summa Summarum</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="dashboard1.html">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="firme.html">
+                <i class="fas fa-building me-1"></i>Firme
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="pdv-pregled.html">
+                <i class="fas fa-receipt me-1"></i>PDV Kalendar
+              </a>
+            </li>
+            <li class="nav-item">
+              <button id="logoutBtn" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Odjavi se
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="welcome-section">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="mb-2">
+                Dobrodošli nazad, <span id="userName">Korisnice</span>!
+              </h1>
+              <p class="mb-0 lead">
+                Evo pregleda vaših trenutnih aktivnosti i zadataka
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="d-flex flex-column align-items-end">
+                <h5 class="mb-1">Danas je</h5>
+                <h3 class="mb-0" id="currentDate">22. Jul 2025</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-4">
+      <!-- Statistike -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="stat-card">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <div class="stat-number text-primary">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Učitavanje...</span>
+                  </div>
+                </div>
+                <h6 class="text-muted mb-0">Ukupno firmi</h6>
+              </div>
+              <div class="text-primary">
+                <i class="fas fa-building fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="stat-card warning">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <div class="stat-number text-warning">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Učitavanje...</span>
+                  </div>
+                </div>
+                <h6 class="text-muted mb-0">Aktivne firme</h6>
+              </div>
+              <div class="text-warning">
+                <i class="fas fa-chart-line fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="stat-card danger">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <div class="stat-number text-danger">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Učitavanje...</span>
+                  </div>
+                </div>
+                <h6 class="text-muted mb-0">Firme na PDV nuli</h6>
+              </div>
+              <div class="text-danger">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <div class="stat-card success">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <div class="stat-number text-success">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Učitavanje...</span>
+                  </div>
+                </div>
+                <h6 class="text-muted mb-0">Aktivnih radnika</h6>
+              </div>
+              <div class="text-success">
+                <i class="fas fa-users fa-2x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Leva kolona -->
+        <div class="col-lg-8">
+          <!-- PDV Rokovi - kompaktno -->
+          <div class="pdv-calendar-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-calendar-check text-primary me-2"></i>
+                PDV Rokovi - Februar 2025
+              </h5>
+              <button class="btn btn-sm btn-primary">
+                <i class="fas fa-calendar-alt me-1"></i>Pogledaj kalendar
+              </button>
+            </div>
+
+            <!-- Kompaktna lista rokova -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="text-center p-3 bg-light rounded">
+                  <h3 class="text-success mb-1">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
+                  </h3>
+                  <small class="text-muted">Poslano na vreme</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-center p-3 bg-warning bg-opacity-25 rounded">
+                  <h3 class="text-warning mb-1">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
+                  </h3>
+                  <small class="text-muted">Čeka unos</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-center p-3 bg-danger bg-opacity-25 rounded">
+                  <h3 class="text-danger mb-1">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
+                  </h3>
+                  <small class="text-muted">Zakašnjeno</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-center">
+              <a href="pdv-pregled.html" class="btn btn-outline-primary">
+                <i class="fas fa-eye me-2"></i>Detaljni PDV kalendar
+              </a>
+            </div>
+          </div>
+
+          <!-- Firme koje zahtevaju pažnju -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+              Firme koje zahtevaju pažnju
+            </h5>
+
+            <!-- Loading placeholder -->
+            <div class="notifications-loading text-center py-3">
+              <div
+                class="spinner-border spinner-border-sm text-primary"
+                role="status"
+              >
+                <span class="visually-hidden">Učitavanje...</span>
+              </div>
+              <div class="mt-2 text-muted">Učitavanje notifikacija...</div>
+            </div>
+
+            <!-- Notifikacije će se učitati ovde dinamički -->
+          </div>
+
+          <!-- Poslednje aktivnosti -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-history text-info me-2"></i>
+              Poslednje aktivnosti
+            </h5>
+
+            <div class="activity-item recent">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">Kreiran ugovor o radu</h6>
+                  <p class="mb-1 text-muted">Marko Petrović - Tehnos d.o.o.</p>
+                  <small class="text-muted">Pre 2 sata</small>
+                </div>
+                <i class="fas fa-file-contract text-primary"></i>
+              </div>
+            </div>
+
+            <div class="activity-item success">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">PDV prijava poslana</h6>
+                  <p class="mb-1 text-muted">Mira Trade d.o.o. - Januar 2025</p>
+                  <small class="text-muted">Juče u 14:30</small>
+                </div>
+                <i class="fas fa-check-circle text-success"></i>
+              </div>
+            </div>
+
+            <div class="activity-item warning">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">Odobrena pozajmica</h6>
+                  <p class="mb-1 text-muted">Ana Jovanović - 2.500€</p>
+                  <small class="text-muted">Pre 2 dana</small>
+                </div>
+                <i class="fas fa-money-bill-wave text-warning"></i>
+              </div>
+            </div>
+
+            <div class="text-center mt-3">
+              <button class="btn btn-outline-info">
+                <i class="fas fa-list me-2"></i>Pogledaj sve aktivnosti
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desna kolona -->
+        <div class="col-lg-4">
+          <!-- Brze akcije -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-bolt text-primary me-2"></i>
+              Brze akcije
+            </h5>
+
+            <a href="dodaj-firmu.html" class="btn btn-primary quick-action-btn">
+              <i class="fas fa-plus me-2"></i>Dodaj novu firmu
+            </a>
+
+            <a href="radnici.html" class="btn btn-success quick-action-btn">
+              <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
+            </a>
+
+            <a href="firma-detalji.html" class="btn btn-info quick-action-btn">
+              <i class="fas fa-money-bill-wave me-2"></i>Kreiraj pozajmicu
+            </a>
+
+            <a
+              href="pdv_prijava/index.html"
+              class="btn btn-warning quick-action-btn"
+            >
+              <i class="fas fa-receipt me-2"></i>Generiši PDV prijavu
+            </a>
+
+            <a href="pdv0.html" class="btn btn-success quick-action-btn">
+              <i class="fas fa-download me-2"></i>Generiši PDV na nuli
+            </a>
+
+            <a
+              href="dobit_prijava/index.html"
+              class="btn btn-info quick-action-btn"
+            >
+              <i class="fas fa-file-export me-2"></i>Generiši poresku prijavu
+            </a>
+          </div>
+
+          <!-- Pozajmice pregled -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-coins text-warning me-2"></i>
+              Aktivne pozajmice
+            </h5>
+
+            <div class="mb-3 p-3 border border-primary rounded">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <div>
+                  <strong>Ana Jovanović</strong>
+                  <br /><small class="text-muted">Tehnos d.o.o.</small>
+                </div>
+                <div class="text-end">
+                  <h6 class="text-primary mb-0">2.500€</h6>
+                  <small class="text-success">Aktivna</small>
+                </div>
+              </div>
+              <small class="text-muted">Datum odobrenja: 15.01.2025</small>
+            </div>
+
+            <div class="mb-3 p-3 border border-info rounded">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <div>
+                  <strong>Marko Petrović</strong>
+                  <br /><small class="text-muted">Mira Trade d.o.o.</small>
+                </div>
+                <div class="text-end">
+                  <h6 class="text-primary mb-0">1.200€</h6>
+                  <small class="text-success">Aktivna</small>
+                </div>
+              </div>
+              <small class="text-muted">Datum odobrenja: 28.12.2024</small>
+            </div>
+
+            <div class="mb-3 p-3 border border-warning rounded">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <div>
+                  <strong>Stefan Nikolić</strong>
+                  <br /><small class="text-muted">Adriatic Solutions</small>
+                </div>
+                <div class="text-end">
+                  <h6 class="text-primary mb-0">800€</h6>
+                  <small class="text-warning">Dogovor za povraćaj</small>
+                </div>
+              </div>
+              <small class="text-muted">Datum odobrenja: 05.11.2024</small>
+            </div>
+
+            <div class="d-grid">
+              <button class="btn btn-outline-warning">
+                <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
+              </button>
+            </div>
+          </div>
+
+          <!-- Sistem notifikacije -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-bell text-info me-2"></i>
+              Notifikacije
+            </h5>
+
+            <div class="alert alert-warning alert-sm">
+              <strong><i class="fas fa-clock me-1"></i> PDV rok!</strong><br />
+              7 firmi ima PDV rok za 7 dana
+            </div>
+
+            <div class="alert alert-info alert-sm">
+              <strong><i class="fas fa-file-contract me-1"></i> Ugovori</strong
+              ><br />
+              2 ugovora ističe ovog meseca
+            </div>
+
+            <div class="alert alert-success alert-sm">
+              <strong><i class="fas fa-check me-1"></i> Završeno</strong><br />
+              Sve PDV prijave za Januar poslane
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Postavi trenutni datum
+        const today = new Date();
+        const options = {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        };
+        document.getElementById("currentDate").textContent =
+          today.toLocaleDateString("sr-RS", options);
+
+        // Simulacija učitavanja korisničkih podataka
+        // loadUserData();
+        // loadDashboardStats();
+
+        console.log("Dashboard učitan");
+      });
+
+      // Funkcije za učitavanje podataka
+      function loadUserData() {
+        // Ajax poziv za korisničke podatke
+      }
+
+      function loadDashboardStats() {
+        // Ajax poziv za statistike dashboard-a
+        fetch("/api/dashboard-stats", {
+          credentials: "include",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("API poziv neuspešan");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Dashboard stats API response:", data);
+            updateDashboardStats(data);
+          })
+          .catch((error) => {
+            console.error("Greška pri učitavanju statistika:", error);
+            // Postavi default vrednosti u slučaju greške
+            updateDashboardStats({
+              total: 0,
+              aktivne: 0,
+              naNuli: 0,
+              aktivniRadnici: 0,
+            });
+          });
+      }
+
+      // Funkcija za ažuriranje statistika na stranici
+      function updateDashboardStats(stats) {
+        // Ukupno firmi
+        const ukupnoFirmi = document.querySelector(".stat-number.text-primary");
+        if (ukupnoFirmi) {
+          ukupnoFirmi.innerHTML = stats.total || 0;
+        }
+
+        // Aktivne firme
+        const aktivneFirme = document.querySelector(
+          ".stat-number.text-warning"
+        );
+        if (aktivneFirme) {
+          aktivneFirme.innerHTML = stats.aktivne || 0;
+        }
+
+        // Firme na PDV nuli
+        const firmeNaNuli = document.querySelector(".stat-number.text-danger");
+        if (firmeNaNuli) {
+          firmeNaNuli.innerHTML = stats.naNuli || 0;
+        }
+
+        // Aktivnih radnika
+        const aktivniRadnici = document.querySelector(
+          ".stat-number.text-success"
+        );
+        if (aktivniRadnici) {
+          aktivniRadnici.innerHTML = stats.aktivniRadnici || 0;
+        }
+      }
+
+      // Funkcija za učitavanje PDV podataka
+      async function loadPDVData() {
+        try {
+          const response = await fetch("/api/pdv", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("PDV API response:", data);
+            updatePDVSection(data);
+          } else {
+            console.error("Greška pri učitavanju PDV podataka");
+          }
+        } catch (error) {
+          console.error("Greška pri povezivanju sa PDV API:", error);
+        }
+      }
+
+      // Funkcija za ažuriranje PDV sekcije
+      function updatePDVSection(pdvData) {
+        console.log("Updating PDV section with:", pdvData);
+
+        // Funkcija za formatiranje meseca (ista kao u pdv-pregled.html)
+        function formatMonth(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString("sr-RS", {
+            year: "numeric",
+            month: "long",
+          });
+        }
+
+        // Ažuriraj naslov sa stvarnim mesecоm i rokom
+        const naslov = document.querySelector(".pdv-calendar-card h5");
+        if (naslov && pdvData.rok_info) {
+          const mesecNaziv = formatMonth(pdvData.rok_info.trenutni_mjesec);
+          naslov.innerHTML = `
+            <i class="fas fa-calendar-check text-primary me-2"></i>
+            PDV Rokovi - ${mesecNaziv}
+          `;
+
+          // Ažuriraj dugme sa danima do roka
+          const dugme = document.querySelector(
+            ".pdv-calendar-card .btn-primary, .pdv-calendar-card .btn-warning, .pdv-calendar-card .btn-danger"
+          );
+          if (dugme) {
+            const danaDoRoka = pdvData.rok_info.dana_do_roka;
+            dugme.innerHTML = `
+              <i class="fas fa-calendar-alt me-1"></i>
+              ${danaDoRoka > 0 ? danaDoRoka + " dana do roka" : "Rok prošao"}
+            `;
+
+            // Promeni boju dugmeta na osnovu roka
+            dugme.className =
+              danaDoRoka <= 5
+                ? "btn btn-sm btn-danger"
+                : danaDoRoka <= 10
+                ? "btn btn-sm btn-warning"
+                : "btn btn-sm btn-primary";
+          }
+        }
+
+        // Izračunaj statistike iz firmi
+        const stats = {
+          poslano: 0,
+          na_cekanju: 0,
+          zakasnjeno: 0,
+        };
+
+        if (pdvData.firme) {
+          pdvData.firme.forEach((firma) => {
+            if (firma.status === "predano") {
+              stats.poslano++;
+            } else if (firma.status === "kasni") {
+              stats.zakasnjeno++;
+            } else {
+              stats.na_cekanju++;
+            }
+          });
+        }
+
+        // Ažuriraj brojeve u karticama
+        const kartice = document.querySelectorAll(
+          ".pdv-calendar-card .text-center"
+        );
+
+        if (kartice[0]) {
+          // Poslano na vreme
+          kartice[0].querySelector("h3").innerHTML = stats.poslano;
+        }
+
+        if (kartice[1]) {
+          // Na čekanju
+          kartice[1].querySelector("h3").innerHTML = stats.na_cekanju;
+          if (pdvData.rok_info) {
+            kartice[1].querySelector(
+              "small"
+            ).textContent = `Čeka unos (rok za ${pdvData.rok_info.dana_do_roka} dana)`;
+          }
+        }
+
+        if (kartice[2]) {
+          // Zakašnjeno
+          kartice[2].querySelector("h3").innerHTML = stats.zakasnjeno;
+        }
+      }
+
+      // Funkcija za učitavanje notifikacija iz baze
+      async function loadNotifications() {
+        try {
+          const response = await fetch("/api/notifications", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            updateNotificationsSection(data.notifications);
+          } else {
+            console.error("Greška pri učitavanju notifikacija");
+          }
+        } catch (error) {
+          console.error("Greška pri povezivanju sa serverom:", error);
+        }
+      }
+
+      // Funkcija za ažuriranje sekcije sa notifikacijama
+      function updateNotificationsSection(notifications) {
+        const container = document
+          .querySelector(".quick-action-card h5 i.fa-exclamation-triangle")
+          .closest(".quick-action-card");
+
+        // Sakrij loader
+        const loader = container.querySelector(".notifications-loading");
+        if (loader) {
+          loader.style.display = "none";
+        }
+
+        // Očisti postojeće fiksne notifikacije
+        const existingItems = container.querySelectorAll(".firma-card");
+        existingItems.forEach((item) => item.remove());
+
+        if (notifications.length === 0) {
+          // Prikaži poruku da nema notifikacija
+          const noNotifications = document.createElement("div");
+          noNotifications.className = "text-center py-3 text-muted";
+          noNotifications.innerHTML = `
+            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+            <div>Nema hitnih obaveštenja</div>
+          `;
+          container.appendChild(noNotifications);
+          return;
+        }
+
+        // Dodaj stvarne notifikacije
+        notifications.forEach((notification) => {
+          const notificationElement = createNotificationElement(notification);
+          container.appendChild(notificationElement);
+        });
+      }
+
+      // Kreiranje HTML elementa za notifikaciju
+      function createNotificationElement(notification) {
+        const div = document.createElement("div");
+
+        let badgeClass = "bg-info";
+        let cardClass = "info";
+
+        if (notification.type === "urgent") {
+          badgeClass = "bg-danger";
+          cardClass = "danger";
+        } else if (notification.type === "warning") {
+          badgeClass = "bg-warning";
+          cardClass = "warning";
+        }
+
+        div.className = `firma-card ${cardClass}`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">${notification.title}</h6>
+              <small class="text-muted">${notification.description}</small>
+            </div>
+            <div>
+              <span class="badge ${badgeClass}">${
+          notification.icon || notification.type
+        }</span>
+              ${
+                notification.action
+                  ? `<a href="${notification.action}" class="btn btn-sm btn-outline-primary ms-2">
+                <i class="fas fa-eye"></i>
+              </a>`
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+
+        return div;
+      }
+
+      // Učitaj notifikacije, statistike i PDV podatke kada se stranica učita
+      document.addEventListener("DOMContentLoaded", function () {
+        loadNotifications();
+        loadDashboardStats();
+        loadPDVData();
+      });
+
+      // Kalendar interakcija
+      document.querySelectorAll(".calendar-day").forEach((day) => {
+        day.addEventListener("click", function () {
+          if (this.textContent.trim()) {
+            console.log("Kliknuto na dan:", this.textContent);
+            // Otvori modal sa detaljima dana
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

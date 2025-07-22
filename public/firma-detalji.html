@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalji Firme - Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="global-components.css" />
+    <style>
+      .nav-tabs .nav-link {
+        color: #495057;
+        font-weight: 500;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 1rem 1.5rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .nav-tabs .nav-link:hover {
+        border-color: #dee2e6;
+        background-color: #f8f9fa;
+      }
+
+      .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        background-color: transparent;
+        border-bottom-color: #0d6efd;
+        font-weight: 600;
+      }
+
+      .tab-content {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        min-height: 600px;
+      }
+
+      .firma-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .stat-card .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0d6efd;
+      }
+
+      .quick-action-btn {
+        margin: 0.25rem;
+        min-width: 200px;
+      }
+
+      .document-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .document-card:hover {
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Summa Summarum</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard1.html">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="firme.html">
+                <i class="fas fa-building me-1"></i>Firme
+              </a>
+            </li>
+            <li class="nav-item">
+              <button id="logoutBtn" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Odjavi se
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Firma Header -->
+    <section class="firma-header">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1 class="mb-2" id="firmaNaziv">Naziv Firme d.o.o.</h1>
+            <p class="mb-1">
+              <i class="fas fa-id-card me-2"></i>PIB:
+              <span id="firmaPIB">12345678</span>
+            </p>
+            <p class="mb-1">
+              <i class="fas fa-map-marker-alt me-2"></i>Grad:
+              <span id="firmaGrad">Bar</span>
+            </p>
+            <p class="mb-0">
+              <i class="fas fa-calendar me-2"></i>Datum osnivanja:
+              <span id="firmaOsnivanje">01.01.2024</span>
+            </p>
+          </div>
+          <div class="col-md-4 text-end">
+            <button class="btn btn-light btn-lg">
+              <i class="fas fa-edit me-2"></i>Uredi firmu
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-number" id="ukupnoRadnika">12</div>
+            <div class="text-muted">Ukupno radnika</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-number" id="aktivniUgovori">8</div>
+            <div class="text-muted">Aktivni ugovori</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-number" id="aktivnePozajmice">3</div>
+            <div class="text-muted">Aktivne pozajmice</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-number text-warning" id="rokovi">2</div>
+            <div class="text-muted">Ističu uskoro</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Tabs Navigation -->
+      <ul class="nav nav-tabs mb-4" id="firmaDetailsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="pregled-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#pregled"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-chart-line me-2"></i>Pregled
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="radnici-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#radnici"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-users me-2"></i>Radnici & Ugovori
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="pozajmice-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#pozajmice"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-money-bill-wave me-2"></i>Pozajmice
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="dokumenti-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#dokumenti"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-file-alt me-2"></i>Dokumenti
+          </button>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content" id="firmaDetailsTabContent">
+        <!-- Pregled Tab -->
+        <div class="tab-pane fade show active" id="pregled" role="tabpanel">
+          <div class="p-4">
+            <h4 class="mb-4">Brzi pristup</h4>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary mb-3">HR Operacije</h5>
+                <button class="btn btn-primary quick-action-btn">
+                  <i class="fas fa-user-plus me-2"></i>Dodaj novog radnika
+                </button>
+                <button class="btn btn-success quick-action-btn">
+                  <i class="fas fa-file-contract me-2"></i>Kreiraj ugovor o radu
+                </button>
+                <button class="btn btn-info quick-action-btn">
+                  <i class="fas fa-handshake me-2"></i>Sporazumni raskid
+                </button>
+                <button class="btn btn-warning quick-action-btn">
+                  <i class="fas fa-file-alt me-2"></i>Potvrda o zaposlenju
+                </button>
+              </div>
+              <div class="col-md-6">
+                <h5 class="text-success mb-3">Finansijske operacije</h5>
+                <button class="btn btn-success quick-action-btn">
+                  <i class="fas fa-money-bill-wave me-2"></i>Nova pozajmica
+                </button>
+                <button class="btn btn-primary quick-action-btn">
+                  <i class="fas fa-receipt me-2"></i>Generiši PDV prijavu
+                </button>
+                <button class="btn btn-info quick-action-btn">
+                  <i class="fas fa-file-export me-2"></i>Izvezi porešku prijavu
+                </button>
+                <button class="btn btn-warning quick-action-btn">
+                  <i class="fas fa-calendar-check me-2"></i>Proveri rokove
+                </button>
+              </div>
+            </div>
+
+            <hr class="my-5" />
+
+            <h4 class="mb-4">Poslednje aktivnosti</h4>
+            <div class="list-group">
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">Kreiran ugovor o radu</h6>
+                  <small class="text-muted">Pre 2 sata</small>
+                </div>
+                <p class="mb-1">Marko Petrović - Administrator</p>
+                <small class="text-muted">Ugovor na neodređeno vreme</small>
+              </div>
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">Odobrena pozajmica</h6>
+                  <small class="text-muted">Juče</small>
+                </div>
+                <p class="mb-1">Ana Jovanović - 2.500€</p>
+                <small class="text-muted">Pozajmica za 12 rata</small>
+              </div>
+              <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                  <h6 class="mb-1">Generirani PDV na nuli</h6>
+                  <small class="text-muted">Pre 3 dana</small>
+                </div>
+                <p class="mb-1">Automatski izvoz za Januar 2025</p>
+                <small class="text-muted">XML fajl spreman za upload</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radnici Tab -->
+        <div class="tab-pane fade" id="radnici" role="tabpanel">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4>Upravljanje radnicima</h4>
+              <button class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Dodaj radnika
+              </button>
+            </div>
+
+            <!-- Mini tabs za radnike -->
+            <ul class="nav nav-pills mb-3">
+              <li class="nav-item">
+                <button
+                  class="nav-link active"
+                  data-bs-toggle="pill"
+                  data-bs-target="#aktivni-radnici"
+                >
+                  Aktivni radnici (8)
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  data-bs-toggle="pill"
+                  data-bs-target="#neaktivni-radnici"
+                >
+                  Bivši radnici (4)
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  data-bs-toggle="pill"
+                  data-bs-target="#ugovori-detalji"
+                >
+                  Ističu ugovori (2)
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="aktivni-radnici">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Ime i prezime</th>
+                        <th>Pozicija</th>
+                        <th>Datum zaposlenja</th>
+                        <th>Tip ugovora</th>
+                        <th>Važi do</th>
+                        <th>Akcije</th>
+                      </tr>
+                    </thead>
+                    <tbody id="aktivniRadniciTabela">
+                      <tr>
+                        <td>Marko Petrović</td>
+                        <td>Administrator</td>
+                        <td>15.01.2024</td>
+                        <td>
+                          <span class="badge bg-success">Neodređeno</span>
+                        </td>
+                        <td>-</td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-file-contract"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-handshake"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <!-- Više redova... -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- Ostali pill tabovi... -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Pozajmice Tab -->
+        <div class="tab-pane fade" id="pozajmice" role="tabpanel">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4>Upravljanje pozajmicama</h4>
+              <button class="btn btn-success">
+                <i class="fas fa-money-bill-wave me-2"></i>Nova pozajmica
+              </button>
+            </div>
+
+            <ul class="nav nav-pills mb-3">
+              <li class="nav-item">
+                <button
+                  class="nav-link active"
+                  data-bs-toggle="pill"
+                  data-bs-target="#aktivne-pozajmice"
+                >
+                  Aktivne pozajmice (3)
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  data-bs-toggle="pill"
+                  data-bs-target="#zatvorene-pozajmice"
+                >
+                  Zatvorene pozajmice (7)
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  data-bs-toggle="pill"
+                  data-bs-target="#pozajmice-statistike"
+                >
+                  Statistike
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="aktivne-pozajmice">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="card">
+                      <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Ana Jovanović</h6>
+                      </div>
+                      <div class="card-body">
+                        <p><strong>Iznos:</strong> 2.500€</p>
+                        <p><strong>Preostalo:</strong> 1.800€</p>
+                        <p><strong>Rata:</strong> 208.33€/mesečno</p>
+                        <p><strong>Sledeća rata:</strong> 15.02.2025</p>
+                        <div class="progress mb-2">
+                          <div class="progress-bar" style="width: 28%"></div>
+                        </div>
+                        <small class="text-muted">28% otplaćeno</small>
+                      </div>
+                      <div class="card-footer">
+                        <button class="btn btn-sm btn-primary">
+                          Evidentiraj ratu
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Još pozajmica... -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dokumenti Tab -->
+        <div class="tab-pane fade" id="dokumenti" role="tabpanel">
+          <div class="p-4">
+            <h4 class="mb-4">Generisanje dokumenata</h4>
+
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-primary mb-3">HR Dokumenti</h5>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-file-contract text-primary me-2"></i>Ugovor
+                    o radu
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Automatsko kreiranje ugovora na osnovu podataka o radniku
+                  </p>
+                  <button class="btn btn-primary btn-sm">Generiši</button>
+                </div>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-handshake text-warning me-2"></i>Sporazumni
+                    raskid
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Dokument za završetak radnog odnosa
+                  </p>
+                  <button class="btn btn-warning btn-sm">Generiši</button>
+                </div>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-certificate text-info me-2"></i>Potvrda o
+                    zaposlenju
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Potvrde za radnike sa svim podacima
+                  </p>
+                  <button class="btn btn-info btn-sm">Generiši</button>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <h5 class="text-success mb-3">Finansijski dokumenti</h5>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-money-bill-wave text-success me-2"></i
+                    >Ugovor o pozajmici
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Formalni ugovor o pozajmici sredstava
+                  </p>
+                  <button class="btn btn-success btn-sm">Generiši</button>
+                </div>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-gavel text-danger me-2"></i>Odluka o
+                    povraćaju
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Pravni dokument za povraćaj pozajmice
+                  </p>
+                  <button class="btn btn-danger btn-sm">Generiši</button>
+                </div>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-receipt text-primary me-2"></i>PDV prijava
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Automatska PDV prijava za upload
+                  </p>
+                  <button class="btn btn-primary btn-sm">Generiši</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+      // Simulacija učitavanja podataka firme
+      document.addEventListener("DOMContentLoaded", function () {
+        // Ovde bi se učitali stvarni podaci iz baze
+        console.log("Firma detalji stranica učitana");
+
+        // Primer dinamičkog učitavanja
+        // loadFirmaData();
+      });
+
+      function loadFirmaData() {
+        // Ajax poziv za učitavanje podataka firme
+        // Ažuriranje DOM elemenata sa podacima
+      }
+
+      // Tab aktivacija sa URL parametrima
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTab = urlParams.get("tab");
+      if (activeTab) {
+        const tabButton = document.querySelector(`#${activeTab}-tab`);
+        if (tabButton) {
+          tabButton.click();
+        }
+      }
+    </script>
+  </body>
+</html>
