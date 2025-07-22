@@ -79,7 +79,9 @@ async function loadFirms() {
       loadingSpinner.style.display = "block";
     }
 
-    const response = await fetch("/api/firme");
+    const response = await fetch("/api/firme", {
+      credentials: "include",
+    });
     const data = await response.json();
 
     allFirms = data.firme || [];
@@ -209,11 +211,6 @@ function renderFirms() {
         "\\'"
       )}')" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
                 <i class="fas fa-hand-holding-usd"></i>
-              </button>
-              <button class="documents-btn edit-btn" onclick="viewDokumenti(${
-                firm.id
-              }, '${firm.naziv.replace(/'/g, "\\'")}')">
-                <i class="fas fa-file-alt"></i>
               </button>
               <button class="edit-btn" onclick="viewFirmaDetalji(${
                 firm.id
@@ -399,7 +396,9 @@ function initEditFirmPage() {
 async function loadFirmData() {
   try {
     console.log("Učitavam podatke za PIB:", currentPib);
-    const response = await fetch(`/api/firme/${currentPib}`);
+    const response = await fetch(`/api/firme/${currentPib}`, {
+      credentials: "include",
+    });
 
     if (response.status === 401) {
       // Korisnik nije ulogovan - preusmeri na početnu sa porukom
@@ -500,6 +499,7 @@ function setupEditFormSubmit() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -511,6 +511,7 @@ function setupEditFormSubmit() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(data),
         });
       }
@@ -608,13 +609,6 @@ function viewRadnici(firmaId) {
 // Funkcija za pregled pozajmica po firmi
 function viewPozajmnice(firmaId, firmaNaziv) {
   window.location.href = `/pozajmnice-firma.html?firmaId=${firmaId}&naziv=${encodeURIComponent(
-    firmaNaziv
-  )}`;
-}
-
-// Funkcija za pregled dokumenata po firmi
-function viewDokumenti(firmaId, firmaNaziv) {
-  window.location.href = `/dokumenti-firma.html?firmaId=${firmaId}&naziv=${encodeURIComponent(
     firmaNaziv
   )}`;
 }

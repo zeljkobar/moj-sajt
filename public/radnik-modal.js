@@ -1,6 +1,6 @@
 /**
  * Centralizovani modal za dodavanje radnika
- * Koristi se na stranicama: radnici.html, radnici-firma.html, dokumenti-firma.html
+ * Koristi se na stranicama: radnici.html, radnici-firma.html, firma-detalji.html
  */
 
 class RadnikModal {

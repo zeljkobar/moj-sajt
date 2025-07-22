@@ -316,15 +316,26 @@ const firmeController = {
   // GET /api/firme/:pib - dobij firmu po PIB-u
   getFirmaByPib: async (req, res) => {
     try {
+      console.log("getFirmaByPib pozvan");
+      console.log("Session:", req.session);
+      console.log("User:", req.session?.user);
+
       if (!req.session || !req.session.user) {
+        console.log("Nema sesije ili korisnika");
         return res.status(401).json({ message: "Nije autentifikovan" });
       }
 
       const { pib } = req.params;
       const username = req.session.user.username;
 
+      console.log("PIB:", pib);
+      console.log("Username:", username);
+
       const userId = await firmeController.getUserId(username);
+      console.log("UserId:", userId);
+
       if (!userId) {
+        console.log("UserId nije pronađen");
         return res.status(404).json({ message: "Korisnik nije pronađen" });
       }
 
@@ -337,6 +348,8 @@ const firmeController = {
         [userId, pib]
       );
 
+      console.log("Rezultat pretrage:", firma);
+
       if (firma.length === 0) {
         return res.status(404).json({
           message: "Firma nije pronađena",
@@ -345,6 +358,7 @@ const firmeController = {
 
       res.json(firma[0]);
     } catch (error) {
+      console.error("Greška u getFirmaByPib:", error);
       res.status(500).json({ message: "Greška pri dobijanju firme" });
     }
   },

@@ -12,7 +12,7 @@ exports.createPozajmica = async (req, res) => {
     svrha,
     broj_ugovora,
     datum_izdavanja,
-    datum_dospeća,
+    datum_dospeca,
     napomene,
   } = req.body;
 
@@ -23,7 +23,7 @@ exports.createPozajmica = async (req, res) => {
     svrha,
     broj_ugovora,
     datum_izdavanja,
-    datum_dospeća,
+    datum_dospeca,
     napomene,
   });
 
@@ -43,7 +43,7 @@ exports.createPozajmica = async (req, res) => {
 
     const result = await executeQuery(
       `INSERT INTO pozajmnice (firma_id, radnik_id, iznos, svrha, broj_ugovora, 
-       datum_izdavanja, datum_dospeća, napomene) 
+       datum_izdavanja, datum_dospeca, napomene) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         firma_id || null,
@@ -52,7 +52,7 @@ exports.createPozajmica = async (req, res) => {
         svrha || null,
         broj_ugovora || null,
         datum_izdavanja || null,
-        datum_dospeća || null,
+        datum_dospeca || null,
         napomene || null,
       ]
     );

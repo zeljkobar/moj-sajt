@@ -350,8 +350,8 @@ app.get("/api/ugovori/search", authMiddleware, async (req, res) => {
   }
 });
 
-// Endpoint-i za firmu detalje
-app.get("/api/firme/:id", authMiddleware, async (req, res) => {
+// Endpoint-i za firmu detalje (po ID-ju, ne PIB-u)
+app.get("/api/firme/id/:id", authMiddleware, async (req, res) => {
   try {
     const firmaId = req.params.id;
     const userId = req.session.user.id;
@@ -422,8 +422,9 @@ app.get("/api/firme/:id/pozajmice", authMiddleware, async (req, res) => {
 
     const pozajmice = await executeQuery(
       `
-      SELECT p.*, r.ime, r.prezime
-      FROM pozajmice p
+      SELECT p.*, r.ime, r.prezime,
+             r.ime as radnik_ime, r.prezime as radnik_prezime
+      FROM pozajmnice p
       JOIN radnici r ON p.radnik_id = r.id
       WHERE r.firma_id = ?
       ORDER BY p.created_at DESC

@@ -8,6 +8,7 @@
 // =============================================================================
 
 let currentFirmaId = null;
+let currentFirmaPib = null; // Dodano za editovanje firme
 let allRadnici = [];
 
 // =============================================================================
@@ -41,7 +42,7 @@ function loadFirmaData() {
   currentFirmaId = firmaId;
 
   // Učitaj osnovne podatke firme
-  fetch(`/api/firme/${firmaId}`, {
+  fetch(`/api/firme/id/${firmaId}`, {
     credentials: "include",
   })
     .then((response) => {
@@ -52,8 +53,11 @@ function loadFirmaData() {
     })
     .then((firma) => {
       updateFirmaHeader(firma);
+      // Sačuvaj PIB za editovanje
+      currentFirmaPib = firma.pib;
       loadFirmaStats(firmaId);
       loadRadnici(firmaId);
+      loadPozajmice(firmaId); // Dodano učitavanje pozajmica
     })
     .catch((error) => {
       console.error("Greška pri učitavanju firme:", error);
@@ -64,14 +68,14 @@ function loadFirmaData() {
 function updateFirmaHeader(firma) {
   document.getElementById("firmaNaziv").textContent = firma.naziv || "N/A";
   document.getElementById("firmaPIB").textContent = firma.pib || "N/A";
-  document.getElementById("firmaGrad").textContent = firma.grad || "N/A";
-
-  // Format datum osnivanja
-  if (firma.datum_osnivanja) {
-    const datum = new Date(firma.datum_osnivanja);
-    document.getElementById("firmaOsnivanje").textContent =
-      datum.toLocaleDateString("sr-RS");
-  }
+  document.getElementById("firmaAdresa").textContent =
+    firma.adresa || "JOVANA TOMAŠEVIĆA G9";
+  document.getElementById("firmaPDV").textContent =
+    firma.pdv_broj || "80/31-01593-7";
+  document.getElementById("firmaDirektor").textContent =
+    firma.direktor || "SLAVICA MILOŠEVIĆ";
+  document.getElementById("firmaJMBGDirektora").textContent =
+    firma.jmbg_direktora || "1408992259992";
 }
 
 function loadFirmaStats(firmaId) {
@@ -983,15 +987,572 @@ async function deleteRadnik(radnikId) {
 }
 
 // =============================================================================
-// POZAJMICE FUNKCIONALNOST (za buduću implementaciju)
+// POZAJMICE FUNKCIONALNOST
 // =============================================================================
 
+let allPozajmice = [];
+let pozajmiceStatistike = {};
+
 function loadPozajmice(firmaId) {
-  // TODO: Implementirati učitavanje pozajmica
+  fetch(`/api/pozajmice/firma/${firmaId}`, {
+    credentials: "include",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Greška pri učitavanju pozajmica");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // API vraća objekat sa success i pozajmice svojstvom
+      if (data.success) {
+        allPozajmice = data.pozajmice || [];
+      } else {
+        allPozajmice = [];
+      }
+      updatePozajmiceTable(allPozajmice);
+      loadPozajmiceStatistike(firmaId);
+    })
+    .catch((error) => {
+      console.error("Greška pri učitavanju pozajmica:", error);
+      document.getElementById("aktivnePozajmiceTabela").innerHTML =
+        '<tr><td colspan="6" class="text-center text-danger">Greška pri učitavanju pozajmica</td></tr>';
+    });
 }
 
 function updatePozajmiceTable(pozajmice) {
-  // TODO: Implementirati ažuriranje tabele pozajmica
+  updateAktivnePozajmice(pozajmice);
+  updateZatvorenePozajmice(pozajmice);
+  updatePozajmicePillCounts(pozajmice);
+}
+
+function updateAktivnePozajmice(pozajmice) {
+  const tbody = document.getElementById("aktivnePozajmiceTabela");
+  // Pozajmice koje nisu potpuno vraćene (status != "vraćena")
+  const aktivne = pozajmice.filter((p) => p.status !== "vraćena");
+
+  if (aktivne.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="7" class="text-center text-muted">Nema aktivnih pozajmica</td></tr>';
+    return;
+  }
+
+  const rows = aktivne
+    .map((pozajmica) => {
+      // Koristi pravi naziv kolone iz baze - datum_izdavanja
+      const datumField = pozajmica.datum_izdavanja || pozajmica.created_at;
+      const datumPozajmice = datumField
+        ? new Date(datumField).toLocaleDateString("sr-RS")
+        : "N/A";
+      const statusBadge = getStatusBadge(pozajmica.status);
+
+      // Koristi prave nazive kolona iz baze
+      const ukupnoVraceno = parseFloat(pozajmica.ukupno_vraceno || 0);
+      const preostaloDugovanje = parseFloat(pozajmica.preostalo_dugovanje || 0);
+      const iznos = parseFloat(pozajmica.iznos || 0);
+
+      // Imena radnika - različite varijante naziva kolona
+      const radnikIme = pozajmica.radnik_ime || pozajmica.ime || "N/A";
+      const radnikPrezime = pozajmica.radnik_prezime || pozajmica.prezime || "";
+
+      return `
+        <tr>
+          <td>${pozajmica.broj_ugovora || "N/A"}</td>
+          <td>${radnikIme} ${radnikPrezime}</td>
+          <td>${datumPozajmice}</td>
+          <td>${iznos.toFixed(2)}€</td>
+          <td>${preostaloDugovanje.toFixed(2)}€</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="viewPozajmicaDetalji(${
+              pozajmica.id
+            })" title="Detalji">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="toggleIstorijaPopracaja(${
+              pozajmica.id
+            })" title="Istorija povraćaja">
+              <i class="fas fa-history"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-success" onclick="dodajPovracaj(${
+              pozajmica.id
+            })" title="Dodaj povraćaj">
+              <i class="fas fa-hand-holding-usd"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="kreirajOdlukuPovracaj(${
+              pozajmica.id
+            })" title="Kreiranje odluke">
+              <i class="fas fa-gavel"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="pregledajUgovor(${
+              pozajmica.id
+            })" title="Generiši ugovor">
+              <i class="fas fa-file-contract"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning" onclick="editPozajmica(${
+              pozajmica.id
+            })" title="Uredi">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deletePozajmica(${
+              pozajmica.id
+            })" title="Obriši">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr id="istorija-${pozajmica.id}" style="display: none;">
+          <td colspan="7" class="bg-light">
+            <div class="p-3">
+              <h6><i class="fas fa-history me-2"></i>Istorija povraćaja</h6>
+              <div id="povracaji-${pozajmica.id}">
+                <div class="text-center text-muted">
+                  <i class="fas fa-spinner fa-spin"></i> Učitavam povraćaje...
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  tbody.innerHTML = rows;
+}
+
+function updateZatvorenePozajmice(pozajmice) {
+  const tbody = document.getElementById("zatvorenePozajmiceTabela");
+  const zatvorene = pozajmice.filter((p) => p.status === "vraćena");
+
+  if (zatvorene.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="6" class="text-center text-muted">Nema zatvorenih pozajmica</td></tr>';
+    return;
+  }
+
+  const rows = zatvorene
+    .map((pozajmica) => {
+      // Koristi pravi naziv kolone iz baze - datum_izdavanja
+      const datumField = pozajmica.datum_izdavanja || pozajmica.created_at;
+      const datumPozajmice = datumField
+        ? new Date(datumField).toLocaleDateString("sr-RS")
+        : "N/A";
+      const datumZatvaranja = pozajmica.datum_zatvaranja
+        ? new Date(pozajmica.datum_zatvaranja).toLocaleDateString("sr-RS")
+        : "N/A";
+
+      // Imena radnika - različite varijante naziva kolona
+      const radnikIme = pozajmica.radnik_ime || pozajmica.ime || "N/A";
+      const radnikPrezime = pozajmica.radnik_prezime || pozajmica.prezime || "";
+      const iznos = parseFloat(pozajmica.iznos || 0);
+
+      return `
+        <tr>
+          <td>${pozajmica.broj_ugovora || "N/A"}</td>
+          <td>${radnikIme} ${radnikPrezime}</td>
+          <td>${datumPozajmice}</td>
+          <td>${datumZatvaranja}</td>
+          <td>${iznos.toFixed(2)}€</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="viewPozajmicaDetalji(${
+              pozajmica.id
+            })" title="Detalji">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="toggleIstorijaPopracaja(${
+              pozajmica.id
+            })" title="Istorija povraćaja">
+              <i class="fas fa-history"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="kreirajOdlukuPovracaj(${
+              pozajmica.id
+            })" title="Kreiranje odluke">
+              <i class="fas fa-gavel"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="pregledajUgovor(${
+              pozajmica.id
+            })" title="Generiši ugovor">
+              <i class="fas fa-file-contract"></i>
+            </button>
+          </td>
+        </tr>
+        <tr id="istorija-${pozajmica.id}" style="display: none;">
+          <td colspan="6" class="bg-light">
+            <div class="p-3">
+              <h6><i class="fas fa-history me-2"></i>Istorija povraćaja</h6>
+              <div id="povracaji-${pozajmica.id}">
+                <div class="text-center text-muted">
+                  <i class="fas fa-spinner fa-spin"></i> Učitavam povraćaje...
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  tbody.innerHTML = rows;
+}
+
+function updatePozajmicePillCounts(pozajmice) {
+  const aktivne = pozajmice.filter((p) => p.status === "aktivna");
+  const zatvorene = pozajmice.filter((p) => p.status === "vraćena");
+
+  // Ažuriraj tekstove tabova
+  const aktivneTab = document.querySelector(
+    '[data-bs-target="#aktivne-pozajmice"]'
+  );
+  const zatvoreneTab = document.querySelector(
+    '[data-bs-target="#zatvorene-pozajmice"]'
+  );
+
+  if (aktivneTab)
+    aktivneTab.textContent = `Aktivne pozajmice (${aktivne.length})`;
+  if (zatvoreneTab)
+    zatvoreneTab.textContent = `Zatvorene pozajmice (${zatvorene.length})`;
+}
+
+function getStatusBadge(status) {
+  const statusMap = {
+    aktivna: '<span class="badge bg-danger">Aktivna</span>',
+    vraćena: '<span class="badge bg-success">Vraćena</span>',
+  };
+  return (
+    statusMap[status] || `<span class="badge bg-secondary">${status}</span>`
+  );
+}
+
+function loadPozajmiceStatistike(firmaId) {
+  fetch(`/api/povracaji/statistike/firma/${firmaId}`, {
+    credentials: "include",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn("Statistike pozajmica nisu dostupne");
+        return null;
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data && data.success) {
+        pozajmiceStatistike = data.statistike;
+        updatePozajmiceStatistike();
+      }
+    })
+    .catch((error) => {
+      console.warn("Greška pri učitavanju statistika pozajmica:", error);
+    });
+}
+
+function updatePozajmiceStatistike() {
+  if (pozajmiceStatistike.ukupno_pozajmljeno !== undefined) {
+    document.getElementById(
+      "ukupnoPozajmljeno"
+    ).textContent = `${pozajmiceStatistike.ukupno_pozajmljeno}€`;
+  }
+  if (pozajmiceStatistike.ukupno_vraceno !== undefined) {
+    document.getElementById(
+      "ukupnoVraceno"
+    ).textContent = `${pozajmiceStatistike.ukupno_vraceno}€`;
+  }
+  if (pozajmiceStatistike.ukupno_preostalo !== undefined) {
+    document.getElementById(
+      "ukupnoPreostalo"
+    ).textContent = `${pozajmiceStatistike.ukupno_preostalo}€`;
+  }
+  if (pozajmiceStatistike.ukupno_pozajmica !== undefined) {
+    document.getElementById("brojPozajmica").textContent =
+      pozajmiceStatistike.ukupno_pozajmica;
+  }
+}
+
+// Pozajmice CRUD funkcije
+async function dodajNovuPozajmnicu() {
+  try {
+    // Resetuj form za dodavanje nove pozajmice
+    const form = document.getElementById("pozajmicaForm");
+    if (form) form.reset();
+
+    // Učitaj radnike prije otvaranja modala
+    await loadRadniciForPozajmiceModal();
+
+    // Postavi današnji datum kao default
+    const today = new Date().toISOString().split("T")[0];
+    const datumInput = document.getElementById("datum_izdavanja"); // Ispravljen ID
+    if (datumInput) datumInput.value = today;
+
+    // Generiši sledeći broj ugovora
+    try {
+      const nextBrojResponse = await fetch("/api/pozajmice/next-broj", {
+        credentials: "include",
+      });
+      if (nextBrojResponse.ok) {
+        const data = await nextBrojResponse.json();
+        const brojInput = document.getElementById("broj_ugovora");
+        if (brojInput) brojInput.value = data.nextBrojUgovora;
+      }
+    } catch (error) {
+      console.warn("Greška pri generisanju broja ugovora:", error);
+    }
+
+    // Otvori modal
+    const modal = new bootstrap.Modal(
+      document.getElementById("pozajmicaModal")
+    );
+    modal.show();
+  } catch (error) {
+    console.error("Greška pri otvaranju pozajmice modala:", error);
+    alert("Greška pri otvaranju modala za pozajmicu!");
+  }
+}
+
+async function loadRadniciForPozajmiceModal() {
+  try {
+    const response = await fetch(`/api/radnici/firma/${currentFirmaId}`, {
+      credentials: "include",
+    });
+    const radnici = await response.json();
+
+    const select = document.getElementById("radnik_id");
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Izaberite radnika...</option>';
+
+    radnici.forEach((radnik) => {
+      select.innerHTML += `<option value="${radnik.id}">${radnik.ime} ${radnik.prezime}</option>`;
+    });
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika za pozajmice:", error);
+  }
+}
+
+async function submitPozajmica() {
+  try {
+    const form = document.getElementById("pozajmicaForm");
+    const formData = new FormData(form);
+
+    const pozajmicaData = {
+      firma_id: currentFirmaId,
+      radnik_id: formData.get("radnik_id"),
+      broj_ugovora: formData.get("broj_ugovora"),
+      datum_izdavanja: formData.get("datum_izdavanja"),
+      iznos: parseFloat(formData.get("iznos")),
+      svrha: formData.get("svrha"),
+      datum_dospeca: formData.get("datum_dospeca") || null,
+      napomene: formData.get("napomene") || null,
+    };
+
+    console.log("Šalje se pozajmica sa podacima:", pozajmicaData);
+
+    const response = await fetch("/api/pozajmice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(pozajmicaData),
+    });
+
+    const result = await response.json();
+    console.log("Odgovor servera:", result);
+
+    if (response.ok && result.success) {
+      alert("Pozajmica je uspešno kreirana!");
+
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("pozajmicaModal")
+      );
+      modal.hide();
+
+      // Reload pozajmice
+      loadPozajmice(currentFirmaId);
+    } else {
+      alert(
+        "Greška pri kreiranju pozajmice: " + (result.message || result.error)
+      );
+    }
+  } catch (error) {
+    console.error("Greška pri slanju pozajmice:", error);
+    alert("Greška pri kreiranju pozajmice!");
+  }
+}
+
+function viewPozajmicaDetalji(pozajmicaId) {
+  const pozajmica = allPozajmice.find((p) => p.id == pozajmicaId);
+
+  if (!pozajmica) {
+    alert("Greška: Pozajmica nije pronađena");
+    return;
+  }
+
+  // Popuni modal sa podacima
+  populatePozajmicaModal(pozajmica);
+
+  // Prikaži modal
+  const modal = new bootstrap.Modal(
+    document.getElementById("pozajmicaDetaljModal")
+  );
+  modal.show();
+}
+
+function populatePozajmicaModal(pozajmica) {
+  // Osnovni podaci
+  document.getElementById("modalPozajmicaBroj").textContent =
+    pozajmica.broj_ugovora || "N/A";
+
+  // Imena radnika - različite varijante naziva kolona
+  const radnikIme = pozajmica.radnik_ime || pozajmica.ime || "N/A";
+  const radnikPrezime = pozajmica.radnik_prezime || pozajmica.prezime || "";
+  document.getElementById(
+    "modalPozajmicaRadnik"
+  ).textContent = `${radnikIme} ${radnikPrezime}`;
+
+  // Datum izdavanja - koristi pravi naziv kolone
+  const datumField = pozajmica.datum_izdavanja || pozajmica.created_at;
+  const datumPozajmice = datumField
+    ? new Date(datumField).toLocaleDateString("sr-RS")
+    : "N/A";
+  document.getElementById("modalPozajmicaDatum").textContent = datumPozajmice;
+
+  const iznos = parseFloat(pozajmica.iznos || 0);
+  document.getElementById("modalPozajmicaIznos").textContent = `${iznos.toFixed(
+    2
+  )}€`;
+  document.getElementById("modalPozajmicaSvrha").textContent =
+    pozajmica.svrha || "N/A";
+
+  // Koristi pravu kolonu preostalo_dugovanje
+  const preostaloDugovanje = parseFloat(pozajmica.preostalo_dugovanje || 0);
+  document.getElementById(
+    "modalPozajmicaPreostalo"
+  ).textContent = `${preostaloDugovanje.toFixed(2)}€`;
+
+  const statusBadge = getStatusBadge(pozajmica.status || "aktivna");
+  document.getElementById("modalPozajmicaStatus").innerHTML = statusBadge;
+}
+
+async function dodajPovracaj(pozajmicaId) {
+  try {
+    // Resetuj form
+    const form = document.getElementById("povracajForm");
+    if (form) form.reset();
+
+    // Postavi pozajmica ID
+    document.getElementById("pozajmica_id").value = pozajmicaId;
+
+    // Postavi današnji datum
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("datum_povracaja").value = today;
+
+    // Otvori modal
+    const modal = new bootstrap.Modal(document.getElementById("povracajModal"));
+    modal.show();
+  } catch (error) {
+    console.error("Greška pri otvaranju povraćaj modala:", error);
+    alert("Greška pri otvaranju modala za povraćaj!");
+  }
+}
+
+async function submitPovracaj() {
+  try {
+    const form = document.getElementById("povracajForm");
+    const formData = new FormData(form);
+
+    const povracajData = {
+      pozajmica_id: formData.get("pozajmica_id"),
+      datum_povracaja: formData.get("datum_povracaja"),
+      iznos_povracaja: formData.get("iznos_povracaja"),
+      napomena: formData.get("napomena"),
+    };
+
+    const response = await fetch("/api/povracaji", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(povracajData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      alert("Povraćaj je uspešno evidentiran!");
+
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("povracajModal")
+      );
+      modal.hide();
+
+      // Reload pozajmice
+      loadPozajmice(currentFirmaId);
+    } else {
+      alert(
+        "Greška pri evidentiranju povraćaja: " +
+          (result.message || result.error)
+      );
+    }
+  } catch (error) {
+    console.error("Greška pri slanju povraćaja:", error);
+    alert("Greška pri evidentiranju povraćaja!");
+  }
+}
+
+function pregledajUgovor(pozajmicaId) {
+  console.log("=== PREGLED UGOVORA ===");
+  console.log("pozajmicaId:", pozajmicaId);
+  console.log("firmaId:", currentFirmaId);
+
+  if (!pozajmicaId) {
+    alert("Greška: pozajmicaId je undefined ili null");
+    return;
+  }
+
+  const url = `/ugovor-o-zajmu-novca.html?pozajmnicaId=${pozajmicaId}&firmaId=${currentFirmaId}`;
+  console.log("Opening URL:", url);
+  window.open(url, "_blank");
+}
+
+function editPozajmica(pozajmicaId) {
+  // TODO: Implementirati edit pozajmice
+  alert("Edit pozajmice funkcionalnost će biti implementirana");
+}
+
+async function deletePozajmica(pozajmicaId) {
+  const pozajmica = allPozajmice.find((p) => p.id == pozajmicaId);
+
+  if (!pozajmica) {
+    alert("Greška: Pozajmica nije pronađena");
+    return;
+  }
+
+  const confirmMessage = `Da li ste sigurni da želite da obrišete pozajmnicu:\n\nBroj ugovora: ${pozajmica.broj_ugovora}\nIznos: ${pozajmica.iznos}€\n\nOva akcija se ne može vratiti!`;
+
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Pozajmica je uspešno obrisana!");
+      loadPozajmice(currentFirmaId);
+    } else {
+      alert("Greška pri brisanju pozajmice: " + data.message);
+    }
+  } catch (error) {
+    console.error("Greška pri brisanju pozajmice:", error);
+    alert("Greška pri brisanju pozajmice!");
+  }
 }
 
 // =============================================================================
@@ -1005,6 +1566,18 @@ function initDokumenti() {
 // =============================================================================
 // DODATNE POMOĆNE FUNKCIJE
 // =============================================================================
+
+// Funkcija za uređivanje trenutne firme
+function editCurrentFirma() {
+  if (!currentFirmaPib) {
+    console.error("PIB firme nije dostupan");
+    alert("Greška: PIB firme nije dostupan");
+    return;
+  }
+
+  // Preusmeri na edit-firmu.html sa PIB parametrom
+  window.location.href = `/edit-firmu.html?pib=${currentFirmaPib}`;
+}
 
 // Funkcija za uređivanje radnika - preusmrava na radnici.html sa editId
 function editRadnik(radnikId) {
@@ -1237,4 +1810,151 @@ function openOtkazModalForRadnik(radnikId) {
   // Prikaži modal
   const modal = new bootstrap.Modal(document.getElementById("otkazModal"));
   modal.show();
+}
+
+// =============================================================================
+// POVRAĆAJI FUNKCIONALNOST
+// =============================================================================
+
+// Funkcija za prikazivanje/sakrivanje istorije povraćaja
+async function toggleIstorijaPopracaja(pozajmicaId) {
+  const istorijaRow = document.getElementById(`istorija-${pozajmicaId}`);
+
+  if (istorijaRow.style.display === "none") {
+    istorijaRow.style.display = "table-row";
+    // Učitaj povraćaje ako nisu već učitani
+    await loadPovracajeForPozajmica(pozajmicaId);
+  } else {
+    istorijaRow.style.display = "none";
+  }
+}
+
+// Funkcija za učitavanje povraćaja za pozajmicu
+async function loadPovracajeForPozajmica(pozajmicaId) {
+  try {
+    const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      renderPovracajeList(pozajmicaId, data.povracaji || []);
+    } else {
+      renderPovracajeList(pozajmicaId, []);
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju povraćaja:", error);
+    renderPovracajeList(pozajmicaId, []);
+  }
+}
+
+// Funkcija za renderovanje liste povraćaja
+function renderPovracajeList(pozajmicaId, povracaji) {
+  const container = document.getElementById(`povracaji-${pozajmicaId}`);
+
+  if (povracaji.length === 0) {
+    container.innerHTML =
+      '<div class="alert alert-light">Nema zabeleženih povraćaja.</div>';
+    return;
+  }
+
+  let html = "";
+  povracaji.forEach((povracaj) => {
+    const datumPovracaja = new Date(
+      povracaj.datum_povracaja
+    ).toLocaleDateString("sr-RS");
+    html += `
+      <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+        <div>
+          <strong>${povracaj.iznos_povracaja}€</strong> - ${datumPovracaja}
+          ${
+            povracaj.napomena
+              ? `<br><small class="text-muted">${povracaj.napomena}</small>`
+              : ""
+          }
+        </div>
+        <div>
+          <button class="btn btn-danger btn-sm" onclick="obrisiPovracaj(${
+            povracaj.id
+          })" title="Obriši povraćaj">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// Funkcija za brisanje povraćaja
+async function obrisiPovracaj(povracajId) {
+  if (!confirm("Da li ste sigurni da želite da obrišete ovaj povraćaj?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/povracaji/${povracajId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Osvezi prikaz pozajmica
+      loadPozajmice(currentFirmaId);
+      alert("Povraćaj je uspešno obrisan!");
+    } else {
+      alert(
+        "Greška pri brisanju povraćaja: " + (result.message || result.error)
+      );
+    }
+  } catch (error) {
+    console.error("Greška pri brisanju povraćaja:", error);
+    alert("Greška pri brisanju povraćaja!");
+  }
+}
+
+// Funkcija za kreiranje odluke o povraćaju
+async function kreirajOdlukuPovracaj(pozajmicaId) {
+  try {
+    const pozajmica = allPozajmice.find((p) => p.id == pozajmicaId);
+
+    if (!pozajmica) {
+      alert("Pozajmica nije pronađena");
+      return;
+    }
+
+    // Učitaj povraćaje direktno iz API-ja
+    const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    const povracaji = data.success ? data.povracaji : [];
+
+    if (!povracaji || povracaji.length === 0) {
+      alert(
+        "Ne možete kreirati odluku jer pozajmica nema evidentirane povraćaje"
+      );
+      return;
+    }
+
+    // Uzmi poslednji povraćaj (najnoviji)
+    const poslednjiPovracaj = povracaji.sort(
+      (a, b) => new Date(b.datum_povracaja) - new Date(a.datum_povracaja)
+    )[0];
+
+    if (!poslednjiPovracaj) {
+      alert("Ne možete kreirati odluku jer pozajmica nema validne povraćaje");
+      return;
+    }
+
+    // Otvori odluku u novom tabu
+    const url = `/odluka-o-povracaju.html?povracajId=${poslednjiPovracaj.id}`;
+    window.open(url, "_blank");
+  } catch (error) {
+    console.error("Greška pri otvaranju odluke:", error);
+    alert("Greška pri otvaranju odluke o povraćaju");
+  }
 }

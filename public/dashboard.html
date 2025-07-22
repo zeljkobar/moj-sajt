@@ -758,9 +758,7 @@
           case "firma":
             // Otvori dokumenti firme stranicu (detaljnije od pregleda svih firmi)
             const firmaNaziv = title || "Firma";
-            window.location.href = `/dokumenti-firma.html?firmaId=${id}&naziv=${encodeURIComponent(
-              firmaNaziv
-            )}`;
+            window.location.href = `/firma-detalji.html?id=${id}`;
             break;
           case "radnik":
             // Otvori stranicu radnici firme sa fokusiranim radnikom
