@@ -453,14 +453,15 @@ app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
       [userId]
     );
 
-    // Statistike radnika
+    // Statistike radnika - aktivni su oni bez otkaza
     const radniciStats = await executeQuery(
       `
       SELECT 
         COUNT(*) as ukupno_radnici,
-        SUM(CASE WHEN datum_prestanka IS NULL OR datum_prestanka > CURDATE() THEN 1 ELSE 0 END) as aktivni_radnici
+        SUM(CASE WHEN o.id IS NULL THEN 1 ELSE 0 END) as aktivni_radnici
       FROM radnici r 
       JOIN firme f ON r.firma_id = f.id 
+      LEFT JOIN otkazi o ON r.id = o.radnik_id
       WHERE f.user_id = ?
     `,
       [userId]

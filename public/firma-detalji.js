@@ -100,14 +100,14 @@ function updateStats(radnici, pozajmice, otkaziMap = {}) {
   // Ukupno radnika
   document.getElementById("ukupnoRadnika").textContent = radnici.length || 0;
 
-  // Aktivni ugovori (radnici bez otkaza ili datum_prestanka)
+  // Aktivni ugovori (radnici bez otkaza)
   const aktivniRadnici = radnici.filter((r) => {
     // Ako radnik ima otkaz, nije aktivan
     if (otkaziMap[r.id]) {
       return false;
     }
-    // Inače koristi standardnu logiku
-    return !r.datum_prestanka || new Date(r.datum_prestanka) > new Date();
+    // Inače je aktivan (bez obzira na datum_prestanka)
+    return true;
   });
   document.getElementById("aktivniUgovori").textContent =
     aktivniRadnici.length || 0;
@@ -203,12 +203,8 @@ function updateRadniciTable(radnici, otkaziMap = {}) {
 function updateAktivniRadnici(radnici, otkaziMap = {}) {
   const tbody = document.getElementById("aktivniRadniciTabela");
   const aktivniRadnici = radnici.filter((r) => {
-    // Ako radnik ima otkaz, nije aktivan
-    if (otkaziMap[r.id]) {
-      return false;
-    }
-    // Inače koristi standardnu logiku
-    return !r.datum_prestanka || new Date(r.datum_prestanka) > new Date();
+    // Radnik je aktivan ako NEMA otkaz
+    return !otkaziMap[r.id];
   });
 
   if (aktivniRadnici.length === 0) {
@@ -225,15 +221,52 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
       const datumPrestanka = radnik.datum_prestanka
         ? new Date(radnik.datum_prestanka).toLocaleDateString("sr-RS")
         : "-";
-      const tipUgovora = radnik.datum_prestanka ? "Određeno" : "Neodređeno";
-      const badgeClass = radnik.datum_prestanka ? "bg-warning" : "bg-success";
+
+      // Logika za tip ugovora i status
+      let tipUgovora, badgeClass, statusText;
+
+      if (!radnik.datum_prestanka) {
+        tipUgovora = "Neodređeno";
+        badgeClass = "bg-success";
+        statusText = "Aktivan";
+      } else {
+        const danas = new Date();
+        const prestanak = new Date(radnik.datum_prestanka);
+
+        if (prestanak > danas) {
+          // Ugovor još uvek važi
+          const danaDoIsteka = Math.ceil(
+            (prestanak - danas) / (1000 * 60 * 60 * 24)
+          );
+          if (danaDoIsteka <= 30) {
+            tipUgovora = "Određeno";
+            badgeClass = "bg-warning";
+            statusText = `Ističe za ${danaDoIsteka} dana`;
+          } else {
+            tipUgovora = "Određeno";
+            badgeClass = "bg-info";
+            statusText = "Aktivan";
+          }
+        } else {
+          // Ugovor je istekao
+          const danaOdIsteka = Math.ceil(
+            (danas - prestanak) / (1000 * 60 * 60 * 24)
+          );
+          tipUgovora = "Određeno";
+          badgeClass = "bg-danger";
+          statusText = `Istekao prije ${danaOdIsteka} dana`;
+        }
+      }
 
       return `
         <tr>
           <td>${radnik.ime} ${radnik.prezime}</td>
           <td>${radnik.pozicija_naziv || "Nespecifikovano"}</td>
           <td>${datumZaposlenja}</td>
-          <td><span class="badge ${badgeClass}">${tipUgovora}</span></td>
+          <td>
+            <span class="badge ${badgeClass}">${tipUgovora}</span>
+            <br><small class="text-muted">${statusText}</small>
+          </td>
           <td>${datumPrestanka}</td>
           <td>
             <button class="btn btn-sm btn-outline-primary" onclick="viewRadnikDetalji(${
@@ -273,12 +306,8 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
 function updateNeaktivniRadnici(radnici, otkaziMap = {}) {
   const tbody = document.getElementById("neaktivniRadniciTabela");
   const neaktivniRadnici = radnici.filter((r) => {
-    // Ako radnik ima otkaz, je neaktivan
-    if (otkaziMap[r.id]) {
-      return true;
-    }
-    // Inače koristi standardnu logiku
-    return r.datum_prestanka && new Date(r.datum_prestanka) <= new Date();
+    // Neaktivan je samo ako ima otkaz
+    return otkaziMap[r.id];
   });
 
   if (neaktivniRadnici.length === 0) {
@@ -424,21 +453,13 @@ function updateUgovoriIsteku(radnici, otkaziMap = {}) {
 
 function updatePillTabCounts(radnici, otkaziMap = {}) {
   const aktivni = radnici.filter((r) => {
-    // Ako radnik ima otkaz, nije aktivan
-    if (otkaziMap[r.id]) {
-      return false;
-    }
-    // Inače koristi standardnu logiku
-    return !r.datum_prestanka || new Date(r.datum_prestanka) > new Date();
+    // Radnik je aktivan ako NEMA otkaz
+    return !otkaziMap[r.id];
   });
 
   const neaktivni = radnici.filter((r) => {
-    // Ako radnik ima otkaz, je neaktivan
-    if (otkaziMap[r.id]) {
-      return true;
-    }
-    // Inače koristi standardnu logiku
-    return r.datum_prestanka && new Date(r.datum_prestanka) <= new Date();
+    // Radnik je neaktivan ako IMA otkaz
+    return otkaziMap[r.id];
   });
 
   const danas = new Date();
@@ -887,8 +908,15 @@ async function submitOtkaz() {
       // Reload radnike da prikaži promenu
       loadRadnici(currentFirmaId);
 
-      // Generiši dokument na osnovu tipa otkaza
-      viewOtkaz(result.data.id, otkazData.tip_otkaza, otkazData.radnik_id);
+      // Generiši dokument na osnovu tipa otkaza - koristiti otkaz_id iz odgovora
+      if (result.otkaz_id) {
+        viewOtkaz(result.otkaz_id, otkazData.tip_otkaza, otkazData.radnik_id);
+      } else {
+        console.log(
+          "Otkaz kreiran ali nema ID za generisanje dokumenta",
+          result
+        );
+      }
     } else {
       alert("Greška pri kreiranju otkaza: " + (result.message || result.error));
     }

@@ -112,14 +112,16 @@ const getNotifications = async (req, res) => {
       });
     }
 
-    // 1. UGOVORI O RADU - radnici kojima ističu ugovori
+    // 1. UGOVORI O RADU - radnici kojima ističu ugovori (bez onih koji imaju otkaz)
     const ugovoriQuery = `
       SELECT r.id, r.ime, r.prezime, r.datum_prestanka, f.naziv as firma_naziv,
              DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka
       FROM radnici r 
       JOIN firme f ON r.firma_id = f.id 
+      LEFT JOIN otkazi o ON r.id = o.radnik_id
       WHERE f.user_id = ? 
         AND r.datum_prestanka IS NOT NULL
+        AND o.id IS NULL  -- Nema otkaz
         AND (r.datum_prestanka BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
              OR r.datum_prestanka < CURDATE())
       ORDER BY 
@@ -348,7 +350,8 @@ const getNotifications = async (req, res) => {
         (SELECT COUNT(*) FROM firme WHERE user_id = ?) as ukupno_firmi,
         (SELECT COUNT(*) FROM radnici r JOIN firme f ON r.firma_id = f.id WHERE f.user_id = ?) as ukupno_radnika,
         (SELECT COUNT(*) FROM radnici r JOIN firme f ON r.firma_id = f.id 
-         WHERE f.user_id = ? AND r.datum_prestanka IS NOT NULL AND r.datum_prestanka < CURDATE()) as istekli_ugovori
+         JOIN otkazi o ON r.id = o.radnik_id
+         WHERE f.user_id = ?) as istekli_ugovori
     `;
 
     const [statistike] = await executeQuery(statistikeQuery, [
@@ -401,7 +404,6 @@ const getNotifications = async (req, res) => {
 
     res.json({ notifications });
   } catch (error) {
-
     res.status(500).json({ error: "Greška pri dohvatanju obavještenja" });
   }
 };
