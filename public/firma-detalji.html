@@ -874,7 +874,7 @@
           </div>
           <div class="modal-body">
             <form id="editRadnikForm">
-              <input type="hidden" id="edit_radnik_id" name="radnik_id" />
+              <input type="hidden" id="edit_worker_id" name="radnik_id" />
 
               <!-- Osnovni podaci -->
               <div class="row">
@@ -1222,14 +1222,14 @@
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="datum_dospeca" class="form-label"
+                    <label for="datum_dospeća" class="form-label"
                       >Datum dospeća</label
                     >
                     <input
                       type="date"
                       class="form-control"
-                      id="datum_dospeca"
-                      name="datum_dospeca"
+                      id="datum_dospeća"
+                      name="datum_dospeća"
                     />
                     <div class="form-text">
                       Kada treba da se vrati pozajmica (opciono)
@@ -1259,6 +1259,170 @@
               </button>
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-1"></i>Sačuvaj pozajmicu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za uređivanje pozajmice -->
+    <div class="modal fade" id="editPozajmicaModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-edit me-2"></i>Uredi pozajmicu
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form
+            id="editPozajmicaForm"
+            onsubmit="event.preventDefault(); submitEditPozajmica();"
+          >
+            <div class="modal-body">
+              <input type="hidden" id="edit_pozajmica_id" name="pozajmica_id" />
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_broj_ugovora" class="form-label"
+                      >Broj ugovora*</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="edit_broj_ugovora"
+                      name="broj_ugovora"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_datum_izdavanja" class="form-label"
+                      >Datum izdavanja*</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="edit_datum_izdavanja"
+                      name="datum_izdavanja"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_radnik_id" class="form-label"
+                      >Zaposlenik (radnik)*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="edit_radnik_id"
+                      name="radnik_id"
+                      required
+                    >
+                      <option value="">Izaberite radnika...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_iznos" class="form-label"
+                      >Iznos (EUR)*</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="edit_iznos"
+                      name="iznos"
+                      step="0.01"
+                      min="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_svrha" class="form-label"
+                      >Svrha pozajmice*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="edit_svrha"
+                      name="svrha"
+                      required
+                    >
+                      <option value="">Izaberite svrhu</option>
+                      <option value="obaveze_zarade">Obaveze za zarade</option>
+                      <option value="obaveze_dobavljaci">
+                        Obaveze prema dobavljačima
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_datum_dospeća" class="form-label"
+                      >Datum dospeća</label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="edit_datum_dospeća"
+                      name="datum_dospeća"
+                    />
+                    <div class="form-text">
+                      Kada treba da se vrati pozajmica (opciono)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="edit_status" class="form-label">Status</label>
+                    <select class="form-select" id="edit_status" name="status">
+                      <option value="aktivna">Aktivna</option>
+                      <option value="zatvorena">Zatvorena</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="edit_napomene" class="form-label">Napomene</label>
+                <textarea
+                  class="form-control"
+                  id="edit_napomene"
+                  name="napomene"
+                  rows="3"
+                  placeholder="Dodatne napomene o pozajmici..."
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Otkaži
+              </button>
+              <button type="submit" class="btn btn-warning">
+                <i class="fas fa-save me-1"></i>Sačuvaj izmene
               </button>
             </div>
           </form>
@@ -1516,7 +1680,8 @@
                   checked
                 />
                 <label class="form-check-label" for="odlukaAlternate">
-                  Automatski naizmenično (jedan dan prva, drugi dan druga smjena)
+                  Automatski naizmenično (jedan dan prva, drugi dan druga
+                  smjena)
                 </label>
               </div>
               <div class="form-check">

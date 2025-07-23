@@ -1378,7 +1378,7 @@ async function submitPozajmica() {
       datum_izdavanja: formData.get("datum_izdavanja"),
       iznos: parseFloat(formData.get("iznos")),
       svrha: formData.get("svrha"),
-      datum_dospeca: formData.get("datum_dospeca") || null,
+      datum_dospeća: formData.get("datum_dospeća") || null,
       napomene: formData.get("napomene") || null,
     };
 
@@ -1555,9 +1555,25 @@ function pregledajUgovor(pozajmicaId) {
   window.open(url, "_blank");
 }
 
-function editPozajmica(pozajmicaId) {
-  // TODO: Implementirati edit pozajmice
-  alert("Edit pozajmice funkcionalnost će biti implementirana");
+async function editPozajmica(pozajmicaId) {
+  // Pronađi pozajmicu iz cache-a
+  const pozajmica = allPozajmice.find((p) => p.id == pozajmicaId);
+
+  if (!pozajmica) {
+    alert("Greška: Pozajmica nije pronađena");
+    return;
+  }
+
+  // Otvori modal prvo
+  const modal = new bootstrap.Modal(
+    document.getElementById("editPozajmicaModal")
+  );
+  modal.show();
+
+  // Čekaj malo da se modal otvori, pa onda popuni podatke
+  setTimeout(async () => {
+    await populateEditPozajmicaModal(pozajmica);
+  }, 100);
 }
 
 async function deletePozajmica(pozajmicaId) {
@@ -1642,7 +1658,7 @@ function editRadnik(radnikId) {
 // Funkcija za popunjavanje edit modala
 async function populateEditModal(radnik) {
   // Osnovni podaci
-  document.getElementById("edit_radnik_id").value = radnik.id;
+  document.getElementById("edit_worker_id").value = radnik.id;
   document.getElementById("edit_ime").value = radnik.ime || "";
   document.getElementById("edit_prezime").value = radnik.prezime || "";
   document.getElementById("edit_jmbg").value = radnik.jmbg || "";
@@ -3026,5 +3042,121 @@ function downloadWordCompact() {
   } catch (error) {
     console.error("Greška pri kreiranju Word dokumenta:", error);
     alert("Greška pri kreiranju Word dokumenta. Pokušajte ponovo.");
+  }
+}
+
+// =============================================================================
+// EDIT POZAJMICE FUNKCIONALNOST
+// =============================================================================
+
+// Funkcija za popunjavanje edit modal-a
+async function populateEditPozajmicaModal(pozajmica) {
+  // Popuni osnovne podatke
+  document.getElementById("edit_pozajmica_id").value = pozajmica.id;
+  document.getElementById("edit_broj_ugovora").value =
+    pozajmica.broj_ugovora || "";
+  document.getElementById("edit_datum_izdavanja").value =
+    pozajmica.datum_izdavanja ? pozajmica.datum_izdavanja.split("T")[0] : "";
+  document.getElementById("edit_iznos").value = pozajmica.iznos || "";
+  document.getElementById("edit_svrha").value = pozajmica.svrha || "";
+  document.getElementById("edit_datum_dospeća").value = pozajmica.datum_dospeća
+    ? pozajmica.datum_dospeća.split("T")[0]
+    : "";
+  document.getElementById("edit_status").value = pozajmica.status || "aktivna";
+  document.getElementById("edit_napomene").value = pozajmica.napomene || "";
+
+  // Učitaj radnike u select
+  await loadRadniciForEditPozajmicaModal();
+
+  // Postavi odabranog radnika
+  document.getElementById("edit_radnik_id").value = pozajmica.radnik_id || "";
+}
+
+// Funkcija za učitavanje radnika u edit modal
+async function loadRadniciForEditPozajmicaModal() {
+  if (!currentFirmaId) {
+    console.error("currentFirmaId nije postavljen!");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/radnici/firma/${currentFirmaId}`);
+    const radnici = await response.json();
+
+    const select = document.getElementById("edit_radnik_id");
+    if (!select) {
+      console.error("Element edit_radnik_id nije pronađen!");
+      return;
+    }
+
+    select.innerHTML = '<option value="">Izaberite radnika...</option>';
+
+    radnici.forEach((radnik) => {
+      const option = document.createElement("option");
+      option.value = radnik.id;
+      option.textContent = `${radnik.prezime} ${radnik.ime}`;
+      select.appendChild(option);
+    });
+
+    // Force Bootstrap select refresh
+    if (select.dispatchEvent) {
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika za edit:", error);
+  }
+}
+
+// Funkcija za submit edit pozajmice
+async function submitEditPozajmica() {
+  const formData = new FormData(document.getElementById("editPozajmicaForm"));
+  const pozajmicaId = formData.get("pozajmica_id");
+
+  const pozajmicaData = {
+    firma_id: currentFirmaId,
+    radnik_id: formData.get("radnik_id"),
+    broj_ugovora: formData.get("broj_ugovora"),
+    datum_izdavanja: formData.get("datum_izdavanja"),
+    iznos: parseFloat(formData.get("iznos")),
+    svrha: formData.get("svrha"),
+    datum_dospeća: formData.get("datum_dospeća") || null,
+    status: formData.get("status"),
+    napomene: formData.get("napomene") || "",
+  };
+
+  console.log("Šalje se ažuriranje pozajmice sa podacima:", pozajmicaData);
+
+  try {
+    const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(pozajmicaData),
+    });
+
+    const result = await response.json();
+    console.log("Odgovor servera za edit:", result);
+
+    if (result.success) {
+      alert("Pozajmica je uspešno ažurirana!");
+
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("editPozajmicaModal")
+      );
+      modal.hide();
+
+      // Osvezi pozajmice
+      loadPozajmice(currentFirmaId);
+    } else {
+      alert(`Greška: ${result.message}`);
+    }
+  } catch (error) {
+    console.error("Greška pri ažuriranju pozajmice:", error);
+    alert(
+      "Došlo je do greške pri ažuriranju pozajmice. Molimo pokušajte ponovo."
+    );
   }
 }
