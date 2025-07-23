@@ -17,11 +17,21 @@ let allRadnici = [];
 
 // Učitavanje podataka firme na osnovu URL parametra
 document.addEventListener("DOMContentLoaded", function () {
-  // Učitaj podatke firme
-  loadFirmaData();
+  // Proveri da li se radi o stranici firma-detalji.html
+  if (window.location.pathname.includes("firma-detalji.html")) {
+    // Učitaj podatke firme
+    loadFirmaData();
 
-  // Setup tab navigation from URL
-  setupTabNavigation();
+    // Setup tab navigation from URL
+    setupTabNavigation();
+  }
+
+  // Ako se radi o stranici odluke o rasporedu radnog vremena
+  if (
+    window.location.pathname.includes("odluka-raspored-radnog-vremena.html")
+  ) {
+    initOdlukaRaspored();
+  }
 });
 
 // =============================================================================
@@ -2181,5 +2191,840 @@ function toggleEditDatumPrestanka() {
     datumPrestankaGroup.style.display = "none";
     document.getElementById("edit_datum_prestanka").required = false;
     document.getElementById("edit_datum_prestanka").value = "";
+  }
+}
+
+// =============================================================================
+// ODLUKA O RASPOREDU RADNOG VREMENA
+// =============================================================================
+
+function openOdlukaRaspored() {
+  if (!currentFirmaId) {
+    showError("Greška: Nedostaje ID firme");
+    return;
+  }
+
+  // Otvori modal za konfiguraciju odluke o rasporedu radnog vremena
+  openOdlukaModal();
+}
+
+// Otvaranje modala za konfiguraciju odluke
+function openOdlukaModal() {
+  // Postavi današnji datum kao default
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("odlukaDecisionDate").value = today;
+  document.getElementById("odlukaPeriodStart").value = today;
+
+  // Postavi datum kraja kao 6 meseci od danas
+  const sixMonthsLater = new Date();
+  sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+  document.getElementById("odlukaPeriodEnd").value = sixMonthsLater
+    .toISOString()
+    .split("T")[0];
+
+  // Učitaj radnike trenutne firme
+  loadWorkersForOdlukaModal();
+
+  // Setup event listeneri za radio dugmad
+  document
+    .querySelectorAll('input[name="odlukaShiftAssignment"]')
+    .forEach((radio) => {
+      radio.addEventListener("change", function () {
+        const manualDiv = document.getElementById("odlukaManualAssignment");
+        if (this.value === "manual") {
+          manualDiv.classList.remove("d-none");
+          loadWorkersForOdlukaManualAssignment();
+        } else {
+          manualDiv.classList.add("d-none");
+        }
+      });
+    });
+
+  // Otvori modal
+  const modal = new bootstrap.Modal(
+    document.getElementById("odlukaRasporedModal")
+  );
+  modal.show();
+}
+
+// Učitavanje radnika za modal
+async function loadWorkersForOdlukaModal() {
+  if (!currentFirmaId) return;
+
+  try {
+    const response = await fetch(`/api/radnici/firma/${currentFirmaId}`);
+    const workers = await response.json();
+
+    // Filtriraj samo aktivne radnike
+    const activeWorkers = workers.filter(
+      (worker) => worker.status === "aktivan"
+    );
+
+    // Sacuvaj radnike u globalnoj promenljivoj
+    window.odlukaWorkers = activeWorkers;
+
+    console.log("Učitani radnici za odluku:", activeWorkers);
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika:", error);
+  }
+}
+
+// Učitavanje radnika za ručnu dodelu u modalu
+function loadWorkersForOdlukaManualAssignment() {
+  const workerList = document.getElementById("odlukaWorkerList");
+  if (!workerList || !window.odlukaWorkers) return;
+
+  workerList.innerHTML = "";
+
+  window.odlukaWorkers.forEach((worker) => {
+    const workerDiv = document.createElement("div");
+    workerDiv.className =
+      "d-flex justify-content-between align-items-center mb-2 p-2 border rounded";
+
+    workerDiv.innerHTML = `
+      <div>
+        <strong>${worker.prezime} ${worker.ime}</strong><br>
+        <small class="text-muted">${
+          worker.pozicija_naziv || "Nema poziciju"
+        }</small>
+      </div>
+      <select class="form-select form-select-sm" data-worker-id="${
+        worker.id
+      }" style="width: 150px;">
+        <option value="alternate">Naizmenično</option>
+        <option value="first">Uvek prva smjena</option>
+        <option value="second">Uvek druga smjena</option>
+        <option value="empty">Prazno</option>
+      </select>
+    `;
+
+    workerList.appendChild(workerDiv);
+  });
+}
+
+// Generisanje odluke o rasporedu
+function generateOdlukaRaspored() {
+  const decisionDate = document.getElementById("odlukaDecisionDate").value;
+  const periodStart = document.getElementById("odlukaPeriodStart").value;
+  const periodEnd = document.getElementById("odlukaPeriodEnd").value;
+  const firstShiftTime = document.getElementById("odlukaFirstShift").value;
+  const secondShiftTime = document.getElementById("odlukaSecondShift").value;
+  const assignmentType = document.querySelector(
+    'input[name="odlukaShiftAssignment"]:checked'
+  ).value;
+
+  if (!decisionDate || !periodStart || !periodEnd) {
+    alert("Molimo popunite sva obavezna polja.");
+    return;
+  }
+
+  // Pripremi parametre za URL
+  const params = new URLSearchParams({
+    firmaId: currentFirmaId,
+    decisionDate: decisionDate,
+    periodStart: periodStart,
+    periodEnd: periodEnd,
+    firstShiftTime: firstShiftTime,
+    secondShiftTime: secondShiftTime,
+    assignmentType: assignmentType,
+  });
+
+  // Ako je ručna dodela, dodaj i podatke o radnicima
+  if (assignmentType === "manual") {
+    const workerAssignments = {};
+    document.querySelectorAll("#odlukaWorkerList select").forEach((select) => {
+      const workerId = select.getAttribute("data-worker-id");
+      const assignment = select.value;
+      workerAssignments[workerId] = assignment;
+    });
+    params.append("workerAssignments", JSON.stringify(workerAssignments));
+  }
+
+  // Zatvori modal
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("odlukaRasporedModal")
+  );
+  modal.hide();
+
+  // Otvori stranicu odluke sa parametrima
+  window.open(
+    `odluka-raspored-radnog-vremena.html?${params.toString()}`,
+    "_blank"
+  );
+}
+
+// =============================================================================
+// FUNKCIJE ZA ODLUKU O RASPOREDU RADNOG VREMENA (za odluka-raspored-radnog-vremena.html)
+// =============================================================================
+
+// Promenljive za odluku o rasporedu
+let companies = [];
+let workers = [];
+let selectedWorkers = [];
+
+// Inicijalizacija stranice odluke o rasporedu radnog vremena
+function initOdlukaRaspored() {
+  // Provjeri URL parametre
+  const urlParams = new URLSearchParams(window.location.search);
+  const firmaId = urlParams.get("firmaId");
+  const decisionDate = urlParams.get("decisionDate");
+  const periodStart = urlParams.get("periodStart");
+  const periodEnd = urlParams.get("periodEnd");
+  const firstShiftTime = urlParams.get("firstShiftTime");
+  const secondShiftTime = urlParams.get("secondShiftTime");
+  const assignmentType = urlParams.get("assignmentType");
+  const workerAssignments = urlParams.get("workerAssignments");
+
+  if (firmaId && decisionDate && periodStart && periodEnd) {
+    // Automatski generiši odluku na osnovu prosleđenih parametara
+    loadCompanyAndGenerateOdluka(firmaId, {
+      decisionDate,
+      periodStart,
+      periodEnd,
+      firstShiftTime: firstShiftTime || "07:00 do 14:00h",
+      secondShiftTime: secondShiftTime || "14:00 do 20:00h",
+      assignmentType: assignmentType || "alternate",
+      workerAssignments: workerAssignments
+        ? JSON.parse(workerAssignments)
+        : null,
+    });
+  }
+}
+
+// Učitaj firmu i generiši odluku
+async function loadCompanyAndGenerateOdluka(firmaId, config) {
+  try {
+    // Učitaj podatke firme
+    const companyResponse = await fetch(`/api/firme/id/${firmaId}`);
+    const company = await companyResponse.json();
+
+    // Učitaj radnike firme
+    const workersResponse = await fetch(`/api/radnici/firma/${firmaId}`);
+    const allWorkers = await workersResponse.json();
+    const activeWorkers = allWorkers.filter(
+      (worker) => worker.status === "aktivan"
+    );
+
+    // Popuni osnovne podatke
+    fillBasicInfoFromConfig(company, config);
+
+    // Generiši tabelu radnika
+    generateWorkersTableFromConfig(activeWorkers, config);
+  } catch (error) {
+    console.error("Greška pri učitavanju podataka:", error);
+    alert("Greška pri učitavanju podataka firme.");
+  }
+}
+
+// Popunjavanje osnovnih informacija iz konfiguracije
+function fillBasicInfoFromConfig(company, config) {
+  // Format datuma
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("sr-RS");
+  };
+
+  // Popuni nazive firme
+  const companyNames = ["company-name", "company-name-2", "company-name-3"];
+  companyNames.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = company.naziv;
+  });
+
+  // Popuni lokaciju
+  const companyLocations = ["company-location", "company-location-2"];
+  companyLocations.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = company.grad || "Bar";
+  });
+
+  // Popuni datum odluke
+  const decisionElement = document.getElementById("decision-date");
+  if (decisionElement)
+    decisionElement.textContent = formatDate(config.decisionDate);
+
+  // Popuni period
+  const periodStartElement = document.getElementById("period-start");
+  const periodEndElement = document.getElementById("period-end");
+  if (periodStartElement)
+    periodStartElement.textContent = formatDate(config.periodStart);
+  if (periodEndElement)
+    periodEndElement.textContent = formatDate(config.periodEnd);
+
+  // Popuni vremena smjena
+  const firstShiftElement = document.getElementById("first-shift-time");
+  const secondShiftElement = document.getElementById("second-shift-time");
+  if (firstShiftElement) firstShiftElement.textContent = config.firstShiftTime;
+  if (secondShiftElement)
+    secondShiftElement.textContent = config.secondShiftTime;
+
+  // Popuni ime direktora
+  const directorElement = document.getElementById("director-name");
+  if (directorElement)
+    directorElement.textContent =
+      company.direktor_ime_prezime || "Selloviq Isat";
+
+  // Generiši broj odluke (npr. 001/2024)
+  const year = new Date(config.decisionDate).getFullYear();
+  const companyNumber = String(company.id).padStart(3, "0");
+  const companyNumberElement = document.getElementById("company-number");
+  if (companyNumberElement)
+    companyNumberElement.textContent = `${companyNumber}/${year}`;
+}
+
+// Generisanje tabele radnika iz konfiguracije
+function generateWorkersTableFromConfig(workers, config) {
+  const tbody = document.getElementById("schedule-table-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  if (workers.length === 0) {
+    const row = tbody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 9;
+    cell.style.textAlign = "center";
+    cell.style.padding = "20px";
+    cell.textContent = "Nema aktivnih radnika u odabranoj firmi.";
+    return;
+  }
+
+  workers.forEach((worker, index) => {
+    const row = tbody.insertRow();
+
+    // Ime i prezime
+    const nameCell = row.insertCell();
+    nameCell.className = "name-column";
+    nameCell.textContent = `${worker.prezime} ${worker.ime}`;
+
+    // Radno mesto
+    const positionCell = row.insertCell();
+    positionCell.className = "position-column";
+    positionCell.textContent = worker.pozicija_naziv || "Nema poziciju";
+
+    // Dani u sedmici (Ponedeljak - Nedelja)
+    const days = [
+      "Ponedeljak",
+      "Utorak",
+      "Sreda",
+      "Četvrtak",
+      "Petak",
+      "Subota",
+      "Nedelja",
+    ];
+
+    days.forEach((day, dayIndex) => {
+      const dayCell = row.insertCell();
+      dayCell.className = "shift-cell";
+
+      let shiftText = "";
+      let shiftClass = "";
+
+      if (config.assignmentType === "empty") {
+        shiftText = "";
+      } else if (config.assignmentType === "alternate") {
+        if (dayIndex === 6) {
+          // Nedelja
+          shiftText = "/";
+        } else {
+          // Naizmenično: parni dani prva smjena, neparni druga smjena
+          if ((index + dayIndex) % 2 === 0) {
+            shiftText = "I smjena";
+            shiftClass = "first-shift";
+          } else {
+            shiftText = "II smjena";
+            shiftClass = "second-shift";
+          }
+        }
+      } else if (
+        config.assignmentType === "manual" &&
+        config.workerAssignments
+      ) {
+        // Ručna dodela
+        const assignment = config.workerAssignments[worker.id];
+        if (dayIndex === 6) {
+          // Nedelja
+          shiftText = "/";
+        } else if (assignment === "first") {
+          shiftText = "I smjena";
+          shiftClass = "first-shift";
+        } else if (assignment === "second") {
+          shiftText = "II smjena";
+          shiftClass = "second-shift";
+        } else if (assignment === "alternate") {
+          if ((index + dayIndex) % 2 === 0) {
+            shiftText = "I smjena";
+            shiftClass = "first-shift";
+          } else {
+            shiftText = "II smjena";
+            shiftClass = "second-shift";
+          }
+        }
+      }
+
+      dayCell.textContent = shiftText;
+      if (shiftClass) {
+        dayCell.classList.add(shiftClass);
+      }
+    });
+  });
+}
+
+// Učitavanje firmi za odluku
+async function loadCompaniesForOdluka() {
+  try {
+    const response = await fetch("/api/firme");
+    companies = await response.json();
+
+    const select = document.getElementById("companySelect");
+    if (select) {
+      select.innerHTML = '<option value="">-- Izaberite firmu --</option>';
+
+      companies.forEach((company) => {
+        const option = document.createElement("option");
+        option.value = company.id;
+        option.textContent = company.naziv;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error("Greška pri učitavanju firmi:", error);
+  }
+}
+
+// Učitavanje radnika za odluku
+async function loadWorkersForOdluka() {
+  const companyId = document.getElementById("companySelect").value;
+  if (!companyId) return;
+
+  try {
+    const response = await fetch(`/api/radnici/firma/${companyId}`);
+    workers = await response.json();
+
+    // Filtriraj samo aktivne radnike
+    workers = workers.filter((worker) => worker.status === "aktivan");
+
+    console.log("Učitani radnici:", workers);
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika:", error);
+  }
+}
+
+// Učitavanje radnika za ručnu dodelu
+function loadWorkersForManualAssignment() {
+  const workerList = document.getElementById("workerList");
+  if (!workerList) return;
+
+  workerList.innerHTML = "";
+
+  workers.forEach((worker) => {
+    const workerDiv = document.createElement("div");
+    workerDiv.className = "worker-item";
+
+    workerDiv.innerHTML = `
+      <div>
+        <span class="worker-name">${worker.prezime} ${worker.ime}</span><br>
+        <small>${worker.pozicija_naziv || "Nema poziciju"}</small>
+      </div>
+      <select class="shift-select" data-worker-id="${worker.id}">
+        <option value="alternate">Naizmenično</option>
+        <option value="first">Uvek prva smjena</option>
+        <option value="second">Uvek druga smjena</option>
+        <option value="empty">Prazno</option>
+      </select>
+    `;
+
+    workerList.appendChild(workerDiv);
+  });
+}
+
+// Otvaranje modala
+function openConfigModal() {
+  const modal = document.getElementById("configModal");
+  if (modal) {
+    modal.style.display = "block";
+  }
+}
+
+// Zatvaranje modala
+function closeConfigModal() {
+  const modal = document.getElementById("configModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+// Generisanje rasporea
+function generateSchedule() {
+  const companyId = document.getElementById("companySelect").value;
+  const decisionDate = document.getElementById("decisionDate").value;
+  const periodStart = document.getElementById("periodStart").value;
+  const periodEnd = document.getElementById("periodEnd").value;
+  const firstShiftTime = document.getElementById("firstShiftTime").value;
+  const secondShiftTime = document.getElementById("secondShiftTime").value;
+  const assignmentType = document.querySelector(
+    'input[name="shiftAssignment"]:checked'
+  ).value;
+
+  if (!companyId || !decisionDate || !periodStart || !periodEnd) {
+    alert("Molimo popunite sva obavezna polja.");
+    return;
+  }
+
+  // Pronađi odabranu firmu
+  const selectedCompany = companies.find((c) => c.id == companyId);
+  if (!selectedCompany) {
+    alert("Firma nije pronađena.");
+    return;
+  }
+
+  // Popuni osnovne podatke
+  fillBasicInfo(
+    selectedCompany,
+    decisionDate,
+    periodStart,
+    periodEnd,
+    firstShiftTime,
+    secondShiftTime
+  );
+
+  // Generiši tabelu radnika
+  generateWorkersTable(assignmentType);
+
+  // Zatvori modal
+  closeConfigModal();
+}
+
+// Popunjavanje osnovnih informacija
+function fillBasicInfo(
+  company,
+  decisionDate,
+  periodStart,
+  periodEnd,
+  firstShiftTime,
+  secondShiftTime
+) {
+  // Format datuma
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("sr-RS");
+  };
+
+  // Popuni nazive firme
+  const companyNames = ["company-name", "company-name-2", "company-name-3"];
+  companyNames.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = company.naziv;
+  });
+
+  // Popuni lokaciju
+  const companyLocations = ["company-location", "company-location-2"];
+  companyLocations.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = company.grad || "Bar";
+  });
+
+  // Popuni datum odluke
+  const decisionElement = document.getElementById("decision-date");
+  if (decisionElement) decisionElement.textContent = formatDate(decisionDate);
+
+  // Popuni period
+  const periodStartElement = document.getElementById("period-start");
+  const periodEndElement = document.getElementById("period-end");
+  if (periodStartElement)
+    periodStartElement.textContent = formatDate(periodStart);
+  if (periodEndElement) periodEndElement.textContent = formatDate(periodEnd);
+
+  // Popuni vremena smjena
+  const firstShiftElement = document.getElementById("first-shift-time");
+  const secondShiftElement = document.getElementById("second-shift-time");
+  if (firstShiftElement) firstShiftElement.textContent = firstShiftTime;
+  if (secondShiftElement) secondShiftElement.textContent = secondShiftTime;
+
+  // Popuni ime direktora
+  const directorElement = document.getElementById("director-name");
+  if (directorElement)
+    directorElement.textContent =
+      company.direktor_ime_prezime || "Selloviq Isat";
+
+  // Generiši broj odluke (npr. 001/2024)
+  const year = new Date(decisionDate).getFullYear();
+  const companyNumber = String(company.id).padStart(3, "0");
+  const companyNumberElement = document.getElementById("company-number");
+  if (companyNumberElement)
+    companyNumberElement.textContent = `${companyNumber}/${year}`;
+}
+
+// Generisanje tabele radnika
+function generateWorkersTable(assignmentType) {
+  const tbody = document.getElementById("schedule-table-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  if (workers.length === 0) {
+    const row = tbody.insertRow();
+    const cell = row.insertCell();
+    cell.colSpan = 9;
+    cell.style.textAlign = "center";
+    cell.style.padding = "20px";
+    cell.textContent = "Nema aktivnih radnika u odabranoj firmi.";
+    return;
+  }
+
+  workers.forEach((worker, index) => {
+    const row = tbody.insertRow();
+
+    // Ime i prezime
+    const nameCell = row.insertCell();
+    nameCell.className = "name-column";
+    nameCell.textContent = `${worker.prezime} ${worker.ime}`;
+
+    // Radno mesto
+    const positionCell = row.insertCell();
+    positionCell.className = "position-column";
+    positionCell.textContent = worker.pozicija_naziv || "Nema poziciju";
+
+    // Dani u sedmici (Ponedeljak - Nedelja)
+    const days = [
+      "Ponedeljak",
+      "Utorak",
+      "Sreda",
+      "Četvrtak",
+      "Petak",
+      "Subota",
+      "Nedelja",
+    ];
+
+    days.forEach((day, dayIndex) => {
+      const dayCell = row.insertCell();
+      dayCell.className = "shift-cell";
+
+      let shiftText = "";
+      let shiftClass = "";
+
+      if (assignmentType === "empty") {
+        shiftText = "";
+      } else if (assignmentType === "alternate") {
+        if (dayIndex === 6) {
+          // Nedelja
+          shiftText = "/";
+        } else {
+          // Naizmenično: parni dani prva smjena, neparni druga smjena
+          if ((index + dayIndex) % 2 === 0) {
+            shiftText = "I smjena";
+            shiftClass = "first-shift";
+          } else {
+            shiftText = "II smjena";
+            shiftClass = "second-shift";
+          }
+        }
+      } else if (assignmentType === "manual") {
+        // Pronađi ručnu dodelu za ovog radnika
+        const workerSelect = document.querySelector(
+          `select[data-worker-id="${worker.id}"]`
+        );
+        if (workerSelect) {
+          const assignment = workerSelect.value;
+          if (dayIndex === 6) {
+            // Nedelja
+            shiftText = "/";
+          } else if (assignment === "first") {
+            shiftText = "I smjena";
+            shiftClass = "first-shift";
+          } else if (assignment === "second") {
+            shiftText = "II smjena";
+            shiftClass = "second-shift";
+          } else if (assignment === "alternate") {
+            if ((index + dayIndex) % 2 === 0) {
+              shiftText = "I smjena";
+              shiftClass = "first-shift";
+            } else {
+              shiftText = "II smjena";
+              shiftClass = "second-shift";
+            }
+          }
+        }
+      }
+
+      dayCell.textContent = shiftText;
+      if (shiftClass) {
+        dayCell.classList.add(shiftClass);
+      }
+    });
+  });
+}
+
+// PDF Export funkcija
+async function downloadPDF() {
+  try {
+    // Sakrij dugmad tokom snimanja
+    const buttons = [
+      ".print-button",
+      ".pdf-button",
+      ".word-button",
+      ".configure-button",
+    ];
+    buttons.forEach((selector) => {
+      const button = document.querySelector(selector);
+      if (button) button.style.display = "none";
+    });
+
+    const { jsPDF } = window.jspdf;
+    const element = document.querySelector(".container");
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("l", "mm", "a4"); // Landscape orientation
+
+    const imgWidth = 297; // A4 landscape width
+    const pageHeight = 210; // A4 landscape height
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const companyName =
+      document.getElementById("company-name")?.textContent || "Firma";
+    const decisionDate =
+      document.getElementById("decision-date")?.textContent || "Datum";
+    const fileName = `Odluka_Raspored_${companyName.replace(
+      /\s+/g,
+      "_"
+    )}_${decisionDate.replace(/\./g, "_")}.pdf`;
+
+    pdf.save(fileName);
+
+    // Pokaži dugmad ponovo
+    buttons.forEach((selector) => {
+      const button = document.querySelector(selector);
+      if (button) button.style.display = "flex";
+    });
+  } catch (error) {
+    console.error("Greška pri kreiranju PDF-a:", error);
+    alert("Greška pri kreiranju PDF-a. Pokušajte ponovo.");
+    // Pokaži dugmad ponovo u slučaju greške
+    const buttons = [
+      ".print-button",
+      ".pdf-button",
+      ".word-button",
+      ".configure-button",
+    ];
+    buttons.forEach((selector) => {
+      const button = document.querySelector(selector);
+      if (button) button.style.display = "flex";
+    });
+  }
+}
+
+// Word Export funkcija
+function downloadWordCompact() {
+  try {
+    const container = document.querySelector(".container");
+    let content = container.innerHTML;
+
+    const companyName =
+      document.getElementById("company-name")?.textContent || "Firma";
+    const decisionDate =
+      document.getElementById("decision-date")?.textContent || "Datum";
+    const fileName = `Odluka_Raspored_${companyName.replace(
+      /\s+/g,
+      "_"
+    )}_${decisionDate.replace(/\./g, "_")}.doc`;
+
+    const wordContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+            xmlns:w='urn:schemas-microsoft-com:office:word' 
+            xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>Odluka o rasporedu radnog vremena</title>
+        <style>
+          @page {
+            size: A4 landscape;
+            margin: 1cm;
+          }
+          body { 
+            font-family: 'Times New Roman', serif; 
+            font-size: 11pt;
+            line-height: 1.3;
+            margin: 0;
+            padding: 0;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+          }
+          th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+            vertical-align: middle;
+          }
+          th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+          }
+          .name-column, .position-column {
+            text-align: left;
+          }
+          .first-shift {
+            background-color: #e3f2fd;
+          }
+          .second-shift {
+            background-color: #fff3e0;
+          }
+          .signature-section {
+            margin-top: 30px;
+          }
+          .signature {
+            text-align: center;
+            float: right;
+            width: 200px;
+          }
+          .signature-line {
+            border-bottom: 1px solid #000;
+            margin: 10px 0;
+            height: 25px;
+          }
+        </style>
+      </head>
+      <body>
+        ${content}
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([wordContent], {
+      type: "application/msword;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Greška pri kreiranju Word dokumenta:", error);
+    alert("Greška pri kreiranju Word dokumenta. Pokušajte ponovo.");
   }
 }
