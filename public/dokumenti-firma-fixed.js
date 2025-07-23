@@ -465,8 +465,8 @@ async function viewUgovor(radnikId) {
 }
 
 function editRadnik(radnikId) {
-  // Otvori edit radnika
-  window.location.href = `/radnici-firma.html?firmaId=${firmaId}&editId=${radnikId}`;
+  // Otvori edit radnika na firma detalji stranici
+  window.location.href = `/firma-detalji.html?id=${firmaId}&editId=${radnikId}`;
 }
 
 // Funkcija za pregled otkaz dokumenata

@@ -1,9 +1,45 @@
 <!DOCTYPE html>
 <html lang="sr">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-DGZCVVHKXW");
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - Summa Summarum</title>
+    <title>Dashboard | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/site.webmanifest" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -244,99 +280,8 @@
     </style>
   </head>
   <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="index.html">Summa Summarum</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navMenu"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="dashboard1.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="firme.html">
-                <i class="fas fa-building me-1"></i>Firme
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="pdv-pregled.html">
-                <i class="fas fa-receipt me-1"></i>PDV Kalendar
-              </a>
-            </li>
-
-            <!-- Administrator dropdown (samo za admin korisnike) -->
-            <li class="nav-item dropdown" id="adminMenu" style="display: none">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="adminDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i class="fas fa-cog me-1"></i>Administrator
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a class="dropdown-item" href="admin-users.html"
-                    ><i class="fas fa-users-cog me-2"></i>Korisnici</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" href="admin-database.html"
-                    ><i class="fas fa-database me-2"></i>Baza podataka</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#"
-                    ><i class="fas fa-chart-line me-2"></i>Sistemski
-                    izveštaji</a
-                  >
-                </li>
-              </ul>
-            </li>
-
-            <!-- User dropdown -->
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="userDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i class="fas fa-user-circle me-1"></i>
-                <span id="navbar-username">Korisnik</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <a class="dropdown-item" href="edit-profil.html"
-                    ><i class="fas fa-edit me-2"></i>Edituj profil</a
-                  >
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <a class="dropdown-item" href="#" id="logoutBtn"
-                    ><i class="fas fa-sign-out-alt me-2"></i>Odjavi se</a
-                  >
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <!-- Navigation će biti automatski ubačena ovde -->
+    <div id="navigation-placeholder"></div>
 
     <!-- Dashboard Header -->
     <section class="dashboard-header">
@@ -668,10 +613,17 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./components/navigation.js"></script>
     <script src="script.js"></script>
     <script src="radnik-modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // Inicijalizuj navigaciju
+        if (typeof Navigation !== "undefined") {
+          const nav = new Navigation();
+          nav.init();
+        }
+
         // Postavi trenutni datum
         const today = new Date();
         const options = {
@@ -711,20 +663,7 @@
             document.getElementById("userName").textContent =
               userData.ime + " " + userData.prezime;
 
-            // Update imena u navigaciji
-            const navbarUsername = document.getElementById("navbar-username");
-            if (navbarUsername) {
-              navbarUsername.textContent =
-                userData.ime + " " + userData.prezime;
-            }
-
-            // Prikaži admin meni ako je korisnik admin
-            if (userData.role === "admin" || userData.role === "ADMIN") {
-              const adminMenu = document.getElementById("adminMenu");
-              if (adminMenu) {
-                adminMenu.style.display = "block";
-              }
-            }
+            // Update imena u navigaciji se radi automatski preko navigation.js
           } else {
             console.error(
               "Greška pri učitavanju korisničkih podataka:",
@@ -1360,7 +1299,7 @@
             firme.slice(0, 3).forEach((firma) => {
               html += `<div class="search-item" onclick="navigateToResult('firma', ${
                 firma.id
-              })">
+              }, '${firma.naziv}')">
                 <div class="search-category">Firma</div>
                 <div class="search-title">${firma.naziv}</div>
                 <div class="search-subtitle">${firma.grad || "N/A"} • ${
@@ -1373,10 +1312,14 @@
           // Radnici results
           if (radnici.length > 0) {
             radnici.slice(0, 3).forEach((radnik) => {
-              html += `<div class="search-item" onclick="navigateToResult('radnik', ${radnik.id})">
+              html += `<div class="search-item" onclick="navigateToResult('radnik', ${
+                radnik.id
+              }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ""})">
                 <div class="search-category">Radnik</div>
                 <div class="search-title">${radnik.ime} ${radnik.prezime}</div>
-                <div class="search-subtitle">${radnik.pozicija} • ${radnik.firma}</div>
+                <div class="search-subtitle">${radnik.pozicija} • ${
+                radnik.firma
+              }</div>
               </div>`;
             });
           }
@@ -1384,10 +1327,14 @@
           // Ugovori results
           if (ugovori.length > 0) {
             ugovori.slice(0, 3).forEach((ugovor) => {
-              html += `<div class="search-item" onclick="navigateToResult('ugovor', ${ugovor.id})">
+              html += `<div class="search-item" onclick="navigateToResult('ugovor', ${
+                ugovor.id
+              }, '${ugovor.tip}', ${ugovor.firma_id || ""})">
                 <div class="search-category">Ugovor</div>
                 <div class="search-title">${ugovor.tip}</div>
-                <div class="search-subtitle">${ugovor.radnik} • ${ugovor.datum}</div>
+                <div class="search-subtitle">${ugovor.radnik} • ${
+                ugovor.datum
+              }</div>
               </div>`;
             });
           }
@@ -1404,19 +1351,33 @@
         searchResults.style.display = "block";
       }
 
-      function navigateToResult(type, id) {
+      // Navigacija na rezultat pretrage
+      function navigateToResult(type, id, title = "", firmaId = "") {
         const searchResults = document.getElementById("searchResults");
         searchResults.style.display = "none";
 
         switch (type) {
           case "firma":
-            window.location.href = `firma-detalji.html?id=${id}`;
+            // Otvori firma detalji stranicu
+            window.location.href = `/firma-detalji.html?id=${id}`;
             break;
           case "radnik":
-            window.location.href = `radnici.html?highlight=${id}`;
+            // Otvori firma detalji stranicu sa radnici tab-om ako imamo firmaId
+            if (firmaId && firmaId !== "") {
+              window.location.href = `/firma-detalji.html?id=${firmaId}#radnici`;
+            } else {
+              // Fallback na firme stranicu za pregled svih firmi
+              window.location.href = `/firme.html`;
+            }
             break;
           case "ugovor":
-            window.location.href = `ugovor-o-radu.html?id=${id}`;
+            // Za ugovore također idemo na firma detalji sa radnici tabom
+            if (firmaId && firmaId !== "") {
+              window.location.href = `/firma-detalji.html?id=${firmaId}#radnici`;
+            } else {
+              // Fallback na firme stranicu
+              window.location.href = `/firme.html`;
+            }
             break;
           default:
             console.log("Unknown result type:", type);
@@ -1424,7 +1385,13 @@
       }
 
       function showAllResults(query) {
-        window.location.href = `search-results.html?q=${encodeURIComponent(
+        // Umesto da idemo na nepostojećcu search-results.html stranicu,
+        // možemo ići na firme.html ili firma-detalji.html stranice sa pretraživanjem
+        // ili jednostavno proširiti trenutni prikaz rezultata
+        console.log("Prikaži sve rezultate za:", query);
+
+        // Za sada ćemo ići na firme stranicu koja ima pretragu
+        window.location.href = `/firme.html?search=${encodeURIComponent(
           query
         )}`;
       }

@@ -1,6 +1,6 @@
 /**
  * Centralizovani modal za dodavanje radnika
- * Koristi se na stranicama: radnici.html, radnici-firma.html, firma-detalji.html
+ * Koristi se na stranicama: firma-detalji.html
  */
 
 console.log("🚀 radnik-modal.js loaded successfully!");

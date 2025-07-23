@@ -48,6 +48,18 @@ function getCurrentPage() {
 function initFirmesPage() {
   loadFirms();
   setupEventListeners();
+
+  // Čitaj search parametar iz URL-a i postavi ga u search input
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get("search");
+  if (searchQuery) {
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+      searchInput.value = searchQuery;
+      // Pokreni filter da se primeni search
+      setTimeout(() => filterFirms(), 100);
+    }
+  }
 }
 
 function setupEventListeners() {

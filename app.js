@@ -109,9 +109,9 @@ app.get(
   }
 );
 
-// Zaštićena ruta za dashboard
+// Preusmeri stari dashboard na novi
 app.get("/dashboard.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/public/dashboard.html");
+  res.redirect("/dashboard1.html");
 });
 
 // Zaštićena ruta za pregled firmi
@@ -130,15 +130,6 @@ app.get("/edit-firmu.html", authMiddleware, (req, res) => {
 });
 
 // Zaštićene rute za UGOVORI funkcionalnost
-app.get(
-  "/radnici.html",
-  authMiddleware,
-  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
-  (req, res) => {
-    res.sendFile(__dirname + "/public/radnici.html");
-  }
-);
-
 app.get(
   "/pozicije.html",
   authMiddleware,

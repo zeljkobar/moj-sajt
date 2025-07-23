@@ -186,9 +186,7 @@ const getNotifications = async (req, res) => {
         title,
         description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
         days: finalDana,
-        action: `/radnici.html?search=${encodeURIComponent(
-          radnik.ime + " " + radnik.prezime
-        )}`,
+        action: `/firma-detalji.html?id=${radnik.firma_id}&radnikId=${radnik.id}`,
         timestamp: new Date(),
       });
     });
@@ -368,7 +366,7 @@ const getNotifications = async (req, res) => {
         title: "Pregled sistema",
         description: `${statistike.ukupno_firmi} firmi, ${statistike.ukupno_radnika} radnika, ${statistike.istekli_ugovori} isteklih ugovora`,
         days: 0,
-        action: `/dashboard.html`,
+        action: `/dashboard1.html`,
         timestamp: new Date(),
       });
     }

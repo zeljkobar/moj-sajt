@@ -570,7 +570,7 @@ function populateRadnikModal(radnik) {
   document.getElementById("modalRadnikPozicija").textContent =
     radnik.pozicija_naziv || "Nespecifikovano";
 
-  // Finansijski podaci - koristi polje 'visina_zarade' kao na radnici-firma.html
+  // Finansijski podaci - koristi polje 'visina_zarade'
   let zarada =
     radnik.visina_zarade || radnik.zarada || radnik.plata || radnik.salary;
   if (zarada) {
@@ -1717,7 +1717,7 @@ function editCurrentFirma() {
   window.location.href = `/edit-firmu.html?pib=${currentFirmaPib}`;
 }
 
-// Funkcija za uređivanje radnika - preusmrava na radnici.html sa editId
+// Funkcija za uređivanje radnika - koristi modal na trenutnoj stranici
 function editRadnik(radnikId) {
   // Pronađi radnika iz cached podataka
   const radnik = allRadnici.find((r) => r.id == radnikId);
