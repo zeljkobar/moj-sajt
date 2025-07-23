@@ -17,6 +17,7 @@ const adminRoutes = require("./src/routes/adminRoutes");
 const pozajmnicaRoutes = require("./src/routes/pozajmnicaRoutes");
 const povracajRoutes = require("./src/routes/povracajRoutes");
 const odlukaRoutes = require("./src/routes/odlukaRoutes");
+const zadaciRoutes = require("./src/routes/zadaciRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const cors = require("cors");
@@ -518,6 +519,7 @@ app.use("/api/otkazi", otkazRoutes);
 app.use("/api/pozajmice", pozajmnicaRoutes);
 app.use("/api/povracaji", povracajRoutes);
 app.use("/api/odluka", odlukaRoutes);
+app.use("/api/zadaci", zadaciRoutes);
 app.use("/api/admin", adminRoutes);
 
 // API endpoint za poslednje aktivnosti

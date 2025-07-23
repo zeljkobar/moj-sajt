@@ -83,6 +83,52 @@
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
       }
+
+      .todo-item {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        transition: all 0.2s ease;
+      }
+
+      .todo-item:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      }
+
+      .todo-item.completed {
+        background-color: #f8f9fa;
+        opacity: 0.7;
+      }
+
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: #6c757d;
+      }
+
+      .todo-checkbox {
+        margin-right: 0.75rem;
+        cursor: pointer;
+      }
+
+      .todo-text {
+        flex-grow: 1;
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      .todo-delete {
+        color: #dc3545;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: background-color 0.2s ease;
+      }
+
+      .todo-delete:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+      }
     </style>
   </head>
   <body>
@@ -294,31 +340,42 @@
 
             <hr class="my-5" />
 
-            <h4 class="mb-4">Poslednje aktivnosti</h4>
-            <div class="list-group">
-              <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">Kreiran ugovor o radu</h6>
-                  <small class="text-muted">Pre 2 sata</small>
+            <h4 class="mb-4">Napomene i zadaci za firmu</h4>
+
+            <!-- Dodavanje novog zadatka -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="noviZadatak"
+                      placeholder="Dodaj novi zadatak..."
+                      onkeypress="if(event.key==='Enter') dodajZadatak()"
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <button
+                      class="btn btn-primary w-100"
+                      onclick="dodajZadatak()"
+                    >
+                      <i class="fas fa-plus me-2"></i>Dodaj
+                    </button>
+                  </div>
                 </div>
-                <p class="mb-1">Marko Petrović - Administrator</p>
-                <small class="text-muted">Ugovor na neodređeno vreme</small>
               </div>
-              <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">Odobrena pozajmica</h6>
-                  <small class="text-muted">Juče</small>
+            </div>
+
+            <!-- Lista zadataka -->
+            <div class="card">
+              <div class="card-body">
+                <div id="zadaciLista">
+                  <div class="text-center text-muted py-4">
+                    <i class="fas fa-tasks fa-2x mb-2"></i>
+                    <p>Učitavanje zadataka...</p>
+                  </div>
                 </div>
-                <p class="mb-1">Ana Jovanović - 2.500€</p>
-                <small class="text-muted">Pozajmica za 12 rata</small>
-              </div>
-              <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">Generirani PDV na nuli</h6>
-                  <small class="text-muted">Pre 3 dana</small>
-                </div>
-                <p class="mb-1">Automatski izvoz za Januar 2025</p>
-                <small class="text-muted">XML fajl spreman za upload</small>
               </div>
             </div>
           </div>
@@ -1074,24 +1131,6 @@
     <script src="script.js"></script>
     <script src="radnik-modal.js"></script>
     <script src="firma-detalji.js"></script>
-    <script>
-      // Globalna funkcija za toggle datum prestanka u edit modalu
-      function toggleEditDatumPrestanka() {
-        const tipUgovora = document.getElementById("edit_tip_ugovora").value;
-        const datumPrestankaGroup = document.getElementById(
-          "edit_datum_prestanka_group"
-        );
-
-        if (tipUgovora === "na_odredjeno") {
-          datumPrestankaGroup.style.display = "block";
-          document.getElementById("edit_datum_prestanka").required = true;
-        } else {
-          datumPrestankaGroup.style.display = "none";
-          document.getElementById("edit_datum_prestanka").required = false;
-          document.getElementById("edit_datum_prestanka").value = "";
-        }
-      }
-    </script>
 
     <!-- Modal za dodavanje pozajmice -->
     <div class="modal fade" id="pozajmicaModal" tabindex="-1">

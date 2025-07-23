@@ -58,6 +58,7 @@ function loadFirmaData() {
       loadFirmaStats(firmaId);
       loadRadnici(firmaId);
       loadPozajmice(firmaId); // Dodano učitavanje pozajmica
+      loadZadaci(firmaId); // Dodano učitavanje zadataka
     })
     .catch((error) => {
       console.error("Greška pri učitavanju firme:", error);
@@ -1956,5 +1957,201 @@ async function kreirajOdlukuPovracaj(pozajmicaId) {
   } catch (error) {
     console.error("Greška pri otvaranju odluke:", error);
     alert("Greška pri otvaranju odluke o povraćaju");
+  }
+}
+
+// =============================================================================
+// TODO LISTA FUNKCIONALNOST
+// =============================================================================
+
+// Globalna varijabla za čuvanje zadataka
+let zadaciData = [];
+
+// Funkcija za učitavanje zadataka firme
+async function loadZadaci(firmaId) {
+  try {
+    const response = await fetch(`/api/zadaci/${firmaId}`);
+    if (response.ok) {
+      zadaciData = await response.json();
+      renderZadaci();
+    } else {
+      console.error("Greška pri učitavanju zadataka");
+      document.getElementById("zadaciLista").innerHTML =
+        '<div class="text-center text-muted py-4"><p>Nema zadataka za ovu firmu</p></div>';
+    }
+  } catch (error) {
+    console.error("Greška:", error);
+    document.getElementById("zadaciLista").innerHTML =
+      '<div class="text-center text-muted py-4"><p>Greška pri učitavanju zadataka</p></div>';
+  }
+}
+
+// Funkcija za renderovanje zadataka u HTML
+function renderZadaci() {
+  const container = document.getElementById("zadaciLista");
+
+  if (zadaciData.length === 0) {
+    container.innerHTML = `
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+        <p>Nema zadataka. Dodajte prvi zadatak!</p>
+      </div>
+    `;
+    return;
+  }
+
+  const zadaciHTML = zadaciData
+    .map(
+      (zadatak) => `
+    <div class="todo-item ${zadatak.je_zavrsen ? "completed" : ""}" data-id="${
+        zadatak.id
+      }">
+      <div class="d-flex align-items-center">
+        <input 
+          type="checkbox" 
+          class="form-check-input todo-checkbox" 
+          ${zadatak.je_zavrsen ? "checked" : ""} 
+          onchange="toggleZadatak(${zadatak.id})"
+        >
+        <p class="todo-text">${escapeHtml(zadatak.tekst_zadatka)}</p>
+        <span class="todo-delete" onclick="obrisiZadatak(${
+          zadatak.id
+        })" title="Obriši zadatak">
+          <i class="fas fa-trash"></i>
+        </span>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  container.innerHTML = zadaciHTML;
+}
+
+// Funkcija za dodavanje novog zadatka
+async function dodajZadatak() {
+  const input = document.getElementById("noviZadatak");
+  const tekst = input.value.trim();
+
+  if (!tekst) {
+    alert("Unesite tekst zadatka");
+    return;
+  }
+
+  if (!currentFirmaId) {
+    alert("Greška: nije izabrana firma");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/zadaci", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firma_id: currentFirmaId,
+        tekst_zadatka: tekst,
+      }),
+    });
+
+    if (response.ok) {
+      const noviZadatak = await response.json();
+      zadaciData.push(noviZadatak);
+      renderZadaci();
+      input.value = "";
+    } else {
+      alert("Greška pri dodavanju zadatka");
+    }
+  } catch (error) {
+    console.error("Greška:", error);
+    alert("Greška pri dodavanju zadatka");
+  }
+}
+
+// Funkcija za označavanje/odznačavanje zadatka kao završen
+async function toggleZadatak(id) {
+  const zadatak = zadaciData.find((z) => z.id === id);
+  if (!zadatak) return;
+
+  const novoStanje = !zadatak.je_zavrsen;
+
+  try {
+    const response = await fetch(`/api/zadaci/${id}/toggle`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        je_zavrsen: novoStanje,
+      }),
+    });
+
+    if (response.ok) {
+      zadatak.je_zavrsen = novoStanje;
+      if (novoStanje) {
+        zadatak.datum_zavrsen = new Date().toISOString();
+      } else {
+        zadatak.datum_zavrsen = null;
+      }
+      renderZadaci();
+    } else {
+      alert("Greška pri ažuriranju zadatka");
+      // Vrati checkbox na prethodno stanje
+      const checkbox = document.querySelector(
+        `[data-id="${id}"] .todo-checkbox`
+      );
+      if (checkbox) checkbox.checked = zadatak.je_zavrsen;
+    }
+  } catch (error) {
+    console.error("Greška:", error);
+    alert("Greška pri ažuriranju zadatka");
+  }
+}
+
+// Funkcija za brisanje zadatka
+async function obrisiZadatak(id) {
+  if (!confirm("Da li ste sigurni da želite da obrišete ovaj zadatak?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/zadaci/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      zadaciData = zadaciData.filter((z) => z.id !== id);
+      renderZadaci();
+    } else {
+      alert("Greška pri brisanju zadatka");
+    }
+  } catch (error) {
+    console.error("Greška:", error);
+    alert("Greška pri brisanju zadatka");
+  }
+}
+
+// Pomoćna funkcija za escape HTML karaktera
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Globalna funkcija za toggle datum prestanka u edit modalu
+function toggleEditDatumPrestanka() {
+  const tipUgovora = document.getElementById("edit_tip_ugovora").value;
+  const datumPrestankaGroup = document.getElementById(
+    "edit_datum_prestanka_group"
+  );
+
+  if (tipUgovora === "na_odredjeno") {
+    datumPrestankaGroup.style.display = "block";
+    document.getElementById("edit_datum_prestanka").required = true;
+  } else {
+    datumPrestankaGroup.style.display = "none";
+    document.getElementById("edit_datum_prestanka").required = false;
+    document.getElementById("edit_datum_prestanka").value = "";
   }
 }
