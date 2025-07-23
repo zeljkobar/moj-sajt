@@ -678,6 +678,14 @@ function potvrdaZaposlenjaModal() {
   openPotvrdaModal(radnikId, currentFirmaId);
 }
 
+function aneksZastitaNaRaduModal() {
+  const radnikId = getCurrentRadnikIdFromModal();
+  window.open(
+    `/aneks-zastita-na-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`,
+    "_blank"
+  );
+}
+
 // Modal za unos razloga izdavanja potvrde o zaposlenju
 function openPotvrdaModal(radnikId, firmaId) {
   const modalHtml = `
