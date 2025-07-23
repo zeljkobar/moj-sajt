@@ -132,39 +132,7 @@
     </style>
   </head>
   <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="index.html">Summa Summarum</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navMenu"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="dashboard1.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="firme.html">
-                <i class="fas fa-building me-1"></i>Firme
-              </a>
-            </li>
-            <li class="nav-item">
-              <button id="logoutBtn" class="btn btn-outline-danger btn-sm">
-                <i class="fas fa-sign-out-alt me-1"></i>Odjavi se
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <!-- Navigation će biti automatski ubačena ovde -->
 
     <!-- Firma Header -->
     <section class="firma-header">
@@ -1424,5 +1392,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Navigation Component -->
+    <script src="./components/navigation.js"></script>
+    <script>
+      // Inicijalizuj navigaciju
+      const nav = new Navigation();
+      nav.init();
+    </script>
   </body>
 </html>

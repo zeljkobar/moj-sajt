@@ -54,19 +54,7 @@
     />
   </head>
   <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="/dashboard1.html">
-          <i class="fas fa-file-invoice me-2"></i>PDV Pregled
-        </a>
-        <div class="navbar-nav ms-auto">
-          <a href="/dashboard1.html" class="global-back-btn">
-            <i class="fas fa-arrow-left"></i> Nazad na dashboard
-          </a>
-        </div>
-      </div>
-    </nav>
+    <!-- Navigation će biti automatski ubačena ovde -->
 
     <div class="container mt-4">
       <div class="page-header">
@@ -1152,5 +1140,13 @@
         }
       }
     </style>
+
+    <!-- Navigation Component -->
+    <script src="./components/navigation.js"></script>
+    <script>
+      // Inicijalizuj navigaciju
+      const nav = new Navigation();
+      nav.init();
+    </script>
   </body>
 </html>

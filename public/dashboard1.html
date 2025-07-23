@@ -273,10 +273,65 @@
                 <i class="fas fa-receipt me-1"></i>PDV Kalendar
               </a>
             </li>
-            <li class="nav-item">
-              <button id="logoutBtn" class="btn btn-outline-danger btn-sm">
-                <i class="fas fa-sign-out-alt me-1"></i>Odjavi se
-              </button>
+
+            <!-- Administrator dropdown (samo za admin korisnike) -->
+            <li class="nav-item dropdown" id="adminMenu" style="display: none">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="adminDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-cog me-1"></i>Administrator
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="admin-users.html"
+                    ><i class="fas fa-users-cog me-2"></i>Korisnici</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="admin-database.html"
+                    ><i class="fas fa-database me-2"></i>Baza podataka</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-chart-line me-2"></i>Sistemski
+                    izveštaji</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <!-- User dropdown -->
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i class="fas fa-user-circle me-1"></i>
+                <span id="navbar-username">Korisnik</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="edit-profil.html"
+                    ><i class="fas fa-edit me-2"></i>Edituj profil</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" id="logoutBtn"
+                    ><i class="fas fa-sign-out-alt me-2"></i>Odjavi se</a
+                  >
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -545,9 +600,19 @@
               <i class="fas fa-plus me-2"></i>Dodaj novu firmu
             </a>
 
-            <a href="radnici.html" class="btn btn-success quick-action-btn">
+            <button
+              onclick="openRadnikModal({ 
+                onSuccess: function(result) { 
+                  console.log('Radnik uspešno dodan:', result); 
+                  if (typeof loadActivities === 'function') {
+                    loadActivities(); 
+                  }
+                } 
+              })"
+              class="btn btn-success quick-action-btn"
+            >
               <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
-            </a>
+            </button>
 
             <a href="firma-detalji.html" class="btn btn-info quick-action-btn">
               <i class="fas fa-money-bill-wave me-2"></i>Kreiraj pozajmicu
@@ -604,6 +669,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    <script src="radnik-modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // Postavi trenutni datum
@@ -616,8 +682,8 @@
         document.getElementById("currentDate").textContent =
           today.toLocaleDateString("sr-RS", options);
 
-        // Simulacija učitavanja korisničkih podataka
-        // loadUserData();
+        // Učitavanje korisničkih podataka
+        loadUserData();
         // loadDashboardStats();
 
         console.log("Dashboard učitan");
@@ -627,8 +693,51 @@
       });
 
       // Funkcije za učitavanje podataka
-      function loadUserData() {
-        // Ajax poziv za korisničke podatke
+      async function loadUserData() {
+        try {
+          console.log("Učitavam korisničke podatke...");
+          const response = await fetch("/api/users/current", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          console.log("Response status:", response.status);
+
+          if (response.ok) {
+            const userData = await response.json();
+            console.log("Učitani korisnički podaci:", userData);
+
+            // Update imena u dashboard header-u
+            document.getElementById("userName").textContent =
+              userData.ime + " " + userData.prezime;
+
+            // Update imena u navigaciji
+            const navbarUsername = document.getElementById("navbar-username");
+            if (navbarUsername) {
+              navbarUsername.textContent =
+                userData.ime + " " + userData.prezime;
+            }
+
+            // Prikaži admin meni ako je korisnik admin
+            if (userData.role === "admin" || userData.role === "ADMIN") {
+              const adminMenu = document.getElementById("adminMenu");
+              if (adminMenu) {
+                adminMenu.style.display = "block";
+              }
+            }
+          } else {
+            console.error(
+              "Greška pri učitavanju korisničkih podataka:",
+              response.status
+            );
+            const errorData = await response.text();
+            console.error("Error response:", errorData);
+            document.getElementById("userName").textContent = "Korisnice";
+          }
+        } catch (error) {
+          console.error("Greška pri povezivanju sa API:", error);
+          document.getElementById("userName").textContent = "Korisnice";
+        }
       }
 
       function loadDashboardStats() {
@@ -1319,6 +1428,8 @@
           query
         )}`;
       }
+
+      // Dashboard1 koristi centralizovani radnik-modal.js komponent
     </script>
   </body>
 </html>

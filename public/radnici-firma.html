@@ -199,19 +199,7 @@
     </style>
   </head>
   <body class="bg-light">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="#">
-          <i class="fas fa-users me-2"></i>Radnici firme
-        </a>
-        <div class="navbar-nav ms-auto">
-          <a href="/firme.html" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Nazad na firme
-          </a>
-        </div>
-      </div>
-    </nav>
+    <!-- Navigation će biti automatski ubačena ovde -->
 
     <div class="container mt-4">
       <!-- Header -->
@@ -949,6 +937,14 @@
         console.log("Otvaramo dokument URL:", documentUrl);
         window.open(documentUrl, "_blank");
       }
+    </script>
+
+    <!-- Navigation Component -->
+    <script src="./components/navigation.js"></script>
+    <script>
+      // Inicijalizuj navigaciju
+      const nav = new Navigation();
+      nav.init();
     </script>
   </body>
 </html>

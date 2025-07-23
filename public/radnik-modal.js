@@ -3,6 +3,8 @@
  * Koristi se na stranicama: radnici.html, radnici-firma.html, firma-detalji.html
  */
 
+console.log("🚀 radnik-modal.js loaded successfully!");
+
 class RadnikModal {
   constructor() {
     this.modal = null;
@@ -653,8 +655,11 @@ let radnikModalInstance = null;
 
 // Globalna funkcija za otvaranje modala (kompatibilnost sa postojećim kodom)
 function openRadnikModal(options = {}) {
+  console.log("🎯 openRadnikModal called with options:", options);
+
   // Lazy inicijalizacija
   if (!radnikModalInstance) {
+    console.log("📝 Creating new RadnikModal instance...");
     radnikModalInstance = new RadnikModal();
   }
 

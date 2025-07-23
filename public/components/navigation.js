@@ -11,7 +11,7 @@ class Navigation {
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
         <div class="container-fluid">
           <!-- Brand -->
-          <a class="navbar-brand fw-bold" href="dashboard.html">
+          <a class="navbar-brand fw-bold" href="dashboard1.html">
             <img src="images/summasummarum_logo.svg" alt="Logo" width="30" height="30" class="me-2">
             Summa Summarum
           </a>
@@ -26,55 +26,29 @@ class Navigation {
             <ul class="navbar-nav me-auto">
               <!-- Dashboard -->
               <li class="nav-item">
-                <a class="nav-link" href="dashboard.html" data-page="dashboard">
+                <a class="nav-link" href="dashboard1.html" data-page="dashboard">
                   <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                 </a>
               </li>
 
-              <!-- Radnici dropdown -->
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="radniciDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-users me-1"></i>Radnici
-                </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="radnici.html"><i class="fas fa-list me-2"></i>Svi radnici</a></li>
-                  <li><a class="dropdown-item" href="pozicije.html"><i class="fas fa-briefcase me-2"></i>Pozicije</a></li>
-                  <li><a class="dropdown-item" href="otkazi.html"><i class="fas fa-door-open me-2"></i>Otkazi/Termini</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="radnici.html" onclick="setTimeout(() => { if(typeof openRadnikModal === 'function') openRadnikModal(); }, 100);"><i class="fas fa-plus me-2"></i>Dodaj radnika</a></li>
-                </ul>
-              </li>
-
-              <!-- Firme dropdown -->
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="firmeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <!-- Firme -->
+              <li class="nav-item">
+                <a class="nav-link" href="firme.html">
                   <i class="fas fa-building me-1"></i>Firme
                 </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="firme.html"><i class="fas fa-list me-2"></i>Sve firme</a></li>
-                  <li><a class="dropdown-item" href="firme.html?filter=active"><i class="fas fa-check-circle me-2"></i>Aktivne firme</a></li>
-                  <li><a class="dropdown-item" href="firme.html?filter=inactive"><i class="fas fa-pause-circle me-2"></i>Firme na nuli</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="dodaj-firmu.html"><i class="fas fa-plus me-2"></i>Dodaj firmu</a></li>
-                </ul>
               </li>
 
-              <!-- PDV dropdown -->
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="pdvDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-calculator me-1"></i>PDV
+              <!-- PDV Kalendar -->
+              <li class="nav-item">
+                <a class="nav-link" href="pdv-pregled.html">
+                  <i class="fas fa-receipt me-1"></i>PDV Kalendar
                 </a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="pdv0.html"><i class="fas fa-file-invoice me-2"></i>PDV 0 obrazac</a></li>
-                  <li><a class="dropdown-item" href="pdv-pregled.html"><i class="fas fa-chart-bar me-2"></i>PDV pregled</a></li>
-                  <li><a class="dropdown-item" href="http://localhost:3000/pdv_prijava/index.html"><i class="fas fa-file-upload me-2"></i>PDV prijava</a></li>
-                </ul>
               </li>
 
-              <!-- Administracija (samo za admine) -->
+              <!-- Administrator dropdown (samo za admin korisnike) -->
               <li class="nav-item dropdown" id="adminMenu" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-cog me-1"></i>Administracija
+                  <i class="fas fa-cog me-1"></i>Administrator
                 </a>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="admin-users.html"><i class="fas fa-users-cog me-2"></i>Korisnici</a></li>
@@ -106,6 +80,10 @@ class Navigation {
 
   // Inicijalizuje navigaciju
   async init() {
+    // Ukloni postojeće navigacije ako postoje
+    const existingNavs = document.querySelectorAll("nav.navbar");
+    existingNavs.forEach((nav) => nav.remove());
+
     // Generiši HTML
     const navHTML = this.generateNavHTML();
 
@@ -145,13 +123,15 @@ class Navigation {
         const usernameElement = document.getElementById("navbar-username");
         if (usernameElement) {
           usernameElement.textContent =
-            userData.ime_prezime || userData.username || "Korisnik";
+            userData.ime && userData.prezime
+              ? userData.ime + " " + userData.prezime
+              : userData.ime_prezime || userData.username || "Korisnik";
         }
 
         // Prikaži admin meni ako je korisnik admin
         const adminMenu = document.getElementById("adminMenu");
 
-        if (userData.role === "admin") {
+        if (userData.role === "admin" || userData.role === "ADMIN") {
           if (adminMenu) {
             adminMenu.style.display = "block";
           }

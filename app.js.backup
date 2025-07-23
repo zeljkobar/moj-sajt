@@ -528,6 +528,129 @@ setupActivitiesWithUserFilter(app, authMiddleware);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 
+// API endpoint za poslednje aktivnosti
+app.get("/api/activities", authMiddleware, async (req, res) => {
+  try {
+    const activities = [];
+
+    // Poslednji kreirani radnici (ugovori) - koristimo datum_zaposlenja
+    const recentRadnici = await executeQuery(`
+      SELECT r.ime, r.prezime, f.naziv as firma_naziv, r.datum_zaposlenja as created_at, 'radnik' as tip
+      FROM radnici r 
+      LEFT JOIN firme f ON r.firma_id = f.id 
+      WHERE r.datum_zaposlenja IS NOT NULL 
+      ORDER BY r.datum_zaposlenja DESC 
+      LIMIT 3
+    `);
+
+    recentRadnici.forEach((radnik) => {
+      activities.push({
+        tip: "ugovor",
+        title: "Kreiran ugovor o radu",
+        description: `${radnik.ime} ${radnik.prezime} - ${
+          radnik.firma_naziv || "Nepoznata firma"
+        }`,
+        created_at: radnik.created_at,
+        icon: "fas fa-file-contract",
+        iconClass: "text-primary",
+      });
+    });
+
+    // Poslednje kreirane pozajmice - proveravamo da li ima created_at
+    try {
+      const recentPozajmice = await executeQuery(`
+        SELECT p.iznos, r.ime, r.prezime, f.naziv as firma_naziv, p.created_at, 'pozajmica' as tip
+        FROM pozajmnice p 
+        LEFT JOIN radnici r ON p.radnik_id = r.id 
+        LEFT JOIN firme f ON p.firma_id = f.id 
+        WHERE p.created_at IS NOT NULL 
+        ORDER BY p.created_at DESC 
+        LIMIT 2
+      `);
+
+      recentPozajmice.forEach((pozajmica) => {
+        activities.push({
+          tip: "pozajmica",
+          title: "Odobrena pozajmica",
+          description: `${pozajmica.ime} ${pozajmica.prezime} - ${pozajmica.iznos}€`,
+          created_at: pozajmica.created_at,
+          icon: "fas fa-money-bill-wave",
+          iconClass: "text-warning",
+        });
+      });
+    } catch (pozajmiceError) {
+      console.log(
+        "Pozajmice tabela možda nema created_at kolonu:",
+        pozajmiceError.message
+      );
+      // Ako nema created_at, koristimo datum_izdavanja
+      const recentPozajmiceAlt = await executeQuery(`
+        SELECT p.iznos, r.ime, r.prezime, f.naziv as firma_naziv, p.datum_izdavanja as created_at, 'pozajmica' as tip
+        FROM pozajmnice p 
+        LEFT JOIN radnici r ON p.radnik_id = r.id 
+        LEFT JOIN firme f ON p.firma_id = f.id 
+        WHERE p.datum_izdavanja IS NOT NULL 
+        ORDER BY p.datum_izdavanja DESC 
+        LIMIT 2
+      `);
+
+      recentPozajmiceAlt.forEach((pozajmica) => {
+        activities.push({
+          tip: "pozajmica",
+          title: "Odobrena pozajmica",
+          description: `${pozajmica.ime} ${pozajmica.prezime} - ${pozajmica.iznos}€`,
+          created_at: pozajmica.created_at,
+          icon: "fas fa-money-bill-wave",
+          iconClass: "text-warning",
+        });
+      });
+    }
+
+    // Poslednje kreirane firme - proveravamo da li ima created_at
+    try {
+      const recentFirme = await executeQuery(`
+        SELECT naziv, created_at, 'firma' as tip
+        FROM firme 
+        WHERE created_at IS NOT NULL 
+        ORDER BY created_at DESC 
+        LIMIT 2
+      `);
+
+      recentFirme.forEach((firma) => {
+        activities.push({
+          tip: "firma",
+          title: "Dodana nova firma",
+          description: `${firma.naziv}`,
+          created_at: firma.created_at,
+          icon: "fas fa-building",
+          iconClass: "text-success",
+        });
+      });
+    } catch (firmeError) {
+      console.log(
+        "Firme tabela možda nema created_at kolonu:",
+        firmeError.message
+      );
+      // Ako firme nemaju created_at, možemo preskočiti ili koristiti neki drugi datum
+    }
+
+    // Sortiraj sve aktivnosti po datumu
+    activities.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Vrati samo prvih 5
+    res.json({
+      success: true,
+      activities: activities.slice(0, 5),
+    });
+  } catch (error) {
+    console.error("Error fetching activities:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri dohvaćanju aktivnosti",
+    });
+  }
+});
+
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 app.get(
   "/dobit_prijava/index.html",
