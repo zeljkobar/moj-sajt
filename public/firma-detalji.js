@@ -688,6 +688,79 @@ function aneksZastitaNaRaduModal() {
   );
 }
 
+async function aneksRadnoVremeModal() {
+  const radnikId = getCurrentRadnikIdFromModal();
+
+  try {
+    // Učitaj podatke o radniku da dohvatiš trenutno radno vreme
+    const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+    const radnik = await radnikResponse.json();
+
+    // Prikaži trenutno radno vreme
+    console.log("Radnik objekat:", radnik); // debug
+    const trenutnoRadnoVreme =
+      radnik.radno_vreme ||
+      radnik.radnoVreme ||
+      radnik.radno_vrijeme ||
+      "Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)";
+    document.getElementById(
+      "trenutnoRadnoVreme"
+    ).innerHTML = `<strong>${trenutnoRadnoVreme}</strong>`;
+
+    // Postavi današnji datum kao default
+    const danas = new Date().toISOString().split("T")[0];
+    document.getElementById("datumPromeneRV").value = danas;
+
+    // Otvori modal
+    const modal = new bootstrap.Modal(
+      document.getElementById("aneksRadnoVremeModal")
+    );
+    modal.show();
+  } catch (error) {
+    console.error("Greška pri učitavanju podataka:", error);
+    alert("Greška pri učitavanju podataka o radniku.");
+  }
+}
+
+function generisiAneksRadnoVreme() {
+  const datumPromene = document.getElementById("datumPromeneRV").value;
+  const novoRadnoVreme = document.getElementById("novoRadnoVreme").value;
+  const razlogPromene = document.getElementById("razlogPromene").value;
+
+  // Validacija
+  if (!datumPromene) {
+    alert("Molimo unesite datum promene radnog vremena.");
+    return;
+  }
+
+  if (!novoRadnoVreme) {
+    alert("Molimo izaberite novo radno vrijeme.");
+    return;
+  }
+
+  const radnikId = getCurrentRadnikIdFromModal();
+
+  // Zatvori modal
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("aneksRadnoVremeModal")
+  );
+  modal.hide();
+
+  // Otvori aneks dokument sa parametrima
+  const params = new URLSearchParams({
+    radnikId: radnikId,
+    firmaId: currentFirmaId,
+    datumPromene: datumPromene,
+    novoRadnoVreme: novoRadnoVreme,
+    razlogPromene: razlogPromene,
+  });
+
+  window.open(
+    `/aneks-promena-radnog-vremena.html?${params.toString()}`,
+    "_blank"
+  );
+}
+
 // Modal za unos razloga izdavanja potvrde o zaposlenju
 function openPotvrdaModal(radnikId, firmaId) {
   const modalHtml = `

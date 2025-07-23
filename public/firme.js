@@ -159,7 +159,9 @@ function renderFirms() {
   const firmsHtml = filteredFirms
     .map(
       (firm) => `
-    <div class="firm-card card firma-row-clickable" onclick="viewFirmaDetalji(${firm.id})">
+    <div class="firm-card card firma-row-clickable" onclick="viewFirmaDetalji(${
+      firm.id
+    })">
       <div class="card-body">
         <div class="row align-items-center">
           <div class="col-md-7">
