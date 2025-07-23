@@ -159,7 +159,7 @@ function renderFirms() {
   const firmsHtml = filteredFirms
     .map(
       (firm) => `
-    <div class="firm-card card">
+    <div class="firm-card card firma-row-clickable" onclick="viewFirmaDetalji(${firm.id})">
       <div class="card-body">
         <div class="row align-items-center">
           <div class="col-md-7">
@@ -195,7 +195,7 @@ function renderFirms() {
             </span>
           </div>
           <div class="col-md-2 text-md-end">
-            <div class="action-buttons">
+            <div class="action-buttons" onclick="event.stopPropagation();">
               <button class="edit-btn" onclick="editFirm('${firm.pib}')">
                 <i class="fas fa-edit"></i>
               </button>

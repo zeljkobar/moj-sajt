@@ -269,7 +269,9 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
       }
 
       return `
-        <tr>
+        <tr onclick="viewRadnikDetalji(${
+          radnik.id
+        })" class="radnik-row-clickable">
           <td>${radnik.ime} ${radnik.prezime}</td>
           <td>${radnik.pozicija_naziv || "Nespecifikovano"}</td>
           <td>${datumZaposlenja}</td>
@@ -278,7 +280,7 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
             <br><small class="text-muted">${statusText}</small>
           </td>
           <td>${datumPrestanka}</td>
-          <td>
+          <td onclick="event.stopPropagation();">
             <button class="btn btn-sm btn-outline-primary" onclick="viewRadnikDetalji(${
               radnik.id
             })" title="Detalji">

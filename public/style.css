@@ -557,3 +557,55 @@ footer {
 html {
   scroll-behavior: smooth;
 }
+
+/* Clickable table rows for radnici table */
+.radnik-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.radnik-row-clickable:hover {
+  background-color: #f8f9fa !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.radnik-row-clickable:active {
+  transform: translateY(0);
+  background-color: #e9ecef !important;
+}
+
+/* Osiguraj da se dugmad ne afektuju hover efektom */
+.radnik-row-clickable td:last-child {
+  pointer-events: none;
+}
+
+.radnik-row-clickable td:last-child button {
+  pointer-events: auto;
+}
+
+/* Clickable firm cards */
+.firma-row-clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.firma-row-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border-color: #007bff !important;
+}
+
+.firma-row-clickable:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Osiguraj da se dugmad ne afektuju hover efektom */
+.firma-row-clickable .action-buttons {
+  pointer-events: none;
+}
+
+.firma-row-clickable .action-buttons button {
+  pointer-events: auto;
+}
