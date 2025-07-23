@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (res.ok) {
           // Uspešna prijava - preusmeri na dashboard
-          window.location.href = "/dashboard1.html";
+          window.location.href = "/dashboard.html";
         } else {
           alert(data.message || "Neispravni podaci za prijavu");
         }

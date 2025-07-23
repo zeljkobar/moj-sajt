@@ -11,7 +11,7 @@ class Navigation {
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
         <div class="container-fluid">
           <!-- Brand -->
-          <a class="navbar-brand fw-bold" href="dashboard1.html">
+          <a class="navbar-brand fw-bold" href="dashboard.html">
             <img src="images/summasummarum_logo.svg" alt="Logo" width="30" height="30" class="me-2">
             Summa Summarum
           </a>
@@ -26,7 +26,7 @@ class Navigation {
             <ul class="navbar-nav me-auto">
               <!-- Dashboard -->
               <li class="nav-item">
-                <a class="nav-link" href="dashboard1.html" data-page="dashboard">
+                <a class="nav-link" href="dashboard.html" data-page="dashboard">
                   <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                 </a>
               </li>

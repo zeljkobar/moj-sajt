@@ -366,7 +366,7 @@ const getNotifications = async (req, res) => {
         title: "Pregled sistema",
         description: `${statistike.ukupno_firmi} firmi, ${statistike.ukupno_radnika} radnika, ${statistike.istekli_ugovori} isteklih ugovora`,
         days: 0,
-        action: `/dashboard1.html`,
+        action: `/dashboard.html`,
         timestamp: new Date(),
       });
     }

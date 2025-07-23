@@ -109,9 +109,9 @@ app.get(
   }
 );
 
-// Preusmeri stari dashboard na novi
+// Zaštićena ruta za dashboard
 app.get("/dashboard.html", authMiddleware, (req, res) => {
-  res.redirect("/dashboard1.html");
+  res.sendFile(__dirname + "/public/dashboard.html");
 });
 
 // Zaštićena ruta za pregled firmi
@@ -151,11 +151,6 @@ app.get(
 // Zaštićena ruta za editovanje profila
 app.get("/edit-profil.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/edit-profil.html");
-});
-
-// Zaštićena ruta za dashboard1 (nova optimizovana verzija)
-app.get("/dashboard1.html", authMiddleware, (req, res) => {
-  res.sendFile(__dirname + "/public/dashboard1.html");
 });
 
 // Zaštićena ruta za firma-detalji (nova stranica sa tabovima)
