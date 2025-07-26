@@ -355,6 +355,23 @@
                 </table>
               </div>
 
+              <!-- Dodatno polje za koeficijent kalo -->
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <label for="koeficijent_kalo" class="form-label fw-bold">
+                    <i class="fas fa-percentage me-2"></i>
+                    Koeficijent za kalo (%)
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="koeficijent_kalo"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
               <div class="text-center mt-4">
                 <button type="submit" class="btn btn-primary btn-lg">
                   <i class="fas fa-calculator me-2"></i>
@@ -454,6 +471,90 @@
               </div>
             </div>
 
+            <!-- Druga tabela - Obračun kala -->
+            <div
+              class="mt-4"
+              id="kaloSection"
+              style="opacity: 0.5; transition: opacity 0.3s ease"
+            >
+              <h6 class="mb-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Obračun kala
+              </h6>
+
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width: 40%">Naziv konta</th>
+                      <th style="width: 30%" class="duguje-column">Duguje</th>
+                      <th style="width: 30%" class="potrazuje-column">
+                        Potražuje
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="kaloTableBody">
+                    <!-- Placeholder sadržaj -->
+                    <tr class="text-muted">
+                      <td class="fw-bold">Roba</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 21%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 15%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 7%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisana razlika u cijeni</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Troškovi kala, rastura i loma</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light">
+                    <tr class="fw-bold">
+                      <td>UKUPNO:</td>
+                      <td class="duguje-column" id="totalDugujeKalo">0.00</td>
+                      <td class="potrazuje-column" id="totalPotrazujeKalo">
+                        0.00
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div class="alert alert-warning mb-3">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <strong
+                      ><i class="fas fa-percentage me-2"></i>Koeficijent za
+                      kalo:</strong
+                    >
+                  </div>
+                  <div class="col-sm-6">
+                    <span id="koeficijentKalo" class="fs-5 fw-bold text-warning"
+                      >0.00%</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="text-center mt-3">
               <button
                 type="button"
@@ -512,8 +613,6 @@
         });
 
       function calculateObracun() {
-        console.log("Starting calculation...");
-
         // Collect form data
         const formData = {
           roba: parseFloat(document.getElementById("roba_duguje").value) || 0,
@@ -533,9 +632,9 @@
           pdv_21: parseFloat(document.getElementById("pdv_21").value) || 0,
           pdv_15: parseFloat(document.getElementById("pdv_15").value) || 0,
           pdv_7: parseFloat(document.getElementById("pdv_7").value) || 0,
+          koeficijent_kalo:
+            parseFloat(document.getElementById("koeficijent_kalo").value) || 0,
         };
-
-        console.log("Form data to send:", formData);
 
         // Send to server for calculation
         fetch("/api/obracun-zaliha", {
@@ -547,14 +646,12 @@
           body: JSON.stringify(formData),
         })
           .then((response) => {
-            console.log("Server response status:", response.status);
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
           })
           .then((data) => {
-            console.log("Server response data:", data);
             if (data.success) {
               displayResults(data);
             } else {
@@ -568,8 +665,6 @@
       }
 
       function displayResults(results) {
-        console.log("Displaying results:", results);
-
         const tbody = document.getElementById("resultsTableBody");
         const totalDuguje = document.getElementById("totalDuguje");
         const totalPotrazuje = document.getElementById("totalPotrazuje");
@@ -583,9 +678,6 @@
         // Calculate koeficijent prodaje i update results based on formula
         const koeficijent = results.koeficijentProdaje;
         const processedResults = results.results;
-
-        console.log("Processed results:", processedResults);
-        console.log("Koeficijent:", koeficijent);
 
         processedResults.forEach((row) => {
           const tr = document.createElement("tr");
@@ -606,11 +698,52 @@
         totalPotrazuje.textContent = sumPotrazuje.toFixed(2);
         koeficijentElement.textContent = koeficijent.toFixed(2) + "%";
 
-        console.log("Sum duguje:", sumDuguje);
-        console.log("Sum potrazuje:", sumPotrazuje);
-
         // Show results section
         document.getElementById("resultsSection").classList.add("active");
+
+        // Display kalo results if available
+        if (results.kaloResults) {
+          displayKaloResults(results);
+        }
+      }
+
+      function displayKaloResults(results) {
+        const kaloTbody = document.getElementById("kaloTableBody");
+        const totalDugujeKalo = document.getElementById("totalDugujeKalo");
+        const totalPotrazujeKalo =
+          document.getElementById("totalPotrazujeKalo");
+        const koeficijentKaloElement =
+          document.getElementById("koeficijentKalo");
+
+        kaloTbody.innerHTML = "";
+        let sumDugujeKalo = 0;
+        let sumPotrazujeKalo = 0;
+
+        const kaloResults = results.kaloResults;
+        const koeficijentKaloValue = results.koeficijentKalo || 0;
+
+        kaloResults.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+                    <td class="fw-bold">${row.naziv}</td>
+                    <td class="duguje-column">${row.duguje.toFixed(2)}</td>
+                    <td class="potrazuje-column">${row.potrazuje.toFixed(
+                      2
+                    )}</td>
+                `;
+          kaloTbody.appendChild(tr);
+
+          sumDugujeKalo += row.duguje;
+          sumPotrazujeKalo += row.potrazuje;
+        });
+
+        totalDugujeKalo.textContent = sumDugujeKalo.toFixed(2);
+        totalPotrazujeKalo.textContent = sumPotrazujeKalo.toFixed(2);
+        koeficijentKaloElement.textContent =
+          koeficijentKaloValue.toFixed(2) + "%";
+
+        // Show kalo section
+        document.getElementById("kaloSection").style.opacity = "1";
       }
 
       function resetForm() {
@@ -661,6 +794,52 @@
         totalDuguje.textContent = "0.00";
         totalPotrazuje.textContent = "0.00";
         koeficijentElement.textContent = "0.00%";
+
+        // Clear kalo results
+        const kaloTbody = document.getElementById("kaloTableBody");
+        const totalDugujeKalo = document.getElementById("totalDugujeKalo");
+        const totalPotrazujeKalo =
+          document.getElementById("totalPotrazujeKalo");
+        const koeficijentKaloElement =
+          document.getElementById("koeficijentKalo");
+
+        kaloTbody.innerHTML = `
+          <tr class="text-muted">
+            <td class="fw-bold">Roba</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+          <tr class="text-muted">
+            <td class="fw-bold">Ukalkulisani PDV 21%</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+          <tr class="text-muted">
+            <td class="fw-bold">Ukalkulisani PDV 15%</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+          <tr class="text-muted">
+            <td class="fw-bold">Ukalkulisani PDV 7%</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+          <tr class="text-muted">
+            <td class="fw-bold">Ukalkulisana razlika u cijeni</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+          <tr class="text-muted">
+            <td class="fw-bold">Troškovi kala, rastura i loma</td>
+            <td class="duguje-column">-</td>
+            <td class="potrazuje-column">-</td>
+          </tr>
+        `;
+
+        totalDugujeKalo.textContent = "0.00";
+        totalPotrazujeKalo.textContent = "0.00";
+        koeficijentKaloElement.textContent = "0.00%";
+        document.getElementById("kaloSection").style.opacity = "0.5";
       }
 
       function exportResults() {

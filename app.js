@@ -502,8 +502,6 @@ app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
 // API ruta za obračun zaliha
 app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
   try {
-    console.log("Received data:", req.body);
-
     const {
       roba,
       uk_pdv_21,
@@ -517,23 +515,18 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
       pdv_21,
       pdv_15,
       pdv_7,
+      koeficijent_kalo,
     } = req.body;
 
     // Izračunaj zbir svih prihoda i PDV-ova (ne ukalkulisane)
     const zbirPotraznih =
       prihod_21 + prihod_15 + prihod_7 + prihod_0 + pdv_21 + pdv_15 + pdv_7;
 
-    console.log("Zbir potraznih:", zbirPotraznih);
-    console.log("Roba duguje:", roba);
-
     // Izračunaj koeficijent prodaje kao procenat (zbir prihoda i PDV-ova / dugovna roba) * 100
     const koeficijentProdaje = roba > 0 ? (zbirPotraznih / roba) * 100 : 0;
 
     // Koeficijent kao decimalni broj za računanje (bez * 100)
     const koeficijentDecimalni = roba > 0 ? zbirPotraznih / roba : 0;
-
-    console.log("Koeficijent prodaje (%):", koeficijentProdaje);
-    console.log("Koeficijent decimalni:", koeficijentDecimalni);
 
     // Izračunaj ukalkulisane PDV-ove (unijeti ukalkulisani PDV × koeficijent)
     const rezultatUkPdv21 = uk_pdv_21 * koeficijentDecimalni;
@@ -543,14 +536,8 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
     // Izračunaj ukalkulisanu razliku u cijeni (unijeta razlika × koeficijent)
     const rezultatUkRazlika = uk_razlika * koeficijentDecimalni;
 
-    console.log("uk_pdv_21:", uk_pdv_21, "rezultat:", rezultatUkPdv21);
-    console.log("uk_pdv_15:", uk_pdv_15, "rezultat:", rezultatUkPdv15);
-    console.log("uk_pdv_7:", uk_pdv_7, "rezultat:", rezultatUkPdv7);
-    console.log("uk_razlika:", uk_razlika, "rezultat:", rezultatUkRazlika);
-
     // Roba rezultat je samo zbir potražnih stavki
     const robaRezultat = zbirPotraznih;
-    console.log("Roba rezultat (potražuje):", robaRezultat);
 
     // Izračunaj nabavnu vrijednost prodate robe: roba rezultat minus svi ukalkulisani rezultati
     const nabavnaVrijednost =
@@ -559,7 +546,24 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
       rezultatUkPdv15 -
       rezultatUkPdv7 -
       rezultatUkRazlika;
-    console.log("Nabavna vrijednost prodate robe:", nabavnaVrijednost);
+
+    // Obračun kala sa koeficijentom kalo
+    const koeficijentKaloDecimalni = koeficijent_kalo / 100; // konvertuj iz procenta u decimalni broj
+
+    // Izračunaj robe kalo: unešena roba × koeficijent kalo
+    const robaKalo = roba * koeficijentKaloDecimalni;
+
+    // Izračunaj ukalkulisane PDV-ove za kalo: unos × koeficijent kalo
+    const ukPdv21Kalo = uk_pdv_21 * koeficijentKaloDecimalni;
+    const ukPdv15Kalo = uk_pdv_15 * koeficijentKaloDecimalni;
+    const ukPdv7Kalo = uk_pdv_7 * koeficijentKaloDecimalni;
+
+    // Izračunaj ukalkulisanu razliku za kalo: unos × koeficijent kalo
+    const ukRazlikaKalo = uk_razlika * koeficijentKaloDecimalni;
+
+    // Izračunaj troškove kala: roba kalo - svi ukalkulisani kalo rezultati
+    const troskoviKala =
+      robaKalo - ukPdv21Kalo - ukPdv15Kalo - ukPdv7Kalo - ukRazlikaKalo;
 
     const results = [
       { naziv: "Roba", duguje: 0, potrazuje: robaRezultat },
@@ -578,10 +582,29 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
       },
     ];
 
+    const kaloResults = [
+      { naziv: "Roba", duguje: 0, potrazuje: robaKalo },
+      { naziv: "Ukalkulisani PDV 21%", duguje: ukPdv21Kalo, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 15%", duguje: ukPdv15Kalo, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 7%", duguje: ukPdv7Kalo, potrazuje: 0 },
+      {
+        naziv: "Ukalkulisana razlika u cijeni",
+        duguje: ukRazlikaKalo,
+        potrazuje: 0,
+      },
+      {
+        naziv: "Troškovi kala, rastura i loma",
+        duguje: troskoviKala,
+        potrazuje: 0,
+      },
+    ];
+
     res.json({
       success: true,
       results: results,
+      kaloResults: kaloResults,
       koeficijentProdaje: koeficijentProdaje,
+      koeficijentKalo: koeficijent_kalo,
     });
   } catch (error) {
     console.error("Greška pri obračunu zaliha:", error);
