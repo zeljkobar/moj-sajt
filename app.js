@@ -516,6 +516,7 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
       pdv_15,
       pdv_7,
       koeficijent_kalo,
+      stanje_robe_popis,
     } = req.body;
 
     // Izračunaj zbir svih prihoda i PDV-ova (ne ukalkulisane)
@@ -599,13 +600,73 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
       },
     ];
 
-    res.json({
+    // Obračun manjka po popisu
+    // 1. Izračunaj što bi trebalo da bude robe
+    const robaTrebaloBi = roba - robaRezultat - robaKalo;
+
+    // 2. Izračunaj koeficijent manjka
+    const koeficijentManjka = stanje_robe_popis / robaTrebaloBi;
+
+    // 3. Izračunaj manjak robe
+    const robaManjak = robaTrebaloBi - stanje_robe_popis;
+
+    // 4. Izračunaj što bi trebalo da bude za ukalkulisane stavke
+    const ukPdv21TrebaloBi = uk_pdv_21 - rezultatUkPdv21 - ukPdv21Kalo;
+    const ukPdv15TrebaloBi = uk_pdv_15 - rezultatUkPdv15 - ukPdv15Kalo;
+    const ukPdv7TrebaloBi = uk_pdv_7 - rezultatUkPdv7 - ukPdv7Kalo;
+    const ukRazlikaTrebaloBi = uk_razlika - rezultatUkRazlika - ukRazlikaKalo;
+
+    // 5. Primeni koeficijent manjka na ukalkulisane stavke
+    const ukPdv21Manjak = ukPdv21TrebaloBi * (1 - koeficijentManjka);
+    const ukPdv15Manjak = ukPdv15TrebaloBi * (1 - koeficijentManjka);
+    const ukPdv7Manjak = ukPdv7TrebaloBi * (1 - koeficijentManjka);
+    const ukRazlikaManjak = ukRazlikaTrebaloBi * (1 - koeficijentManjka);
+
+    // 6. Izlazni PDV-ovi imaju istu vrednost kao ukalkulisani
+    const izlazniPdv21 = ukPdv21Manjak;
+    const izlazniPdv15 = ukPdv15Manjak;
+    const izlazniPdv7 = ukPdv7Manjak;
+
+    // 7. Troškovi manjka = roba manjak - ukalkulisana razlika manjak
+    const troskoviManjka = robaManjak - ukRazlikaManjak;
+
+    const manjakResults = [
+      { naziv: "Roba", duguje: 0, potrazuje: robaManjak },
+      { naziv: "Ukalkulisani PDV 21%", duguje: ukPdv21Manjak, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 15%", duguje: ukPdv15Manjak, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 7%", duguje: ukPdv7Manjak, potrazuje: 0 },
+      {
+        naziv: "Ukalkulisana razlika u cijeni",
+        duguje: ukRazlikaManjak,
+        potrazuje: 0,
+      },
+      { naziv: "Izlazni PDV 21%", duguje: 0, potrazuje: izlazniPdv21 },
+      { naziv: "Izlazni PDV 15%", duguje: 0, potrazuje: izlazniPdv15 },
+      { naziv: "Izlazni PDV 7%", duguje: 0, potrazuje: izlazniPdv7 },
+      {
+        naziv: "Troškovi manjka",
+        duguje: troskoviManjka,
+        potrazuje: 0,
+      },
+    ];
+
+    // Pripremi response objekat
+    const responseData = {
       success: true,
       results: results,
       kaloResults: kaloResults,
       koeficijentProdaje: koeficijentProdaje,
       koeficijentKalo: koeficijent_kalo,
-    });
+    };
+
+    // Dodaj manjak rezultate samo ako ima smislenih podataka
+    // (ako je uneto stanje robe po popisu i robaTrebaloBi > 0)
+    if (stanje_robe_popis > 0 && robaTrebaloBi > 0) {
+      responseData.manjakResults = manjakResults;
+      responseData.koeficijentManjka = koeficijentManjka;
+    }
+
+    res.json(responseData);
   } catch (error) {
     console.error("Greška pri obračunu zaliha:", error);
     res.status(500).json({

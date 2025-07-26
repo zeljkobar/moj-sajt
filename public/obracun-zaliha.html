@@ -355,7 +355,7 @@
                 </table>
               </div>
 
-              <!-- Dodatno polje za koeficijent kalo -->
+              <!-- Dodatna polja za koeficijent kalo i stanje robe -->
               <div class="row mt-4">
                 <div class="col-md-6">
                   <label for="koeficijent_kalo" class="form-label fw-bold">
@@ -366,6 +366,19 @@
                     type="number"
                     class="form-control"
                     id="koeficijent_kalo"
+                    step="0.01"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="stanje_robe_popis" class="form-label fw-bold">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Stanje robe po popisu
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="stanje_robe_popis"
                     step="0.01"
                     placeholder="0.00"
                   />
@@ -393,7 +406,7 @@
         <!-- Desna kolona - Rezultati -->
         <div class="col-lg-6">
           <!-- Rezultati -->
-          <div class="results-table" id="resultsSection">
+          <div class="results-table" id="resultsSection" style="display: none">
             <h5 class="mb-4">
               <i class="fas fa-chart-line me-2"></i>
               Rezultat obračuna
@@ -472,11 +485,7 @@
             </div>
 
             <!-- Druga tabela - Obračun kala -->
-            <div
-              class="mt-4"
-              id="kaloSection"
-              style="opacity: 0.5; transition: opacity 0.3s ease"
-            >
+            <div class="mt-4" id="kaloSection" style="display: none">
               <h6 class="mb-3">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 Obračun kala
@@ -555,6 +564,85 @@
               </div>
             </div>
 
+            <!-- Tabela: Manjak po popisu -->
+            <div class="mt-4" id="manjakSection" style="display: none">
+              <h5 class="mb-3">
+                <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                Manjak po popisu
+              </h5>
+
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width: 40%">Naziv konta</th>
+                      <th style="width: 30%" class="duguje-column">Duguje</th>
+                      <th style="width: 30%" class="potrazuje-column">
+                        Potražuje
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="manjakTableBody">
+                    <!-- Placeholder sadržaj -->
+                    <tr class="text-muted">
+                      <td class="fw-bold">Roba</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 21%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 15%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisani PDV 7%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Ukalkulisana razlika u cijeni</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Izlazni PDV 21%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Izlazni PDV 15%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Izlazni PDV 7%</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                    <tr class="text-muted">
+                      <td class="fw-bold">Troškovi manjka</td>
+                      <td class="duguje-column">-</td>
+                      <td class="potrazuje-column">-</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light">
+                    <tr class="fw-bold">
+                      <td>UKUPNO:</td>
+                      <td class="duguje-column" id="totalDugujeManjak">0.00</td>
+                      <td class="potrazuje-column" id="totalPotrazujeManjak">
+                        0.00
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
             <div class="text-center mt-3">
               <button
                 type="button"
@@ -581,275 +669,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="components/navigation.js"></script>
     <script src="notifications.js"></script>
-    <script>
-      // Check if loadNavigation exists before calling
-      if (typeof loadNavigation === "function") {
-        loadNavigation();
-      } else {
-        console.warn("Navigation system not loaded, using fallback");
-        // Fallback navigation
-        document.getElementById("navigation-container").innerHTML = `
-          <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
-            <div class="container-fluid">
-              <a class="navbar-brand fw-bold" href="dashboard.html">
-                <i class="fas fa-chart-line me-2"></i>Summa Summarum
-              </a>
-              <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="dashboard.html">
-                  <i class="fas fa-arrow-left me-1"></i>Dashboard
-                </a>
-              </div>
-            </div>
-          </nav>
-        `;
-      }
-
-      // Form submission handler
-      document
-        .getElementById("obracunForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          calculateObracun();
-        });
-
-      function calculateObracun() {
-        // Collect form data
-        const formData = {
-          roba: parseFloat(document.getElementById("roba_duguje").value) || 0,
-          uk_pdv_21:
-            parseFloat(document.getElementById("uk_pdv_21").value) || 0,
-          uk_pdv_15:
-            parseFloat(document.getElementById("uk_pdv_15").value) || 0,
-          uk_pdv_7: parseFloat(document.getElementById("uk_pdv_7").value) || 0,
-          uk_razlika:
-            parseFloat(document.getElementById("uk_razlika").value) || 0,
-          prihod_21:
-            parseFloat(document.getElementById("prihod_21").value) || 0,
-          prihod_15:
-            parseFloat(document.getElementById("prihod_15").value) || 0,
-          prihod_7: parseFloat(document.getElementById("prihod_7").value) || 0,
-          prihod_0: parseFloat(document.getElementById("prihod_0").value) || 0,
-          pdv_21: parseFloat(document.getElementById("pdv_21").value) || 0,
-          pdv_15: parseFloat(document.getElementById("pdv_15").value) || 0,
-          pdv_7: parseFloat(document.getElementById("pdv_7").value) || 0,
-          koeficijent_kalo:
-            parseFloat(document.getElementById("koeficijent_kalo").value) || 0,
-        };
-
-        // Send to server for calculation
-        fetch("/api/obracun-zaliha", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            if (data.success) {
-              displayResults(data);
-            } else {
-              alert("Greška pri kalkulaciji: " + data.message);
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("Greška pri slanju zahteva: " + error.message);
-          });
-      }
-
-      function displayResults(results) {
-        const tbody = document.getElementById("resultsTableBody");
-        const totalDuguje = document.getElementById("totalDuguje");
-        const totalPotrazuje = document.getElementById("totalPotrazuje");
-        const koeficijentElement =
-          document.getElementById("koeficijentProdaje");
-
-        tbody.innerHTML = "";
-        let sumDuguje = 0;
-        let sumPotrazuje = 0;
-
-        // Calculate koeficijent prodaje i update results based on formula
-        const koeficijent = results.koeficijentProdaje;
-        const processedResults = results.results;
-
-        processedResults.forEach((row) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-                    <td class="fw-bold">${row.naziv}</td>
-                    <td class="duguje-column">${row.duguje.toFixed(2)}</td>
-                    <td class="potrazuje-column">${row.potrazuje.toFixed(
-                      2
-                    )}</td>
-                `;
-          tbody.appendChild(tr);
-
-          sumDuguje += row.duguje;
-          sumPotrazuje += row.potrazuje;
-        });
-
-        totalDuguje.textContent = sumDuguje.toFixed(2);
-        totalPotrazuje.textContent = sumPotrazuje.toFixed(2);
-        koeficijentElement.textContent = koeficijent.toFixed(2) + "%";
-
-        // Show results section
-        document.getElementById("resultsSection").classList.add("active");
-
-        // Display kalo results if available
-        if (results.kaloResults) {
-          displayKaloResults(results);
-        }
-      }
-
-      function displayKaloResults(results) {
-        const kaloTbody = document.getElementById("kaloTableBody");
-        const totalDugujeKalo = document.getElementById("totalDugujeKalo");
-        const totalPotrazujeKalo =
-          document.getElementById("totalPotrazujeKalo");
-        const koeficijentKaloElement =
-          document.getElementById("koeficijentKalo");
-
-        kaloTbody.innerHTML = "";
-        let sumDugujeKalo = 0;
-        let sumPotrazujeKalo = 0;
-
-        const kaloResults = results.kaloResults;
-        const koeficijentKaloValue = results.koeficijentKalo || 0;
-
-        kaloResults.forEach((row) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-                    <td class="fw-bold">${row.naziv}</td>
-                    <td class="duguje-column">${row.duguje.toFixed(2)}</td>
-                    <td class="potrazuje-column">${row.potrazuje.toFixed(
-                      2
-                    )}</td>
-                `;
-          kaloTbody.appendChild(tr);
-
-          sumDugujeKalo += row.duguje;
-          sumPotrazujeKalo += row.potrazuje;
-        });
-
-        totalDugujeKalo.textContent = sumDugujeKalo.toFixed(2);
-        totalPotrazujeKalo.textContent = sumPotrazujeKalo.toFixed(2);
-        koeficijentKaloElement.textContent =
-          koeficijentKaloValue.toFixed(2) + "%";
-
-        // Show kalo section
-        document.getElementById("kaloSection").style.opacity = "1";
-      }
-
-      function resetForm() {
-        document.getElementById("obracunForm").reset();
-        document.getElementById("resultsSection").classList.remove("active");
-
-        // Clear results and restore placeholder
-        const tbody = document.getElementById("resultsTableBody");
-        const totalDuguje = document.getElementById("totalDuguje");
-        const totalPotrazuje = document.getElementById("totalPotrazuje");
-        const koeficijentElement =
-          document.getElementById("koeficijentProdaje");
-
-        // Restore placeholder content
-        tbody.innerHTML = `
-          <tr class="text-muted">
-            <td class="fw-bold">Roba</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 21%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 15%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 7%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisana razlika u cijeni</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Nabavna vrijednost prodate robe</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-        `;
-
-        totalDuguje.textContent = "0.00";
-        totalPotrazuje.textContent = "0.00";
-        koeficijentElement.textContent = "0.00%";
-
-        // Clear kalo results
-        const kaloTbody = document.getElementById("kaloTableBody");
-        const totalDugujeKalo = document.getElementById("totalDugujeKalo");
-        const totalPotrazujeKalo =
-          document.getElementById("totalPotrazujeKalo");
-        const koeficijentKaloElement =
-          document.getElementById("koeficijentKalo");
-
-        kaloTbody.innerHTML = `
-          <tr class="text-muted">
-            <td class="fw-bold">Roba</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 21%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 15%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisani PDV 7%</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Ukalkulisana razlika u cijeni</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-          <tr class="text-muted">
-            <td class="fw-bold">Troškovi kala, rastura i loma</td>
-            <td class="duguje-column">-</td>
-            <td class="potrazuje-column">-</td>
-          </tr>
-        `;
-
-        totalDugujeKalo.textContent = "0.00";
-        totalPotrazujeKalo.textContent = "0.00";
-        koeficijentKaloElement.textContent = "0.00%";
-        document.getElementById("kaloSection").style.opacity = "0.5";
-      }
-
-      function exportResults() {
-        // TODO: Implement export functionality
-        alert("Eksport funkcionalnost će biti implementirana uskoro");
-      }
-
-      function printResults() {
-        window.print();
-      }
-    </script>
+    <script src="obracun-zaliha.js"></script>
   </body>
 </html>
