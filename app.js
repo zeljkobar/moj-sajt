@@ -158,6 +158,11 @@ app.get("/firma-detalji.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/firma-detalji.html");
 });
 
+// Zaštićena ruta za obračun zaliha
+app.get("/obracun-zaliha.html", authMiddleware, (req, res) => {
+  res.sendFile(__dirname + "/public/obracun-zaliha.html");
+});
+
 // API ruta za pretragu
 app.get("/api/search", authMiddleware, async (req, res) => {
   try {
@@ -491,6 +496,99 @@ app.get("/api/dashboard-stats", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Greška pri učitavanju dashboard statistika:", error);
     res.status(500).json({ message: "Greška pri učitavanju statistika" });
+  }
+});
+
+// API ruta za obračun zaliha
+app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
+  try {
+    console.log("Received data:", req.body);
+
+    const {
+      roba,
+      uk_pdv_21,
+      uk_pdv_15,
+      uk_pdv_7,
+      uk_razlika,
+      prihod_21,
+      prihod_15,
+      prihod_7,
+      prihod_0,
+      pdv_21,
+      pdv_15,
+      pdv_7,
+    } = req.body;
+
+    // Izračunaj zbir svih prihoda i PDV-ova (ne ukalkulisane)
+    const zbirPotraznih =
+      prihod_21 + prihod_15 + prihod_7 + prihod_0 + pdv_21 + pdv_15 + pdv_7;
+
+    console.log("Zbir potraznih:", zbirPotraznih);
+    console.log("Roba duguje:", roba);
+
+    // Izračunaj koeficijent prodaje kao procenat (zbir prihoda i PDV-ova / dugovna roba) * 100
+    const koeficijentProdaje = roba > 0 ? (zbirPotraznih / roba) * 100 : 0;
+
+    // Koeficijent kao decimalni broj za računanje (bez * 100)
+    const koeficijentDecimalni = roba > 0 ? zbirPotraznih / roba : 0;
+
+    console.log("Koeficijent prodaje (%):", koeficijentProdaje);
+    console.log("Koeficijent decimalni:", koeficijentDecimalni);
+
+    // Izračunaj ukalkulisane PDV-ove (unijeti ukalkulisani PDV × koeficijent)
+    const rezultatUkPdv21 = uk_pdv_21 * koeficijentDecimalni;
+    const rezultatUkPdv15 = uk_pdv_15 * koeficijentDecimalni;
+    const rezultatUkPdv7 = uk_pdv_7 * koeficijentDecimalni;
+
+    // Izračunaj ukalkulisanu razliku u cijeni (unijeta razlika × koeficijent)
+    const rezultatUkRazlika = uk_razlika * koeficijentDecimalni;
+
+    console.log("uk_pdv_21:", uk_pdv_21, "rezultat:", rezultatUkPdv21);
+    console.log("uk_pdv_15:", uk_pdv_15, "rezultat:", rezultatUkPdv15);
+    console.log("uk_pdv_7:", uk_pdv_7, "rezultat:", rezultatUkPdv7);
+    console.log("uk_razlika:", uk_razlika, "rezultat:", rezultatUkRazlika);
+
+    // Roba rezultat je samo zbir potražnih stavki
+    const robaRezultat = zbirPotraznih;
+    console.log("Roba rezultat (potražuje):", robaRezultat);
+
+    // Izračunaj nabavnu vrijednost prodate robe: roba rezultat minus svi ukalkulisani rezultati
+    const nabavnaVrijednost =
+      robaRezultat -
+      rezultatUkPdv21 -
+      rezultatUkPdv15 -
+      rezultatUkPdv7 -
+      rezultatUkRazlika;
+    console.log("Nabavna vrijednost prodate robe:", nabavnaVrijednost);
+
+    const results = [
+      { naziv: "Roba", duguje: 0, potrazuje: robaRezultat },
+      { naziv: "Ukalkulisani PDV 21%", duguje: rezultatUkPdv21, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 15%", duguje: rezultatUkPdv15, potrazuje: 0 },
+      { naziv: "Ukalkulisani PDV 7%", duguje: rezultatUkPdv7, potrazuje: 0 },
+      {
+        naziv: "Ukalkulisana razlika u cijeni",
+        duguje: rezultatUkRazlika,
+        potrazuje: 0,
+      },
+      {
+        naziv: "Nabavna vrijednost prodate robe",
+        duguje: nabavnaVrijednost,
+        potrazuje: 0,
+      },
+    ];
+
+    res.json({
+      success: true,
+      results: results,
+      koeficijentProdaje: koeficijentProdaje,
+    });
+  } catch (error) {
+    console.error("Greška pri obračunu zaliha:", error);
+    res.status(500).json({
+      success: false,
+      message: "Greška pri kalkulaciji",
+    });
   }
 });
 

@@ -112,32 +112,42 @@ class Navigation {
       const response = await fetch("/api/users/current", {
         credentials: "include",
       });
+
       if (response.ok) {
-        const userData = await response.json();
-        this.currentUser = userData;
-        this.userRole = userData.role;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const userData = await response.json();
+          this.currentUser = userData;
+          this.userRole = userData.role;
 
-        console.log("Full user data:", userData); // Debug log
+          console.log("Full user data:", userData); // Debug log
 
-        // Ažuriraj ime korisnika u navigaciji
-        const usernameElement = document.getElementById("navbar-username");
-        if (usernameElement) {
-          usernameElement.textContent =
-            userData.ime && userData.prezime
-              ? userData.ime + " " + userData.prezime
-              : userData.ime_prezime || userData.username || "Korisnik";
-        }
-
-        // Prikaži admin meni ako je korisnik admin
-        const adminMenu = document.getElementById("adminMenu");
-
-        if (userData.role === "admin" || userData.role === "ADMIN") {
-          if (adminMenu) {
-            adminMenu.style.display = "block";
+          // Ažuriraj ime korisnika u navigaciji
+          const usernameElement = document.getElementById("navbar-username");
+          if (usernameElement) {
+            usernameElement.textContent =
+              userData.ime && userData.prezime
+                ? userData.ime + " " + userData.prezime
+                : userData.ime_prezime || userData.username || "Korisnik";
           }
+
+          // Prikaži admin meni ako je korisnik admin
+          const adminMenu = document.getElementById("adminMenu");
+
+          if (userData.role === "admin" || userData.role === "ADMIN") {
+            if (adminMenu) {
+              adminMenu.style.display = "block";
+            }
+          }
+        } else {
+          console.warn("Response nije JSON format, možda je HTML redirect");
+          // Možda je korisnik redirect-ovan na login stranicu
         }
       } else {
         console.error("Auth check failed with status:", response.status);
+        if (response.status === 401) {
+          console.log("Korisnik nije autentifikovan");
+        }
       }
     } catch (error) {
       console.warn("Greška pri učitavanju korisničkih podataka:", error);
@@ -343,6 +353,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     nav.initializeBootstrap();
   }, 1000);
 });
+
+// Globalna funkcija za manuelno pokretanje navigacije
+window.loadNavigation = async function () {
+  try {
+    // Dodaj CSS stilove ako već nisu dodani
+    if (!document.querySelector("style[data-navigation-css]")) {
+      const style = document.createElement("style");
+      style.setAttribute("data-navigation-css", "true");
+      style.innerHTML = navigationCSS;
+      document.head.appendChild(style);
+    }
+
+    // Inicijalizuj navigaciju
+    const nav = new Navigation();
+    await nav.init();
+
+    // Inicijalizuj Bootstrap komponente
+    setTimeout(() => {
+      nav.initializeBootstrap();
+    }, 100);
+
+    return true;
+  } catch (error) {
+    console.error("Greška pri učitavanju navigacije:", error);
+    return false;
+  }
+};
 
 // Export za module sisteme
 if (typeof module !== "undefined" && module.exports) {
