@@ -79,14 +79,12 @@ function loadFirmaData() {
 function updateFirmaHeader(firma) {
   document.getElementById("firmaNaziv").textContent = firma.naziv || "N/A";
   document.getElementById("firmaPIB").textContent = firma.pib || "N/A";
-  document.getElementById("firmaAdresa").textContent =
-    firma.adresa || "JOVANA TOMAŠEVIĆA G9";
-  document.getElementById("firmaPDV").textContent =
-    firma.pdv_broj || "80/31-01593-7";
+  document.getElementById("firmaAdresa").textContent = firma.adresa || "N/A";
+  document.getElementById("firmaPDV").textContent = firma.pdv_broj || "N/A";
   document.getElementById("firmaDirektor").textContent =
-    firma.direktor || "SLAVICA MILOŠEVIĆ";
+    firma.direktor_ime_prezime || "N/A";
   document.getElementById("firmaJMBGDirektora").textContent =
-    firma.jmbg_direktora || "1408992259992";
+    firma.direktor_jmbg || "N/A";
 }
 
 function loadFirmaStats(firmaId) {
