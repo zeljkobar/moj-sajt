@@ -1088,21 +1088,60 @@ async function deleteRadnik(radnikId) {
   try {
     const response = await fetch(`/api/radnici/${radnikId}`, {
       method: "DELETE",
+      credentials: "include", // Dodao credentials za sesiju
     });
 
     const data = await response.json();
 
-    if (data.success) {
+    if (response.ok && data.success) {
       alert("Radnik je uspešno obrisan!");
 
       // Osvježi prikaz radnika
       loadRadnici(currentFirmaId);
     } else {
-      alert("Greška pri brisanju radnika: " + data.message);
+      // Prikaži specifičnu grešku od backend-a
+      const errorMessage = data.message || data.msg || "Nepoznata greška";
+
+      // Ako radnik ima ugovore, ponudi opciju forsiranja brisanja
+      if (data.hasContracts) {
+        const forceConfirm = confirm(
+          `${errorMessage}\n\nKliknite "OK" da obrišete radnika sa svim ugovorima ili "Cancel" da otkažete.`
+        );
+
+        if (forceConfirm) {
+          // Pozovi ponovo sa force=true parametrom
+          await deleteRadnikForce(radnikId);
+        }
+      } else {
+        alert("Greška pri brisanju radnika: " + errorMessage);
+      }
     }
   } catch (error) {
     console.error("Greška pri brisanju radnika:", error);
     alert("Greška pri brisanju radnika!");
+  }
+}
+
+// Funkcija za forsiranje brisanja radnika sa ugovorima
+async function deleteRadnikForce(radnikId) {
+  try {
+    const response = await fetch(`/api/radnici/${radnikId}?force=true`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert("Radnik i svi povezani ugovori su uspešno obrisani!");
+      loadRadnici(currentFirmaId);
+    } else {
+      const errorMessage = data.message || data.msg || "Nepoznata greška";
+      alert("Greška pri forsiranom brisanju radnika: " + errorMessage);
+    }
+  } catch (error) {
+    console.error("Greška pri forsiranom brisanju radnika:", error);
+    alert("Greška pri forsiranom brisanju radnika!");
   }
 }
 

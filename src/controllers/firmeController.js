@@ -1,4 +1,5 @@
 const { executeQuery } = require("../config/database");
+const { ROLES, canCreateMultipleFirms } = require("../middleware/roleAuth");
 
 const firmeController = {
   // Helper funkcija za dobijanje user_id na osnovu username-a
@@ -145,6 +146,24 @@ const firmeController = {
       const userId = await firmeController.getUserId(username);
       if (!userId) {
         return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Provera limita firmi na osnovu role korisnika
+      const userRole = req.session.user.role;
+
+      if (userRole === ROLES.FIRMA) {
+        // Korisnik tipa "firma" može imati samo jednu firmu
+        const existingFirmsCount = await executeQuery(
+          "SELECT COUNT(*) as count FROM firme WHERE user_id = ?",
+          [userId]
+        );
+
+        if (existingFirmsCount[0].count >= 1) {
+          return res.status(403).json({
+            message:
+              "Korisnici tipa 'Firma' mogu kreirati samo jednu firmu. Za upravljanje više firmi kontaktirajte administratora za promenu statusa na 'Knjigovodstvena agencija'.",
+          });
+        }
       }
 
       // Proveri da li firma već postoji za ovog korisnika

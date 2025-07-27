@@ -122,19 +122,36 @@ class Navigation {
 
           console.log("Full user data:", userData); // Debug log
 
-          // Ažuriraj ime korisnika u navigaciji
+          // Ažuriraj ime korisnika u navigaciji i prikaži role badge
           const usernameElement = document.getElementById("navbar-username");
           if (usernameElement) {
-            usernameElement.textContent =
+            let displayName =
               userData.ime && userData.prezime
                 ? userData.ime + " " + userData.prezime
                 : userData.ime_prezime || userData.username || "Korisnik";
+
+            // Dodaj badge za tip korisnika
+            let roleBadge = "";
+            switch (userData.role) {
+              case "admin":
+                roleBadge = ' <span class="badge bg-danger ms-1">ADMIN</span>';
+                break;
+              case "agencija":
+                roleBadge =
+                  ' <span class="badge bg-primary ms-1">AGENCIJA</span>';
+                break;
+              case "firma":
+                roleBadge = ' <span class="badge bg-success ms-1">FIRMA</span>';
+                break;
+            }
+
+            usernameElement.innerHTML = displayName + roleBadge;
           }
 
           // Prikaži admin meni ako je korisnik admin
           const adminMenu = document.getElementById("adminMenu");
 
-          if (userData.role === "admin" || userData.role === "ADMIN") {
+          if (userData.role === "admin") {
             if (adminMenu) {
               adminMenu.style.display = "block";
             }

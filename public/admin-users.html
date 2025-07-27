@@ -52,14 +52,11 @@
         padding: 4px 8px;
       }
 
-      .role-pdv {
-        background-color: #0d6efd;
-      }
-      .role-ugovori {
-        background-color: #fd7e14;
-      }
-      .role-full {
+      .role-firma {
         background-color: #198754;
+      }
+      .role-agencija {
+        background-color: #0d6efd;
       }
       .role-admin {
         background-color: #dc3545;
@@ -115,21 +112,17 @@
             </div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-3">
-                  <span class="badge role-pdv role-badge">PDV</span>
-                  <small class="d-block mt-1">PDV prijave i nule</small>
+                <div class="col-md-4">
+                  <span class="badge role-firma role-badge">FIRMA</span>
+                  <small class="d-block mt-1">Može kreirati jednu firmu</small>
                 </div>
-                <div class="col-md-3">
-                  <span class="badge role-ugovori role-badge">UGOVORI</span>
-                  <small class="d-block mt-1">Radnici i ugovori</small>
-                </div>
-                <div class="col-md-3">
-                  <span class="badge role-full role-badge">FULL</span>
+                <div class="col-md-4">
+                  <span class="badge role-agencija role-badge">AGENCIJA</span>
                   <small class="d-block mt-1"
-                    >PDV + UGOVORI + Porez na dobit</small
+                    >Može kreirati neograničeno firmi</small
                   >
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <span class="badge role-admin role-badge">ADMIN</span>
                   <small class="d-block mt-1"
                     >Sve + upravljanje korisnicima</small
@@ -185,20 +178,15 @@
     <script>
       // Role display configuration
       const roleConfig = {
-        pdv: {
-          name: "PDV",
-          class: "role-pdv",
-          description: "PDV prijave i nule",
+        firma: {
+          name: "FIRMA",
+          class: "role-firma",
+          description: "Može kreirati jednu firmu",
         },
-        ugovori: {
-          name: "UGOVORI",
-          class: "role-ugovori",
-          description: "Radnici, pozicije i ugovori",
-        },
-        full: {
-          name: "FULL",
-          class: "role-full",
-          description: "PDV + UGOVORI + Porez na dobit",
+        agencija: {
+          name: "AGENCIJA",
+          class: "role-agencija",
+          description: "Može kreirati neograničeno firmi",
         },
         admin: {
           name: "ADMIN",
@@ -294,7 +282,7 @@
 
         const usersHtml = sortedUsers
           .map((user) => {
-            const roleInfo = roleConfig[user.role] || roleConfig["pdv"];
+            const roleInfo = roleConfig[user.role] || roleConfig["firma"];
             const isNew = isNewUser(user.created_at);
             const daysSince = getDaysSinceRegistration(user.created_at);
 
@@ -339,15 +327,12 @@
                     <select class="form-select form-select-sm" onchange="changeUserRole(${
                       user.id
                     }, this.value)">
-                      <option value="pdv" ${
-                        user.role === "pdv" ? "selected" : ""
-                      }>PDV</option>
-                      <option value="ugovori" ${
-                        user.role === "ugovori" ? "selected" : ""
-                      }>UGOVORI</option>
-                      <option value="full" ${
-                        user.role === "full" ? "selected" : ""
-                      }>FULL</option>
+                      <option value="firma" ${
+                        user.role === "firma" ? "selected" : ""
+                      }>FIRMA</option>
+                      <option value="agencija" ${
+                        user.role === "agencija" ? "selected" : ""
+                      }>AGENCIJA</option>
                       <option value="admin" ${
                         user.role === "admin" ? "selected" : ""
                       }>ADMIN</option>

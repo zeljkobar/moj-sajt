@@ -22,7 +22,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   switch (currentPage) {
     case "firme":
-      initFirmesPage();
+      loadFirms();
+      setupEventListeners();
+
+      // Čitaj search parametar iz URL-a i postavi ga u search input
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchQuery = urlParams.get("search");
+      if (searchQuery) {
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+          searchInput.value = searchQuery;
+          // Pokreni filter da se primeni search
+          setTimeout(() => filterFirms(), 100);
+        }
+      }
       break;
     case "dodaj-firmu":
       initAddFirmPage();
@@ -44,23 +57,6 @@ function getCurrentPage() {
 // =============================================================================
 // FIRME PAGE (firme.html)
 // =============================================================================
-
-function initFirmesPage() {
-  loadFirms();
-  setupEventListeners();
-
-  // Čitaj search parametar iz URL-a i postavi ga u search input
-  const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get("search");
-  if (searchQuery) {
-    const searchInput = document.getElementById("searchInput");
-    if (searchInput) {
-      searchInput.value = searchQuery;
-      // Pokreni filter da se primeni search
-      setTimeout(() => filterFirms(), 100);
-    }
-  }
-}
 
 function setupEventListeners() {
   // Search funkcionalnost
@@ -223,7 +219,7 @@ function renderFirms() {
               })" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="Detalji firme">
                 <i class="fas fa-info-circle"></i>
               </button>
-              <button class="delete-btn" data-pib="${
+              <button class="btn btn-sm btn-outline-danger delete-btn" data-pib="${
                 firm.pib
               }" data-naziv="${firm.naziv.replace(/"/g, "&quot;")}">
                 <i class="fas fa-trash"></i>
@@ -238,6 +234,22 @@ function renderFirms() {
     .join("");
 
   container.innerHTML = firmsHtml;
+
+  // Add event listeners directly to each delete button
+  const deleteButtons = document.querySelectorAll(".delete-btn");
+  deleteButtons.forEach((btn) => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const pib = this.getAttribute("data-pib");
+      const naziv = this.getAttribute("data-naziv");
+
+      if (pib && naziv) {
+        deleteFirm(pib, naziv);
+      }
+    });
+  });
 }
 
 // Edit firma function
@@ -257,6 +269,7 @@ async function deleteFirm(pib, naziv) {
     // Pokušaj prvo sa DELETE metodom
     let response = await fetch(`/api/firme/${pib}`, {
       method: "DELETE",
+      credentials: "include", // Dodao credentials za sesiju
     });
 
     // Ako DELETE ne radi (405), pokušaj sa POST fallback
@@ -267,6 +280,7 @@ async function deleteFirm(pib, naziv) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Dodao credentials za sesiju
       });
     }
 
@@ -352,6 +366,7 @@ function setupFormSubmit() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // Dodao credentials za sesiju
         body: JSON.stringify(data),
       });
 
@@ -585,25 +600,7 @@ function showError(message) {
 
 // Make functions globally available for onclick handlers
 window.editFirm = editFirm;
-window.deleteFirm = deleteFirm;
-
-// Add event listeners for delete buttons
-document.addEventListener("DOMContentLoaded", function () {
-  // Delegated event listener for dynamically created delete buttons
-  document.addEventListener("click", function (e) {
-    if (e.target.closest(".delete-btn")) {
-      const btn = e.target.closest(".delete-btn");
-      const pib = btn.getAttribute("data-pib");
-      const naziv = btn.getAttribute("data-naziv");
-
-      if (pib && naziv) {
-        deleteFirm(pib, naziv);
-      }
-    }
-  });
-});
-
-// =============================================================================
+window.deleteFirm = deleteFirm; // =============================================================================
 // RADNICI FUNKCIJE
 // =============================================================================
 

@@ -78,32 +78,32 @@ app.get("/protected.html", authMiddleware, (req, res) => {
   res.sendFile(__dirname + "/public/protected.html");
 });
 
-// Zaštićena ruta za PDV prijavu - requires PDV or higher role
+// Zaštićena ruta za PDV prijavu - dostupno svim korisnicima osim admin panel
 app.get(
   "/pdv_prijava/index.html",
   authMiddleware,
-  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/protected/pdv_prijava/index.html");
   }
 );
 
-// Zaštićene rute za sve PDV prijava resurse - requires PDV or higher role
+// Zaštićene rute za sve PDV prijava resurse - dostupno svim korisnicima
 app.get(
   "/pdv_prijava/:file",
   authMiddleware,
-  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     const fileName = req.params.file;
     res.sendFile(__dirname + "/protected/pdv_prijava/" + fileName);
   }
 );
 
-// Zaštićena ruta za PDV0 (masovno preuzimanje) - accessible to PDV, FULL and ADMIN
+// Zaštićena ruta za PDV0 (masovno preuzimanje) - dostupno svim korisnicima
 app.get(
   "/pdv0.html",
   authMiddleware,
-  requireRole([ROLES.PDV, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/public/pdv0.html");
   }
@@ -133,7 +133,7 @@ app.get("/edit-firmu.html", authMiddleware, (req, res) => {
 app.get(
   "/pozicije.html",
   authMiddleware,
-  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/public/pozicije.html");
   }
@@ -142,7 +142,7 @@ app.get(
 app.get(
   "/ugovor-o-radu.html",
   authMiddleware,
-  requireRole([ROLES.UGOVORI, ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/public/ugovor-o-radu.html");
   }
@@ -701,7 +701,7 @@ setupActivitiesWithUserFilter(app, authMiddleware);
 app.get(
   "/dobit_prijava/index.html",
   authMiddleware,
-  requireRole([ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + "/protected/dobit_prijava/index.html");
   }
@@ -711,7 +711,7 @@ app.get(
 app.get(
   "/dobit_prijava/:file",
   authMiddleware,
-  requireRole([ROLES.FULL, ROLES.ADMIN]),
+  requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
     const fileName = req.params.file;
 
@@ -768,7 +768,7 @@ app.put(
       const { role } = req.body;
 
       // Validate role
-      const validRoles = ["pdv", "ugovori", "full", "admin"];
+      const validRoles = ["firma", "agencija", "admin"];
       if (!validRoles.includes(role)) {
         return res.status(400).json({ msg: "Neispravna rola" });
       }
