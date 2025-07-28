@@ -18,6 +18,7 @@ const pozajmnicaRoutes = require("./src/routes/pozajmnicaRoutes");
 const povracajRoutes = require("./src/routes/povracajRoutes");
 const odlukaRoutes = require("./src/routes/odlukaRoutes");
 const zadaciRoutes = require("./src/routes/zadaciRoutes");
+const emailRoutes = require("./src/routes/emailRoutes");
 const { authMiddleware } = require("./src/middleware/auth");
 const { requireRole, ROLES } = require("./src/middleware/roleAuth");
 const { setupActivitiesWithUserFilter } = require("./activities-patch");
@@ -691,6 +692,7 @@ app.use("/api/povracaji", povracajRoutes);
 app.use("/api/odluka", odlukaRoutes);
 app.use("/api/zadaci", zadaciRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/email", emailRoutes);
 
 // Setup activities endpoint with user filtering
 setupActivitiesWithUserFilter(app, authMiddleware);

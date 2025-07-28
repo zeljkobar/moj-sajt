@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const { executeQuery } = require("../config/database");
+const emailService = require("../services/emailService");
 
 // Funkcija za dobijanje korisnika po username-u
 async function getUserByUsername(username) {
@@ -19,8 +20,8 @@ async function createUser(userData) {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const query = `
-      INSERT INTO users (username, password, email, phone, ime, prezime, jmbg)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (username, password, email, phone, ime, prezime, jmbg, role)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const result = await executeQuery(query, [
@@ -31,6 +32,7 @@ async function createUser(userData) {
       userData.ime,
       userData.prezime,
       userData.jmbg,
+      userData.role || "firma", // default role
     ]);
 
     return result.insertId;
@@ -96,14 +98,30 @@ const authController = {
   // Registracija
   register: async (req, res) => {
     try {
-      const { username, email, password, phone, address, ime, prezime, jmbg } =
-        req.body;
+      const {
+        username,
+        email,
+        password,
+        phone,
+        address,
+        ime,
+        prezime,
+        jmbg,
+        userType,
+      } = req.body;
 
       // Validacija obaveznih polja
       if (!username || !email || !password || !ime || !prezime || !jmbg) {
         return res.status(400).json({
           message:
             "Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni",
+        });
+      }
+
+      // UserType validacija
+      if (userType && !["firma", "agencija"].includes(userType)) {
+        return res.status(400).json({
+          message: "Neispravna vrijednost za tip korisnika",
         });
       }
 
@@ -185,7 +203,29 @@ const authController = {
         ime: ime.trim(),
         prezime: prezime.trim(),
         jmbg,
+        role: userType || "firma", // default role je 'firma'
       });
+
+      // Pošalji welcome email (ne čekamo rezultat da ne sporimo registraciju)
+      const userName = `${ime.trim()} ${prezime.trim()}`;
+      emailService
+        .sendWelcomeEmail(email, userName, userType || "firma")
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Welcome email poslat za korisnika: ${username}`);
+          } else {
+            console.error(
+              `❌ Neuspešno slanje welcome email-a za: ${username}`,
+              result.error
+            );
+          }
+        })
+        .catch((error) => {
+          console.error(
+            `❌ Greška pri slanju welcome email-a za: ${username}`,
+            error
+          );
+        });
 
       res.json({
         success: true,

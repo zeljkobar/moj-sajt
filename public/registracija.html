@@ -123,6 +123,37 @@
         max-height: 60px;
         margin-bottom: 1rem;
       }
+
+      .user-type-card {
+        transition: all 0.3s ease;
+      }
+
+      .user-type-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-type-card input[type="radio"]:checked + label .card-title {
+        color: #007bff !important;
+      }
+
+      .user-type-card input[type="radio"]:checked {
+        display: none;
+      }
+
+      .user-type-card:has(input[type="radio"]:checked) {
+        border-color: #007bff !important;
+        background-color: #f8f9ff;
+      }
+
+      .user-type-card .form-check {
+        margin: 0;
+      }
+
+      .user-type-card label {
+        cursor: pointer;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -283,6 +314,93 @@
                     </div>
                   </div>
 
+                  <!-- Odabir tipa korisnika -->
+                  <div class="row">
+                    <div class="col-12 mb-4">
+                      <label class="form-label">Tip korisnika *</label>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div
+                            class="card h-100 user-type-card"
+                            style="cursor: pointer; border: 2px solid #e9ecef"
+                          >
+                            <div class="card-body text-center">
+                              <div class="form-check">
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="userType"
+                                  id="firma"
+                                  value="firma"
+                                  checked
+                                />
+                                <label
+                                  class="form-check-label w-100"
+                                  for="firma"
+                                >
+                                  <i
+                                    class="fas fa-building fa-2x text-primary mb-2"
+                                  ></i>
+                                  <h5 class="card-title">FIRMA</h5>
+                                  <p class="card-text small text-muted">
+                                    ✅ Upravljanje jednom firmom<br />
+                                    ✅ Evidencija radnika<br />
+                                    ✅ Generiranje ugovora<br />
+                                    ✅ Službene odluke<br />
+                                    ✅ Sistem pozajmnica
+                                  </p>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div
+                            class="card h-100 user-type-card"
+                            style="cursor: pointer; border: 2px solid #e9ecef"
+                          >
+                            <div class="card-body text-center">
+                              <div class="form-check">
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="userType"
+                                  id="agencija"
+                                  value="agencija"
+                                />
+                                <label
+                                  class="form-check-label w-100"
+                                  for="agencija"
+                                >
+                                  <i
+                                    class="fas fa-users fa-2x text-success mb-2"
+                                  ></i>
+                                  <h5 class="card-title">
+                                    RAČUNOVODSTVENA AGENCIJA
+                                  </h5>
+                                  <p class="card-text small text-muted">
+                                    ✅ Upravljanje više firmi<br />
+                                    ✅ XML izvoz PDV prijava<br />
+                                    ✅ Automatske poreske prijave<br />
+                                    ✅ Sve funkcionalnosti firme<br />
+                                    ✅ Upravljanje klijentima
+                                  </p>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-text mt-2">
+                        <small
+                          ><strong>💡 Savjet:</strong> Odaberite tip koji
+                          najbolje opisuje vaše potrebe - možete kasnije
+                          proširiti funkcionalnosti</small
+                        >
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="row">
                     <div class="col-md-12 mb-3">
                       <label for="regJmbg" class="form-label">JMBG *</label>
@@ -365,6 +483,7 @@
               ime: formData.get("ime"),
               prezime: formData.get("prezime"),
               jmbg: formData.get("jmbg"),
+              userType: formData.get("userType"),
             };
 
             // Client-side validacija
@@ -487,6 +606,42 @@
             errorDiv.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         }
+
+        // User type card interaktivnost
+        const userTypeCards = document.querySelectorAll(".user-type-card");
+        const userTypeRadios = document.querySelectorAll(
+          'input[name="userType"]'
+        );
+
+        userTypeCards.forEach((card) => {
+          card.addEventListener("click", function () {
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) {
+              radio.checked = true;
+              updateCardStyles();
+            }
+          });
+        });
+
+        userTypeRadios.forEach((radio) => {
+          radio.addEventListener("change", updateCardStyles);
+        });
+
+        function updateCardStyles() {
+          userTypeCards.forEach((card) => {
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+              card.style.borderColor = "#007bff";
+              card.style.backgroundColor = "#f8f9ff";
+            } else {
+              card.style.borderColor = "#e9ecef";
+              card.style.backgroundColor = "white";
+            }
+          });
+        }
+
+        // Inicijalno postavljanje stilova
+        updateCardStyles();
       });
     </script>
   </body>

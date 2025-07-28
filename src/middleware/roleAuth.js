@@ -56,25 +56,30 @@ const getRolePermissions = (role) => {
         "dashboard",
         "firma_create_single", // Može kreirati samo jednu firmu
         "firma_manage_own", // Upravlja svojom firmom
-        "radnici_manage", // Upravljanje radnicima
+        "radnici_manage", // Evidencija radnika
         "pozicije_manage", // Upravljanje pozicijama
-        "ugovori_create", // Kreiranje ugovora
-        "pdv_prijava", // PDV prijave
-        "dobit_prijava", // Prijave dobiti
-        "dokumenti_generate", // Generiranje dokumenata
+        "ugovori_create", // Generiranje ugovora o radu
+        "odluke_generate", // Službene odluke (raspored rada, godišnji odmor, itd.)
+        "pozajmnice_system", // Sistem pozajmnica za radnike
+        "osnovni_dokumenti", // Osnovni dokumenti i potvrde
       ];
     case ROLES.AGENCIJA:
       return [
         "dashboard",
         "firma_create_multiple", // Može kreirati neograničeno firmi
         "firma_manage_all", // Upravlja svim svojim firmama
-        "radnici_manage", // Upravljanje radnicima
+        "radnici_manage", // Evidencija radnika
         "pozicije_manage", // Upravljanje pozicijama
-        "ugovori_create", // Kreiranje ugovora
-        "pdv_prijava", // PDV prijave
+        "ugovori_create", // Generiranje ugovora o radu
+        "odluke_generate", // Službene odluke
+        "pozajmnice_system", // Sistem pozajmnica
+        "osnovni_dokumenti", // Osnovni dokumenti
+        "pdv_xml_export", // XML izvoz PDV prijava
+        "poreske_prijave_auto", // Automatske poreske prijave
         "dobit_prijava", // Prijave dobiti
-        "dokumenti_generate", // Generiranje dokumenata
         "client_management", // Upravljanje klijentima
+        "napredni_izvjestaji", // Napredni izvještaji
+        "bulk_operations", // Grupne operacije
       ];
     case ROLES.ADMIN:
       return [
@@ -84,10 +89,15 @@ const getRolePermissions = (role) => {
         "radnici_manage",
         "pozicije_manage",
         "ugovori_create",
-        "pdv_prijava",
+        "odluke_generate",
+        "pozajmnice_system",
+        "osnovni_dokumenti",
+        "pdv_xml_export",
+        "poreske_prijave_auto",
         "dobit_prijava",
-        "dokumenti_generate",
         "client_management",
+        "napredni_izvjestaji",
+        "bulk_operations",
         "admin_panel", // Admin panel
         "user_management", // Upravljanje korisnicima
         "system_settings", // Sistemska podešavanja
