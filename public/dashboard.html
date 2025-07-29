@@ -540,6 +540,105 @@
             </a>
           </div>
 
+          <!-- PDV Kalkulator -->
+          <div class="quick-action-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-calculator text-success me-2"></i>
+                PDV Kalkulator
+              </h5>
+              <div class="btn-group btn-group-sm" role="group">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pdv-mode"
+                  id="add-pdv"
+                  value="add"
+                  checked
+                />
+                <label class="btn btn-outline-success" for="add-pdv"
+                  >+ PDV</label
+                >
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pdv-mode"
+                  id="remove-pdv"
+                  value="remove"
+                />
+                <label class="btn btn-outline-warning" for="remove-pdv"
+                  >- PDV</label
+                >
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-8">
+                <label class="form-label small text-muted" id="amount-label"
+                  >Iznos bez PDV-a</label
+                >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="pdv-amount"
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">PDV</label>
+                <select class="form-select form-select-sm" id="pdv-rate">
+                  <option value="21">21%</option>
+                  <option value="15">15%</option>
+                  <option value="7">7%</option>
+                  <option value="0">0%</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-6">
+                <div class="bg-light p-2 rounded text-center">
+                  <div class="small text-muted" id="result-label-1">
+                    PDV iznos
+                  </div>
+                  <div class="h6 text-success mb-0" id="pdv-tax-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="bg-primary bg-opacity-10 p-2 rounded text-center">
+                  <div class="small text-muted" id="result-label-2">
+                    Ukupno sa PDV
+                  </div>
+                  <div class="h6 text-primary mb-0" id="pdv-total-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary btn-sm flex-fill"
+                onclick="clearPdvCalculator()"
+              >
+                <i class="fas fa-eraser me-1"></i>Obriši
+              </button>
+              <button
+                class="btn btn-primary btn-sm flex-fill"
+                onclick="copyPdvResult()"
+              >
+                <i class="fas fa-copy me-1"></i>Kopiraj
+              </button>
+            </div>
+          </div>
+
           <!-- Pozajmice pregled -->
           <div class="quick-action-card">
             <h5 class="mb-3">
@@ -600,6 +699,9 @@
 
         // Setup quick search
         setupQuickSearch();
+
+        // Inicijalizuj PDV kalkulator
+        initPdvCalculator();
       });
 
       // Funkcije za učitavanje podataka
@@ -1290,6 +1392,140 @@
       }
 
       // Dashboard koristi centralizovani radnik-modal.js komponent
+
+      // PDV Kalkulator funkcije
+      function initPdvCalculator() {
+        const amountInput = document.getElementById("pdv-amount");
+        const rateSelect = document.getElementById("pdv-rate");
+        const modeRadios = document.querySelectorAll('input[name="pdv-mode"]');
+
+        // Event listeneri za real-time kalkulaciju
+        amountInput.addEventListener("input", calculatePdv);
+        rateSelect.addEventListener("change", calculatePdv);
+        modeRadios.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            updateLabels();
+            calculatePdv();
+          });
+        });
+
+        // Inicijalna kalkulacija
+        updateLabels();
+        calculatePdv();
+      }
+
+      function updateLabels() {
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+        const amountLabel = document.getElementById("amount-label");
+        const resultLabel1 = document.getElementById("result-label-1");
+        const resultLabel2 = document.getElementById("result-label-2");
+
+        if (mode === "add") {
+          amountLabel.textContent = "Iznos bez PDV-a";
+          resultLabel1.textContent = "PDV iznos";
+          resultLabel2.textContent = "Ukupno sa PDV";
+        } else {
+          amountLabel.textContent = "Iznos sa PDV-om";
+          resultLabel1.textContent = "PDV iznos";
+          resultLabel2.textContent = "Iznos bez PDV";
+        }
+      }
+
+      function calculatePdv() {
+        const amount =
+          parseFloat(document.getElementById("pdv-amount").value) || 0;
+        const rate =
+          parseFloat(document.getElementById("pdv-rate").value) || 21;
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+
+        let pdvAmount, totalAmount;
+
+        if (mode === "add") {
+          // Dodavanje PDV-a na iznos bez PDV-a
+          pdvAmount = amount * (rate / 100);
+          totalAmount = amount + pdvAmount;
+        } else {
+          // Oduzimanje PDV-a od iznosa sa PDV-om
+          const baseAmount = amount / (1 + rate / 100);
+          pdvAmount = amount - baseAmount;
+          totalAmount = baseAmount;
+        }
+
+        // Ažuriranje prikaza
+        document.getElementById("pdv-tax-amount").textContent =
+          pdvAmount.toFixed(2) + " €";
+        document.getElementById("pdv-total-amount").textContent =
+          totalAmount.toFixed(2) + " €";
+      }
+
+      function clearPdvCalculator() {
+        document.getElementById("pdv-amount").value = "";
+        document.getElementById("pdv-rate").value = "21";
+        document.querySelector(
+          'input[name="pdv-mode"][value="add"]'
+        ).checked = true;
+        updateLabels();
+        calculatePdv();
+      }
+
+      function copyPdvResult() {
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+        const amount = document.getElementById("pdv-amount").value;
+        const rate = document.getElementById("pdv-rate").value;
+        const pdvAmount = document.getElementById("pdv-tax-amount").textContent;
+        const totalAmount =
+          document.getElementById("pdv-total-amount").textContent;
+
+        let textToCopy;
+        if (mode === "add") {
+          textToCopy = `PDV Kalkulacija (+${rate}%):
+Iznos bez PDV: ${amount} €
+PDV iznos: ${pdvAmount}
+Ukupno sa PDV: ${totalAmount}`;
+        } else {
+          textToCopy = `PDV Kalkulacija (-${rate}%):
+Iznos sa PDV: ${amount} €
+PDV iznos: ${pdvAmount}
+Iznos bez PDV: ${totalAmount}`;
+        }
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            // Kreiraj toast notification
+            const toast = document.createElement("div");
+            toast.className = "position-fixed top-0 end-0 p-3";
+            toast.style.zIndex = "1056";
+            toast.innerHTML = `
+            <div class="toast show" role="alert">
+              <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Uspešno</strong>
+              </div>
+              <div class="toast-body">
+                Rezultat je kopiran u clipboard!
+              </div>
+            </div>
+          `;
+
+            document.body.appendChild(toast);
+
+            // Ukloni toast nakon 3 sekunde
+            setTimeout(() => {
+              document.body.removeChild(toast);
+            }, 3000);
+          })
+          .catch((err) => {
+            console.error("Greška pri kopiranju:", err);
+            alert("Greška pri kopiranju u clipboard");
+          });
+      }
     </script>
   </body>
 </html>
