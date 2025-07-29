@@ -1,14 +1,61 @@
 const express = require("express");
 const router = express.Router();
 const radniciController = require("../controllers/radniciController");
+const { authMiddleware } = require("../middleware/auth");
+const {
+  validateRadnik,
+  validateId,
+  validateFirmaId,
+} = require("../middleware/validation");
+const rateLimiter = require("../middleware/rateLimiting");
 
 // GET rute za radnike
-router.get("/", radniciController.getAllRadnici);
-router.get("/search", radniciController.searchRadnici); // Dodano
-router.get("/firma/:firmaId", radniciController.getRadniciByFirma);
-router.get("/id/:id", radniciController.getRadnikById);
-router.post("/", radniciController.addRadnik);
-router.put("/:id", radniciController.updateRadnik);
-router.delete("/:id", radniciController.deleteRadnik);
+router.get(
+  "/",
+  authMiddleware,
+  rateLimiter.api,
+  radniciController.getAllRadnici
+);
+router.get(
+  "/search",
+  authMiddleware,
+  rateLimiter.api,
+  radniciController.searchRadnici
+);
+router.get(
+  "/firma/:firmaId",
+  authMiddleware,
+  rateLimiter.api,
+  validateFirmaId,
+  radniciController.getRadniciByFirma
+);
+router.get(
+  "/id/:id",
+  authMiddleware,
+  validateId,
+  radniciController.getRadnikById
+);
+router.post(
+  "/",
+  authMiddleware,
+  rateLimiter.api,
+  validateRadnik,
+  radniciController.addRadnik
+);
+router.put(
+  "/:id",
+  authMiddleware,
+  rateLimiter.api,
+  validateId,
+  validateRadnik,
+  radniciController.updateRadnik
+);
+router.delete(
+  "/:id",
+  authMiddleware,
+  rateLimiter.api,
+  validateId,
+  radniciController.deleteRadnik
+);
 
 module.exports = router;

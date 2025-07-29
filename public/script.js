@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const data = await res.json();
 
-        if (res.ok) {
+        if (res.ok && data.success) {
           // Uspešna prijava - preusmeri na dashboard
           window.location.href = "/dashboard.html";
         } else {
@@ -71,7 +71,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } catch (error) {
         console.error("Greška pri prijavi:", error);
-        alert("Greška pri povezivanju sa serverom");
+        if (error.message && error.message.includes("429")) {
+          alert(
+            "Previše pokušaja prijave. Sačekajte malo pa pokušajte ponovo."
+          );
+        } else {
+          alert("Greška pri povezivanju sa serverom");
+        }
       }
     });
   }

@@ -345,6 +345,7 @@ function setupFormSubmit() {
       naziv: formData.get("naziv"),
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
+      grad: formData.get("grad"),
       pdvBroj: formData.get("pdvBroj"),
       direktor_ime_prezime: formData.get("direktorImePrezime"),
       direktor_jmbg: formData.get("direktorJmbg"),

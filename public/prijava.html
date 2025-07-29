@@ -234,41 +234,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-    <script>
-      // Poveži sa postojećom login logikom
-      document
-        .getElementById("loginForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-
-          const formData = new FormData(this);
-          const username = formData.get("username");
-          const password = formData.get("password");
-
-          // Pozovi postojeću login funkciju iz script.js
-          fetch("/api/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, password }),
-            credentials: "include",
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.success || response.ok) {
-                // Uspešna prijava - preusmeri na dashboard
-                window.location.href = "/dashboard.html";
-              } else {
-                // Prikaži grešku
-                alert(data.message || "Neispravni podaci za prijavu");
-              }
-            })
-            .catch((error) => {
-              console.error("Greška:", error);
-              alert("Greška pri povezivanju sa serverom");
-            });
-        });
-    </script>
   </body>
 </html>

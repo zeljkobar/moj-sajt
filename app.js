@@ -28,12 +28,29 @@ const session = require("express-session");
 const path = require("path");
 const fs = require("fs");
 
+// Import novih middleware komponenti
+const { httpLogger, logInfo, logError } = require("./src/utils/logger");
+const {
+  globalErrorHandler,
+  handleNotFound,
+} = require("./src/middleware/errorHandler");
+const {
+  smartRateLimiter,
+  authLimiter,
+} = require("./src/middleware/rateLimiting");
+
 // parsiranje JSON i form-data
 const allowedOrigins = [
   "http://localhost:3000",
   "https://summasummarum.me",
   "http://summasummarum.me",
 ];
+
+// Primeni osnovni rate limiting na sve zahteve
+app.use(smartRateLimiter);
+
+// HTTP request logging
+app.use(httpLogger);
 
 app.use(
   cors({
@@ -520,6 +537,11 @@ app.post("/api/obracun-zaliha", authMiddleware, async (req, res) => {
 // API rute
 app.use("/api/users", userRoutes);
 app.use("/api", authRoutes);
+// Dodaj specifične direktne rute za kompatibilnost sa frontendom
+const authController = require("./src/controllers/authController");
+const userController = require("./src/controllers/userController");
+app.get("/check-auth", authController.checkAuth);
+app.get("/current", authMiddleware, userController.getCurrentUser);
 app.use("/api/firme", firmeRoutes);
 app.use("/api", contractRoutes);
 app.use("/api/radnici", radnikRoutes);
@@ -632,24 +654,52 @@ app.put(
 // Statički fajlovi - zadnji da zaštićene rute imaju prioritet
 app.use(express.static("public"));
 
-// fallback 404
-app.use((req, res) => {
-  res.status(404).json({ msg: "Ruta nije pronađena" });
-});
+// Middleware za nepostojece rute (mora biti nakon svih validnih ruta)
+app.use(handleNotFound);
 
-// globalni error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ msg: "Server error" });
-});
+// Globalni error handler (mora biti poslednji middleware)
+app.use(globalErrorHandler);
 
 // IIS uses named pipes, not ports
 const server = app.listen(port, () => {
   if (process.env.IISNODE_VERSION) {
+    logInfo("Server started", { environment: "IIS with iisnode", port });
     console.log(`🚀 Server running on IIS with iisnode`);
   } else {
+    logInfo("Server started", { environment: "development", port });
     console.log(`🚀 Server radi na http://localhost:${port}`);
   }
+});
+
+// Graceful shutdown handling
+process.on("SIGTERM", () => {
+  logInfo("SIGTERM received. Shutting down gracefully");
+  server.close(() => {
+    logInfo("Process terminated");
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", () => {
+  logInfo("SIGINT received. Shutting down gracefully");
+  server.close(() => {
+    logInfo("Process terminated");
+    process.exit(0);
+  });
+});
+
+// Handle uncaught exceptions
+process.on("uncaughtException", (err) => {
+  logError("UNCAUGHT EXCEPTION! Shutting down...", err);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (err) => {
+  logError("UNHANDLED REJECTION! Shutting down...", err);
+  server.close(() => {
+    process.exit(1);
+  });
 });
 
 // Handle IIS shutdown gracefully
