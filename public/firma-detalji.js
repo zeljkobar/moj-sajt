@@ -2697,12 +2697,13 @@ function generateWorkersTableFromConfig(workers, config) {
     // Ime i prezime
     const nameCell = row.insertCell();
     nameCell.className = "name-column";
-    nameCell.textContent = `${worker.prezime} ${worker.ime}`;
+    nameCell.textContent = `${worker.prezime || ""} ${worker.ime || ""}`.trim();
 
     // Radno mesto
     const positionCell = row.insertCell();
     positionCell.className = "position-column";
-    positionCell.textContent = worker.pozicija_naziv || "Nema poziciju";
+    positionCell.textContent =
+      worker.pozicija_naziv || worker.pozicija || "Nema poziciju";
 
     // Dani u sedmici (Ponedeljak - Nedelja)
     const days = [

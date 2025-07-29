@@ -78,6 +78,7 @@
         border-collapse: collapse;
         margin: 20px 0;
         font-size: 12px;
+        table-layout: fixed;
       }
       .schedule-table th,
       .schedule-table td {
@@ -85,6 +86,7 @@
         padding: 8px 4px;
         text-align: center;
         vertical-align: middle;
+        word-wrap: break-word;
       }
       .schedule-table th {
         background-color: #f5f5f5;
@@ -93,11 +95,17 @@
       }
       .schedule-table .name-column {
         text-align: left;
+        width: 20%;
         min-width: 120px;
       }
       .schedule-table .position-column {
         text-align: left;
+        width: 20%;
         min-width: 100px;
+      }
+      .schedule-table .shift-cell {
+        width: 8.5%;
+        min-width: 60px;
       }
       .shift-cell {
         font-size: 10px;
@@ -240,6 +248,15 @@
             <th>Petak</th>
             <th>Subota</th>
             <th>Nedelja</th>
+          </tr>
+          <tr>
+            <th>I smjena</th>
+            <th>II smjena</th>
+            <th>I smjena</th>
+            <th>II smjena</th>
+            <th>I smjena</th>
+            <th>II smjena</th>
+            <th>/</th>
           </tr>
         </thead>
         <tbody id="schedule-table-body">
