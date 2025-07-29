@@ -639,6 +639,106 @@
             </div>
           </div>
 
+          <!-- Obračun zakupa -->
+          <div class="quick-action-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-home text-info me-2"></i>
+                Obračun zakupa
+              </h5>
+              <div class="btn-group btn-group-sm" role="group">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="zakup-mode"
+                  id="neto-zakup"
+                  value="neto"
+                  checked
+                />
+                <label class="btn btn-outline-info" for="neto-zakup"
+                  >Neto</label
+                >
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="zakup-mode"
+                  id="bruto-zakup"
+                  value="bruto"
+                />
+                <label class="btn btn-outline-warning" for="bruto-zakup"
+                  >Bruto</label
+                >
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-8">
+                <label
+                  class="form-label small text-muted"
+                  id="zakup-amount-label"
+                  >Neto iznos</label
+                >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="zakup-amount"
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">Grad</label>
+                <select class="form-select form-select-sm" id="zakup-grad">
+                  <option value="podgorica-cetinje">Podgorica/Cetinje</option>
+                  <option value="budva">Budva</option>
+                  <option value="ostali">Ostali gradovi</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-6">
+                <div class="bg-light p-2 rounded text-center">
+                  <div class="small text-muted" id="zakup-result-label-1">
+                    Porez
+                  </div>
+                  <div class="h6 text-info mb-0" id="zakup-porez-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="bg-info bg-opacity-10 p-2 rounded text-center">
+                  <div class="small text-muted" id="zakup-result-label-2">
+                    Prirez
+                  </div>
+                  <div class="h6 text-primary mb-0" id="zakup-prirez-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary btn-sm flex-fill"
+                onclick="clearZakupCalculator()"
+              >
+                <i class="fas fa-eraser me-1"></i>Obriši
+              </button>
+              <button
+                class="btn btn-info btn-sm flex-fill"
+                onclick="copyZakupResult()"
+              >
+                <i class="fas fa-copy me-1"></i>Kopiraj
+              </button>
+            </div>
+          </div>
+
           <!-- Pozajmice pregled -->
           <div class="quick-action-card">
             <h5 class="mb-3">
@@ -702,6 +802,9 @@
 
         // Inicijalizuj PDV kalkulator
         initPdvCalculator();
+
+        // Inicijalizuj Obračun zakupa kalkulator
+        initZakupCalculator();
       });
 
       // Funkcije za učitavanje podataka
@@ -1510,6 +1613,173 @@ Iznos bez PDV: ${totalAmount}`;
               </div>
               <div class="toast-body">
                 Rezultat je kopiran u clipboard!
+              </div>
+            </div>
+          `;
+
+            document.body.appendChild(toast);
+
+            // Ukloni toast nakon 3 sekunde
+            setTimeout(() => {
+              document.body.removeChild(toast);
+            }, 3000);
+          })
+          .catch((err) => {
+            console.error("Greška pri kopiranju:", err);
+            alert("Greška pri kopiranju u clipboard");
+          });
+      }
+
+      // Obračun zakupa funkcije
+      function initZakupCalculator() {
+        const amountInput = document.getElementById("zakup-amount");
+        const gradSelect = document.getElementById("zakup-grad");
+        const modeRadios = document.querySelectorAll(
+          'input[name="zakup-mode"]'
+        );
+
+        // Event listeneri za real-time kalkulaciju
+        amountInput.addEventListener("input", calculateZakup);
+        gradSelect.addEventListener("change", calculateZakup);
+        modeRadios.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            updateZakupLabels();
+            calculateZakup();
+          });
+        });
+
+        // Inicijalna kalkulacija
+        updateZakupLabels();
+        calculateZakup();
+      }
+
+      function updateZakupLabels() {
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+        const amountLabel = document.getElementById("zakup-amount-label");
+        const resultLabel1 = document.getElementById("zakup-result-label-1");
+        const resultLabel2 = document.getElementById("zakup-result-label-2");
+
+        if (mode === "neto") {
+          amountLabel.textContent = "Neto iznos";
+          resultLabel1.textContent = "Porez";
+          resultLabel2.textContent = "Prirez";
+        } else {
+          amountLabel.textContent = "Bruto iznos";
+          resultLabel1.textContent = "Porez";
+          resultLabel2.textContent = "Prirez";
+        }
+      }
+
+      function calculateZakup() {
+        const amount =
+          parseFloat(document.getElementById("zakup-amount").value) || 0;
+        const grad = document.getElementById("zakup-grad").value;
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+
+        // Stope prireza po gradovima
+        const prirezStope = {
+          "podgorica-cetinje": 15, // 15%
+          budva: 10, // 10%
+          ostali: 13, // 13%
+        };
+
+        // Koeficijenti za porez
+        const NETO_KOEFICIJENT = 0.117318; // za neto kalkulaciju
+        const BRUTO_KOEFICIJENT = 0.105; // za bruto kalkulaciju
+
+        const prirezStopa = prirezStope[grad] || prirezStope["ostali"];
+        let porezIznos, prirezIznos, netoIznos;
+
+        if (mode === "neto") {
+          // Neto → Bruto kalkulacija
+          netoIznos = amount;
+          porezIznos = netoIznos * NETO_KOEFICIJENT;
+          prirezIznos = porezIznos * (prirezStopa / 100);
+        } else {
+          // Bruto → Neto kalkulacija
+          const brutoIznos = amount;
+          // Za bruto: porez = bruto × 0.105
+          porezIznos = brutoIznos * BRUTO_KOEFICIJENT;
+          prirezIznos = porezIznos * (prirezStopa / 100);
+        }
+
+        // Ažuriranje prikaza
+        document.getElementById("zakup-porez-amount").textContent =
+          porezIznos.toFixed(2) + " €";
+        document.getElementById("zakup-prirez-amount").textContent =
+          prirezIznos.toFixed(2) + " €";
+      }
+
+      function clearZakupCalculator() {
+        document.getElementById("zakup-amount").value = "";
+        document.getElementById("zakup-grad").value = "podgorica-cetinje";
+        document.querySelector(
+          'input[name="zakup-mode"][value="neto"]'
+        ).checked = true;
+        updateZakupLabels();
+        calculateZakup();
+      }
+
+      function copyZakupResult() {
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+        const amount = document.getElementById("zakup-amount").value;
+        const grad = document.getElementById("zakup-grad").value;
+        const gradNaziv =
+          document.getElementById("zakup-grad").options[
+            document.getElementById("zakup-grad").selectedIndex
+          ].text;
+        const porezAmount =
+          document.getElementById("zakup-porez-amount").textContent;
+        const prirezAmount = document.getElementById(
+          "zakup-prirez-amount"
+        ).textContent;
+
+        let textToCopy;
+        if (mode === "neto") {
+          textToCopy = `Obračun zakupa (Neto → Bruto):
+Grad: ${gradNaziv}
+Neto iznos: ${amount} €
+Porez: ${porezAmount}
+Prirez: ${prirezAmount}
+Ukupno bruto: ${(
+            parseFloat(amount) +
+            parseFloat(porezAmount.replace(" €", "")) +
+            parseFloat(prirezAmount.replace(" €", ""))
+          ).toFixed(2)} €`;
+        } else {
+          textToCopy = `Obračun zakupa (Bruto → Neto):
+Grad: ${gradNaziv}
+Bruto iznos: ${amount} €
+Porez: ${porezAmount}
+Prirez: ${prirezAmount}
+Neto iznos: ${(
+            parseFloat(amount) -
+            parseFloat(porezAmount.replace(" €", "")) -
+            parseFloat(prirezAmount.replace(" €", ""))
+          ).toFixed(2)} €`;
+        }
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            // Kreiraj toast notification
+            const toast = document.createElement("div");
+            toast.className = "position-fixed top-0 end-0 p-3";
+            toast.style.zIndex = "1056";
+            toast.innerHTML = `
+            <div class="toast show" role="alert">
+              <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Uspešno</strong>
+              </div>
+              <div class="toast-body">
+                Rezultat obračuna zakupa je kopiran u clipboard!
               </div>
             </div>
           `;
