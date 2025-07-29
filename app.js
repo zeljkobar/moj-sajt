@@ -280,7 +280,7 @@ app.get("/api/radnici/search", authMiddleware, async (req, res) => {
     const searchTerm = `%${q}%`;
     const radnici = await executeQuery(
       `
-      SELECT r.id, r.ime, r.prezime, f.naziv as firma, p.naziv as pozicija
+      SELECT r.id, r.ime, r.prezime, r.firma_id, f.naziv as firma, p.naziv as pozicija
       FROM radnici r
       JOIN firme f ON r.firma_id = f.id
       LEFT JOIN pozicije p ON r.pozicija_id = p.id
@@ -295,6 +295,7 @@ app.get("/api/radnici/search", authMiddleware, async (req, res) => {
       id: radnik.id,
       ime: radnik.ime,
       prezime: radnik.prezime,
+      firma_id: radnik.firma_id, // Dodano
       firma: radnik.firma,
       pozicija: radnik.pozicija || "Nespecifikovano",
     }));

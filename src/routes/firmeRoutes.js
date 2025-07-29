@@ -5,6 +5,7 @@ const { authMiddleware } = require("../middleware/auth");
 
 // GET rute
 router.get("/", authMiddleware, firmeController.getAllFirme);
+router.get("/search", authMiddleware, firmeController.searchFirme); // Dodano
 router.get("/aktivne", authMiddleware, firmeController.getAktivneFirme);
 router.get("/nula", authMiddleware, firmeController.getFirmeNaNuli);
 router.get("/id/:id", firmeController.getFirmaById); // Dodano bez auth za testiranje

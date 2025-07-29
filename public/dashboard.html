@@ -204,25 +204,6 @@
         border-left-color: #dc3545;
       }
 
-      .activity-item {
-        border-left: 3px solid #e9ecef;
-        padding-left: 1rem;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-      }
-
-      .activity-item.recent {
-        border-left-color: #0d6efd;
-      }
-
-      .activity-item.success {
-        border-left-color: #198754;
-      }
-
-      .activity-item.warning {
-        border-left-color: #ffc107;
-      }
-
       .calendar-day {
         background: white;
         border: 1px solid #e9ecef;
@@ -503,33 +484,6 @@
 
             <!-- Notifikacije će se učitati ovde dinamički -->
           </div>
-
-          <!-- Poslednje aktivnosti -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-history text-info me-2"></i>
-              Poslednje aktivnosti
-            </h5>
-
-            <!-- Loading placeholder -->
-            <div class="activities-loading text-center py-3">
-              <div
-                class="spinner-border spinner-border-sm text-info"
-                role="status"
-              >
-                <span class="visually-hidden">Učitavanje...</span>
-              </div>
-              <div class="mt-2 text-muted">Učitavanje aktivnosti...</div>
-            </div>
-
-            <!-- Aktivnosti će se učitati ovde dinamički -->
-
-            <div class="text-center mt-3">
-              <button class="btn btn-outline-info">
-                <i class="fas fa-list me-2"></i>Pogledaj sve aktivnosti
-              </button>
-            </div>
-          </div>
         </div>
 
         <!-- Desna kolona -->
@@ -549,9 +503,6 @@
               onclick="openRadnikModal({ 
                 onSuccess: function(result) { 
                   console.log('Radnik uspešno dodan:', result); 
-                  if (typeof loadActivities === 'function') {
-                    loadActivities(); 
-                  }
                 } 
               })"
               class="btn btn-success quick-action-btn"
@@ -853,114 +804,7 @@
 
       // Funkcija za učitavanje aktivnosti iz baze
       async function loadActivities() {
-        try {
-          const response = await fetch("/api/activities", {
-            credentials: "include",
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Activities API response:", data);
-            updateActivitiesSection(data.activities);
-          } else {
-            console.error("Greška pri učitavanju aktivnosti");
-          }
-        } catch (error) {
-          console.error("Greška pri povezivanju sa activities API:", error);
-        }
-      }
-
-      // Funkcija za ažuriranje sekcije sa aktivnostima
-      function updateActivitiesSection(activities) {
-        const container = document
-          .querySelector(".quick-action-card h5 i.fa-history")
-          .closest(".quick-action-card");
-
-        // Sakrij loader
-        const loader = container.querySelector(".activities-loading");
-        if (loader) {
-          loader.style.display = "none";
-        }
-
-        if (activities.length === 0) {
-          // Prikaži poruku da nema aktivnosti
-          const noActivities = document.createElement("div");
-          noActivities.className = "text-center py-3 text-muted mb-3";
-          noActivities.innerHTML = `
-            <i class="fas fa-history fa-2x mb-2 text-info"></i>
-            <div>Nema zabeleženih aktivnosti</div>
-          `;
-          container.insertBefore(
-            noActivities,
-            container.querySelector(".text-center")
-          );
-          return;
-        }
-
-        // Dodaj stvarne aktivnosti
-        activities.forEach((activity) => {
-          const activityElement = createActivityElement(activity);
-          container.insertBefore(
-            activityElement,
-            container.querySelector(".text-center")
-          );
-        });
-      }
-
-      // Kreiranje HTML elementa za aktivnost
-      function createActivityElement(activity) {
-        const div = document.createElement("div");
-
-        // Formatiranje vremena
-        const timeAgo = getTimeAgo(activity.created_at);
-
-        // Određivanje CSS klase na osnovu tipa
-        let itemClass = "recent";
-        if (activity.tip === "pozajmica") {
-          itemClass = "warning";
-        } else if (activity.tip === "firma") {
-          itemClass = "success";
-        }
-
-        div.className = `activity-item ${itemClass}`;
-        div.innerHTML = `
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <h6 class="mb-1">${activity.title}</h6>
-              <p class="mb-1 text-muted">${activity.description}</p>
-              <small class="text-muted">${timeAgo}</small>
-            </div>
-            <i class="${activity.icon} ${activity.iconClass}"></i>
-          </div>
-        `;
-
-        return div;
-      }
-
-      // Funkcija za izračunavanje "pre koliko vremena"
-      function getTimeAgo(dateString) {
-        const now = new Date();
-        const date = new Date(dateString);
-        const diffInMs = now - date;
-        const diffInMinutes = Math.floor(diffInMs / 60000);
-        const diffInHours = Math.floor(diffInMinutes / 60);
-        const diffInDays = Math.floor(diffInHours / 24);
-
-        if (diffInMinutes < 60) {
-          return diffInMinutes <= 1
-            ? "Pre minut"
-            : `Pre ${diffInMinutes} minuta`;
-        } else if (diffInHours < 24) {
-          return diffInHours === 1
-            ? "Pre sat vremena"
-            : `Pre ${diffInHours} sati`;
-        } else if (diffInDays === 1) {
-          return "Juče";
-        } else if (diffInDays < 7) {
-          return `Pre ${diffInDays} dana`;
-        } else {
-          return date.toLocaleDateString("sr-RS");
-        }
+        // Funkcija uklonjena - aktivnosti se više ne prikazuju na dashboard-u
       }
 
       // Funkcija za učitavanje pozajmica iz baze
@@ -1103,6 +947,7 @@
 
           if (response.ok) {
             const data = await response.json();
+            console.log("Notifications API response:", data);
             updateNotificationsSection(data.notifications);
           } else {
             console.error("Greška pri učitavanju notifikacija");
@@ -1149,6 +994,8 @@
 
       // Kreiranje HTML elementa za notifikaciju
       function createNotificationElement(notification) {
+        console.log("Creating notification element for:", notification);
+
         const div = document.createElement("div");
 
         let badgeClass = "bg-info";
@@ -1162,6 +1009,74 @@
           cardClass = "warning";
         }
 
+        // Kreiraj pravilnu action URL-u
+        let actionUrl = "";
+
+        // Prvo pokušaj da izvučeš firma_id iz action URL-a ako postoji
+        if (
+          notification.action &&
+          notification.action.includes("firma-detalji.html")
+        ) {
+          console.log("Parsing action URL:", notification.action);
+
+          // Parsuj action URL da izvučeš firma_id
+          try {
+            const urlParts = notification.action.split("?");
+            if (urlParts.length > 1) {
+              const actionParams = new URLSearchParams(urlParts[1]);
+              const firmaIdFromAction = actionParams.get("id");
+
+              console.log("Extracted firma_id from action:", firmaIdFromAction);
+
+              if (
+                firmaIdFromAction &&
+                firmaIdFromAction !== "undefined" &&
+                firmaIdFromAction !== "null"
+              ) {
+                actionUrl = `firma-detalji.html?id=${firmaIdFromAction}`;
+
+                // Ako je vezano za radnika, dodaj hash za radnici tab
+                if (
+                  notification.radnik_id ||
+                  notification.id.includes("ugovor_") ||
+                  actionParams.get("radnikId")
+                ) {
+                  actionUrl += "#radnici";
+                }
+              } else {
+                console.log(
+                  "No valid firma_id found in action URL, using fallback"
+                );
+                actionUrl = notification.action;
+              }
+            } else {
+              console.log("No query params in action URL");
+              actionUrl = notification.action;
+            }
+          } catch (error) {
+            console.error("Error parsing action URL:", error);
+            actionUrl = notification.action;
+          }
+        } else if (notification.firma_id) {
+          // Ako imamo direktno firma_id polje, koristi ga
+          actionUrl = `firma-detalji.html?id=${notification.firma_id}`;
+
+          // Ako je vezano za radnika, dodaj hash za radnici tab
+          if (notification.radnik_id || notification.ugovor_id) {
+            actionUrl += "#radnici";
+          }
+        } else if (notification.action) {
+          // Fallback na originalnu action vrednost
+          actionUrl = notification.action;
+        }
+
+        console.log(
+          "Generated action URL:",
+          actionUrl,
+          "from notification:",
+          notification
+        );
+
         div.className = `firma-card ${cardClass}`;
         div.innerHTML = `
           <div class="d-flex justify-content-between align-items-center">
@@ -1174,8 +1089,8 @@
           notification.icon || notification.type
         }</span>
               ${
-                notification.action
-                  ? `<a href="${notification.action}" class="btn btn-sm btn-outline-primary ms-2">
+                actionUrl
+                  ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
                 <i class="fas fa-eye"></i>
               </a>`
                   : ""
@@ -1187,13 +1102,12 @@
         return div;
       }
 
-      // Učitaj notifikacije, statistike, PDV podatke, pozajmice i aktivnosti kada se stranica učita
+      // Učitaj notifikacije, statistike, PDV podatke i pozajmice kada se stranica učita
       document.addEventListener("DOMContentLoaded", function () {
         loadNotifications();
         loadDashboardStats();
         loadPDVData();
         loadPozajmice();
-        loadActivities();
       });
 
       // Kalendar interakcija
@@ -1261,9 +1175,6 @@
           fetch(`/api/radnici/search?q=${encodeURIComponent(query)}`, {
             credentials: "include",
           }).catch(() => null),
-          fetch(`/api/ugovori/search?q=${encodeURIComponent(query)}`, {
-            credentials: "include",
-          }).catch(() => null),
         ])
           .then((responses) => {
             // Process valid responses
@@ -1276,25 +1187,20 @@
             });
             return Promise.all(promises);
           })
-          .then(([firme, radnici, ugovori]) => {
-            displaySearchResults(
-              firme || [],
-              radnici || [],
-              ugovori || [],
-              query
-            );
+          .then(([firme, radnici]) => {
+            displaySearchResults(firme || [], radnici || [], query);
           })
           .catch((error) => {
             console.error("Search error:", error);
-            displaySearchResults([], [], [], query);
+            displaySearchResults([], [], query);
           });
       }
 
-      function displaySearchResults(firme, radnici, ugovori, query) {
+      function displaySearchResults(firme, radnici, query) {
         const searchResults = document.getElementById("searchResults");
         let html = "";
 
-        const totalResults = firme.length + radnici.length + ugovori.length;
+        const totalResults = firme.length + radnici.length;
 
         if (totalResults === 0) {
           html = `<div class="search-item">
@@ -1331,23 +1237,8 @@
             });
           }
 
-          // Ugovori results
-          if (ugovori.length > 0) {
-            ugovori.slice(0, 3).forEach((ugovor) => {
-              html += `<div class="search-item" onclick="navigateToResult('ugovor', ${
-                ugovor.id
-              }, '${ugovor.tip}', ${ugovor.firma_id || ""})">
-                <div class="search-category">Ugovor</div>
-                <div class="search-title">${ugovor.tip}</div>
-                <div class="search-subtitle">${ugovor.radnik} • ${
-                ugovor.datum
-              }</div>
-              </div>`;
-            });
-          }
-
           // Show more results if needed
-          if (totalResults > 9) {
+          if (totalResults > 6) {
             html += `<div class="search-item" onclick="showAllResults('${query}')">
               <div class="search-title text-primary">Prikaži sve rezultate (${totalResults})</div>
             </div>`;
@@ -1369,20 +1260,15 @@
             window.location.href = `/firma-detalji.html?id=${id}`;
             break;
           case "radnik":
-            // Otvori firma detalji stranicu sa radnici tab-om ako imamo firmaId
+            // Za radnika, otvori radnik modal sa podacima
             if (firmaId && firmaId !== "") {
-              window.location.href = `/firma-detalji.html?id=${firmaId}#radnici`;
+              // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
+              window.location.href = `/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
             } else {
-              // Fallback na firme stranicu za pregled svih firmi
-              window.location.href = `/firme.html`;
-            }
-            break;
-          case "ugovor":
-            // Za ugovore također idemo na firma detalji sa radnici tabom
-            if (firmaId && firmaId !== "") {
-              window.location.href = `/firma-detalji.html?id=${firmaId}#radnici`;
-            } else {
-              // Fallback na firme stranicu
+              // Fallback: idi na firmu detalje sa radnici tabom
+              console.warn(
+                "Nema firmaId za radnika, fallback na firme stranicu"
+              );
               window.location.href = `/firme.html`;
             }
             break;

@@ -10,7 +10,6 @@ exports.addContract = async (req, res) => {
     );
     res.json({ success: true, contractId: result.insertId });
   } catch (error) {
-
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -31,7 +30,6 @@ exports.getAllContracts = async (req, res) => {
     );
     res.json(contracts);
   } catch (error) {
-
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -58,7 +56,6 @@ exports.getContractById = async (req, res) => {
     }
     res.json(contract);
   } catch (error) {
-
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -74,7 +71,6 @@ exports.updateContract = async (req, res) => {
     );
     res.json({ success: true, message: "Ugovor je uspešno ažuriran" });
   } catch (error) {
-
     res.status(500).json({ message: "Greška na serveru" });
   }
 };
@@ -86,7 +82,38 @@ exports.deleteContract = async (req, res) => {
     await executeQuery("DELETE FROM ugovori WHERE id = ?", [id]);
     res.json({ success: true, message: "Ugovor je uspešno obrisan" });
   } catch (error) {
+    res.status(500).json({ message: "Greška na serveru" });
+  }
+};
 
+// Pretraži ugovore
+exports.searchUgovori = async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    if (!query || query.trim().length < 2) {
+      return res.json([]);
+    }
+
+    const searchTerm = `%${query.trim()}%`;
+    const ugovori = await executeQuery(
+      `SELECT u.id, u.firma_id, u.radnik_id, u.datum, u.tip_ugovora as tip,
+              f.naziv as firma_naziv,
+              CONCAT(r.ime, ' ', r.prezime) as radnik,
+              DATE_FORMAT(u.datum, '%d.%m.%Y') as datum
+       FROM ugovori u
+       LEFT JOIN firme f ON u.firma_id = f.id
+       LEFT JOIN radnici r ON u.radnik_id = r.id  
+       WHERE u.tip_ugovora LIKE ? OR 
+             f.naziv LIKE ? OR
+             CONCAT(r.ime, ' ', r.prezime) LIKE ?
+       ORDER BY u.datum DESC
+       LIMIT 10`,
+      [searchTerm, searchTerm, searchTerm]
+    );
+    res.json(ugovori);
+  } catch (error) {
+    console.error("Search ugovori error:", error);
     res.status(500).json({ message: "Greška na serveru" });
   }
 };

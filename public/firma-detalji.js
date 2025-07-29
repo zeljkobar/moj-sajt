@@ -508,15 +508,74 @@ function updatePillTabCounts(radnici, otkaziMap = {}) {
 // =============================================================================
 
 function setupTabNavigation() {
-  // Tab aktivacija sa URL parametrima
+  // Tab aktivacija sa URL parametrima ili hash-om
   const urlParams = new URLSearchParams(window.location.search);
   const activeTab = urlParams.get("tab");
-  if (activeTab) {
-    const tabButton = document.querySelector(`#${activeTab}-tab`);
+  const hash = window.location.hash.substring(1); // ukloni #
+  const radnikId = urlParams.get("radnikId"); // za direktno otvaranje radnik modala
+
+  // Proverava i tab parametar i hash
+  const targetTab = activeTab || hash;
+
+  if (targetTab) {
+    const tabButton = document.querySelector(`#${targetTab}-tab`);
     if (tabButton) {
-      tabButton.click();
+      // Mala pauza da se osigura da je DOM spreman
+      setTimeout(() => {
+        tabButton.click();
+
+        // Ako je specificirani radnikId, otvori modal nakon što se tab učita
+        if (radnikId && targetTab === "radnici") {
+          // Čekaj da se radnici učitaju pre otvaranja modala
+          waitForRadniciAndOpenModal(radnikId);
+        }
+      }, 100);
     }
   }
+
+  // Ako je samo radnikId specificirano bez tab-a, otvori radnici tab i modal
+  else if (radnikId) {
+    const radniciTabButton = document.querySelector("#radnici-tab");
+    if (radniciTabButton) {
+      setTimeout(() => {
+        radniciTabButton.click();
+        // Čekaj da se radnici učitaju pre otvaranja modala
+        waitForRadniciAndOpenModal(radnikId);
+      }, 100);
+    }
+  }
+}
+
+// Funkcija za čekanje učitavanja radnika i otvaranje modala
+function waitForRadniciAndOpenModal(radnikId) {
+  const maxAttempts = 20; // Maksimalno 4 sekunde čekanja (20 x 200ms)
+  let attempts = 0;
+
+  const checkRadnici = () => {
+    attempts++;
+
+    // Proverava da li su radnici učitani i da li postoji radnik sa datim ID
+    if (allRadnici.length > 0) {
+      const radnik = allRadnici.find((r) => r.id == radnikId);
+      if (radnik) {
+        console.log("Radnik pronađen, otvaram info modal:", radnik);
+        viewRadnikDetalji(radnikId); // Pozivam info modal umesto edit modal
+        return;
+      }
+    }
+
+    // Ako nisu učitani i ima još pokušaja, pokušaj ponovo
+    if (attempts < maxAttempts) {
+      setTimeout(checkRadnici, 200);
+    } else {
+      console.warn(
+        "Timeout: Radnici nisu učitani u očekivanom vremenu ili radnik ne postoji:",
+        radnikId
+      );
+    }
+  };
+
+  checkRadnici();
 }
 
 function showError(message) {
@@ -533,6 +592,12 @@ function showError(message) {
 // =============================================================================
 
 function viewRadnikDetalji(radnikId) {
+  console.log("Tražim radnika sa ID:", radnikId);
+  console.log(
+    "Dostupni radnici:",
+    allRadnici.map((r) => ({ id: r.id, ime: r.ime, prezime: r.prezime }))
+  );
+
   // Pronađi radnika iz cached podataka
   const radnik = allRadnici.find((r) => r.id == radnikId);
 
@@ -543,6 +608,7 @@ function viewRadnikDetalji(radnikId) {
   }
 
   // Debug - ispiši sve podatke o radniku
+  console.log("Pronađen radnik:", radnik);
   // Popuni modal sa podacima
   populateRadnikModal(radnik);
 

@@ -4,6 +4,7 @@ const contractController = require("../controllers/contractController");
 
 // Rute za ugovore
 router.get("/contracts", contractController.getAllContracts);
+router.get("/contracts/search", contractController.searchUgovori); // Dodano
 router.post("/contracts", contractController.addContract);
 router.get("/contracts/:id", contractController.getContractById);
 router.put("/contracts/:id", contractController.updateContract);

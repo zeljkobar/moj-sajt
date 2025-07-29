@@ -114,7 +114,7 @@ const getNotifications = async (req, res) => {
 
     // 1. UGOVORI O RADU - radnici kojima ističu ugovori (bez onih koji imaju otkaz)
     const ugovoriQuery = `
-      SELECT r.id, r.ime, r.prezime, r.datum_prestanka, f.naziv as firma_naziv,
+      SELECT r.id, r.ime, r.prezime, r.datum_prestanka, r.firma_id, f.naziv as firma_naziv,
              DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka
       FROM radnici r 
       JOIN firme f ON r.firma_id = f.id 

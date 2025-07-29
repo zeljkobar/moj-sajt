@@ -452,6 +452,72 @@ const radniciController = {
       }
     }
   },
+
+  // GET /api/radnici/search - pretraži radnike
+  searchRadnici: async (req, res) => {
+    try {
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const query = req.query.q;
+
+      if (!query || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      // Dobij ID korisnika
+      const [user] = await executeQuery(
+        "SELECT id FROM users WHERE username = ?",
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Pretraži radnike sa svim potrebnim podacima
+      const searchTerm = `%${query.trim()}%`;
+      const radnici = await executeQuery(
+        `
+        SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
+               r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
+               r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               r.status,
+               p.naziv as pozicija, f.naziv as firma
+        FROM radnici r 
+        LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN firme f ON r.firma_id = f.id 
+        WHERE f.user_id = ? AND (
+          r.ime LIKE ? OR 
+          r.prezime LIKE ? OR 
+          CONCAT(r.ime, ' ', r.prezime) LIKE ? OR
+          r.jmbg LIKE ? OR
+          f.naziv LIKE ? OR
+          p.naziv LIKE ?
+        )
+        ORDER BY r.prezime, r.ime
+        LIMIT 10
+      `,
+        [
+          user.id,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+          searchTerm,
+        ]
+      );
+
+      res.json(radnici);
+    } catch (error) {
+      console.error("Search radnici error:", error);
+      res.status(500).json({ message: "Greška na serveru" });
+    }
+  },
 };
 
 module.exports = radniciController;

@@ -424,6 +424,53 @@ const firmeController = {
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
+
+  // GET /api/firme/search - pretraži firme
+  searchFirme: async (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const query = req.query.q;
+
+      if (!query || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      const userId = await firmeController.getUserId(username);
+      if (!userId) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Pretraži firme sa svim potrebnim podacima
+      const searchTerm = `%${query.trim()}%`;
+      const firme = await executeQuery(
+        `
+        SELECT f.id, f.pib, f.naziv, f.adresa, f.pdvBroj, f.direktor_ime_prezime, 
+               f.direktor_jmbg, f.status, f.created_at, f.updated_at, f.grad,
+               CASE WHEN f.status = 'aktivna' THEN true ELSE false END as aktivna
+        FROM firme f 
+        WHERE f.user_id = ? AND (
+          f.naziv LIKE ? OR 
+          f.pib LIKE ? OR 
+          f.direktor_ime_prezime LIKE ? OR
+          f.adresa LIKE ? OR
+          f.grad LIKE ?
+        )
+        ORDER BY f.naziv
+        LIMIT 10
+      `,
+        [userId, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]
+      );
+
+      res.json(firme);
+    } catch (error) {
+      console.error("Search firme error:", error);
+      res.status(500).json({ message: "Greška na serveru" });
+    }
+  },
 };
 
 module.exports = firmeController;

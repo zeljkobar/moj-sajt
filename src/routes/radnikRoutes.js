@@ -4,6 +4,7 @@ const radniciController = require("../controllers/radniciController");
 
 // GET rute za radnike
 router.get("/", radniciController.getAllRadnici);
+router.get("/search", radniciController.searchRadnici); // Dodano
 router.get("/firma/:firmaId", radniciController.getRadniciByFirma);
 router.get("/id/:id", radniciController.getRadnikById);
 router.post("/", radniciController.addRadnik);
