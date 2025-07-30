@@ -1,0 +1,350 @@
+{
+  "info": {
+    "_postman_id": "moj-sajt-api-collection",
+    "name": "Moj Sajt API Collection",
+    "description": "Kompletna kolekcija API ruta za testiranje",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_user\",\n  \"password\": \"test123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"novi_korisnik\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"ime\": \"Marko\",\n  \"prezime\": \"Petrović\",\n  \"jmbg\": \"1234567890123\",\n  \"userType\": \"firma\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Auth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/check-auth",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "check-auth"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Firme",
+      "item": [
+        {
+          "name": "Get All Firme",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/firme",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "firme"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Firma",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"naziv\": \"Test Firma d.o.o.\",\n  \"pib\": \"12345678\",\n  \"adresa\": \"Glavna ulica 1\",\n  \"grad\": \"Beograd\",\n  \"pdv_broj\": \"RS123456789\",\n  \"direktor\": \"Marko Petrović\",\n  \"jmbg_direktora\": \"1234567890123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/firme",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "firme"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Firma By PIB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/firme/12345678",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "firme", "12345678"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Firme",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/firme/search?q=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "firme", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Radnici",
+      "item": [
+        {
+          "name": "Get All Radnici",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/radnici",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "radnici"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Radnik",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ime\": \"Marko\",\n  \"prezime\": \"Petrović\",\n  \"jmbg\": \"1234567890123\",\n  \"adresa\": \"Ulica 1, broj 1\",\n  \"grad\": \"Beograd\",\n  \"pozicija_id\": 1,\n  \"firma_id\": 1,\n  \"datum_zaposlenja\": \"2024-01-01\",\n  \"visina_zarade\": 50000,\n  \"tip_radnog_vremena\": \"puno_8h\",\n  \"tip_ugovora\": \"na_neodredjeno\",\n  \"vrsta_ugovora\": \"ugovor_o_radu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/radnici",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "radnici"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Radnik",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ime\": \"Petar\",\n  \"prezime\": \"Marković\",\n  \"jmbg\": \"1234567890123\",\n  \"adresa\": \"Nova ulica 2\",\n  \"grad\": \"Novi Sad\",\n  \"pozicija_id\": 2,\n  \"firma_id\": 1,\n  \"datum_zaposlenja\": \"2024-01-01\",\n  \"visina_zarade\": 60000,\n  \"tip_radnog_vremena\": \"puno_8h\",\n  \"tip_ugovora\": \"na_neodredjeno\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/radnici/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "radnici", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Radnici By Firma",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/radnici/firma/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "radnici", "firma", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pozicije",
+      "item": [
+        {
+          "name": "Get All Pozicije",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pozicije",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pozicije"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Pozicija",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"naziv\": \"Software Developer\",\n  \"opis_poslova\": \"Razvoj web aplikacija, rad sa JavaScript, Node.js i React tehnologijama. Odgovoran za kreiranje i održavanje aplikacija.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pozicije",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pozicije"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Global Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

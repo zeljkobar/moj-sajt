@@ -4,8 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const userPanel = document.getElementById("userPanel");
   const logoutBtn = document.getElementById("logoutBtn");
   const welcomeMsg = document.getElementById("welcomeMsg");
-  const pdvLink = document.getElementById("pdvLink");
-  const pdv0Link = document.getElementById("pdv0Link");
+  const dashboardLink = document.getElementById("dashboardLink");
 
   // Dugmići za login/registraciju u navbar-u
   const loginButtons = document.querySelector(
@@ -28,20 +27,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (welcomeMsg)
           welcomeMsg.textContent = `Dobrodošao, ${data.user.username}!`;
 
-        // Show navigation links based on role permissions
-        if (pdvLink && ["pdv", "full", "admin"].includes(userRole)) {
-          pdvLink.classList.remove("d-none");
-        }
-        if (pdv0Link && ["pdv", "full", "admin"].includes(userRole)) {
-          pdv0Link.classList.remove("d-none");
+        // Show dashboard link for all authenticated users
+        if (dashboardLink) {
+          dashboardLink.classList.remove("d-none");
         }
       } else {
         // Prikaži login dugmiće, sakrij user panel
         if (loginButtons) loginButtons.classList.remove("d-none");
         if (userPanel) userPanel.classList.add("d-none");
         if (welcomeMsg) welcomeMsg.textContent = "";
-        if (pdvLink) pdvLink.classList.add("d-none");
-        if (pdv0Link) pdv0Link.classList.add("d-none");
+
+        // Hide dashboard link for unauthenticated users
+        if (dashboardLink) dashboardLink.classList.add("d-none");
       }
     });
 
