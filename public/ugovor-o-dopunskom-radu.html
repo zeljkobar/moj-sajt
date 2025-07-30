@@ -520,7 +520,7 @@
         // Popuni datume
         if (ugovor.datum_zaposlenja) {
           const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
-          const formatiraniDatum = datumZaposlenja.toLocaleDateString("sr-RS");
+          const formatiraniDatum = datumZaposlenja.toLocaleDateString("sr-Latn-RS");
 
           document.getElementById("datum-ugovora").textContent =
             formatiraniDatum;
@@ -533,7 +533,7 @@
         if (ugovor.datum_prestanka) {
           const datumPrestanka = new Date(ugovor.datum_prestanka);
           const formatiraniDatumPrestanka =
-            datumPrestanka.toLocaleDateString("sr-RS");
+            datumPrestanka.toLocaleDateString("sr-Latn-RS");
           document.getElementById("datum-kraja").textContent =
             formatiraniDatumPrestanka;
         }

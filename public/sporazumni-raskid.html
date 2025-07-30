@@ -215,12 +215,12 @@
         }
 
         function populateDocument(radnik, firma, pozicija, otkaz) {
-            const datumZaposlenja = new Date(radnik.datum_zaposlenja).toLocaleDateString('sr-RS');
+            const datumZaposlenja = new Date(radnik.datum_zaposlenja).toLocaleDateString('sr-Latn-RS');
             
             // Koristiti datum otkaza ako postoji, inače današnji datum
             const datumOtkaza = otkaz && otkaz.datum_otkaza 
-                ? new Date(otkaz.datum_otkaza).toLocaleDateString('sr-RS')
-                : new Date().toLocaleDateString('sr-RS');
+                ? new Date(otkaz.datum_otkaza).toLocaleDateString('sr-Latn-RS')
+                : new Date().toLocaleDateString('sr-Latn-RS');
             
             console.log('populateDocument - otkaz:', otkaz);
             console.log('populateDocument - datum_otkaza iz otkaza:', otkaz?.datum_otkaza);

@@ -320,7 +320,7 @@
       function populateDocument(radnik, firma, pozicija, otkaz) {
         const datumZaposlenja = new Date(
           radnik.datum_zaposlenja
-        ).toLocaleDateString("sr-RS");
+        ).toLocaleDateString("sr-Latn-RS");
 
         // Koristiti datum otkaza ako postoji, inače datum prestanka ili današnji datum
         let datumIsteka;
@@ -333,7 +333,7 @@
             "sr-RS"
           );
         } else {
-          datumIsteka = new Date().toLocaleDateString("sr-RS");
+          datumIsteka = new Date().toLocaleDateString("sr-Latn-RS");
         }
 
         console.log("populateDocument - otkaz:", otkaz);

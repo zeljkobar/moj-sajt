@@ -788,8 +788,9 @@
           month: "long",
           year: "numeric",
         };
+        // Koristi sr-Latn-RS za latinični prikaz
         document.getElementById("currentDate").textContent =
-          today.toLocaleDateString("sr-RS", options);
+          today.toLocaleDateString("sr-Latn-RS", options);
 
         // Učitavanje korisničkih podataka
         loadUserData();
@@ -926,7 +927,7 @@
         // Funkcija za formatiranje meseca (ista kao u pdv-pregled.html)
         function formatMonth(dateString) {
           const date = new Date(dateString);
-          return date.toLocaleDateString("sr-RS", {
+          return date.toLocaleDateString("sr-Latn-RS", {
             year: "numeric",
             month: "long",
           });
@@ -1085,7 +1086,7 @@
         // Formatiranje datuma
         const datumOdobrenja = new Date(
           pozajmica.datum_izdavanja
-        ).toLocaleDateString("sr-RS");
+        ).toLocaleDateString("sr-Latn-RS");
 
         // Koristim različite kolone ovisno o tome šta postoji
         const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;

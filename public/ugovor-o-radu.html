@@ -712,7 +712,7 @@
         // Popuni datume
         const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
         const formatiraniDatumZaposlenja =
-          datumZaposlenja.toLocaleDateString("sr-RS");
+          datumZaposlenja.toLocaleDateString("sr-Latn-RS");
 
         document.getElementById("datum-pocetka").textContent =
           formatiraniDatumZaposlenja;
@@ -735,7 +735,7 @@
         } else if (ugovor.datum_prestanka) {
           const datumPrestanka = new Date(ugovor.datum_prestanka);
           const formatiraniDatumPrestanka =
-            datumPrestanka.toLocaleDateString("sr-RS");
+            datumPrestanka.toLocaleDateString("sr-Latn-RS");
           document.getElementById("datum-kraja").textContent =
             formatiraniDatumPrestanka;
           document.getElementById("datum-prestanka-clan2").textContent =
