@@ -250,6 +250,15 @@ const validateLogin = [
 ];
 
 const validateRegistration = [
+  body("username")
+    .trim()
+    .notEmpty()
+    .withMessage("Korisničko ime je obavezno")
+    .isLength({ min: 3, max: 20 })
+    .withMessage("Korisničko ime mora biti između 3 i 20 karaktera")
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage("Korisničko ime može sadržavati samo slova, brojeve i _"),
+
   body("email")
     .trim()
     .notEmpty()
@@ -262,11 +271,7 @@ const validateRegistration = [
     .notEmpty()
     .withMessage("Lozinka je obavezna")
     .isLength({ min: 6 })
-    .withMessage("Lozinka mora imati najmanje 6 karaktera")
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage(
-      "Lozinka mora sadržavati najmanje jedno malo slovo, veliko slovo i broj"
-    ),
+    .withMessage("Lozinka mora imati najmanje 6 karaktera"),
 
   body("ime")
     .trim()
@@ -282,9 +287,17 @@ const validateRegistration = [
     .isLength({ min: 2, max: 50 })
     .withMessage("Prezime mora biti između 2 i 50 karaktera"),
 
-  body("tip")
+  body("jmbg")
+    .trim()
     .notEmpty()
-    .withMessage("Tip korisnika je obavezan")
+    .withMessage("JMBG je obavezan")
+    .isLength({ min: 13, max: 13 })
+    .withMessage("JMBG mora imati tačno 13 cifara")
+    .isNumeric()
+    .withMessage("JMBG mora sadržavati samo brojeve"),
+
+  body("userType")
+    .optional()
     .isIn(["firma", "agencija"])
     .withMessage("Nevaljan tip korisnika"),
 

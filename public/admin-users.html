@@ -337,6 +337,15 @@
                         user.role === "admin" ? "selected" : ""
                       }>ADMIN</option>
                     </select>
+                    ${
+                      user.role !== "admin" && user.username !== "admin"
+                        ? `
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteUser(${user.id}, '${user.username}', '${user.ime} ${user.prezime}')" title="Obriši korisnika">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    `
+                        : ""
+                    }
                   </div>
                 </div>
               </div>
@@ -445,6 +454,75 @@
         } catch (error) {
           console.error("Logout error:", error);
           alert("Greška pri odjavi");
+        }
+      }
+
+      async function deleteUser(userId, username, fullName) {
+        // Proveri da li je admin
+        if (username === "admin") {
+          showAlert("warning", "Ne možete obrisati admin korisnika!");
+          return;
+        }
+
+        // Potvrda brisanja
+        const confirmMessage = `⚠️ DA LI STE SIGURNI?
+
+Ovo će TRAJNO obrisati korisnika "${fullName}" (@${username}) i SVE povezane podatke:
+
+🏢 Sve firme koje je kreirao
+👥 Sve radnike u tim firmama  
+💰 Sve pozajmnice vezane za te radnike
+📋 Sve pozicije koje je kreirao
+📄 Sve otkaze koje je kreirao
+
+⚠️ OVA AKCIJA SE NE MOŽE PONIŠTITI!
+
+Unesite "OBRISI" da potvrdite:`;
+
+        const confirmation = prompt(confirmMessage);
+
+        if (confirmation !== "OBRISI") {
+          showAlert("info", "Brisanje je otkazano.");
+          return;
+        }
+
+        // Dodatna potvrda
+        const finalConfirm = confirm(
+          `POSLEDNJA POTVRDA:\n\nBrisanje korisnika "${fullName}" (@${username})\n\nKliknite OK za trajno brisanje ili Cancel za otkazivanje.`
+        );
+
+        if (!finalConfirm) {
+          showAlert("info", "Brisanje je otkazano.");
+          return;
+        }
+
+        try {
+          // Prikaži loading stanje
+          showAlert(
+            "info",
+            `🔄 Brišem korisnika "${fullName}" i sve povezane podatke...`
+          );
+
+          const response = await fetch(`/api/admin/users/${userId}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            showAlert("success", `✅ ${result.message}`);
+            // Reload users list after successful deletion
+            setTimeout(loadUsers, 2000);
+          } else {
+            throw new Error(result.error || "Greška pri brisanju korisnika");
+          }
+        } catch (error) {
+          console.error("Error deleting user:", error);
+          showAlert(
+            "danger",
+            `❌ Greška pri brisanju korisnika: ${error.message}`
+          );
         }
       }
     </script>

@@ -2,6 +2,39 @@ const bcrypt = require("bcrypt");
 const { executeQuery } = require("../config/database");
 const emailService = require("../services/emailService");
 
+// Funkcija za kopiranje template pozicija novom korisniku
+async function copyTemplatesToUser(userId) {
+  try {
+    // Uzmi sve template pozicije sa opis_poslova
+    const templatesQuery =
+      "SELECT naziv, opis_poslova FROM pozicije_templates ORDER BY id";
+    const templates = await executeQuery(templatesQuery);
+
+    if (templates.length === 0) {
+      console.log("⚠️ Nema template pozicija za kopiranje");
+      return false;
+    }
+
+    // Kopiraj svaku template poziciju sa opis_poslova
+    const insertQuery =
+      "INSERT INTO pozicije (naziv, opis_poslova, user_id) VALUES (?, ?, ?)";
+
+    for (const template of templates) {
+      const opisPoslova =
+        template.opis_poslova || "Opis poslova će biti definisan naknadno.";
+      await executeQuery(insertQuery, [template.naziv, opisPoslova, userId]);
+    }
+
+    console.log(
+      `✅ Uspešno kopirano ${templates.length} template pozicija za korisnika ID: ${userId}`
+    );
+    return true;
+  } catch (error) {
+    console.error("❌ Greška pri kopiranju template pozicija:", error);
+    return false;
+  }
+}
+
 // Funkcija za dobijanje korisnika po username-u
 async function getUserByUsername(username) {
   try {
@@ -204,6 +237,14 @@ const authController = {
         prezime: prezime.trim(),
         jmbg,
         role: userType || "firma", // default role je 'firma'
+      });
+
+      // Kopiraj template pozicije za novog korisnika (ne blokiramo registraciju ako ne uspe)
+      copyTemplatesToUser(userId).catch((error) => {
+        console.error(
+          `❌ Greška pri kopiranju template pozicija za korisnika ${username}:`,
+          error
+        );
       });
 
       // Pošalji welcome email (ne čekamo rezultat da ne sporimo registraciju)
