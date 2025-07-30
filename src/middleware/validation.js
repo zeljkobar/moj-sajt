@@ -165,8 +165,20 @@ const validateRadnik = [
     .isIn(["na_neodredjeno", "na_odredjeno"])
     .withMessage("Nevaljan tip ugovora"),
 
+  body("vrsta_ugovora")
+    .notEmpty()
+    .withMessage("Vrsta ugovora je obavezna")
+    .isIn([
+      "ugovor_o_radu",
+      "ugovor_o_djelu",
+      "ugovor_o_dopunskom_radu",
+      "autorski_ugovor",
+      "ugovor_o_pozajmnici",
+    ])
+    .withMessage("Nevaljna vrsta ugovora"),
+
   body("datum_prestanka")
-    .optional()
+    .optional({ checkFalsy: true })
     .isISO8601()
     .withMessage("Datum prestanka mora biti valjan datum"),
 
