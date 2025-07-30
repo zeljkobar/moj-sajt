@@ -4,6 +4,7 @@ const radniciController = require("../controllers/radniciController");
 const { authMiddleware } = require("../middleware/auth");
 const {
   validateRadnik,
+  validateRadnikEdit,
   validateId,
   validateFirmaId,
 } = require("../middleware/validation");
@@ -47,7 +48,7 @@ router.put(
   authMiddleware,
   rateLimiter.api,
   validateId,
-  validateRadnik,
+  validateRadnikEdit,
   radniciController.updateRadnik
 );
 router.delete(

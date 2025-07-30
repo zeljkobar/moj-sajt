@@ -185,6 +185,95 @@ const validateRadnik = [
   handleValidationErrors,
 ];
 
+// Validacija za edit radnika (bez vrsta_ugovora jer se ne menja)
+const validateRadnikEdit = [
+  body("ime")
+    .trim()
+    .notEmpty()
+    .withMessage("Ime je obavezno")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Ime mora biti između 2 i 50 karaktera")
+    .matches(/^[a-zA-ZšđčćžŠĐČĆŽ\s]+$/)
+    .withMessage("Ime može sadržavati samo slova"),
+
+  body("prezime")
+    .trim()
+    .notEmpty()
+    .withMessage("Prezime je obavezno")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Prezime mora biti između 2 i 50 karaktera")
+    .matches(/^[a-zA-ZšđčćžŠĐČĆŽ\s]+$/)
+    .withMessage("Prezime može sadržavati samo slova"),
+
+  body("jmbg")
+    .trim()
+    .notEmpty()
+    .withMessage("JMBG je obavezan")
+    .isLength({ min: 13, max: 13 })
+    .withMessage("JMBG mora imati tačno 13 cifara")
+    .isNumeric()
+    .withMessage("JMBG mora sadržavati samo brojeve"),
+
+  body("adresa")
+    .trim()
+    .notEmpty()
+    .withMessage("Adresa je obavezna")
+    .isLength({ max: 200 })
+    .withMessage("Adresa ne može biti duža od 200 karaktera"),
+
+  body("grad")
+    .trim()
+    .notEmpty()
+    .withMessage("Grad je obavezan")
+    .isLength({ max: 50 })
+    .withMessage("Grad ne može biti duži od 50 karaktera"),
+
+  body("pozicija_id")
+    .notEmpty()
+    .withMessage("Pozicija je obavezna")
+    .isInt({ min: 1 })
+    .withMessage("Pozicija mora biti valjan broj"),
+
+  body("firma_id")
+    .notEmpty()
+    .withMessage("Firma je obavezna")
+    .isInt({ min: 1 })
+    .withMessage("Firma mora biti valjan broj"),
+
+  body("datum_zaposlenja")
+    .notEmpty()
+    .withMessage("Datum zaposlenja je obavezan")
+    .isISO8601()
+    .withMessage("Datum zaposlenja mora biti valjan datum"),
+
+  body("visina_zarade")
+    .notEmpty()
+    .withMessage("Visina zarade je obavezna")
+    .isFloat({ min: 0 })
+    .withMessage("Visina zarade mora biti pozitivan broj"),
+
+  body("tip_radnog_vremena")
+    .notEmpty()
+    .withMessage("Tip radnog vremena je obavezan")
+    .isIn(["puno_8h", "skraceno_6h", "skraceno_4h", "skraceno_2h"])
+    .withMessage("Nevaljan tip radnog vremena"),
+
+  body("tip_ugovora")
+    .notEmpty()
+    .withMessage("Tip ugovora je obavezan")
+    .isIn(["na_neodredjeno", "na_odredjeno"])
+    .withMessage("Nevaljan tip ugovora"),
+
+  // Nema vrsta_ugovora jer se ne menja pri editu
+
+  body("datum_prestanka")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage("Datum prestanka mora biti valjan datum"),
+
+  handleValidationErrors,
+];
+
 // Validacija za pozajmice
 const validatePozajmica = [
   body("broj_ugovora")
@@ -338,6 +427,7 @@ const validatePozicija = [
 module.exports = {
   validateFirma,
   validateRadnik,
+  validateRadnikEdit,
   validatePozajmica,
   validateId,
   validateFirmaId,
