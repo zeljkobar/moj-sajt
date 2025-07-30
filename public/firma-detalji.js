@@ -664,6 +664,10 @@ function populateRadnikModal(radnik) {
   // Radno vreme - mapiranje tipova radnog vremena
   let radnoVreme;
   const radnoVremeText = {
+    puno_8h: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
+    skraceno_6h: "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
+    skraceno_4h: "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
+    skraceno_2h: "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
     puno: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
     nepuno: "Nepuno radno vreme",
     skraceno: "Skraćeno radno vreme",
@@ -783,11 +787,24 @@ async function aneksRadnoVremeModal() {
 
     // Prikaži trenutno radno vreme
     console.log("Radnik objekat:", radnik); // debug
+
+    // Mapiranje tipova radnog vremena
+    const radnoVremeText = {
+      puno_8h: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
+      skraceno_6h: "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
+      skraceno_4h: "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
+      skraceno_2h: "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
+      puno: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
+      nepuno: "Nepuno radno vreme",
+      skraceno: "Skraćeno radno vreme",
+    };
+
     const trenutnoRadnoVreme =
+      radnoVremeText[radnik.tip_radnog_vremena] ||
       radnik.radno_vreme ||
       radnik.radnoVreme ||
       radnik.radno_vrijeme ||
-      "Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)";
+      "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)";
     document.getElementById(
       "trenutnoRadnoVreme"
     ).innerHTML = `<strong>${trenutnoRadnoVreme}</strong>`;
