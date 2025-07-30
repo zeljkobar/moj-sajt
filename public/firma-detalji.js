@@ -710,6 +710,10 @@ async function generisiUgovorModal() {
 
     if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
       ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
+    } else if (radnik.vrsta_ugovora === "ugovor_o_djelu") {
+      ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`; // Ili možda treba posebna stranica za ugovor o djelu
+    } else if (radnik.vrsta_ugovora === "ugovor_o_pozajmnici") {
+      ugovorUrl = `/ugovor-o-zajmu-novca.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
     } else {
       // Default - ugovor o radu (ili bilo koja druga vrsta)
       ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
@@ -999,10 +1003,34 @@ function getCurrentRadnikIdFromModal() {
 }
 
 function generisiUgovor(radnikId) {
-  window.open(
-    `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`,
-    "_blank"
-  );
+  // Prvo dohvati podatke o radniku da vidiš vrstu ugovora
+  fetch(`/api/radnici/id/${radnikId}`)
+    .then((response) => response.json())
+    .then((radnik) => {
+      // Na osnovu vrste ugovora otvori odgovarajući template
+      let ugovorUrl;
+
+      if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
+        ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
+      } else if (radnik.vrsta_ugovora === "ugovor_o_djelu") {
+        ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`; // Ili možda treba posebna stranica za ugovor o djelu
+      } else if (radnik.vrsta_ugovora === "ugovor_o_pozajmnici") {
+        ugovorUrl = `/ugovor-o-zajmu-novca.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
+      } else {
+        // Default - ugovor o radu (ili bilo koja druga vrsta)
+        ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
+      }
+
+      window.open(ugovorUrl, "_blank");
+    })
+    .catch((error) => {
+      console.error("Greška pri dohvaćanju podataka o radniku:", error);
+      // Fallback - otvori osnovni ugovor o radu
+      window.open(
+        `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`,
+        "_blank"
+      );
+    });
 }
 
 function sporazumniRaskid(radnikId) {
