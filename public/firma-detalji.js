@@ -842,25 +842,112 @@ function generisiAneksRadnoVreme() {
 
   const radnikId = getCurrentRadnikIdFromModal();
 
-  // Zatvori modal
-  const modal = bootstrap.Modal.getInstance(
-    document.getElementById("aneksRadnoVremeModal")
-  );
-  modal.hide();
+  // Prvo ažuriraj podatke radnika u bazi
+  updateRadnikRadnoVremeIFetchData(radnikId, novoRadnoVreme, datumPromene)
+    .then(() => {
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("aneksRadnoVremeModal")
+      );
+      modal.hide();
 
-  // Otvori aneks dokument sa parametrima
-  const params = new URLSearchParams({
-    radnikId: radnikId,
-    firmaId: currentFirmaId,
-    datumPromene: datumPromene,
-    novoRadnoVreme: novoRadnoVreme,
-    razlogPromene: razlogPromene,
-  });
+      // Otvori aneks dokument sa parametrima
+      const params = new URLSearchParams({
+        radnikId: radnikId,
+        firmaId: currentFirmaId,
+        datumPromene: datumPromene,
+        novoRadnoVreme: novoRadnoVreme,
+        razlogPromene: razlogPromene,
+      });
 
-  window.open(
-    `/aneks-promena-radnog-vremena.html?${params.toString()}`,
-    "_blank"
-  );
+      window.open(
+        `/aneks-promena-radnog-vremena.html?${params.toString()}`,
+        "_blank"
+      );
+
+      // Osvježi prikaz radnika u tabeli
+      loadRadnici(currentFirmaId);
+    })
+    .catch((error) => {
+      console.error("Greška pri ažuriranju radnika:", error);
+      alert("Greška pri ažuriranju podataka radnika!");
+    });
+}
+
+// Funkcija za ažuriranje radnog vremena i datuma zaposlenja radnika
+async function updateRadnikRadnoVremeIFetchData(
+  radnikId,
+  novoRadnoVreme,
+  datumPromene
+) {
+  try {
+    // Prvo dohvati trenutne podatke radnika
+    const response = await fetch(`/api/radnici/id/${radnikId}`);
+    const radnik = await response.json();
+
+    if (!response.ok) {
+      throw new Error("Greška pri dohvatanju podataka radnika");
+    }
+
+    // Mapiranje tekstualnih opisa na kodove za validaciju
+    const radnoVremeMapping = {
+      "Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)": "puno_8h",
+      "Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)":
+        "skraceno_6h",
+      "Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)":
+        "skraceno_4h",
+      "Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)":
+        "skraceno_2h",
+    };
+
+    // Konvertuj tekstualni opis u kod
+    const tipRadnogVremena =
+      radnoVremeMapping[novoRadnoVreme] || novoRadnoVreme;
+
+    // Pripremi ažurirane podatke - zadržava sve postojeće podatke osim radnog vremena i datuma zaposlenja
+    const radnikData = {
+      ime: radnik.ime,
+      prezime: radnik.prezime,
+      jmbg: radnik.jmbg,
+      grad: radnik.grad,
+      adresa: radnik.adresa,
+      pozicija_id: radnik.pozicija_id,
+      firma_id: radnik.firma_id,
+      datum_zaposlenja: datumPromene, // Novi datum zaposlenja
+      visina_zarade: radnik.visina_zarade,
+      tip_radnog_vremena: tipRadnogVremena, // Kod radnog vremena
+      tip_ugovora: radnik.tip_ugovora,
+      datum_prestanka: radnik.datum_prestanka || null,
+      napomene: radnik.napomene,
+    };
+
+    // Debug - ispišemo podatke pre slanja
+    console.log("Podaci radnika pre ažuriranja:", radnik);
+    console.log("Novo radno vreme (tekst):", novoRadnoVreme);
+    console.log("Novo radno vreme (kod):", tipRadnogVremena);
+    console.log("Datum promene:", datumPromene);
+    console.log("Podaci koji se šalju:", radnikData);
+
+    // Ažuriraj radnika u bazi
+    const updateResponse = await fetch(`/api/radnici/${radnikId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(radnikData),
+    });
+
+    const result = await updateResponse.json();
+
+    if (!result.success) {
+      throw new Error(result.message || "Greška pri ažuriranju radnika");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Greška pri ažuriranju radnika:", error);
+    throw error;
+  }
 }
 
 // Modal za unos razloga izdavanja potvrde o zaposlenju
