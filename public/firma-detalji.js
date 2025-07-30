@@ -208,6 +208,18 @@ function updateRadniciTable(radnici, otkaziMap = {}) {
   updatePillTabCounts(radnici, otkaziMap);
 }
 
+// Funkcija za formatiranje vrste ugovora
+function formatVrstaUgovora(vrstaUgovora) {
+  const mapiranje = {
+    ugovor_o_radu: "Ugovor o radu",
+    ugovor_o_djelu: "Ugovor o djelu",
+    ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
+    autorski_ugovor: "Autorski ugovor",
+    ugovor_o_pozajmnici: "Ugovor o pozajmnici",
+  };
+  return mapiranje[vrstaUgovora] || vrstaUgovora || "Nespecifikovano";
+}
+
 function updateAktivniRadnici(radnici, otkaziMap = {}) {
   const tbody = document.getElementById("aktivniRadniciTabela");
   const aktivniRadnici = radnici.filter((r) => {
@@ -217,7 +229,7 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
 
   if (aktivniRadnici.length === 0) {
     tbody.innerHTML =
-      '<tr><td colspan="6" class="text-center text-muted">Nema aktivnih radnika</td></tr>';
+      '<tr><td colspan="7" class="text-center text-muted">Nema aktivnih radnika</td></tr>';
     return;
   }
 
@@ -276,6 +288,11 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
           <td>
             <span class="badge ${badgeClass}">${tipUgovora}</span>
             <br><small class="text-muted">${statusText}</small>
+          </td>
+          <td>
+            <span class="badge bg-info text-dark">${formatVrstaUgovora(
+              radnik.vrsta_ugovora
+            )}</span>
           </td>
           <td>${datumPrestanka}</td>
           <td onclick="event.stopPropagation();">
