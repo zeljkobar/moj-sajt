@@ -49,6 +49,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <link rel="stylesheet" href="global-components.css" />
     <link rel="stylesheet" href="style.css" />
     <link
       rel="apple-touch-icon"
@@ -105,6 +106,10 @@
             </ul>
             <!-- Login dugmići -->
             <div class="d-flex align-items-center ms-lg-3">
+              <!-- Dark mode toggle -->
+              <button id="themeToggle" class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
               <a href="/prijava.html" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-sign-in-alt me-1"></i>Prijava
               </a>
@@ -117,6 +122,10 @@
               id="userPanel"
               class="d-none d-flex align-items-center ms-lg-3"
             >
+              <!-- Dark mode toggle za ulogovane korisnike -->
+              <button class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
               <span id="welcomeMsg" class="me-2"></span>
               <button
                 id="logoutBtn"

@@ -3,6 +3,9 @@ class Navigation {
   constructor() {
     this.currentUser = null;
     this.userRole = null;
+    this.darkModeInitialized = false;
+    this.themeToggleHandler = null;
+    this.initialized = false;
   }
 
   // Generiše HTML za navigaciju
@@ -61,6 +64,15 @@ class Navigation {
 
             <!-- User info and logout -->
             <ul class="navbar-nav">
+              <!-- Dark mode toggle -->
+              <li class="nav-item">
+                <button 
+                  type="button" 
+                  class="theme-toggle btn btn-link nav-link" 
+                  style="border: none; background: none; color: inherit; text-decoration: none;">
+                  <i class="fas fa-moon"></i> Dark
+                </button>
+              </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-user-circle me-1"></i>
@@ -81,6 +93,12 @@ class Navigation {
 
   // Inicijalizuje navigaciju
   async init() {
+    // Zaštita od duplih inicijalizacija
+    if (this.initialized) {
+      return;
+    }
+    this.initialized = true;
+
     // Ukloni postojeće navigacije ako postoje
     const existingNavs = document.querySelectorAll("nav.navbar");
     existingNavs.forEach((nav) => nav.remove());
@@ -103,6 +121,11 @@ class Navigation {
     // Dodaj event listenere
     this.attachEventListeners();
 
+    // Inicijalizuj dark mode sa dodatnim čekanjem
+    setTimeout(() => {
+      this.initializeDarkMode();
+    }, 300);
+
     // Inicijalizuj Bootstrap komponente
     this.initializeBootstrap();
   }
@@ -110,65 +133,31 @@ class Navigation {
   // Učitava informacije o trenutnom korisniku
   async loadUserInfo() {
     try {
-      const response = await fetch("/api/users/current", {
+      const response = await fetch("/api/check-auth", {
         credentials: "include",
       });
+      const data = await response.json();
 
-      if (response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const userData = await response.json();
-          this.currentUser = userData;
-          this.userRole = userData.role;
+      if (data.authenticated) {
+        this.currentUser = data.user;
+        this.userRole = data.user?.role;
 
-          console.log("Full user data:", userData); // Debug log
-
-          // Ažuriraj ime korisnika u navigaciji i prikaži role badge
-          const usernameElement = document.getElementById("navbar-username");
-          if (usernameElement) {
-            let displayName =
-              userData.ime && userData.prezime
-                ? userData.ime + " " + userData.prezime
-                : userData.ime_prezime || userData.username || "Korisnik";
-
-            // Dodaj badge za tip korisnika
-            let roleBadge = "";
-            switch (userData.role) {
-              case "admin":
-                roleBadge = ' <span class="badge bg-danger ms-1">ADMIN</span>';
-                break;
-              case "agencija":
-                roleBadge =
-                  ' <span class="badge bg-primary ms-1">AGENCIJA</span>';
-                break;
-              case "firma":
-                roleBadge = ' <span class="badge bg-success ms-1">FIRMA</span>';
-                break;
-            }
-
-            usernameElement.innerHTML = displayName + roleBadge;
-          }
-
-          // Prikaži admin meni ako je korisnik admin
-          const adminMenu = document.getElementById("adminMenu");
-
-          if (userData.role === "admin") {
-            if (adminMenu) {
-              adminMenu.style.display = "block";
-            }
-          }
-        } else {
-          console.warn("Response nije JSON format, možda je HTML redirect");
-          // Možda je korisnik redirect-ovan na login stranicu
+        // Ažuriraj UI sa korisničkim podacima
+        const usernameElement = document.getElementById("navbar-username");
+        if (usernameElement && this.currentUser) {
+          usernameElement.textContent = this.currentUser.username || "Korisnik";
         }
-      } else {
-        console.error("Auth check failed with status:", response.status);
-        if (response.status === 401) {
-          console.log("Korisnik nije autentifikovan");
+
+        // Prikaži admin meni ako je korisnik admin
+        if (this.userRole === "admin") {
+          const adminMenu = document.getElementById("adminMenu");
+          if (adminMenu) {
+            adminMenu.style.display = "block";
+          }
         }
       }
     } catch (error) {
-      console.warn("Greška pri učitavanju korisničkih podataka:", error);
+      console.error("Greška pri učitavanju korisničkih podataka:", error);
     }
   }
 
@@ -209,6 +198,60 @@ class Navigation {
         }
       });
     }
+  }
+
+  // Inicijalizuje dark mode funkcionalnost
+  initializeDarkMode() {
+    // Zaštita od duplih poziva
+    if (this.darkModeInitialized) {
+      return;
+    }
+    this.darkModeInitialized = true;
+
+    const savedTheme = localStorage.getItem("theme") || "light";
+
+    // Postaviće početnu temu
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
+    // Ukloni postojeće event listener-e da izbjegnem duplikate
+    if (this.themeToggleHandler) {
+      document.body.removeEventListener("click", this.themeToggleHandler);
+    }
+
+    // Kreiraj handler funkciju kao svojstvo klase
+    this.themeToggleHandler = (e) => {
+      if (e.target.closest(".theme-toggle")) {
+        e.preventDefault();
+        e.stopImmediatePropagation(); // Spriječi duple pozive
+
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        this.updateThemeToggleText(newTheme);
+      }
+    };
+
+    // Dodaj event listener
+    document.body.addEventListener("click", this.themeToggleHandler);
+
+    // Ažuriraj tekst nakon kratke pauze
+    setTimeout(() => {
+      this.updateThemeToggleText(savedTheme);
+    }, 200);
+  }
+
+  // Ažurira tekst theme toggle dugmeta
+  updateThemeToggleText(theme) {
+    const themeToggles = document.querySelectorAll(".theme-toggle");
+    themeToggles.forEach((toggle) => {
+      toggle.innerHTML =
+        theme === "dark"
+          ? '<i class="fas fa-sun"></i> Light'
+          : '<i class="fas fa-moon"></i> Dark';
+    });
   }
 
   // Inicijalizuje Bootstrap komponente

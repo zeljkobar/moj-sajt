@@ -41,6 +41,9 @@
     />
     <link rel="manifest" href="/site.webmanifest" />
 
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -49,144 +52,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="global-components.css" />
+    <link rel="stylesheet" href="app-pages.css" />
     <link rel="stylesheet" href="/style.css" />
-    <style>
-      .firms-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      .filter-tabs {
-        margin-bottom: 30px;
-      }
-      .tab-btn {
-        border: none;
-        background: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        margin-right: 10px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-      }
-      .tab-btn.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      }
-      .tab-btn:not(.active) {
-        background: #f8f9fa;
-        color: #6c757d;
-      }
-      .tab-btn:not(.active):hover {
-        background: #e9ecef;
-        color: #495057;
-      }
-      .firm-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-      }
-      .firm-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-      }
-      .firm-status {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-      }
-      .status-active {
-        background: #28a745;
-      }
-      .status-zero {
-        background: #ffc107;
-      }
-      .search-box {
-        border-radius: 25px;
-        border: 2px solid #e9ecef;
-        padding: 12px 20px;
-        transition: border-color 0.3s ease;
-      }
-      .search-box:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-      }
-      .loading-spinner {
-        display: none;
-        text-align: center;
-        padding: 40px;
-      }
-      .no-results {
-        text-align: center;
-        padding: 40px;
-        color: #6c757d;
-      }
-      .back-btn {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .back-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
-        color: white;
-      }
-      .action-buttons {
-        display: flex;
-        gap: 8px;
-      }
-      .edit-btn,
-      .delete-btn {
-        border: none;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-      .edit-btn {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-      }
-      .edit-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-      }
-      .delete-btn {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-      }
-      .delete-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
-      }
-      .documents-btn {
-        background: linear-gradient(135deg, #6c63ff 0%, #9c88ff 100%);
-        color: white;
-      }
-      .documents-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
-      }
-    </style>
   </head>
-  <body class="bg-light">
+  <body>
     <!-- Navigation će biti automatski ubačena ovde -->
 
     <div class="container mt-4">
@@ -249,6 +119,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./components/navigation.js"></script>
+    <script src="script.js"></script>
     <script src="/firme.js"></script>
+    <script>
+      // Inicijalizuj navigaciju
+      if (typeof Navigation !== "undefined") {
+        const nav = new Navigation();
+        nav.init();
+      }
+    </script>
   </body>
 </html>

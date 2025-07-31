@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log("Autentifikacija:", data);
       if (data.authenticated) {
         const userRole = data.user.role;
 

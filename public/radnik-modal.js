@@ -244,7 +244,9 @@ class RadnikModal {
         overflow-y: auto;
       }
       .modal-content {
-        background-color: white;
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
         margin: 20px auto;
         padding: 20px;
         border-radius: 8px;
@@ -267,8 +269,8 @@ class RadnikModal {
       .modal h2 {
         margin-top: 0;
         margin-bottom: 20px;
-        color: #333;
-        border-bottom: 2px solid #f0f0f0;
+        color: var(--text-color);
+        border-bottom: 2px solid var(--border-color);
         padding-bottom: 10px;
       }
 
@@ -294,29 +296,71 @@ class RadnikModal {
         display: block;
         margin-bottom: 5px;
         font-weight: bold;
+        color: var(--text-color);
       }
       .form-group input,
       .form-group select,
       .form-group textarea {
         width: 100%;
         padding: 8px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         box-sizing: border-box;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+      }
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px var(--focus-shadow);
       }
       .form-group textarea {
         height: 100px;
         resize: vertical;
       }
       .close {
-        color: #aaa;
+        color: var(--text-color);
         float: right;
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
       }
       .close:hover {
-        color: black;
+        opacity: 1;
+      }
+      
+      /* Button stilovi */
+      .modal .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+      }
+      
+      .modal .btn-success {
+        background-color: var(--success-color);
+        color: white;
+      }
+      
+      .modal .btn-success:hover {
+        background-color: var(--success-hover);
+      }
+      
+      .modal .btn:not(.btn-success) {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+      
+      .modal .btn:not(.btn-success):hover {
+        background-color: var(--secondary-hover);
       }
 
       /* Responsive dizajn */
