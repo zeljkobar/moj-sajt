@@ -26,6 +26,9 @@
     />
     <link rel="manifest" href="site.webmanifest" />
 
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
     <title>Ugovor o radu</title>
     <link rel="stylesheet" href="global-components.css" />
     <!-- PDF Export biblioteka -->
@@ -240,10 +243,11 @@
       <div class="article">
         <div class="article-title">Član 4.</div>
         <p>
-          4. Zaposlenom pripada mjesečn zarada u visini koeficijenta 3.60
-          osnovne zarade u skladu sa čl.11 Opsteg kolektivnog ugovora ( Sl. 1
-          ist CG 37/19 ). Minimalna zarada, u neto iznosu, ne može biti niža od
-          600,00 eura, dok Vlada ne utvrdi drugačije.
+          Zaposlenom pripada mjesečna zarada u neto iznosu od
+          <span id="visina-zarade">800,00</span> eura u skladu sa čl.11 Opšteg
+          kolektivnog ugovora (Sl. list CG 37/19). Minimalna zarada, u neto
+          iznosu, ne može biti niža od 600,00 eura, dok Vlada ne utvrdi
+          drugačije.
         </p>
         <p>
           Zarada zaposlenog uvećava se po času za svaku zapocetu godinu radnog
@@ -758,7 +762,6 @@
           pozicijaOpisDiv.innerHTML = `<p>${ugovor.opis_poslova}</p>`;
           console.log("Popunjen opis pozicije iz baze:", ugovor.opis_poslova);
         } else {
-
         }
 
         // Popuni radno vreme na osnovu tip_radnog_vremena iz baze
@@ -818,6 +821,18 @@
         document.getElementById("sati-nedeljno").textContent = satiNedeljno;
         document.getElementById("sati-nedeljno-tekst").textContent =
           brojUTekst(satiNedeljno);
+
+        // Popuni visinu zarade
+        if (ugovor.visina_zarade) {
+          const formatiranZarada = parseFloat(
+            ugovor.visina_zarade
+          ).toLocaleString("sr-Latn-RS", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          document.getElementById("visina-zarade").textContent =
+            formatiranZarada;
+        }
 
         console.log("Ugovor uspešno popunjen:", ugovor);
       }

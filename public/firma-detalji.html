@@ -534,7 +534,12 @@
                   <p class="text-muted mb-2">
                     Automatsko kreiranje ugovora na osnovu podataka o radniku
                   </p>
-                  <button class="btn btn-primary btn-sm">Generiši</button>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    onclick="openRadnikModal({firmId: currentFirmaId, onSuccess: function() { loadRadnici(currentFirmaId); }})"
+                  >
+                    Generiši
+                  </button>
                 </div>
                 <div class="document-card">
                   <h6>
@@ -571,6 +576,26 @@
                     Generiši
                   </button>
                 </div>
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-baby text-pink me-2"></i>Rešenje o
+                    porodiljskom odsustvu
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Službeno rešenje za porodiljsko odsustvo
+                  </p>
+                  <button
+                    class="btn btn-pink btn-sm"
+                    onclick="openPorodiljskoModal()"
+                    style="
+                      background-color: #e91e63;
+                      color: white;
+                      border-color: #e91e63;
+                    "
+                  >
+                    Generiši
+                  </button>
+                </div>
               </div>
 
               <div class="col-md-6">
@@ -583,7 +608,12 @@
                   <p class="text-muted mb-2">
                     Formalni ugovor o pozajmici sredstava
                   </p>
-                  <button class="btn btn-success btn-sm">Generiši</button>
+                  <button
+                    class="btn btn-success btn-sm"
+                    onclick="dodajNovuPozajmnicu()"
+                  >
+                    Generiši
+                  </button>
                 </div>
                 <div class="document-card">
                   <h6>
@@ -603,6 +633,27 @@
                     Automatska PDV prijava za upload
                   </p>
                   <button class="btn btn-primary btn-sm">Generiši</button>
+                </div>
+
+                <!-- Ovlašćenje - samo za agencije i admine -->
+                <div
+                  class="document-card"
+                  id="ovlascenje-card"
+                  style="display: none"
+                >
+                  <h6>
+                    <i class="fas fa-certificate text-warning me-2"></i
+                    >Ovlašćenje za knjigovođu
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Ovlašćenje za elektronska predaja u poresku upravu
+                  </p>
+                  <button
+                    class="btn btn-warning btn-sm"
+                    onclick="generisjOvlascenje()"
+                  >
+                    Generiši
+                  </button>
                 </div>
               </div>
             </div>

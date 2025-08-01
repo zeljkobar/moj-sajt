@@ -69,6 +69,7 @@ function loadFirmaData() {
       loadRadnici(firmaId);
       loadPozajmice(firmaId); // Dodano učitavanje pozajmica
       loadZadaci(firmaId); // Dodano učitavanje zadataka
+      checkUserPermissions(); // Proveri da li treba da prikaže ovlašćenje
     })
     .catch((error) => {
       console.error("Greška pri učitavanju firme:", error);
@@ -3495,4 +3496,161 @@ async function submitEditPozajmica() {
       "Došlo je do greške pri ažuriranju pozajmice. Molimo pokušajte ponovo."
     );
   }
+}
+
+// Modal za porodiljsko odsustvo
+function openPorodiljskoModal() {
+  const modalHtml = `
+    <div class="modal fade" id="porodiljskoModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-baby me-2"></i>Rešenje o porodiljskom odsustvu
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="radnikPorodiljskoSelect" class="form-label">Izaberite radnika:</label>
+              <select class="form-select" id="radnikPorodiljskoSelect" required>
+                <option value="">-- Izaberite radnika --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="datumPocetkaPorodiljsko" class="form-label">Datum početka porodiljskog odsustva:</label>
+              <input type="date" class="form-control" id="datumPocetkaPorodiljsko" required>
+            </div>
+            <div class="mb-3">
+              <label for="datumDonošenjaPorodiljsko" class="form-label">Datum donošenja rešenja:</label>
+              <input type="date" class="form-control" id="datumDonošenjaPorodiljsko" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
+            <button type="button" class="btn btn-primary" onclick="potvrdiPorodiljskoModal()">
+              <i class="fas fa-file-alt me-2"></i>Generiši rešenje
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Ukloni postojeći modal ako postoji
+  const existingModal = document.getElementById("porodiljskoModal");
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+  // Učitaj radnike u select
+  loadRadniciForPorodiljsko();
+
+  // Postavi današnji datum kao default
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("datumDonošenjaPorodiljsko").value = today;
+  document.getElementById("datumPocetkaPorodiljsko").value = today;
+
+  const modal = new bootstrap.Modal(
+    document.getElementById("porodiljskoModal")
+  );
+  modal.show();
+
+  // Ukloni iz DOM-a kad se zatvori
+  const modalElement = document.getElementById("porodiljskoModal");
+  modalElement.addEventListener(
+    "hidden.bs.modal",
+    function () {
+      modalElement.remove();
+    },
+    { once: true }
+  );
+}
+
+async function loadRadniciForPorodiljsko() {
+  try {
+    const response = await fetch(`/api/radnici/firma/${currentFirmaId}`);
+    const radnici = await response.json();
+
+    const select = document.getElementById("radnikPorodiljskoSelect");
+
+    radnici.forEach((radnik) => {
+      const option = document.createElement("option");
+      option.value = radnik.id;
+      option.textContent = `${radnik.ime} ${radnik.prezime}`;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Greška pri učitavanju radnika:", error);
+  }
+}
+
+function potvrdiPorodiljskoModal() {
+  const radnikId = document.getElementById("radnikPorodiljskoSelect").value;
+  const datumPocetka = document.getElementById("datumPocetkaPorodiljsko").value;
+  const datumDonosenja = document.getElementById(
+    "datumDonošenjaPorodiljsko"
+  ).value;
+
+  if (!radnikId) {
+    alert("Molimo izaberite radnika.");
+    return;
+  }
+
+  if (!datumPocetka) {
+    alert("Molimo unesite datum početka porodiljskog odsustva.");
+    return;
+  }
+
+  if (!datumDonosenja) {
+    alert("Molimo unesite datum donošenja rešenja.");
+    return;
+  }
+
+  // Otvori rešenje sa parametrima
+  const url = `resenje-porodiljsko-odsustvo.html?radnikId=${radnikId}&firmaId=${currentFirmaId}&datumPocetka=${datumPocetka}&datumDonosenja=${datumDonosenja}`;
+  window.open(url, "_blank");
+
+  // Zatvori modal
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("porodiljskoModal")
+  );
+  modal.hide();
+}
+
+// Funkcija za proveru korisničkih dozvola
+async function checkUserPermissions() {
+  try {
+    const response = await fetch("/api/users/current", {
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      const user = await response.json();
+
+      // Prikaži ovlašćenje dugme za agencije i adminе
+      if (user.role === "agencija" || user.role === "admin") {
+        const ovlascenteCard = document.getElementById("ovlascenje-card");
+        if (ovlascenteCard) {
+          ovlascenteCard.style.display = "block";
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Greška pri proveri korisničkih dozvola:", error);
+  }
+}
+
+// Funkcija za generisanje ovlašćenja za knjigovođu
+function generisjOvlascenje() {
+  if (!currentFirmaId) {
+    alert("Greška: Nema ID firme");
+    return;
+  }
+
+  // Otvori ovlašćenje direktno bez modala
+  const url = `ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`;
+  window.open(url, "_blank");
 }
