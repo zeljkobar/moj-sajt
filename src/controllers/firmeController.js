@@ -471,6 +471,59 @@ const firmeController = {
       res.status(500).json({ message: "Greška na serveru" });
     }
   },
+
+  // GET /api/firme/my-company - dobija firmu trenutnog korisnika
+  getMyCompany: async (req, res) => {
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: "Nije autentifikovan" });
+      }
+
+      const username = req.session.user.username;
+      const userId = await firmeController.getUserId(username);
+      if (!userId) {
+        return res.status(404).json({ message: "Korisnik nije pronađen" });
+      }
+
+      // Za korisnike tipa "firma" - trebaju da imaju tačno jednu firmu
+      const userRole = req.session.user.role;
+
+      if (userRole === ROLES.FIRMA) {
+        // Korisnik tipa "firma" može imati samo jednu firmu
+        const firme = await executeQuery(
+          `SELECT id, pib, naziv, adresa, grad, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+           FROM firme 
+           WHERE user_id = ? 
+           LIMIT 1`,
+          [userId]
+        );
+
+        if (firme.length === 0) {
+          return res.status(404).json({ message: "Firma nije pronađena" });
+        }
+
+        return res.json(firme[0]);
+      } else {
+        // Za agencije i admin - vrati sve firme
+        const firme = await executeQuery(
+          `SELECT id, pib, naziv, adresa, grad, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+           FROM firme 
+           WHERE user_id = ? 
+           ORDER BY naziv`,
+          [userId]
+        );
+
+        if (firme.length === 0) {
+          return res.status(404).json({ message: "Nema firmi" });
+        }
+
+        return res.json({ firme });
+      }
+    } catch (error) {
+      console.error("getMyCompany error:", error);
+      res.status(500).json({ message: "Greška na serveru" });
+    }
+  },
 };
 
 module.exports = firmeController;

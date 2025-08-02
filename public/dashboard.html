@@ -615,6 +615,15 @@
             document.getElementById("userName").textContent =
               userData.ime + " " + userData.prezime;
 
+            // Provjeri da li je korisnik firma bez podataka
+            if (userData.role === "firma") {
+              console.log(
+                "🔍 Korisnik ima rolu 'firma', provjeravam podatke firme..."
+              );
+              await checkCompanyDataAndRedirect();
+              return; // Prekini izvršavanje ako je preusmjereno
+            }
+
             // Update imena u navigaciji se radi automatski preko navigation.js
           } else {
             console.error(
@@ -628,6 +637,46 @@
         } catch (error) {
           console.error("Greška pri povezivanju sa API:", error);
           document.getElementById("userName").textContent = "Korisnice";
+        }
+      }
+
+      // Funkcija za provjeru podataka firme i preusmjeravanje
+      async function checkCompanyDataAndRedirect() {
+        try {
+          console.log("🔍 Počinje provjera podataka firme...");
+
+          const response = await fetch("/api/firme/my-company", {
+            credentials: "include",
+          });
+
+          console.log("📡 API response status:", response.status);
+
+          if (response.status === 404) {
+            // Firma ne postoji za ovog korisnika - preusmjeri na onboarding stranicu
+            console.log(
+              "❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html"
+            );
+            window.location.href = "company-onboarding.html";
+            return;
+          }
+
+          if (!response.ok) {
+            // Neki drugi error - pretpostavi da nema firmu
+            console.log(
+              "❌ API error (" +
+                response.status +
+                "), preusmjeravam na company-onboarding.html"
+            );
+            window.location.href = "company-onboarding.html";
+            return;
+          }
+
+          // API je uspešan (200) - firma postoji, ostani na dashboard-u
+          console.log("✅ Korisnik ima firmu, ostaje na dashboard-u");
+        } catch (error) {
+          // U slučaju greške, pretpostavi da nema firmu
+          console.error("💥 Greška pri provjeri podataka firme:", error);
+          window.location.href = "company-onboarding.html";
         }
       }
 

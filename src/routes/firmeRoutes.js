@@ -25,6 +25,12 @@ router.get(
   rateLimiter.api,
   firmeController.getFirmeNaNuli
 );
+router.get(
+  "/my-company",
+  authMiddleware,
+  rateLimiter.api,
+  firmeController.getMyCompany
+);
 router.get("/id/:id", validateId, firmeController.getFirmaById);
 router.get(
   "/:pib",
