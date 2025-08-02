@@ -404,8 +404,28 @@ exports.getPDVHistory = async (req, res) => {
 exports.getPDVStatistics = async (req, res) => {
   try {
     const userId = req.session.user.id;
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1;
+    const currentDay = today.getDate();
 
-    // Statistike za trenutnu godinu
+    // Koristi istu logiku kao getPDVOverview za određivanje cilj meseca
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`;
+
+    // Statistike za trenutni cilj mesec (ne celu godinu)
     const [stats] = await executeQuery(
       `
       SELECT 
@@ -417,13 +437,13 @@ exports.getPDVStatistics = async (req, res) => {
           (SUM(CASE WHEN pp.predano = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2
         ) as procenat_predanih
       FROM firme f
-      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND YEAR(pp.mjesec) = YEAR(CURDATE())
+      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND pp.mjesec = ?
       WHERE f.user_id = ? 
         AND f.pdvBroj IS NOT NULL 
         AND f.pdvBroj != ''
         AND f.status = 'aktivan'
     `,
-      [userId]
+      [targetMonthString, userId]
     );
 
     res.json({

@@ -364,7 +364,7 @@
           renderFirme(aktivneFirme);
 
           // Ažuriraj statistike za aktivne
-          updateStats();
+          loadStatistics();
           firmaUpdated = true;
         }
 
@@ -587,33 +587,23 @@
         container.innerHTML = html;
       }
 
-      // Lokalno ažuriranje statistika bez API poziva
-      function updateStats() {
-        if (aktivneFirme.length > 0) {
-          const predane = aktivneFirme.filter((f) => f.predano).length;
-          const ukupno = aktivneFirme.length;
-          const procenat = Math.round((predane / ukupno) * 100);
+      // Učitaj statistike za aktivne firme (lokalno)
+      function loadStatistics() {
+        // Računaj statistike lokalno za aktivne firme (isto kao za neaktivne)
+        const stats = {
+          ukupno_pdv_firmi: aktivneFirme.length,
+          predane_prijave: aktivneFirme.filter((f) => f.predano).length,
+          procenat_predanih:
+            aktivneFirme.length > 0
+              ? Math.round(
+                  (aktivneFirme.filter((f) => f.predano).length /
+                    aktivneFirme.length) *
+                    100
+                )
+              : 0,
+        };
 
-          const stats = {
-            ukupno_pdv_firmi: ukupno,
-            predane_prijave: predane,
-            procenat_predanih: procenat,
-          };
-
-          renderStatistics(stats);
-        }
-      }
-
-      // Učitaj statistike za aktivne firme
-      async function loadStatistics() {
-        try {
-          const response = await fetch("/api/pdv/statistike");
-          const data = await response.json();
-
-          if (data.success) {
-            renderStatistics(data.statistike);
-          }
-        } catch (error) {}
+        renderStatistics(stats);
       }
 
       // Učitaj statistike za neaktivne firme
@@ -757,17 +747,9 @@
         }
       }
 
-      // Učitaj statistike za aktivne firme
-      async function loadStatistics() {
-        try {
-          const response = await fetch("/api/pdv/statistike");
-          const data = await response.json();
+      // Učitaj statistike za aktivne firme (lokalno - duplikat uklonjen)
+      // Ova funkcija je već definisana gore, ovde je nepotrebna dupla definicija
 
-          if (data.success) {
-            renderStatistics(data.statistike);
-          }
-        } catch (error) {}
-      }
       function renderStatistics(stats) {
         const container = document.getElementById("statsGrid");
         const html = `
