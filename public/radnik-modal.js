@@ -37,8 +37,6 @@ class RadnikModal {
                 <option value="ugovor_o_dopunskom_radu">
                   Ugovor o dopunskom radu
                 </option>
-                <option value="autorski_ugovor">Autorski ugovor</option>
-                <option value="ugovor_o_pozajmnici">Ugovor o pozajmnici</option>
               </select>
             </div>
 

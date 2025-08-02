@@ -733,7 +733,7 @@ async function generisiUgovorModal() {
     if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
       ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
     } else if (radnik.vrsta_ugovora === "ugovor_o_djelu") {
-      ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`; // Ili možda treba posebna stranica za ugovor o djelu
+      ugovorUrl = `/ugovor-o-djelu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
     } else if (radnik.vrsta_ugovora === "ugovor_o_pozajmnici") {
       ugovorUrl = `/ugovor-o-zajmu-novca.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
     } else {
@@ -1135,7 +1135,7 @@ function generisiUgovor(radnikId) {
       if (radnik.vrsta_ugovora === "ugovor_o_dopunskom_radu") {
         ugovorUrl = `/ugovor-o-dopunskom-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
       } else if (radnik.vrsta_ugovora === "ugovor_o_djelu") {
-        ugovorUrl = `/ugovor-o-radu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`; // Ili možda treba posebna stranica za ugovor o djelu
+        ugovorUrl = `/ugovor-o-djelu.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
       } else if (radnik.vrsta_ugovora === "ugovor_o_pozajmnici") {
         ugovorUrl = `/ugovor-o-zajmu-novca.html?radnikId=${radnikId}&firmaId=${currentFirmaId}`;
       } else {

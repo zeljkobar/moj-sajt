@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ugovor o djelu - Summa Summarum" />
+    <meta name="author" content="Summa Summarum" />
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
+    <title>Ugovor o djelu</title>
+    <link rel="stylesheet" href="global-components.css" />
+
+    <!-- PDF Export biblioteka -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      body {
+        font-family: "Times New Roman", serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 20px 0;
+      }
+      .article {
+        margin: 20px 0;
+      }
+      .article-title {
+        font-weight: bold;
+        text-align: center;
+        margin: 15px 0 10px 0;
+      }
+      .signature-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        padding-top: 20px;
+        gap: 50px;
+      }
+      .signature {
+        text-align: center;
+        flex: 1;
+        max-width: 250px;
+      }
+      .signature-line {
+        border-bottom: 2px solid #000;
+        margin-bottom: 10px;
+        height: 50px;
+        width: 100%;
+      }
+      .print-button,
+      .pdf-button,
+      .word-button {
+        position: fixed;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+        font-weight: bold;
+        z-index: 1000;
+      }
+
+      .print-button {
+        bottom: 130px;
+      }
+
+      .pdf-button {
+        bottom: 75px;
+      }
+
+      .word-button {
+        bottom: 20px;
+      }
+
+      .print-button:hover,
+      .pdf-button:hover,
+      .word-button:hover {
+        background-color: #0056b3;
+      }
+
+      /* Skrivanje dugmića za štampu i export */
+      @media print {
+        .print-button,
+        .pdf-button,
+        .word-button {
+          display: none;
+        }
+        body {
+          background-color: white;
+        }
+        .container {
+          box-shadow: none;
+          padding: 20px;
+        }
+      }
+
+      /* Dark mode podržava */
+      .container {
+        background-color: var(--card-bg, white);
+        color: var(--text-color, black);
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+        }
+
+        .signature-section {
+          flex-direction: column;
+          gap: 30px;
+        }
+
+        .print-button,
+        .pdf-button,
+        .word-button {
+          right: 10px;
+          padding: 12px 16px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="contract-content">
+      <h1>UGOVOR O POSLOVNOJ SARADNJI</h1>
+      <h2>(ugovor o djelu)</h2>
+
+      <p>
+        <strong
+          >Zaključen dana <span id="datum-ugovora"></span> godine
+          između:</strong
+        >
+      </p>
+
+      <!-- Podaci o nalogodavcu (firmi) -->
+      <p>
+        <strong>NALOGODAVCA:</strong> <span id="firma-naziv"></span> iz
+        <span id="firma-grad"></span>, <span id="firma-adresa"></span>, PIB:
+        <span id="firma-pib"></span>, kojeg zastupa direktor
+        <span id="firma-direktor"></span>
+        (u daljem tekstu: NALOGODAVAC)
+      </p>
+
+      <p><strong>i</strong></p>
+
+      <!-- Podaci o nalogoprimcu (radniku) -->
+      <p>
+        <strong>NALOGOPRIMCA:</strong> <span id="radnik-ime"></span>
+        <span id="radnik-prezime"></span>, <span id="radnik-jmbg"></span>, iz
+        <span id="radnik-grad"></span>,
+        <span id="radnik-adresa"></span>
+        (u daljem tekstu: NALOGOPRIMAC)
+      </p>
+
+      <!-- Sadržaj ugovora -->
+      <div id="contract-text">
+        <div class="article-title">Član 1</div>
+        <div class="article">
+          <p>
+            Naručilac posla daje, a izvršilac posla prima posao koji se sastoji
+            u:<br />
+            <strong><span id="opis-poslova">[OPIS POSLOVA]</span></strong> u
+            period od <span id="period-od">_____________</span> do
+            <span id="period-do">________________</span>
+          </p>
+        </div>
+
+        <div class="article-title">Član 2</div>
+        <div class="article">
+          <p>
+            Izvršilac se obavezuje da poslove iz člana 1 ovog ugovora izvršava
+            svaki dan, a prema uputstvima dobijenim od Narucioca posla.
+          </p>
+        </div>
+
+        <div class="article-title">Član 3</div>
+        <div class="article">
+          <p>
+            Za izvršeni posao iz člana 1. ovog ugovora Naručilac posla platiće
+            Izvršiocu posla
+            <strong
+              ><span id="iznos-zarade">10750,00</span> (<span id="iznos-slovima"
+                >deset hiljada sedamsto pedeset</span
+              >) eura</strong
+            ><br />
+            Isplata po prethodnom stavu izvršiće se po završetku 100% od
+            ugovorenog posla na račun Izvršioca.
+          </p>
+        </div>
+
+        <div class="article-title">Član 4</div>
+        <div class="article">
+          <p>
+            Naručilac posla se obavezuje da izvršiocu obezbijedi potreban
+            materijal i oruđe za rad
+          </p>
+        </div>
+
+        <div class="article-title">Član 5</div>
+        <div class="article">
+          <p>
+            Ako izvršilac ne izvrši posao u određenom roku i utvrđenom
+            kvalitetu, dužan je da u roku od 0 dana otkloni sve nedostatke. U
+            suprotnom snosiće sve posledice.
+          </p>
+        </div>
+
+        <div class="article-title">Član 6</div>
+        <div class="article">
+          <p>
+            Za sve što nije predviđeno ovim ugovorom primenjivace se odredba
+            Zakona o obligacionim odnosima.
+          </p>
+        </div>
+
+        <div class="article-title">Član 7</div>
+        <div class="article">
+          <p>
+            U slučaju spora po ovom ugovoru stranke ugovaraju nadležnost suda u
+            <strong><span id="grad-suda"></span></strong>
+          </p>
+        </div>
+
+        <div class="article-title">Član 8</div>
+        <div class="article">
+          <p>
+            Ovaj ugovor je zaključen u 2 (dva) primerka od kojih po 1 (jedan)
+            pripadaju ugovorenim stranama.
+          </p>
+        </div>
+      </div>
+
+      <!-- Potpisi -->
+      <div class="signature-section">
+        <div class="signature">
+          <div class="signature-line"></div>
+          <strong>NALOGODAVAC</strong>
+          <br />
+          <span id="direktor-ime-potpis"></span>
+        </div>
+        <div class="signature">
+          <div class="signature-line"></div>
+          <strong>NALOGOPRIMAC</strong>
+          <br />
+          <span id="radnik-ime-potpis"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dugmići za štampu i export -->
+    <button class="print-button" onclick="printContract()">🖨️ Štampaj</button>
+    <button class="pdf-button" onclick="exportToPDF()">📄 PDF</button>
+    <button class="word-button" onclick="exportToWord()">📝 Word</button>
+
+    <script>
+      // Globalne promenljive
+      let radnikData = null;
+      let firmaData = null;
+
+      // Učitaj podatke o radniku i firmi na osnovu URL parametara
+      async function loadContractData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const radnikId = urlParams.get("radnikId");
+        const firmaId = urlParams.get("firmaId");
+
+        if (!radnikId || !firmaId) {
+          alert("Nedostaju podaci o radniku ili firmi");
+          return;
+        }
+
+        try {
+          // Učitaj podatke o radniku
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          if (radnikResponse.ok) {
+            radnikData = await radnikResponse.json();
+          }
+
+          // Učitaj podatke o firmi
+          const firmaResponse = await fetch(`/api/firme/id/${firmaId}`);
+          if (firmaResponse.ok) {
+            firmaData = await firmaResponse.json();
+          }
+
+          // Popuni podatke u ugovor
+          populateContractData();
+        } catch (error) {
+          console.error("Greška pri učitavanju podataka:", error);
+          alert("Greška pri učitavanju podataka");
+        }
+      }
+
+      // Popuni podatke u ugovor
+      function populateContractData() {
+        if (!radnikData || !firmaData) return;
+
+        // Datum ugovora - uzmi datum zaposlenja ili današnji datum
+        const datumZaposlenja = radnikData.datum_zaposlenja
+          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString("sr-RS")
+          : new Date().toLocaleDateString("sr-RS");
+
+        document.getElementById("datum-ugovora").textContent = datumZaposlenja;
+
+        // Podaci o firmi
+        document.getElementById("firma-naziv").textContent =
+          firmaData.naziv || "";
+        document.getElementById("firma-grad").textContent =
+          firmaData.grad || "";
+        document.getElementById("firma-adresa").textContent =
+          firmaData.adresa || "";
+        document.getElementById("firma-pib").textContent = firmaData.pib || "";
+        document.getElementById("firma-direktor").textContent =
+          firmaData.direktor || "";
+
+        // Podaci o radniku
+        document.getElementById("radnik-ime").textContent =
+          radnikData.ime || "";
+        document.getElementById("radnik-prezime").textContent =
+          radnikData.prezime || "";
+        document.getElementById("radnik-jmbg").textContent =
+          radnikData.jmbg || "";
+        document.getElementById("radnik-grad").textContent =
+          radnikData.grad || "";
+        document.getElementById("radnik-adresa").textContent =
+          radnikData.adresa || "";
+
+        // Potpisi
+        document.getElementById("direktor-ime-potpis").textContent =
+          firmaData.direktor || "";
+        document.getElementById("radnik-ime-potpis").textContent = `${
+          radnikData.ime || ""
+        } ${radnikData.prezime || ""}`;
+
+        // Podaci specifični za ugovor o djelu
+        populateContractSpecificData();
+      }
+
+      // Popuni podatke specifične za ugovor o djelu
+      function populateContractSpecificData() {
+        // Opis poslova - koristi detaljni opis iz pozicija ili samo naziv pozicije
+        let opisPoslova =
+          radnikData.opis_poslova ||
+          radnikData.pozicija_naziv ||
+          "poslovne aktivnosti";
+
+        // Ako opis počinje velikim slovom, ostavi kao jeste, inače dodaj prefix
+        if (opisPoslova && !opisPoslova.match(/^[A-ZČĆŽŠĐ]/)) {
+          opisPoslova = "izvršavanje poslova " + opisPoslova.toLowerCase();
+        }
+
+        document.getElementById("opis-poslova").textContent = opisPoslova;
+
+        // Period rada - uzmi datum zaposlenja i datum prestanka (ako postoji)
+        const datumOd = radnikData.datum_zaposlenja
+          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString("sr-RS")
+          : new Date().toLocaleDateString("sr-RS");
+
+        let datumDo = "na neodređeno vreme";
+        if (radnikData.datum_prestanka) {
+          datumDo = new Date(radnikData.datum_prestanka).toLocaleDateString(
+            "sr-RS"
+          );
+        } else if (radnikData.tip_ugovora === "na_odredjeno") {
+          // Ako je ugovor na određeno vreme, ali nema datum prestanka, postavi placeholder
+          datumDo = "________________";
+        }
+
+        document.getElementById("period-od").textContent = datumOd;
+        document.getElementById("period-do").textContent = datumDo;
+
+        // Iznos zarade
+        const iznosZarade = radnikData.visina_zarade || "10750,00";
+        document.getElementById("iznos-zarade").textContent =
+          parseFloat(iznosZarade).toFixed(2);
+
+        // Konvertuj iznos u slova
+        const iznosSlovima = convertNumberToWords(parseFloat(iznosZarade));
+        document.getElementById("iznos-slovima").textContent = iznosSlovima;
+
+        // Grad za sud - uzmi grad firme
+        document.getElementById("grad-suda").textContent =
+          firmaData.grad?.toUpperCase() || "BARU";
+      }
+
+      // Napredna funkcija za konvertovanje broja u slova
+      function convertNumberToWords(amount) {
+        if (!amount || isNaN(amount)) return "unesite iznos slovima";
+
+        const ones = [
+          "",
+          "jedan",
+          "dva",
+          "tri",
+          "četiri",
+          "pet",
+          "šest",
+          "sedam",
+          "osam",
+          "devet",
+        ];
+        const teens = [
+          "deset",
+          "jedanaest",
+          "dvanaest",
+          "trinaest",
+          "četrnaest",
+          "petnaest",
+          "šesnaest",
+          "sedamnaest",
+          "osamnaest",
+          "devetnaest",
+        ];
+        const tens = [
+          "",
+          "",
+          "dvadeset",
+          "trideset",
+          "četrdeset",
+          "pedeset",
+          "šezdeset",
+          "sedamdeset",
+          "osamdeset",
+          "devedeset",
+        ];
+        const hundreds = [
+          "",
+          "sto",
+          "dvesta",
+          "trista",
+          "četiristo",
+          "petsto",
+          "šesto",
+          "sedamsto",
+          "osamsto",
+          "devetsto",
+        ];
+
+        function convertThreeDigits(num) {
+          let result = "";
+          const h = Math.floor(num / 100);
+          const t = Math.floor((num % 100) / 10);
+          const o = num % 10;
+
+          if (h > 0) result += hundreds[h] + " ";
+
+          if (t === 1) {
+            result += teens[o] + " ";
+          } else {
+            if (t > 0) result += tens[t] + " ";
+            if (o > 0) result += ones[o] + " ";
+          }
+
+          return result.trim();
+        }
+
+        const intAmount = Math.floor(amount);
+
+        if (intAmount === 0) return "nula";
+
+        let result = "";
+
+        // Hiljade
+        if (intAmount >= 1000) {
+          const thousands = Math.floor(intAmount / 1000);
+          const remainder = intAmount % 1000;
+
+          if (thousands === 1) {
+            result += "hiljadu ";
+          } else if (thousands < 5) {
+            result += convertThreeDigits(thousands) + " hiljade ";
+          } else {
+            result += convertThreeDigits(thousands) + " hiljada ";
+          }
+
+          if (remainder > 0) {
+            result += convertThreeDigits(remainder);
+          }
+        } else {
+          result = convertThreeDigits(intAmount);
+        }
+
+        return result.trim();
+      }
+
+      // Funkcija za štampanje
+      function printContract() {
+        window.print();
+      }
+
+      // Export u PDF
+      async function exportToPDF() {
+        const element = document.getElementById("contract-content");
+
+        try {
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF();
+
+          const imgWidth = 210;
+          const pageHeight = 295;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+
+          let position = 0;
+
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          const radnikIme = radnikData?.ime || "Radnik";
+          const radnikPrezime = radnikData?.prezime || "";
+          const fileName = `Ugovor_Djelu_${radnikIme.replace(
+            /\s+/g,
+            "_"
+          )}_${radnikPrezime.replace(/\s+/g, "_")}.pdf`;
+
+          pdf.save(fileName);
+        } catch (error) {
+          console.error("Greška pri kreiranju PDF:", error);
+          alert("Greška pri kreiranju PDF fajla");
+        }
+      }
+
+      // Export u Word
+      function exportToWord() {
+        const element = document.getElementById("contract-content");
+        const html = element.innerHTML;
+
+        // Kreiraj Word dokument
+        const preHtml = `
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset='utf-8'>
+            <title>Ugovor o djelu</title>
+            <style>
+              body { font-family: 'Times New Roman', serif; line-height: 1.6; }
+              h1 { text-align: center; text-transform: uppercase; }
+              .signature-section { display: flex; justify-content: space-between; margin-top: 50px; }
+              .signature { text-align: center; width: 45%; }
+              .signature-line { border-bottom: 2px solid #000; height: 50px; margin-bottom: 10px; }
+            </style>
+          </head>
+          <body>
+        `;
+        const postHtml = "</body></html>";
+        const fullHtml = preHtml + html + postHtml;
+
+        const blob = new Blob(["\ufeff", fullHtml], {
+          type: "application/msword",
+        });
+
+        const url =
+          "data:application/vnd.ms-word;charset=utf-8," +
+          encodeURIComponent(fullHtml);
+        const radnikIme = radnikData?.ime || "Radnik";
+        const radnikPrezime = radnikData?.prezime || "";
+        const fileName = `Ugovor_Djelu_${radnikIme.replace(
+          /\s+/g,
+          "_"
+        )}_${radnikPrezime.replace(/\s+/g, "_")}.doc`;
+
+        const downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        downloadLink.href = url;
+        downloadLink.download = fileName;
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+
+      // Učitaj podatke kada se stranica učita
+      document.addEventListener("DOMContentLoaded", loadContractData);
+    </script>
+  </body>
+</html>
