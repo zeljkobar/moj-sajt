@@ -563,12 +563,6 @@
     <script src="radnik-modal.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // Inicijalizuj navigaciju
-        if (typeof Navigation !== "undefined") {
-          const nav = new Navigation();
-          nav.init();
-        }
-
         // Postavi trenutni datum
         const today = new Date();
         const options = {
@@ -671,8 +665,11 @@
             return;
           }
 
-          // API je uspešan (200) - firma postoji, ostani na dashboard-u
-          console.log("✅ Korisnik ima firmu, ostaje na dashboard-u");
+          // API je uspešan (200) - firma postoji, preusmjeri na dashboard-firma.html
+          console.log(
+            "✅ Korisnik ima firmu, preusmjeravam na dashboard-firma.html"
+          );
+          window.location.href = "dashboard-firma.html";
         } catch (error) {
           // U slučaju greške, pretpostavi da nema firmu
           console.error("💥 Greška pri provjeri podataka firme:", error);

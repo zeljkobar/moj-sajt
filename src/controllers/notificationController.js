@@ -110,298 +110,229 @@ const getNotifications = async (req, res) => {
           timestamp: new Date(),
         });
       });
-    }
 
-    // 1. UGOVORI O RADU - radnici kojima ističu ugovori (bez onih koji imaju otkaz)
-    const ugovoriQuery = `
-      SELECT r.id, r.ime, r.prezime, r.datum_prestanka, r.firma_id, f.naziv as firma_naziv,
-             DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka
-      FROM radnici r 
-      JOIN firme f ON r.firma_id = f.id 
-      LEFT JOIN otkazi o ON r.id = o.radnik_id
-      WHERE f.user_id = ? 
-        AND r.datum_prestanka IS NOT NULL
-        AND o.id IS NULL  -- Nema otkaz
-        AND (r.datum_prestanka BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-             OR r.datum_prestanka < CURDATE())
-      ORDER BY 
-        CASE 
-          WHEN r.datum_prestanka < CURDATE() THEN 0  -- Istekli prvi
-          ELSE 1 
-        END,
-        r.datum_prestanka ASC
-      LIMIT 10
-    `;
+      // UGOVORI O RADU - radnici kojima ističu ugovori
+      const ugovoriQuery = `
+        SELECT r.id, r.ime, r.prezime, r.datum_prestanka, r.firma_id, f.naziv as firma_naziv,
+               DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka
+        FROM radnici r 
+        JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN otkazi o ON r.id = o.radnik_id
+        WHERE f.user_id = ? 
+          AND r.datum_prestanka IS NOT NULL
+          AND o.id IS NULL
+          AND (r.datum_prestanka BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+               OR r.datum_prestanka < CURDATE())
+        ORDER BY 
+          CASE 
+            WHEN r.datum_prestanka < CURDATE() THEN 0
+            ELSE 1 
+          END,
+          r.datum_prestanka ASC
+        LIMIT 10
+      `;
 
-    const ugovori = await executeQuery(ugovoriQuery, [userId]);
+      const ugovori = await executeQuery(ugovoriQuery, [userId]);
 
-    ugovori.forEach((radnik) => {
-      // Koristi JavaScript calculation za preciznost (umjesto SQL DATEDIFF zbog timezone)
-      const prestanakDate = new Date(radnik.datum_prestanka);
-      const currentDate = new Date();
+      ugovori.forEach((radnik) => {
+        const prestanakDate = new Date(radnik.datum_prestanka);
+        const currentDate = new Date();
+        prestanakDate.setHours(0, 0, 0, 0);
+        currentDate.setHours(0, 0, 0, 0);
+        const diffTime = prestanakDate.getTime() - currentDate.getTime();
+        const finalDana = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-      // Postavimo vreme na 00:00:00 za oba datuma za preciznu comparison
-      prestanakDate.setHours(0, 0, 0, 0);
-      currentDate.setHours(0, 0, 0, 0);
-      const diffTime = prestanakDate.getTime() - currentDate.getTime();
-      const finalDana = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        let type, icon, title;
 
-      let type, icon, title;
+        if (finalDana < 0) {
+          type = "urgent";
+          icon = "🚨";
+          title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
+            Math.abs(finalDana) === 1 ? "dan" : "dana"
+          }`;
+        } else if (finalDana === 0) {
+          type = "urgent";
+          icon = "⚠️";
+          title = `Ugovor ističe danas!`;
+        } else if (finalDana <= 7) {
+          type = "urgent";
+          icon = "⚠️";
+          title = `Ugovor ističe za ${finalDana} ${
+            finalDana === 1 ? "dan" : "dana"
+          }`;
+        } else if (finalDana <= 15) {
+          type = "warning";
+          icon = "📋";
+          title = `Ugovor ističe za ${finalDana} dana`;
+        } else {
+          type = "info";
+          icon = "📅";
+          title = `Ugovor ističe za ${finalDana} dana`;
+        }
 
-      if (finalDana < 0) {
-        // Ugovor je već istekao - NAJVIŠA PRIORITET
-        type = "urgent";
-        icon = "🚨";
-        title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
-          Math.abs(finalDana) === 1 ? "dan" : "dana"
-        }`;
-      } else if (finalDana === 0) {
-        // Ugovor ističe danas - HITNO
-        type = "urgent";
-        icon = "⚠️";
-        title = `Ugovor ističe danas!`;
-      } else if (finalDana <= 7) {
-        // Ugovor ističe u sljedećih 7 dana - HITNO
-        type = "urgent";
-        icon = "⚠️";
-        title = `Ugovor ističe za ${finalDana} ${
-          finalDana === 1 ? "dan" : "dana"
-        }`;
-      } else if (finalDana <= 15) {
-        // Ugovor ističe u sljedećih 15 dana - UPOZORENJE
-        type = "warning";
-        icon = "📋";
-        title = `Ugovor ističe za ${finalDana} dana`;
-      } else {
-        // Ugovor ističe u sljedećih 30 dana - INFO
-        type = "info";
-        icon = "📅";
-        title = `Ugovor ističe za ${finalDana} dana`;
+        notifications.push({
+          id: `ugovor_${radnik.id}`,
+          type,
+          icon,
+          title,
+          description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
+          days: finalDana,
+          action: `/firma-detalji.html?id=${radnik.firma_id}&radnikId=${radnik.id}`,
+          timestamp: new Date(),
+        });
+      });
+
+      // Nove firme
+      const noveFirmeQuery = `
+        SELECT id, naziv, DATEDIFF(CURDATE(), created_at) as dana_od_kreiranja
+        FROM firme 
+        WHERE user_id = ? 
+          AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        ORDER BY created_at DESC
+        LIMIT 3
+      `;
+
+      const noveFirme = await executeQuery(noveFirmeQuery, [userId]);
+
+      noveFirme.forEach((firma) => {
+        notifications.push({
+          id: `nova_firma_${firma.id}`,
+          type: "info",
+          icon: "🏭",
+          title: "Nova firma dodana",
+          description: `${firma.naziv} - kreirana ${
+            firma.dana_od_kreiranja === 0
+              ? "danas"
+              : `pre ${firma.dana_od_kreiranja} dana`
+          }`,
+          days: firma.dana_od_kreiranja,
+          action: `/firme.html`,
+          timestamp: new Date(),
+        });
+      });
+    } else if (userRole === "firma") {
+      // FIRMA OBAVJEŠTENJA - samo za firma korisnike
+      const firme = await executeQuery(
+        "SELECT id FROM firme WHERE user_id = ?",
+        [userId]
+      );
+
+      if (firme.length > 0) {
+        const firmaId = firme[0].id;
+
+        // RADNICI KOJIMA ISTIČU UGOVORI
+        const radniciIstekQuery = `
+          SELECT 
+            r.id,
+            r.ime, 
+            r.prezime, 
+            r.pocetak_rada, 
+            r.istice_ugovor,
+            DATEDIFF(r.istice_ugovor, CURDATE()) as dani_do_isteka
+          FROM radnici r
+          WHERE r.firma_id = ? 
+            AND r.istice_ugovor IS NOT NULL 
+            AND r.istice_ugovor >= CURDATE()
+            AND r.istice_ugovor <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+          ORDER BY r.istice_ugovor ASC
+        `;
+
+        const radniciIstek = await executeQuery(radniciIstekQuery, [firmaId]);
+
+        radniciIstek.forEach((radnik) => {
+          let type = "info";
+          let icon = "⏰";
+          let title = "";
+
+          if (radnik.dani_do_isteka <= 7) {
+            type = "urgent";
+            icon = "🚨";
+            title = `Hitno: Ugovor ističe za ${radnik.dani_do_isteka} dana`;
+          } else if (radnik.dani_do_isteka <= 14) {
+            type = "warning";
+            icon = "⚠️";
+            title = `Ugovor ističe za ${radnik.dani_do_isteka} dana`;
+          } else {
+            type = "info";
+            icon = "⏰";
+            title = `Ugovor ističe za ${radnik.dani_do_isteka} dana`;
+          }
+
+          notifications.push({
+            id: `radnik_istek_${radnik.id}`,
+            type: type,
+            icon: icon,
+            title: title,
+            description: `${radnik.ime} ${radnik.prezime} - ${new Date(
+              radnik.istice_ugovor
+            ).toLocaleDateString("sr-Latn-RS")}`,
+            days: radnik.dani_do_isteka,
+            action: `firma-detalji.html?id=${firmaId}#radnici`,
+            timestamp: new Date(),
+          });
+        });
+
+        // STARE POZAJMICE
+        const starePozajmiceQuery = `
+          SELECT 
+            p.id,
+            p.iznos,
+            p.datum_izdavanja,
+            r.ime,
+            r.prezime,
+            DATEDIFF(CURDATE(), p.datum_izdavanja) as dani_od_izdavanja
+          FROM pozajmice p
+          JOIN radnici r ON p.radnik_id = r.id
+          WHERE r.firma_id = ? 
+            AND p.status = 'aktivna'
+            AND p.datum_izdavanja <= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+          ORDER BY p.datum_izdavanja ASC
+        `;
+
+        const starePozajmice = await executeQuery(starePozajmiceQuery, [
+          firmaId,
+        ]);
+
+        starePozajmice.forEach((pozajmica) => {
+          const meseci = Math.floor(pozajmica.dani_od_izdavanja / 30);
+
+          notifications.push({
+            id: `stara_pozajmica_${pozajmica.id}`,
+            type: "warning",
+            icon: "💰",
+            title: "Stara pozajmica",
+            description: `${pozajmica.ime} ${pozajmica.prezime} - ${pozajmica.iznos}€ (${meseci} meseci)`,
+            days: pozajmica.dani_od_izdavanja,
+            action: `firma-detalji.html?id=${firmaId}#pozajmice`,
+            timestamp: new Date(),
+          });
+        });
       }
-
-      notifications.push({
-        id: `ugovor_${radnik.id}`,
-        type,
-        icon,
-        title,
-        description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
-        days: finalDana,
-        action: `/firma-detalji.html?id=${radnik.firma_id}&radnikId=${radnik.id}`,
-        timestamp: new Date(),
-      });
-    });
-
-    // 2. NEAKTIVNE FIRME
-    const neaktivneFirmeQuery = `
-      SELECT id, naziv, DATEDIFF(CURDATE(), updated_at) as dana_neaktivne
-      FROM firme 
-      WHERE user_id = ? 
-        AND updated_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-      ORDER BY updated_at ASC
-      LIMIT 3
-    `;
-
-    const neaktivneFirme = await executeQuery(neaktivneFirmeQuery, [userId]);
-
-    neaktivneFirme.forEach((firma) => {
-      notifications.push({
-        id: `neaktivna_${firma.id}`,
-        type: "warning",
-        icon: "🏢",
-        title: "Neaktivna firma",
-        description: `${firma.naziv} - ${firma.dana_neaktivne} dana bez aktivnosti`,
-        days: firma.dana_neaktivne,
-        action: `/firme.html`,
-        timestamp: new Date(),
-      });
-    });
-
-    // 3. NOVE FIRME
-    const noveFirmeQuery = `
-      SELECT id, naziv, DATEDIFF(CURDATE(), created_at) as dana_od_kreiranja
-      FROM firme 
-      WHERE user_id = ? 
-        AND created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-      ORDER BY created_at DESC
-      LIMIT 3
-    `;
-
-    const noveFirme = await executeQuery(noveFirmeQuery, [userId]);
-
-    noveFirme.forEach((firma) => {
-      notifications.push({
-        id: `nova_firma_${firma.id}`,
-        type: "info",
-        icon: "🏭",
-        title: "Nova firma dodana",
-        description: `${firma.naziv} - kreirana ${
-          firma.dana_od_kreiranja === 0
-            ? "danas"
-            : `pre ${firma.dana_od_kreiranja} dana`
-        }`,
-        days: firma.dana_od_kreiranja,
-        action: `/firme.html`,
-        timestamp: new Date(),
-      });
-    });
-
-    // 4. PDV ROKOVI - koristi ispravljena business logic
-    const today = new Date();
-    const currentDay = today.getDate();
-    const currentYear = today.getFullYear();
-    const currentMonthNum = today.getMonth() + 1;
-
-    // Determine target month (same logic as pdvController)
-    let targetMonth = currentMonthNum;
-    let targetYear = currentYear;
-
-    if (currentDay <= 20) {
-      targetMonth = currentMonthNum - 1;
-      if (targetMonth < 1) {
-        targetMonth = 12;
-        targetYear--;
-      }
-    }
-
-    const targetMonthString = `${targetYear}-${targetMonth
-      .toString()
-      .padStart(2, "0")}-01`;
-
-    // Calculate days to deadline
-    let rokMonth = targetMonth + 1;
-    let rokYear = targetYear;
-    if (rokMonth > 12) {
-      rokMonth = 1;
-      rokYear++;
-    }
-    const rok = new Date(rokYear, rokMonth - 1, 15);
-    const daysToDeadline = Math.ceil((rok - today) / (1000 * 60 * 60 * 24));
-
-    const pdvRokoviQuery = `
-      SELECT 
-        f.id, 
-        f.naziv,
-        ? as dana_do_roka
-      FROM firme f
-      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND pp.mjesec = ?
-      WHERE f.user_id = ? 
-        AND f.pdvBroj IS NOT NULL 
-        AND f.pdvBroj != ''
-        AND f.status != 'nula'
-        AND (pp.predano IS NULL OR pp.predano = 0)
-        AND ? <= 7 AND ? >= -5
-      ORDER BY f.naziv ASC
-      LIMIT 10
-    `;
-
-    const pdvRokovi = await executeQuery(pdvRokoviQuery, [
-      daysToDeadline,
-      targetMonthString,
-      userId,
-      daysToDeadline,
-      daysToDeadline,
-    ]);
-
-    pdvRokovi.forEach((firma) => {
-      const dana = firma.dana_do_roka;
-      let type, icon, title;
-
-      if (dana < 0) {
-        // Rok je prošao
-        type = "urgent";
-        icon = "🚨";
-        title = `PDV rok prošao prije ${Math.abs(dana)} ${
-          Math.abs(dana) === 1 ? "dan" : "dana"
-        }!`;
-      } else if (dana === 0) {
-        // Rok je danas
-        type = "urgent";
-        icon = "🚨";
-        title = "PDV rok DANAS!";
-      } else if (dana <= 3) {
-        // Rok je u sljedećih 3 dana
-        type = "urgent";
-        icon = "⚠️";
-        title = `PDV rok za ${dana} ${dana === 1 ? "dan" : "dana"}`;
-      } else {
-        // Rok je u sljedećih 7 dana
-        type = "warning";
-        icon = "📊";
-        title = `PDV rok za ${dana} dana`;
-      }
-
-      notifications.push({
-        id: `pdv_${firma.id}`,
-        type,
-        icon,
-        title,
-        description: `${firma.naziv} - prijava PDV-a`,
-        days: dana,
-        action: `/pdv_prijava/index.html`,
-        timestamp: new Date(),
-      });
-    });
-
-    // 5. STATISTIKE (informativno)
-    const statistikeQuery = `
-      SELECT 
-        (SELECT COUNT(*) FROM firme WHERE user_id = ?) as ukupno_firmi,
-        (SELECT COUNT(*) FROM radnici r JOIN firme f ON r.firma_id = f.id WHERE f.user_id = ?) as ukupno_radnika,
-        (SELECT COUNT(*) FROM radnici r JOIN firme f ON r.firma_id = f.id 
-         JOIN otkazi o ON r.id = o.radnik_id
-         WHERE f.user_id = ?) as istekli_ugovori
-    `;
-
-    const [statistike] = await executeQuery(statistikeQuery, [
-      userId,
-      userId,
-      userId,
-    ]);
-
-    if (statistike.istekli_ugovori > 0) {
-      notifications.push({
-        id: "statistike_istekli",
-        type: "info",
-        icon: "📈",
-        title: "Pregled sistema",
-        description: `${statistike.ukupno_firmi} firmi, ${statistike.ukupno_radnika} radnika, ${statistike.istekli_ugovori} isteklih ugovora`,
-        days: 0,
-        action: `/dashboard.html`,
-        timestamp: new Date(),
-      });
     }
 
     // Sortiranje obavještenja po prioritetu
-    // 1. Istekli ugovori (negative days) - PRVI
-    // 2. Urgent notifikacije (pozitivni ili 0 days)
-    // 3. Warning notifikacije
-    // 4. Info notifikacije
     const priorityOrder = { urgent: 1, warning: 2, info: 3 };
     notifications.sort((a, b) => {
-      // Posebno sortiranje za istekle ugovore - oni su uvijek prvi
       const aIstekao = a.days < 0;
       const bIstekao = b.days < 0;
 
-      if (aIstekao && !bIstekao) return -1; // a je istekao, b nije - a je prvi
-      if (!aIstekao && bIstekao) return 1; // b je istekao, a nije - b je prvi
+      if (aIstekao && !bIstekao) return -1;
+      if (!aIstekao && bIstekao) return 1;
 
-      // Ako su oba istekla ili oba nisu, sortiramo po prioritetu
       if (priorityOrder[a.type] !== priorityOrder[b.type]) {
         return priorityOrder[a.type] - priorityOrder[b.type];
       }
 
-      // Ako su istog prioriteta, sortiramo po danima
-      // Za istekle ugovore (negative), najstariji prvi
       if (aIstekao && bIstekao) {
-        return a.days - b.days; // -5 će biti prije -2 (stariji prije)
+        return a.days - b.days;
       }
 
-      // Za buduće datume, najbliži prvi
       return a.days - b.days;
     });
 
     res.json({ notifications });
   } catch (error) {
+    console.error("Error in getNotifications:", error);
     res.status(500).json({ error: "Greška pri dohvatanju obavještenja" });
   }
 };

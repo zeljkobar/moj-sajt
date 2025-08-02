@@ -10,6 +10,18 @@ class Navigation {
 
   // Generiše HTML za navigaciju
   generateNavHTML() {
+    // Različita navigacija za różne tipove korisnika
+    const pdvCalendarItem =
+      this.userRole !== "firma"
+        ? `
+              <!-- PDV Kalendar -->
+              <li class="nav-item">
+                <a class="nav-link" href="pdv-pregled.html">
+                  <i class="fas fa-receipt me-1"></i>PDV Kalendar
+                </a>
+              </li>`
+        : "";
+
     return `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
         <div class="container-fluid">
@@ -41,12 +53,7 @@ class Navigation {
                 </a>
               </li>
 
-              <!-- PDV Kalendar -->
-              <li class="nav-item">
-                <a class="nav-link" href="pdv-pregled.html">
-                  <i class="fas fa-receipt me-1"></i>PDV Kalendar
-                </a>
-              </li>
+              ${pdvCalendarItem}
 
               <!-- Administrator dropdown (samo za admin korisnike) -->
               <li class="nav-item dropdown" id="adminMenu" style="display: none;">
@@ -103,16 +110,24 @@ class Navigation {
     const existingNavs = document.querySelectorAll("nav.navbar");
     existingNavs.forEach((nav) => nav.remove());
 
-    // Generiši HTML
+    // Najprije učitaj informacije o korisniku da bi imali ulogu
+    await this.loadUserInfo();
+
+    // Sada generiši HTML sa pravilnom navigacijom na osnovu uloge
     const navHTML = this.generateNavHTML();
 
-    // Dodaj navigaciju na vrh stranice
-    document.body.insertAdjacentHTML("afterbegin", navHTML);
+    // Pokušaj da koristiš navigation placeholder, a ako ne postoji, dodaj na vrh stranice
+    const navPlaceholder = document.getElementById("navigation-placeholder");
+    if (navPlaceholder) {
+      navPlaceholder.innerHTML = navHTML;
+    } else {
+      document.body.insertAdjacentHTML("afterbegin", navHTML);
+    }
 
     // Kratka pauza da se osiguramo da je HTML dodat u DOM
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    // Učitaj informacije o korisniku
+    // Ponovo pozovi loadUserInfo da ažuriraš UI sa korisničkim podacima
     await this.loadUserInfo();
 
     // Postavi aktivnu stavku menija
@@ -402,6 +417,12 @@ body {
 
 // Automatska inicijalizacija navigacije kada se stranica učita
 document.addEventListener("DOMContentLoaded", async () => {
+  // Globalna zaštita od duple inicijalizacije
+  if (window.navigationInitialized) {
+    return;
+  }
+  window.navigationInitialized = true;
+
   // Dodaj CSS stilove
   document.head.insertAdjacentHTML("beforeend", navigationCSS);
 

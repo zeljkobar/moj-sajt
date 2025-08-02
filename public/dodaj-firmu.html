@@ -140,6 +140,29 @@
           </div>
 
           <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telefon" class="form-label">Telefon</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="telefon"
+                name="telefon"
+                placeholder="npr. 067123456"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="npr. firma@example.com"
+              />
+            </div>
+          </div>
+
+          <div class="row">
             <div class="col-md-8 mb-3">
               <label for="direktorImePrezime" class="form-label"
                 >Ime i prezime direktora</label
@@ -212,12 +235,5 @@
     <script src="./components/navigation.js"></script>
     <script src="script.js"></script>
     <script src="/firme.js"></script>
-    <script>
-      // Inicijalizuj navigaciju
-      if (typeof Navigation !== "undefined") {
-        const nav = new Navigation();
-        nav.init();
-      }
-    </script>
   </body>
 </html>

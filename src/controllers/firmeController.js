@@ -23,7 +23,7 @@ const firmeController = {
 
       const firme = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? 
         ORDER BY naziv
@@ -68,7 +68,7 @@ const firmeController = {
 
       const aktivneFirme = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? AND status = 'aktivan'
         ORDER BY naziv
@@ -122,7 +122,10 @@ const firmeController = {
         naziv,
         pib,
         adresa,
+        grad,
         pdvBroj,
+        telefon,
+        email,
         status,
         direktor_ime_prezime,
         direktor_jmbg,
@@ -183,15 +186,18 @@ const firmeController = {
       // Dodaj firmu
       const result = await executeQuery(
         `
-        INSERT INTO firme (user_id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO firme (user_id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         [
           userId,
           pib,
           naziv,
           adresa,
+          grad || "",
           pdvBroj || "",
+          telefon || "",
+          email || "",
           direktor_ime_prezime || "",
           direktor_jmbg || "",
           status || "aktivan",
@@ -225,7 +231,10 @@ const firmeController = {
       const {
         naziv,
         adresa,
+        grad,
         pdvBroj,
+        telefon,
+        email,
         status,
         direktor_ime_prezime,
         direktor_jmbg,
@@ -262,13 +271,16 @@ const firmeController = {
       await executeQuery(
         `
         UPDATE firme 
-        SET naziv = ?, adresa = ?, pdvBroj = ?, direktor_ime_prezime = ?, direktor_jmbg = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+        SET naziv = ?, adresa = ?, grad = ?, pdvBroj = ?, telefon = ?, email = ?, direktor_ime_prezime = ?, direktor_jmbg = ?, status = ?, updated_at = CURRENT_TIMESTAMP
         WHERE user_id = ? AND pib = ?
       `,
         [
           naziv,
           adresa,
+          grad || "",
           pdvBroj || "",
+          telefon || "",
+          email || "",
           direktor_ime_prezime || "",
           direktor_jmbg || "",
           status || "aktivan",
@@ -360,7 +372,7 @@ const firmeController = {
 
       const firma = await executeQuery(
         `
-        SELECT id, pib, naziv, adresa, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+        SELECT id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
         FROM firme 
         WHERE user_id = ? AND pib = ?
       `,
@@ -491,7 +503,7 @@ const firmeController = {
       if (userRole === ROLES.FIRMA) {
         // Korisnik tipa "firma" može imati samo jednu firmu
         const firme = await executeQuery(
-          `SELECT id, pib, naziv, adresa, grad, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+          `SELECT id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
            FROM firme 
            WHERE user_id = ? 
            LIMIT 1`,
@@ -506,7 +518,7 @@ const firmeController = {
       } else {
         // Za agencije i admin - vrati sve firme
         const firme = await executeQuery(
-          `SELECT id, pib, naziv, adresa, grad, pdvBroj, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
+          `SELECT id, pib, naziv, adresa, grad, pdvBroj, telefon, email, direktor_ime_prezime, direktor_jmbg, status, created_at, updated_at
            FROM firme 
            WHERE user_id = ? 
            ORDER BY naziv`,

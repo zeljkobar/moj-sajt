@@ -125,6 +125,19 @@
               />
             </div>
             <div class="col-md-4 mb-3">
+              <label for="grad" class="form-label">Grad *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="grad"
+                name="grad"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8 mb-3">
               <label for="pdvBroj" class="form-label">PDV broj</label>
               <input
                 type="text"
@@ -133,6 +146,29 @@
                 name="pdvBroj"
               />
               <div class="form-text">Opcionalno za firme na nuli</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telefon" class="form-label">Telefon</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="telefon"
+                name="telefon"
+                placeholder="npr. 067123456"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="npr. firma@example.com"
+              />
             </div>
           </div>
 
@@ -209,11 +245,5 @@
     <script src="./components/navigation.js"></script>
     <script src="script.js"></script>
     <script src="/firme.js"></script>
-
-    <script>
-      // Inicijalizuj navigaciju
-      const nav = new Navigation();
-      nav.init();
-    </script>
   </body>
 </html>

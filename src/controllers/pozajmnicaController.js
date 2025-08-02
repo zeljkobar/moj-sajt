@@ -77,15 +77,80 @@ exports.createPozajmica = async (req, res) => {
 // Dohvati sve pozajmice
 exports.getAllPozajmice = async (req, res) => {
   try {
-    const pozajmice = await executeQuery(
-      `SELECT p.*, 
-              f.naziv as firma_naziv,
-              r.ime as radnik_ime, r.prezime as radnik_prezime
-       FROM pozajmnice p
-       LEFT JOIN firme f ON p.firma_id = f.id
-       LEFT JOIN radnici r ON p.radnik_id = r.id  
-       ORDER BY p.datum_izdavanja DESC`
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Nije autentifikovan",
+      });
+    }
+
+    const username = req.session.user.username;
+    const userRole = req.session.user.role;
+
+    console.log("=== POZAJMICE DEBUG ===");
+    console.log("Username:", username);
+    console.log("User Role:", userRole);
+
+    // Dobij user_id
+    const users = await executeQuery(
+      "SELECT id FROM users WHERE username = ?",
+      [username]
     );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Korisnik nije pronađen",
+      });
+    }
+
+    const userId = users[0].id;
+    console.log("User ID:", userId);
+    let pozajmice = [];
+
+    if (userRole === "firma") {
+      // Za firmu korisnika - vrati pozajmice samo za njegovu firmu
+      const firme = await executeQuery(
+        "SELECT id FROM firme WHERE user_id = ?",
+        [userId]
+      );
+
+      console.log("Firme za user_id", userId, ":", firme);
+
+      if (firme.length === 0) {
+        console.log("Nema firmi za korisnika");
+        return res.json({
+          success: true,
+          pozajmice: [],
+        });
+      }
+
+      const firmaId = firme[0].id;
+      console.log("Filtering pozajmice for firma_id:", firmaId);
+
+      pozajmice = await executeQuery(
+        `SELECT p.*, 
+                f.naziv as firma_naziv,
+                r.ime as radnik_ime, r.prezime as radnik_prezime
+         FROM pozajmnice p
+         LEFT JOIN firme f ON p.firma_id = f.id
+         LEFT JOIN radnici r ON p.radnik_id = r.id  
+         WHERE p.firma_id = ?
+         ORDER BY p.datum_izdavanja DESC`,
+        [firmaId]
+      );
+    } else if (userRole === "admin") {
+      // Za admina - vrati sve pozajmice
+      pozajmice = await executeQuery(
+        `SELECT p.*, 
+                f.naziv as firma_naziv,
+                r.ime as radnik_ime, r.prezime as radnik_prezime
+         FROM pozajmnice p
+         LEFT JOIN firme f ON p.firma_id = f.id
+         LEFT JOIN radnici r ON p.radnik_id = r.id  
+         ORDER BY p.datum_izdavanja DESC`
+      );
+    }
 
     res.json({
       success: true,

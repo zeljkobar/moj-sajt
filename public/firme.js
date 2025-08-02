@@ -347,6 +347,8 @@ function setupFormSubmit() {
       adresa: formData.get("adresa"),
       grad: formData.get("grad"),
       pdvBroj: formData.get("pdvBroj"),
+      telefon: formData.get("telefon"),
+      email: formData.get("email"),
       direktor_ime_prezime: formData.get("direktorImePrezime"),
       direktor_jmbg: formData.get("direktorJmbg"),
       status: formData.get("status"),
@@ -438,12 +440,19 @@ async function loadFirmData() {
 
     // Backend vraća { firma: {...} }
     const firm = data.firma || data;
+    console.log("Firma objekat:", firm);
+    console.log("Telefon iz baze:", firm.telefon);
+    console.log("Email iz baze:", firm.email);
+    console.log("Grad iz baze:", firm.grad);
 
     // Populate form
     const nazivInput = document.getElementById("naziv");
     const pibInput = document.getElementById("pib");
     const adresaInput = document.getElementById("adresa");
+    const gradInput = document.getElementById("grad");
     const pdvBrojInput = document.getElementById("pdvBroj");
+    const telefonInput = document.getElementById("telefon");
+    const emailInput = document.getElementById("email");
     const direktorImeInput = document.getElementById("direktorImePrezime");
     const direktorJmbgInput = document.getElementById("direktorJmbg");
     const statusInput = document.getElementById("status");
@@ -451,7 +460,10 @@ async function loadFirmData() {
     if (nazivInput) nazivInput.value = firm.naziv || "";
     if (pibInput) pibInput.value = firm.pib || "";
     if (adresaInput) adresaInput.value = firm.adresa || "";
+    if (gradInput) gradInput.value = firm.grad || "";
     if (pdvBrojInput) pdvBrojInput.value = firm.pdvBroj || "";
+    if (telefonInput) telefonInput.value = firm.telefon || "";
+    if (emailInput) emailInput.value = firm.email || "";
     if (direktorImeInput)
       direktorImeInput.value = firm.direktor_ime_prezime || "";
     if (direktorJmbgInput) direktorJmbgInput.value = firm.direktor_jmbg || "";
@@ -499,7 +511,10 @@ function setupEditFormSubmit() {
       naziv: formData.get("naziv"),
       pib: formData.get("pib"),
       adresa: formData.get("adresa"),
+      grad: formData.get("grad"),
       pdvBroj: formData.get("pdvBroj"),
+      telefon: formData.get("telefon"),
+      email: formData.get("email"),
       direktor_ime_prezime: formData.get("direktorImePrezime"),
       direktor_jmbg: formData.get("direktorJmbg"),
       status: formData.get("status"),
