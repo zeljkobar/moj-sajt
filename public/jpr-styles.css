@@ -1,0 +1,241 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+  font-size: 12px;
+  box-sizing: border-box;
+  width: 210mm;
+  max-height: 297mm;
+  margin-left: auto;
+  margin-right: auto;
+  page-break-inside: avoid;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.header-left,
+.header-right {
+  width: 45%;
+}
+
+.header-left p,
+.header-right p {
+  margin: 0;
+  line-height: 1.2;
+}
+
+h1 {
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.document-type {
+  margin: 10px 0;
+  text-align: left;
+  margin-left: 400px;
+}
+
+.document-type table {
+  border-collapse: collapse;
+}
+
+.document-type td {
+  padding: 2px 5px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.document-type td:first-child {
+  width: 20px;
+  text-align: center;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid black;
+  display: inline-block;
+  position: relative;
+  margin-right: 5px;
+}
+
+.checkbox.checked::after {
+  content: "X";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.form-section {
+  margin-bottom: 10px;
+}
+
+.form-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.form-section th,
+.form-section td {
+  border: 1px solid black;
+  padding: 4px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.form-section th {
+  border: none;
+  width: 35%;
+}
+
+.form-section input[type="text"] {
+  width: 100%;
+  border: none;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+.signature-section {
+  margin-top: 10px;
+  padding: 0;
+}
+
+.signature-section h4 {
+  margin-top: 0;
+  background-color: #f2f2f2;
+  padding: 20px;
+  text-align: left;
+  font-size: 12px;
+}
+
+.signature-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.signature-section td {
+  border: 1px solid black;
+  padding: 4px;
+  vertical-align: top;
+  font-size: 10px;
+}
+
+.pib-box {
+  display: flex;
+}
+
+.pib-box div {
+  border: 1px solid black;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1px;
+  font-size: 8px;
+}
+
+.maticni-box {
+  display: flex;
+  margin-top: 5px;
+}
+
+.maticni-box div {
+  border: 1px solid black;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 2px;
+  font-size: 12px;
+  background-color: white;
+}
+
+.container {
+  display: flex;
+  border: 1px solid black;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.section {
+  flex: 1;
+  padding: 5px;
+  box-sizing: border-box;
+  font-size: 10px;
+}
+
+.section:not(:last-child) {
+  border-right: 1px solid black;
+}
+
+.signature-line {
+  border-bottom: 1px dotted black;
+  margin-top: 5px;
+  width: 90%;
+}
+
+.four-sections-container {
+  display: flex;
+  width: 100%;
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+.four-sections-container div {
+  flex: 1;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid black;
+  border-right: none;
+}
+
+.four-sections-container div:last-child {
+  border-right: 1px solid black;
+}
+
+.spacer {
+  height: 20px;
+}
+
+.napomena {
+  font-weight: bold;
+  margin-top: 10px;
+  border: 1px solid black;
+  padding: 20px;
+}
+
+/* Print stilovi */
+@media print {
+  body {
+    margin: 0;
+    padding: 5mm;
+    max-height: none;
+    page-break-inside: avoid;
+  }
+
+  .spacer {
+    height: 5px;
+  }
+
+  * {
+    page-break-inside: avoid;
+  }
+
+  .form-section {
+    page-break-inside: avoid;
+    margin-bottom: 5px;
+  }
+}

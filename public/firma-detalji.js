@@ -10,6 +10,122 @@
 let currentFirmaId = null;
 let currentFirmaPib = null; // Dodano za editovanje firme
 let allRadnici = [];
+let currentFirmaData = null; // Dodano za čuvanje podataka trenutne firme
+
+// =============================================================================
+// POMOĆNE FUNKCIJE
+// =============================================================================
+
+/**
+ * Kreira JPR URL sa ID firme kao parametrom
+ * @param {Object} firmaData - Podaci o firmi (treba samo ID)
+ * @param {string} context - Kontekst odakle je pozvan (pregled, radnici, itd)
+ * @returns {string} - URL sa ID i context parametrima
+ */
+function createJPRUrl(firmaData, context = "pregled") {
+  console.log(
+    "createJPRUrl - Pozvan sa podacima:",
+    firmaData,
+    "context:",
+    context
+  );
+
+  if (!firmaData || !firmaData.id) {
+    console.warn(
+      "createJPRUrl - Nema ID firme za JPR URL, firmaData:",
+      firmaData
+    );
+    return "jpr-korica.html";
+  }
+
+  const url = `jpr-korica.html?firmaId=${firmaData.id}&context=${context}`;
+  console.log("createJPRUrl - Kreiran URL:", url);
+  return url;
+}
+
+/**
+ * Kreira JPR URL za radnika sa podacima radnika
+ * @param {Object} firmaData - Podaci o firmi (treba samo ID)
+ * @param {Object} radnikData - Podaci o radniku (ime, prezime, jmbg)
+ * @returns {string} - URL sa svim potrebnim parametrima
+ */
+function createJPRUrlForRadnik(firmaData, radnikData) {
+  console.log(
+    "createJPRUrlForRadnik - Pozvan sa podacima:",
+    firmaData,
+    radnikData
+  );
+
+  if (!firmaData || !firmaData.id) {
+    console.warn("createJPRUrlForRadnik - Nema ID firme");
+    return "jpr-korica.html";
+  }
+
+  if (
+    !radnikData ||
+    !radnikData.ime ||
+    !radnikData.prezime ||
+    !radnikData.jmbg
+  ) {
+    console.warn(
+      "createJPRUrlForRadnik - Nepotpuni podaci o radniku:",
+      radnikData
+    );
+    return createJPRUrl(firmaData, "radnik");
+  }
+
+  const url = `jpr-korica.html?firmaId=${
+    firmaData.id
+  }&context=radnik&radnikIme=${encodeURIComponent(
+    radnikData.ime
+  )}&radnikPrezime=${encodeURIComponent(radnikData.prezime)}&radnikJmbg=${
+    radnikData.jmbg
+  }`;
+  console.log("createJPRUrlForRadnik - Kreiran URL:", url);
+  return url;
+}
+
+/**
+ * Kreira JPR URL za odjavu radnika sa podacima radnika
+ * @param {Object} firmaData - Podaci o firmi (treba samo ID)
+ * @param {Object} radnikData - Podaci o radniku (ime, prezime, jmbg)
+ * @returns {string} - URL sa svim potrebnim parametrima
+ */
+function createJPRUrlForOdjavu(firmaData, radnikData) {
+  console.log(
+    "createJPRUrlForOdjavu - Pozvan sa podacima:",
+    firmaData,
+    radnikData
+  );
+
+  if (!firmaData || !firmaData.id) {
+    console.warn("createJPRUrlForOdjavu - Nema ID firme");
+    return "jpr-korica.html";
+  }
+
+  if (
+    !radnikData ||
+    !radnikData.ime ||
+    !radnikData.prezime ||
+    !radnikData.jmbg
+  ) {
+    console.warn(
+      "createJPRUrlForOdjavu - Nepotpuni podaci o radniku:",
+      radnikData
+    );
+    return createJPRUrl(firmaData, "odjava");
+  }
+
+  const url = `jpr-korica.html?firmaId=${
+    firmaData.id
+  }&context=odjava&radnikIme=${encodeURIComponent(
+    radnikData.ime
+  )}&radnikPrezime=${encodeURIComponent(radnikData.prezime)}&radnikJmbg=${
+    radnikData.jmbg
+  }`;
+  console.log("createJPRUrlForOdjavu - Kreiran URL:", url);
+  return url;
+}
 
 // =============================================================================
 // INICIJALIZACIJA
@@ -65,6 +181,18 @@ function loadFirmaData() {
       updateFirmaHeader(firma);
       // Sačuvaj PIB za editovanje
       currentFirmaPib = firma.pib;
+      // Sačuvaj podatke firme za JPR
+      currentFirmaData = {
+        id: firma.id,
+        maticni_broj: firma.maticni_broj,
+        pib: firma.pib,
+        naziv: firma.naziv,
+        adresa: firma.adresa,
+        telefon: firma.telefon,
+        direktor: firma.direktor_ime_prezime,
+        jmbg_direktora: firma.direktor_jmbg,
+        grad: firma.grad,
+      };
       loadFirmaStats(firmaId);
       loadRadnici(firmaId);
       loadPozajmice(firmaId); // Dodano učitavanje pozajmica
@@ -317,6 +445,13 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
             })" title="Otkaz radnika">
               <i class="fas fa-handshake"></i>
             </button>
+            <button class="btn btn-sm btn-outline-info" onclick="window.open(createJPRUrlForRadnik(currentFirmaData, {ime: '${
+              radnik.ime
+            }', prezime: '${radnik.prezime}', jmbg: '${
+        radnik.jmbg
+      }'}), '_blank')" title="JPR Obrazac">
+              <i class="fas fa-file-alt"></i>
+            </button>
             <button class="btn btn-sm btn-outline-dark" onclick="deleteRadnik(${
               radnik.id
             })" title="Obriši radnika">
@@ -400,6 +535,13 @@ function updateNeaktivniRadnici(radnici, otkaziMap = {}) {
             `
                 : ""
             }
+            <button class="btn btn-sm btn-outline-info" onclick="window.open(createJPRUrlForOdjavu(currentFirmaData, {ime: '${
+              radnik.ime
+            }', prezime: '${radnik.prezime}', jmbg: '${
+        radnik.jmbg
+      }'}), '_blank')" title="JPR Obrazac">
+              <i class="fas fa-file-alt"></i>
+            </button>
             <button class="btn btn-sm btn-outline-dark" onclick="deleteRadnik(${
               radnik.id
             })" title="Obriši radnika">

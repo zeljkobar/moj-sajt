@@ -170,6 +170,12 @@
                 <button class="btn btn-warning quick-action-btn">
                   <i class="fas fa-file-alt me-2"></i>Potvrda o zaposlenju
                 </button>
+                <button
+                  class="btn btn-secondary quick-action-btn"
+                  onclick="window.open(createJPRUrl(currentFirmaData), '_blank')"
+                >
+                  <i class="fas fa-file-contract me-2"></i>JPR Obrazac
+                </button>
               </div>
               <div class="col-md-6">
                 <h5 class="text-success mb-3">Finansijske operacije</h5>
@@ -320,6 +326,15 @@
                           </button>
                           <button class="btn btn-sm btn-outline-warning">
                             <i class="fas fa-handshake"></i>
+                          </button>
+                          <button
+                            class="btn btn-sm btn-outline-info"
+                            onclick="window.open(createJPRUrlForRadnik(currentFirmaData, {ime: 'Marko', prezime: 'Petrović', jmbg: '1234567890123'}), '_blank')"
+                          >
+                            <i class="fas fa-file-alt"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
                           </button>
                         </td>
                       </tr>
@@ -648,12 +663,21 @@
                   <p class="text-muted mb-2">
                     Ovlašćenje za elektronska predaja u poresku upravu
                   </p>
-                  <button
-                    class="btn btn-warning btn-sm"
-                    onclick="generisjOvlascenje()"
-                  >
-                    Generiši
-                  </button>
+                  <div class="d-flex gap-2">
+                    <button
+                      class="btn btn-warning btn-sm"
+                      onclick="generisjOvlascenje()"
+                    >
+                      Generiši
+                    </button>
+                    <button
+                      class="btn btn-info btn-sm"
+                      onclick="window.open(createJPRUrl(currentFirmaData, 'ovlascenje'), '_blank')"
+                      title="JPR Obrazac za ovlašćenje"
+                    >
+                      <i class="fas fa-file-contract me-1"></i>JPR
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
