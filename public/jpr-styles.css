@@ -163,6 +163,16 @@ h1 {
   background-color: white;
 }
 
+.jmbg-box {
+  width: 20px !important;
+  height: 20px !important;
+  padding: 2px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  font-size: 11px;
+  background-color: white;
+}
+
 .container {
   display: flex;
   border: 1px solid black;

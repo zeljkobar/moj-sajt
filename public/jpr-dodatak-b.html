@@ -3,25 +3,285 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JPR Dodatak B - Registracija fizičkog lica</title>
+    <title>DODATAK B: Registracija fizičkog lica</title>
     <link rel="stylesheet" href="jpr-styles.css" />
+    <style>
+      .form-container {
+        position: relative;
+        width: 794px; /* A4 širina */
+        margin: 0 auto;
+        background-image: url("images/image-1754354715861.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%; /* Rastegni na punu veličinu */
+        height: 1123px; /* A4 visina */
+        /* border: 1px solid #ccc; Privremeno da vidimo container */
+        background-color: #f9f9f9; /* Privremeno */
+      }
+
+      .form-field {
+        position: absolute;
+        border: none;
+        background: rgba(173, 216, 230, 0.7); /* Svijetlo plava pozadina */
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        padding: 2px;
+        outline: none;
+      }
+
+      /* JMBG polja - 13 cifara */
+      .jmbg-container {
+        position: absolute;
+        top: 64px;
+        left: 237px;
+        display: flex;
+        gap: 3px;
+      }
+
+      .jmbg-digit {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background: rgba(173, 216, 230, 0.7); /* Svijetlo plava pozadina */
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        outline: none;
+      }
+
+      /* Specifični stilovi za svako polje */
+      .field-prezime {
+        top: 83px;
+        left: 235px;
+        width: 313px;
+        height: 18px;
+      }
+      .field-ime {
+        top: 83px;
+        left: 617px;
+        width: 165px;
+        height: 18px;
+      }
+
+      /* Datum rođenja polja - podijeljeno na dan/mjesec/godina */
+      .datum-rodjenja-container {
+        position: absolute;
+        top: 135px;
+        left: 253px;
+        display: flex;
+        gap: 2px;
+        align-items: center;
+      }
+
+      /* Dan grupa */
+      .dan-grupa {
+        position: absolute;
+        top: 129px;
+        left: 235px;
+        display: flex;
+        gap: 1px;
+      }
+
+      .dan-digit {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background: rgba(173, 216, 230, 0.7); /* Svijetlo plava pozadina */
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        outline: none;
+      }
+
+      /* Mjesec grupa */
+      .mjesec-grupa {
+        position: absolute;
+        top: 135px;
+        left: 315px;
+        display: flex;
+        gap: 2px;
+      }
+
+      .mjesec-digit {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background: rgba(255, 182, 193, 0.7); /* Svijetlo roza pozadina */
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        outline: none;
+      }
+
+      /* Godina grupa */
+      .godina-grupa {
+        position: absolute;
+        top: 135px;
+        left: 378px;
+        display: flex;
+        gap: 2px;
+      }
+
+      .godina-digit {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background: rgba(144, 238, 144, 0.7); /* Svijetlo zelena pozadina */
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        outline: none;
+      }
+
+      .field-mjesto-rodjenja {
+        top: 155px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-opstina-rodjenja {
+        top: 175px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-drzava-rodjenja {
+        top: 195px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-drzavljanstvo {
+        top: 240px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+
+      /* Adresa polja */
+      .field-drzava {
+        top: 385px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-opstina {
+        top: 405px;
+        left: 254px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-mjesto {
+        top: 425px;
+        left: 241px;
+        width: 500px;
+        height: 18px;
+      }
+      .field-ulica {
+        top: 445px;
+        left: 241px;
+        width: 500px;
+        height: 18px;
+      }
+
+      /* PIO Datum polja */
+      .pio-datum-container {
+        position: absolute;
+        top: 910px;
+        left: 260px;
+        display: flex;
+        gap: 2px;
+      }
+
+      .pio-digit {
+        width: 15px;
+        height: 18px;
+        border: none;
+        background: rgba(173, 216, 230, 0.7); /* Svijetlo plava pozadina */
+        text-align: center;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        outline: none;
+      }
+    </style>
   </head>
   <body>
-    <div class="header">
-      <div class="header-left">
-        <p>CRNA GORA</p>
-        <p>PORESKA UPRAVA</p>
+    <div class="form-container">
+      <!-- JMBG cifre -->
+      <div class="jmbg-container">
+        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="6" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="6" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="9" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="8" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
       </div>
-      <div class="header-right">
-        <p>DODATAK B</p>
+
+      <!-- Opšti podaci -->
+      <input type="text" class="form-field field-prezime" value="OTAŠEVIĆ" />
+      <input type="text" class="form-field field-ime" value="ALEKSANDAR" />
+
+      <!-- Datum rođenja - podijeljeno na dan/mjesec/godina -->
+      <!-- Dan grupa (2 cifre) -->
+      <div class="dan-grupa">
+        <input type="text" class="dan-digit" maxlength="1" value="0" />
+        <input type="text" class="dan-digit" maxlength="1" value="5" />
       </div>
-    </div>
+      <!-- Mjesec grupa (2 cifre) -->
+      <div class="mjesec-grupa">
+        <input type="text" class="mjesec-digit" maxlength="1" value="0" />
+        <input type="text" class="mjesec-digit" maxlength="1" value="2" />
+      </div>
+      <!-- Godina grupa (4 cifre) -->
+      <div class="godina-grupa">
+        <input type="text" class="godina-digit" maxlength="1" value="1" />
+        <input type="text" class="godina-digit" maxlength="1" value="9" />
+        <input type="text" class="godina-digit" maxlength="1" value="7" />
+        <input type="text" class="godina-digit" maxlength="1" value="3" />
+      </div>
 
-    <h1>Dodatak B - Registracija fizičkog lica</h1>
+      <input type="text" class="form-field field-mjesto-rodjenja" value="BAR" />
+      <input
+        type="text"
+        class="form-field field-opstina-rodjenja"
+        value="BAR"
+      />
+      <input
+        type="text"
+        class="form-field field-drzava-rodjenja"
+        value="CRNA GORA"
+      />
+      <input
+        type="text"
+        class="form-field field-drzavljanstvo"
+        value="CRNOGORSKO"
+      />
 
-    <!-- Ovdje će biti sadržaj dodatka B -->
-    <div class="form-section">
-      <p>Sadržaj dodatka B će biti implementiran...</p>
+      <!-- Adresa -->
+      <input type="text" class="form-field field-drzava" value="CRNA GORA" />
+      <input type="text" class="form-field field-opstina" value="BAR" />
+      <input type="text" class="form-field field-mjesto" value="BAR" />
+      <input type="text" class="form-field field-ulica" value="RJETLISI BB" />
+
+      <!-- PIO Datum -->
+      <div class="pio-datum-container">
+        <input type="text" class="pio-digit" maxlength="1" value="3" />
+        <input type="text" class="pio-digit" maxlength="1" value="1" />
+        <span style="margin: 0 5px">.</span>
+        <input type="text" class="pio-digit" maxlength="1" value="0" />
+        <input type="text" class="pio-digit" maxlength="1" value="8" />
+        <span style="margin: 0 5px">.</span>
+        <input type="text" class="pio-digit" maxlength="1" value="2" />
+        <input type="text" class="pio-digit" maxlength="1" value="0" />
+        <input type="text" class="pio-digit" maxlength="1" value="2" />
+        <input type="text" class="pio-digit" maxlength="1" value="4" />
+      </div>
     </div>
 
     <script src="jpr-script.js"></script>
