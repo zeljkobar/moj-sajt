@@ -29,6 +29,9 @@
     <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
     <script src="components/theme-preloader.js"></script>
 
+    <!-- Export Utils - modularni PDF/Word export -->
+    <script src="components/export-utils.js"></script>
+
     <title>Ugovor o radu</title>
     <link rel="stylesheet" href="global-components.css" />
     <!-- PDF Export biblioteka -->
@@ -859,280 +862,44 @@
       });
 
       // ============================================
-      // PDF EXPORT FUNKCIJA - OPTIMIZOVANA VERZIJA
+      // EXPORT FUNKCIJE - koristi ExportUtils modul
       // ============================================
+
       async function downloadPDF() {
-        try {
-          // Sakrij dugmad tokom snimanja
-          document.querySelector('.print-button').style.display = 'none';
-          document.querySelector('.pdf-button').style.display = 'none';
-          document.querySelector('.word-button').style.display = 'none';
-
-          const { jsPDF } = window.jspdf;
-          const element = document.querySelector('.container');
-
-          // Ukloni sjenku i forsiraj belu pozadinu za anti-sivilo efekat
-          const originalBg = element.style.backgroundColor;
-          const originalBoxShadow = element.style.boxShadow;
-          element.style.backgroundColor = 'white';
-          element.style.boxShadow = 'none';
-
-          // Kreiranje canvas-a sa optimizovanim podesavanjima
-          const canvas = await html2canvas(element, {
-            scale: 1, // Smanjeno sa 2 na 1 - drastično smanjuje veličinu fajla
-            useCORS: true,
-            allowTaint: false,
-            backgroundColor: '#ffffff', // Bela pozadina
-            removeContainer: true,
-            imageTimeout: 0,
-            logging: false,
-          });
-
-          // Vrati originalne stilove
-          element.style.backgroundColor = originalBg;
-          element.style.boxShadow = originalBoxShadow;
-
-          // Kreiranje PDF-a sa marginama
-          const pdf = new jsPDF('p', 'mm', 'a4');
-          const pageWidth = 210;
-          const pageHeight = 297;
-          const margin = 5; // 5mm margine
-          const imgWidth = pageWidth - margin * 2;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-          // Optimizovano JPEG kompresija umesto PNG
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-          // Pametniji algoritam za podelu stranica
-          const pageContentHeight = pageHeight - margin * 2;
-          let yPosition = margin;
-          let remainingHeight = imgHeight;
-          let sourceY = 0;
-
-          while (remainingHeight > 0) {
-            const sliceHeight = Math.min(remainingHeight, pageContentHeight);
-
-            // Kreiranje segmenta slike
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = (sliceHeight * canvas.width) / imgWidth;
-
-            // Kopiranje odgovarajućeg dela originalne slike
-            tempCtx.drawImage(
-              canvas,
-              0,
-              (sourceY * canvas.width) / imgWidth,
-              canvas.width,
-              tempCanvas.height,
-              0,
-              0,
-              canvas.width,
-              tempCanvas.height
-            );
-
-            const sliceData = tempCanvas.toDataURL('image/jpeg', 0.95);
-
-            if (sourceY > 0) {
-              pdf.addPage();
-            }
-
-            pdf.addImage(
-              sliceData,
-              'JPEG',
-              margin,
-              yPosition,
-              imgWidth,
-              sliceHeight
-            );
-
-            sourceY += sliceHeight;
-            remainingHeight -= sliceHeight;
-            yPosition = margin; // Nova stranica počinje od vrha
-          }
-
-          // Generisanje imena fajla
-          const radnikIme =
-            document.getElementById('radnik-ime-prezime')?.textContent ||
-            'Radnik';
-          const firmaNaziv =
-            document.getElementById('firma-naziv')?.textContent || 'Firma';
-          const fileName = `Ugovor_${radnikIme.replace(
-            /\s+/g,
-            '_'
-          )}_${firmaNaziv.replace(/\s+/g, '_')}.pdf`;
-
-          pdf.save(fileName);
-
-          // Pokaži dugmad ponovo
-          document.querySelector('.print-button').style.display = 'flex';
-          document.querySelector('.pdf-button').style.display = 'flex';
-          document.querySelector('.word-button').style.display = 'flex';
-        } catch (error) {
-          console.error('Greška pri kreiranju PDF-a:', error);
-          alert('Greška pri kreiranju PDF-a. Pokušajte ponovo.');
-          document.querySelector('.print-button').style.display = 'flex';
-          document.querySelector('.pdf-button').style.display = 'flex';
-          document.querySelector('.word-button').style.display = 'flex';
-        }
+        await ExportUtils.exportToPDF({
+          containerSelector: '.container',
+          filePrefix: 'Ugovor',
+          getFileName: () => {
+            const radnikIme =
+              document.getElementById('radnik-ime-prezime')?.textContent ||
+              'Radnik';
+            const firmaNaziv =
+              document.getElementById('firma-naziv')?.textContent || 'Firma';
+            return `Ugovor_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.pdf`;
+          },
+        });
       }
 
-      // ============================================
-      // WORD EXPORT FUNKCIJA
-      // ============================================
-      // ============================================
-      // WORD EXPORT KOMPAKT FUNKCIJA - MANJE MARGINE
-      // ============================================
       function downloadWordCompact() {
-        try {
-          // Uzmi sadržaj ugovora
-          const container = document.querySelector('.container');
-          let content = container.innerHTML;
-
-          // Optimizuj sadržaj za kompaktni format
-          content = content.replace(/<br\s*\/?>/gi, ' ');
-          content = content.replace(/\s+/g, ' ');
-
-          // Generisanje naziva fajla
-          const radnikIme =
-            document.getElementById('radnik-ime-prezime')?.textContent ||
-            'Radnik';
-          const firmaNaziv =
-            document.getElementById('firma-naziv')?.textContent || 'Firma';
-          const fileName = `Ugovor_Kompakt_${radnikIme.replace(
-            /\s+/g,
-            '_'
-          )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
-
-          // Kreiranje kompaktnog Word dokumenta
-          const wordContent = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-                  xmlns:w='urn:schemas-microsoft-com:office:word' 
-                  xmlns='http://www.w3.org/TR/REC-html40'>
-            <head>
-              <meta charset='utf-8'>
-              <title>Ugovor o radu - Kompakt</title>
-              <!--[if gte mso 9]>
-              <xml>
-                <w:WordDocument>
-                  <w:View>Print</w:View>
-                  <w:Zoom>90</w:Zoom>
-                  <w:DoNotPromptForConvert/>
-                </w:WordDocument>
-              </xml>
-              <![endif]-->
-              <style>
-                @page {
-                  size: A4;
-                  margin: 1cm 0.7cm 1cm 0.7cm; /* Još manje margine - 0.7cm levo/desno */
-                }
-                body { 
-                  font-family: 'Times New Roman', serif; 
-                  font-size: 11pt; /* Manji font */
-                  line-height: 1.2; /* Kompaktniji red spacing */
-                  margin: 0;
-                  padding: 0;
-                  color: #000;
-                  background: white;
-                }
-                h1 { 
-                  font-size: 14pt; 
-                  font-weight: bold;
-                  margin: 10px 0 15px 0; 
-                  text-transform: uppercase; 
-                  text-align: center;
-                  letter-spacing: 0.5px;
-                }
-                h2 { 
-                  font-size: 12pt; 
-                  margin: 10px 0 5px 0; 
-                  text-align: center;
-                }
-                p {
-                  margin: 4px 0; /* Manji margin između paragafa */
-                  text-align: justify;
-                  text-indent: 0;
-                }
-                .article { 
-                  margin: 8px 0; /* Manji margin između članaka */
-                  page-break-inside: avoid;
-                }
-                .article-title { 
-                  font-weight: bold; 
-                  text-align: center; 
-                  margin: 8px 0 4px 0; 
-                  font-size: 11pt;
-                  text-decoration: underline;
-                }
-                .signature-section { 
-                  display: table;
-                  width: 100%;
-                  margin-top: 25px; /* Manji top margin */
-                  page-break-inside: avoid;
-                }
-                .signature { 
-                  display: table-cell;
-                  text-align: center; 
-                  width: 45%; 
-                  vertical-align: bottom;
-                }
-                .signature-line { 
-                  border-bottom: 1px solid #000; 
-                  margin-bottom: 3px; 
-                  height: 25px; /* Manja visina linije */
-                  width: 180px; /* Manja širina */
-                  margin-left: auto;
-                  margin-right: auto;
-                }
-                strong {
-                  font-weight: bold;
-                }
-                /* Kompaktni stil za listu */
-                ul, ol {
-                  margin: 4px 0;
-                  padding-left: 15px;
-                }
-                li {
-                  margin: 1px 0;
-                  line-height: 1.1;
-                }
-                /* Dodatni kompaktni stilovi */
-                .compact-spacing {
-                  margin: 2px 0;
-                  line-height: 1.1;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="legal-text">
-                ${content}
-              </div>
-            </body>
-            </html>
-          `;
-
-          // Kreiranje blob-a i download-a
-          const blob = new Blob([wordContent], {
-            type: 'application/msword;charset=utf-8',
-          });
-
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } catch (error) {
-          console.error(
-            'Greška pri kreiranju kompaktnog Word dokumenta:',
-            error
-          );
-          alert(
-            'Greška pri kreiranju kompaktnog Word dokumenta. Pokušajte ponovo.'
-          );
-        }
+        ExportUtils.exportToWord({
+          containerSelector: '.container',
+          filePrefix: 'Ugovor',
+          compact: true,
+          getFileName: () => {
+            const radnikIme =
+              document.getElementById('radnik-ime-prezime')?.textContent ||
+              'Radnik';
+            const firmaNaziv =
+              document.getElementById('firma-naziv')?.textContent || 'Firma';
+            return `Ugovor_Kompakt_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
+          },
+        });
       }
     </script>
   </body>

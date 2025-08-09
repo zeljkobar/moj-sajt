@@ -29,6 +29,13 @@
     <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
     <script src="components/theme-preloader.js"></script>
 
+    <!-- PDF/Word Export libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Export Utils module -->
+    <script src="components/export-utils.js"></script>
+
     <title>Ugovor o djelu</title>
     <link rel="stylesheet" href="global-components.css" />
 
@@ -37,7 +44,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         line-height: 1.6;
         margin: 0;
         padding: 20px;
@@ -309,11 +316,11 @@
       // Učitaj podatke o radniku i firmi na osnovu URL parametara
       async function loadContractData() {
         const urlParams = new URLSearchParams(window.location.search);
-        const radnikId = urlParams.get("radnikId");
-        const firmaId = urlParams.get("firmaId");
+        const radnikId = urlParams.get('radnikId');
+        const firmaId = urlParams.get('firmaId');
 
         if (!radnikId || !firmaId) {
-          alert("Nedostaju podaci o radniku ili firmi");
+          alert('Nedostaju podaci o radniku ili firmi');
           return;
         }
 
@@ -333,8 +340,8 @@
           // Popuni podatke u ugovor
           populateContractData();
         } catch (error) {
-          console.error("Greška pri učitavanju podataka:", error);
-          alert("Greška pri učitavanju podataka");
+          console.error('Greška pri učitavanju podataka:', error);
+          alert('Greška pri učitavanju podataka');
         }
       }
 
@@ -344,40 +351,40 @@
 
         // Datum ugovora - uzmi datum zaposlenja ili današnji datum
         const datumZaposlenja = radnikData.datum_zaposlenja
-          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString("sr-RS")
-          : new Date().toLocaleDateString("sr-RS");
+          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString('sr-RS')
+          : new Date().toLocaleDateString('sr-RS');
 
-        document.getElementById("datum-ugovora").textContent = datumZaposlenja;
+        document.getElementById('datum-ugovora').textContent = datumZaposlenja;
 
         // Podaci o firmi
-        document.getElementById("firma-naziv").textContent =
-          firmaData.naziv || "";
-        document.getElementById("firma-grad").textContent =
-          firmaData.grad || "";
-        document.getElementById("firma-adresa").textContent =
-          firmaData.adresa || "";
-        document.getElementById("firma-pib").textContent = firmaData.pib || "";
-        document.getElementById("firma-direktor").textContent =
-          firmaData.direktor || "";
+        document.getElementById('firma-naziv').textContent =
+          firmaData.naziv || '';
+        document.getElementById('firma-grad').textContent =
+          firmaData.grad || '';
+        document.getElementById('firma-adresa').textContent =
+          firmaData.adresa || '';
+        document.getElementById('firma-pib').textContent = firmaData.pib || '';
+        document.getElementById('firma-direktor').textContent =
+          firmaData.direktor || '';
 
         // Podaci o radniku
-        document.getElementById("radnik-ime").textContent =
-          radnikData.ime || "";
-        document.getElementById("radnik-prezime").textContent =
-          radnikData.prezime || "";
-        document.getElementById("radnik-jmbg").textContent =
-          radnikData.jmbg || "";
-        document.getElementById("radnik-grad").textContent =
-          radnikData.grad || "";
-        document.getElementById("radnik-adresa").textContent =
-          radnikData.adresa || "";
+        document.getElementById('radnik-ime').textContent =
+          radnikData.ime || '';
+        document.getElementById('radnik-prezime').textContent =
+          radnikData.prezime || '';
+        document.getElementById('radnik-jmbg').textContent =
+          radnikData.jmbg || '';
+        document.getElementById('radnik-grad').textContent =
+          radnikData.grad || '';
+        document.getElementById('radnik-adresa').textContent =
+          radnikData.adresa || '';
 
         // Potpisi
-        document.getElementById("direktor-ime-potpis").textContent =
-          firmaData.direktor || "";
-        document.getElementById("radnik-ime-potpis").textContent = `${
-          radnikData.ime || ""
-        } ${radnikData.prezime || ""}`;
+        document.getElementById('direktor-ime-potpis').textContent =
+          firmaData.direktor || '';
+        document.getElementById('radnik-ime-potpis').textContent = `${
+          radnikData.ime || ''
+        } ${radnikData.prezime || ''}`;
 
         // Podaci specifični za ugovor o djelu
         populateContractSpecificData();
@@ -389,113 +396,113 @@
         let opisPoslova =
           radnikData.opis_poslova ||
           radnikData.pozicija_naziv ||
-          "poslovne aktivnosti";
+          'poslovne aktivnosti';
 
         // Ako opis počinje velikim slovom, ostavi kao jeste, inače dodaj prefix
         if (opisPoslova && !opisPoslova.match(/^[A-ZČĆŽŠĐ]/)) {
-          opisPoslova = "izvršavanje poslova " + opisPoslova.toLowerCase();
+          opisPoslova = 'izvršavanje poslova ' + opisPoslova.toLowerCase();
         }
 
-        document.getElementById("opis-poslova").textContent = opisPoslova;
+        document.getElementById('opis-poslova').textContent = opisPoslova;
 
         // Period rada - uzmi datum zaposlenja i datum prestanka (ako postoji)
         const datumOd = radnikData.datum_zaposlenja
-          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString("sr-RS")
-          : new Date().toLocaleDateString("sr-RS");
+          ? new Date(radnikData.datum_zaposlenja).toLocaleDateString('sr-RS')
+          : new Date().toLocaleDateString('sr-RS');
 
-        let datumDo = "na neodređeno vreme";
+        let datumDo = 'na neodređeno vreme';
         if (radnikData.datum_prestanka) {
           datumDo = new Date(radnikData.datum_prestanka).toLocaleDateString(
-            "sr-RS"
+            'sr-RS'
           );
-        } else if (radnikData.tip_ugovora === "na_odredjeno") {
+        } else if (radnikData.tip_ugovora === 'na_odredjeno') {
           // Ako je ugovor na određeno vreme, ali nema datum prestanka, postavi placeholder
-          datumDo = "________________";
+          datumDo = '________________';
         }
 
-        document.getElementById("period-od").textContent = datumOd;
-        document.getElementById("period-do").textContent = datumDo;
+        document.getElementById('period-od').textContent = datumOd;
+        document.getElementById('period-do').textContent = datumDo;
 
         // Iznos zarade
-        const iznosZarade = radnikData.visina_zarade || "10750,00";
-        document.getElementById("iznos-zarade").textContent =
+        const iznosZarade = radnikData.visina_zarade || '10750,00';
+        document.getElementById('iznos-zarade').textContent =
           parseFloat(iznosZarade).toFixed(2);
 
         // Konvertuj iznos u slova
         const iznosSlovima = convertNumberToWords(parseFloat(iznosZarade));
-        document.getElementById("iznos-slovima").textContent = iznosSlovima;
+        document.getElementById('iznos-slovima').textContent = iznosSlovima;
 
         // Grad za sud - uzmi grad firme
-        document.getElementById("grad-suda").textContent =
-          firmaData.grad?.toUpperCase() || "BARU";
+        document.getElementById('grad-suda').textContent =
+          firmaData.grad?.toUpperCase() || 'BARU';
       }
 
       // Napredna funkcija za konvertovanje broja u slova
       function convertNumberToWords(amount) {
-        if (!amount || isNaN(amount)) return "unesite iznos slovima";
+        if (!amount || isNaN(amount)) return 'unesite iznos slovima';
 
         const ones = [
-          "",
-          "jedan",
-          "dva",
-          "tri",
-          "četiri",
-          "pet",
-          "šest",
-          "sedam",
-          "osam",
-          "devet",
+          '',
+          'jedan',
+          'dva',
+          'tri',
+          'četiri',
+          'pet',
+          'šest',
+          'sedam',
+          'osam',
+          'devet',
         ];
         const teens = [
-          "deset",
-          "jedanaest",
-          "dvanaest",
-          "trinaest",
-          "četrnaest",
-          "petnaest",
-          "šesnaest",
-          "sedamnaest",
-          "osamnaest",
-          "devetnaest",
+          'deset',
+          'jedanaest',
+          'dvanaest',
+          'trinaest',
+          'četrnaest',
+          'petnaest',
+          'šesnaest',
+          'sedamnaest',
+          'osamnaest',
+          'devetnaest',
         ];
         const tens = [
-          "",
-          "",
-          "dvadeset",
-          "trideset",
-          "četrdeset",
-          "pedeset",
-          "šezdeset",
-          "sedamdeset",
-          "osamdeset",
-          "devedeset",
+          '',
+          '',
+          'dvadeset',
+          'trideset',
+          'četrdeset',
+          'pedeset',
+          'šezdeset',
+          'sedamdeset',
+          'osamdeset',
+          'devedeset',
         ];
         const hundreds = [
-          "",
-          "sto",
-          "dvesta",
-          "trista",
-          "četiristo",
-          "petsto",
-          "šesto",
-          "sedamsto",
-          "osamsto",
-          "devetsto",
+          '',
+          'sto',
+          'dvesta',
+          'trista',
+          'četiristo',
+          'petsto',
+          'šesto',
+          'sedamsto',
+          'osamsto',
+          'devetsto',
         ];
 
         function convertThreeDigits(num) {
-          let result = "";
+          let result = '';
           const h = Math.floor(num / 100);
           const t = Math.floor((num % 100) / 10);
           const o = num % 10;
 
-          if (h > 0) result += hundreds[h] + " ";
+          if (h > 0) result += hundreds[h] + ' ';
 
           if (t === 1) {
-            result += teens[o] + " ";
+            result += teens[o] + ' ';
           } else {
-            if (t > 0) result += tens[t] + " ";
-            if (o > 0) result += ones[o] + " ";
+            if (t > 0) result += tens[t] + ' ';
+            if (o > 0) result += ones[o] + ' ';
           }
 
           return result.trim();
@@ -503,9 +510,9 @@
 
         const intAmount = Math.floor(amount);
 
-        if (intAmount === 0) return "nula";
+        if (intAmount === 0) return 'nula';
 
-        let result = "";
+        let result = '';
 
         // Hiljade
         if (intAmount >= 1000) {
@@ -513,11 +520,11 @@
           const remainder = intAmount % 1000;
 
           if (thousands === 1) {
-            result += "hiljadu ";
+            result += 'hiljadu ';
           } else if (thousands < 5) {
-            result += convertThreeDigits(thousands) + " hiljade ";
+            result += convertThreeDigits(thousands) + ' hiljade ';
           } else {
-            result += convertThreeDigits(thousands) + " hiljada ";
+            result += convertThreeDigits(thousands) + ' hiljada ';
           }
 
           if (remainder > 0) {
@@ -535,99 +542,43 @@
         window.print();
       }
 
-      // Export u PDF
+      // ============================================
+      // EXPORT FUNKCIJE - koristi ExportUtils modul
+      // ============================================
+
       async function exportToPDF() {
-        const element = document.getElementById("contract-content");
-
-        try {
-          const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-          });
-
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF();
-
-          const imgWidth = 210;
-          const pageHeight = 295;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-
-          let position = 0;
-
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-
-          const radnikIme = radnikData?.ime || "Radnik";
-          const radnikPrezime = radnikData?.prezime || "";
-          const fileName = `Ugovor_Djelu_${radnikIme.replace(
-            /\s+/g,
-            "_"
-          )}_${radnikPrezime.replace(/\s+/g, "_")}.pdf`;
-
-          pdf.save(fileName);
-        } catch (error) {
-          console.error("Greška pri kreiranju PDF:", error);
-          alert("Greška pri kreiranju PDF fajla");
-        }
+        await ExportUtils.exportToPDF({
+          containerSelector: '#contract-content',
+          filePrefix: 'Ugovor_Djelu',
+          getFileName: () => {
+            const radnikIme = radnikData?.ime || 'Radnik';
+            const radnikPrezime = radnikData?.prezime || '';
+            return `Ugovor_Djelu_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${radnikPrezime.replace(/\s+/g, '_')}.pdf`;
+          },
+        });
       }
 
-      // Export u Word
       function exportToWord() {
-        const element = document.getElementById("contract-content");
-        const html = element.innerHTML;
-
-        // Kreiraj Word dokument
-        const preHtml = `
-          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-          <head>
-            <meta charset='utf-8'>
-            <title>Ugovor o djelu</title>
-            <style>
-              body { font-family: 'Times New Roman', serif; line-height: 1.6; }
-              h1 { text-align: center; text-transform: uppercase; }
-              .signature-section { display: flex; justify-content: space-between; margin-top: 50px; }
-              .signature { text-align: center; width: 45%; }
-              .signature-line { border-bottom: 2px solid #000; height: 50px; margin-bottom: 10px; }
-            </style>
-          </head>
-          <body>
-        `;
-        const postHtml = "</body></html>";
-        const fullHtml = preHtml + html + postHtml;
-
-        const blob = new Blob(["\ufeff", fullHtml], {
-          type: "application/msword",
+        ExportUtils.exportToWord({
+          containerSelector: '#contract-content',
+          filePrefix: 'Ugovor_Djelu',
+          compact: true,
+          getFileName: () => {
+            const radnikIme = radnikData?.ime || 'Radnik';
+            const radnikPrezime = radnikData?.prezime || '';
+            return `Ugovor_Djelu_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${radnikPrezime.replace(/\s+/g, '_')}.doc`;
+          },
         });
-
-        const url =
-          "data:application/vnd.ms-word;charset=utf-8," +
-          encodeURIComponent(fullHtml);
-        const radnikIme = radnikData?.ime || "Radnik";
-        const radnikPrezime = radnikData?.prezime || "";
-        const fileName = `Ugovor_Djelu_${radnikIme.replace(
-          /\s+/g,
-          "_"
-        )}_${radnikPrezime.replace(/\s+/g, "_")}.doc`;
-
-        const downloadLink = document.createElement("a");
-        document.body.appendChild(downloadLink);
-        downloadLink.href = url;
-        downloadLink.download = fileName;
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
       }
 
       // Učitaj podatke kada se stranica učita
-      document.addEventListener("DOMContentLoaded", loadContractData);
+      document.addEventListener('DOMContentLoaded', loadContractData);
     </script>
   </body>
 </html>

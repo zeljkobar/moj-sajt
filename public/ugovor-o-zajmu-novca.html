@@ -15,9 +15,11 @@
     <!-- PDF Export biblioteka -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Export Utils modul -->
+    <script src="components/export-utils.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         font-size: 12pt;
         line-height: 1.4;
       }
@@ -245,164 +247,164 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", async function () {
+      document.addEventListener('DOMContentLoaded', async function () {
         await loadPozajmnicaData();
       });
 
       async function loadPozajmnicaData() {
         try {
           const urlParams = new URLSearchParams(window.location.search);
-          const pozajmnicaId = urlParams.get("pozajmnicaId");
-          const firmaId = urlParams.get("firmaId");
+          const pozajmnicaId = urlParams.get('pozajmnicaId');
+          const firmaId = urlParams.get('firmaId');
 
           if (!pozajmnicaId) {
-            alert("Greška: Nedostaje ID pozajmice");
+            alert('Greška: Nedostaje ID pozajmice');
             return;
           }
 
           // Učitaj podatke o pozajmici
           const response = await fetch(`/api/pozajmice/${pozajmnicaId}`, {
-            credentials: "include",
+            credentials: 'include',
           });
           if (!response.ok) {
-            throw new Error("Pozajmica nije pronađena");
+            throw new Error('Pozajmica nije pronađena');
           }
 
           const data = await response.json();
           if (!data.success) {
-            throw new Error(data.message || "Greška pri učitavanju pozajmice");
+            throw new Error(data.message || 'Greška pri učitavanju pozajmice');
           }
 
           const pozajmica = data.pozajmica;
           populateUgovor(pozajmica);
 
           // Sakrij loading, prikaži ugovor
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("ugovorContent").style.display = "block";
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('ugovorContent').style.display = 'block';
         } catch (error) {
-          console.error("Error loading pozajmica:", error);
-          alert("Greška pri učitavanju pozajmice: " + error.message);
+          console.error('Error loading pozajmica:', error);
+          alert('Greška pri učitavanju pozajmice: ' + error.message);
         }
       }
 
       function populateUgovor(pozajmica) {
         // Broj ugovora
         document.getElementById(
-          "brojUgovora"
+          'brojUgovora'
         ).textContent = `/${pozajmica.broj_ugovora}`;
 
         // Datum i lokacija
         const datum = new Date(pozajmica.datum_izdavanja);
-        document.getElementById("datumIzdavanja").textContent =
-          datum.toLocaleDateString("sr-Latn-RS");
-        document.getElementById("lokacija").textContent =
-          pozajmica.firma_grad || "Baru";
+        document.getElementById('datumIzdavanja').textContent =
+          datum.toLocaleDateString('sr-Latn-RS');
+        document.getElementById('lokacija').textContent =
+          pozajmica.firma_grad || 'Baru';
 
         // Firma podaci
-        document.getElementById("firmaNaziv").textContent =
-          pozajmica.firma_naziv || "";
-        document.getElementById("firmaAdresa").textContent =
-          pozajmica.firma_adresa || "";
-        document.getElementById("firmaPib").textContent =
-          pozajmica.firma_pib || "";
+        document.getElementById('firmaNaziv').textContent =
+          pozajmica.firma_naziv || '';
+        document.getElementById('firmaAdresa').textContent =
+          pozajmica.firma_adresa || '';
+        document.getElementById('firmaPib').textContent =
+          pozajmica.firma_pib || '';
 
         // Radnik (zajmodavac) podaci
-        const zajmodavacIme = `${pozajmica.radnik_ime || ""} ${
-          pozajmica.radnik_prezime || ""
+        const zajmodavacIme = `${pozajmica.radnik_ime || ''} ${
+          pozajmica.radnik_prezime || ''
         }`.trim();
-        document.getElementById("zajmodavacIme").textContent = zajmodavacIme;
-        document.getElementById("zajmodavacJmbg").textContent =
-          pozajmica.radnik_jmbg || "";
+        document.getElementById('zajmodavacIme').textContent = zajmodavacIme;
+        document.getElementById('zajmodavacJmbg').textContent =
+          pozajmica.radnik_jmbg || '';
 
         // Direktor firme (zajmoprimac) podaci
-        document.getElementById("direktorIme").textContent =
-          pozajmica.direktor_ime_prezime || "";
-        document.getElementById("direktorJmbg").textContent =
-          pozajmica.direktor_jmbg || "";
+        document.getElementById('direktorIme').textContent =
+          pozajmica.direktor_ime_prezime || '';
+        document.getElementById('direktorJmbg').textContent =
+          pozajmica.direktor_jmbg || '';
 
         // Iznos
         const iznos = parseFloat(pozajmica.iznos).toFixed(2);
-        document.getElementById("iznosEur").textContent = iznos;
-        document.getElementById("iznosEur2").textContent = iznos;
-        document.getElementById("iznosSlovima").textContent =
+        document.getElementById('iznosEur').textContent = iznos;
+        document.getElementById('iznosEur2').textContent = iznos;
+        document.getElementById('iznosSlovima').textContent =
           numberToWords(iznos);
 
         // Svrha
         const svrhaTexts = {
-          obaveze_zarade: "obaveze za zarade",
-          obaveze_dobavljaci: "obaveze prema dobavljačima",
+          obaveze_zarade: 'obaveze za zarade',
+          obaveze_dobavljaci: 'obaveze prema dobavljačima',
         };
-        document.getElementById("svrhaText").textContent =
+        document.getElementById('svrhaText').textContent =
           svrhaTexts[pozajmica.svrha] || pozajmica.svrha;
       }
 
       function numberToWords(num) {
         const ones = [
-          "",
-          "jedan",
-          "dva",
-          "tri",
-          "četiri",
-          "pet",
-          "šest",
-          "sedam",
-          "osam",
-          "devet",
+          '',
+          'jedan',
+          'dva',
+          'tri',
+          'četiri',
+          'pet',
+          'šest',
+          'sedam',
+          'osam',
+          'devet',
         ];
         const teens = [
-          "deset",
-          "jedanaest",
-          "dvanaest",
-          "trinaest",
-          "četrnaest",
-          "petnaest",
-          "šesnaest",
-          "sedamnaest",
-          "osamnaest",
-          "devetnaest",
+          'deset',
+          'jedanaest',
+          'dvanaest',
+          'trinaest',
+          'četrnaest',
+          'petnaest',
+          'šesnaest',
+          'sedamnaest',
+          'osamnaest',
+          'devetnaest',
         ];
         const tens = [
-          "",
-          "",
-          "dvadeset",
-          "trideset",
-          "četrdeset",
-          "pedeset",
-          "šezdeset",
-          "sedamdeset",
-          "osamdeset",
-          "devedeset",
+          '',
+          '',
+          'dvadeset',
+          'trideset',
+          'četrdeset',
+          'pedeset',
+          'šezdeset',
+          'sedamdeset',
+          'osamdeset',
+          'devedeset',
         ];
         const hundreds = [
-          "",
-          "sto",
-          "dvesta",
-          "trista",
-          "četiristo",
-          "petsto",
-          "šesto",
-          "sedamsto",
-          "osamsto",
-          "devetsto",
+          '',
+          'sto',
+          'dvesta',
+          'trista',
+          'četiristo',
+          'petsto',
+          'šesto',
+          'sedamsto',
+          'osamsto',
+          'devetsto',
         ];
         const thousands = [
-          "",
-          "jedna hiljada",
-          "dve hiljade",
-          "tri hiljade",
-          "četiri hiljade",
-          "pet hiljada",
-          "šest hiljada",
-          "sedam hiljada",
-          "osam hiljada",
-          "devet hiljada",
+          '',
+          'jedna hiljada',
+          'dve hiljade',
+          'tri hiljade',
+          'četiri hiljade',
+          'pet hiljada',
+          'šest hiljada',
+          'sedam hiljada',
+          'osam hiljada',
+          'devet hiljada',
         ];
 
         const number = Math.floor(parseFloat(num));
-        if (number === 0) return "nula eura";
-        if (number > 99999) return number.toString() + " eura"; // Fallback za vrlo velike brojeve
+        if (number === 0) return 'nula eura';
+        if (number > 99999) return number.toString() + ' eura'; // Fallback za vrlo velike brojeve
 
-        let result = "";
+        let result = '';
 
         // Hiljade (1000-9999)
         const th = Math.floor(number / 1000);
@@ -413,15 +415,15 @@
             const thTens = Math.floor((th % 100) / 10);
             const thOnes = th % 10;
 
-            if (thHundreds > 0) result += hundreds[thHundreds] + " ";
-            if (thTens === 1) result += teens[thOnes] + " ";
+            if (thHundreds > 0) result += hundreds[thHundreds] + ' ';
+            if (thTens === 1) result += teens[thOnes] + ' ';
             else {
-              if (thTens > 0) result += tens[thTens] + " ";
-              if (thOnes > 0 && thTens !== 1) result += ones[thOnes] + " ";
+              if (thTens > 0) result += tens[thTens] + ' ';
+              if (thOnes > 0 && thTens !== 1) result += ones[thOnes] + ' ';
             }
-            result += "hiljada ";
+            result += 'hiljada ';
           } else {
-            result += thousands[th] + " ";
+            result += thousands[th] + ' ';
           }
         }
 
@@ -431,196 +433,56 @@
         const t = Math.floor((remainder % 100) / 10);
         const o = remainder % 10;
 
-        if (h > 0) result += hundreds[h] + " ";
-        if (t === 1) result += teens[o] + " ";
+        if (h > 0) result += hundreds[h] + ' ';
+        if (t === 1) result += teens[o] + ' ';
         else {
-          if (t > 0) result += tens[t] + " ";
-          if (o > 0 && t !== 1) result += ones[o] + " ";
+          if (t > 0) result += tens[t] + ' ';
+          if (o > 0 && t !== 1) result += ones[o] + ' ';
         }
 
-        return result.trim() + " eura";
+        return result.trim() + ' eura';
       }
 
       // ============================================
-      // PDF EXPORT FUNKCIJA
+      // EXPORT FUNKCIJE - koristi ExportUtils modul
       // ============================================
+
       async function downloadPDF() {
-        try {
-          // Sakrij dugmad tokom snimanja
-          document.querySelector(".print-button").style.display = "none";
-          document.querySelector(".pdf-button").style.display = "none";
-          document.querySelector(".word-button").style.display = "none";
-
-          const { jsPDF } = window.jspdf;
-          const element = document.querySelector(".ugovor-container");
-
-          // Kreiranje canvas-a od HTML-a
-          const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: false,
-          });
-
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-
-          const imgWidth = 210;
-          const pageHeight = 295;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-
-          let position = 0;
-
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
-
-          // Generisanje imena fajla
-          const brojUgovora =
-            document.getElementById("brojUgovora")?.textContent || "001";
-          const firmaNaziv =
-            document.getElementById("firmaNaziv")?.textContent || "Firma";
-          const fileName = `Ugovor_o_zajmu_${brojUgovora.replace(
-            /[\/\s]/g,
-            "_"
-          )}_${firmaNaziv.replace(/\s+/g, "_")}.pdf`;
-
-          pdf.save(fileName);
-
-          // Pokaži dugmad ponovo
-          document.querySelector(".print-button").style.display = "flex";
-          document.querySelector(".pdf-button").style.display = "flex";
-          document.querySelector(".word-button").style.display = "flex";
-        } catch (error) {
-          console.error("Greška pri kreiranju PDF-a:", error);
-          alert("Greška pri kreiranju PDF-a. Pokušajte ponovo.");
-          document.querySelector(".print-button").style.display = "flex";
-          document.querySelector(".pdf-button").style.display = "flex";
-          document.querySelector(".word-button").style.display = "flex";
-        }
+        await ExportUtils.exportToPDF({
+          containerSelector: '.ugovor-container',
+          filePrefix: 'Ugovor_o_zajmu',
+          getFileName: () => {
+            const brojUgovora =
+              document.getElementById('brojUgovora')?.textContent || '001';
+            const firmaNaziv =
+              document.getElementById('firmaNaziv')?.textContent || 'Firma';
+            return `Ugovor_o_zajmu_${brojUgovora.replace(
+              /[\/\s]/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.pdf`;
+          },
+        });
       }
 
       // ============================================
-      // WORD EXPORT FUNKCIJA
+      // WORD EXPORT FUNKCIJA - ExportUtils
       // ============================================
       function downloadWord() {
-        try {
-          // Uzmi sadržaj ugovora
-          const container = document.querySelector(".ugovor-container");
-          let content = container.innerHTML;
-
-          // Očisti sadržaj za Word format
-          content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
-          content = content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
-          content = content.replace(/class="[^"]*"/g, "");
-          content = content.replace(/id="[^"]*"/g, "");
-
-          // Generisanje naziva fajla
-          const brojUgovora =
-            document.getElementById("brojUgovora")?.textContent || "001";
-          const firmaNaziv =
-            document.getElementById("firmaNaziv")?.textContent || "Firma";
-          const fileName = `Ugovor_o_zajmu_${brojUgovora.replace(
-            /[\/\s]/g,
-            "_"
-          )}_${firmaNaziv.replace(/\s+/g, "_")}.doc`;
-
-          // Kreiranje Word dokumenta
-          const wordContent = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-                  xmlns:w='urn:schemas-microsoft-com:office:word' 
-                  xmlns='http://www.w3.org/TR/REC-html40'>
-            <head>
-              <meta charset='utf-8'>
-              <title>Ugovor o zajmu novca</title>
-              <!--[if gte mso 9]>
-              <xml>
-                <w:WordDocument>
-                  <w:View>Print</w:View>
-                  <w:Zoom>90</w:Zoom>
-                  <w:DoNotPromptForConvert/>
-                  <w:DoNotShowMarkupDialog/>
-                  <w:DoNotDisplayPageBoundaries/>
-                  <w:DoNotValidateAgainstSchema/>
-                  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
-                  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
-                  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
-                  <w:Compatibility>
-                    <w:BreakWrappedTables/>
-                    <w:SnapToGridInCell/>
-                    <w:WrapTextWithPunct/>
-                    <w:UseAsianBreakRules/>
-                  </w:Compatibility>
-                  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
-                </w:WordDocument>
-              </xml>
-              <![endif]-->
-              <style>
-                @page {
-                  size: A4;
-                  margin: 2cm 1.5cm 2cm 1.5cm;
-                }
-                body {
-                  font-family: 'Times New Roman', serif;
-                  font-size: 12pt;
-                  line-height: 1.4;
-                  margin: 0;
-                  padding: 20px;
-                }
-                .header {
-                  text-align: center;
-                  margin-bottom: 30px;
-                  font-weight: bold;
-                  font-size: 16pt;
-                }
-                .clan {
-                  margin-bottom: 20px;
-                  text-align: justify;
-                }
-                .clan-broj {
-                  font-weight: bold;
-                  text-align: center;
-                  margin: 15px 0 10px 0;
-                }
-                .potpis-sekcija {
-                  display: flex;
-                  justify-content: space-between;
-                  margin-top: 60px;
-                }
-                .potpis {
-                  text-align: center;
-                  width: 45%;
-                }
-              </style>
-            </head>
-            <body>
-              ${content}
-            </body>
-            </html>
-          `;
-
-          // Kreiranje blob-a i download linka
-          const blob = new Blob([wordContent], {
-            type: "application/msword;charset=utf-8",
-          });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = fileName;
-          link.click();
-          window.URL.revokeObjectURL(url);
-
-          console.log("Word dokument je uspešno kreiran:", fileName);
-        } catch (error) {
-          console.error("Greška pri kreiranju Word dokumenta:", error);
-          alert("Greška pri kreiranju Word dokumenta. Pokušajte ponovo.");
-        }
+        ExportUtils.exportToWord({
+          containerSelector: '.ugovor-container',
+          filePrefix: 'Ugovor_o_zajmu',
+          compact: false,
+          getFileName: () => {
+            const brojUgovora =
+              document.getElementById('brojUgovora')?.textContent || '001';
+            const firmaNaziv =
+              document.getElementById('firmaNaziv')?.textContent || 'Firma';
+            return `Ugovor_o_zajmu_${brojUgovora.replace(
+              /[\/\s]/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
+          },
+        });
       }
     </script>
   </body>

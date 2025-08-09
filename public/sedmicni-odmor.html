@@ -12,9 +12,16 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
+
+    <!-- PDF/Word Export libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Export Utils module -->
+    <script src="components/export-utils.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         background-color: #f8f9fa;
         padding: 20px;
       }
@@ -52,8 +59,14 @@
         z-index: 1000;
       }
       @media print {
-        .print-btn,
+        .print-button,
+        .pdf-button,
+        .word-button,
+        .edit-button,
+        .export-buttons,
         .btn-warning,
+        .btn-success,
+        .btn-info,
         .modal {
           display: none !important;
         }
@@ -65,23 +78,63 @@
           box-shadow: none;
         }
       }
+
+      /* Kompaktna dugmad kao na ugovoru o radu */
+      .print-button,
+      .pdf-button,
+      .word-button,
+      .edit-button {
+        position: fixed;
+        right: 20px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1000;
+        min-width: 80px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .print-button {
+        top: 20px;
+        background-color: #007bff;
+      }
+
+      .pdf-button {
+        top: 80px;
+        background-color: #dc3545;
+      }
+
+      .word-button {
+        top: 140px;
+        background-color: #6f42c1;
+      }
+
+      .edit-button {
+        top: 200px;
+        background-color: #ffc107;
+        color: #000;
+      }
+
+      .print-button:hover,
+      .pdf-button:hover,
+      .word-button:hover,
+      .edit-button:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+      }
     </style>
   </head>
   <body>
-    <button
-      class="btn btn-primary print-btn"
-      onclick="window.print()"
-      style="top: 20px; right: 20px"
-    >
-      <i class="fas fa-print me-2"></i>Štampaj
-    </button>
-
-    <button
-      class="btn btn-warning"
-      onclick="otvoriModalDanOdmora()"
-      style="position: fixed; top: 20px; right: 120px; z-index: 1000"
-    >
-      <i class="fas fa-edit me-2"></i>Promeni dan
+    <!-- Export dugmad - kompaktno kao na ugovoru o radu -->
+    <button class="print-button" onclick="window.print()">🖨️ Štampaj</button>
+    <button class="pdf-button" onclick="downloadPDF()">📄 PDF</button>
+    <button class="word-button" onclick="downloadWord()">📝 Word</button>
+    <button class="edit-button" onclick="otvoriModalDanOdmora()">
+      ✏️ Promeni
     </button>
 
     <!-- Modal za izbor dana sedmičnog odmora -->
@@ -278,10 +331,10 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const radnikId = urlParams.get("radnikId");
-        const firmaId = urlParams.get("firmaId");
+        const radnikId = urlParams.get('radnikId');
+        const firmaId = urlParams.get('firmaId');
 
         if (radnikId && firmaId) {
           loadData(radnikId, firmaId);
@@ -299,81 +352,124 @@
           const firma = await firmaResponse.json();
 
           // Popuni header
-          document.getElementById("firmaNaziv").textContent = firma.naziv;
+          document.getElementById('firmaNaziv').textContent = firma.naziv;
           document.getElementById(
-            "firmaAdresa"
+            'firmaAdresa'
           ).textContent = `PIB: ${firma.pib} | ${firma.adresa}`;
 
           // Popuni naziv firme u tekstu
-          document.getElementById("firmaNazivText").textContent = firma.naziv;
+          document.getElementById('firmaNazivText').textContent = firma.naziv;
 
           // Popuni ime direktora iz baze podataka
-          const direktorElement = document.getElementById("direktorImePrezime");
+          const direktorElement = document.getElementById('direktorImePrezime');
           if (firma.direktor_ime_prezime) {
             direktorElement.textContent = firma.direktor_ime_prezime;
           } else {
-            direktorElement.textContent = "Ime i prezime direktora";
+            direktorElement.textContent = 'Ime i prezime direktora';
           }
 
           // Popuni ime i prezime radnika
           document.getElementById(
-            "radnikImePrezime"
+            'radnikImePrezime'
           ).textContent = `${radnik.ime} ${radnik.prezime}`;
 
           // Popuni JMBG radnika
-          document.getElementById("radnikJmbg").textContent = radnik.jmbg;
+          document.getElementById('radnikJmbg').textContent = radnik.jmbg;
 
           // Proverava URL parametre za specifičan dan
           const urlParams = new URLSearchParams(window.location.search);
-          const danOdmora = urlParams.get("danOdmora");
+          const danOdmora = urlParams.get('danOdmora');
 
           if (danOdmora) {
-            document.getElementById("datumOdmora").textContent = danOdmora;
+            document.getElementById('datumOdmora').textContent = danOdmora;
           } else {
             // Default je "ponedeljkom"
-            document.getElementById("datumOdmora").textContent = "ponedeljkom";
+            document.getElementById('datumOdmora').textContent = 'ponedeljkom';
           }
         } catch (error) {
-          console.error("Greška pri učitavanju podataka:", error);
+          console.error('Greška pri učitavanju podataka:', error);
         }
       }
 
       // Funkcije za modal izbora dana
       function otvoriModalDanOdmora() {
         try {
-          const modalElement = document.getElementById("danOdmoraModal");
+          const modalElement = document.getElementById('danOdmoraModal');
           const modal = new bootstrap.Modal(modalElement);
           modal.show();
         } catch (error) {
-          console.error("Error opening modal:", error);
-          alert("Greška pri otvaranju modal-a: " + error.message);
+          console.error('Error opening modal:', error);
+          alert('Greška pri otvaranju modal-a: ' + error.message);
         }
       }
 
       function potvrdiDanOdmora() {
         const specificniDatum =
-          document.getElementById("specificniDatum").value;
-        const danSelect = document.getElementById("danSelect").value;
+          document.getElementById('specificniDatum').value;
+        const danSelect = document.getElementById('danSelect').value;
 
         let tekstZaDokument;
 
         if (specificniDatum) {
           // Ako je unesen specifičan datum, koristi ga
           const datum = new Date(specificniDatum);
-          tekstZaDokument = datum.toLocaleDateString("sr-Latn-RS");
+          tekstZaDokument = datum.toLocaleDateString('sr-Latn-RS');
         } else {
           // Inače koristi izabrani dan u nedelji
           tekstZaDokument = danSelect;
         }
 
         // Popuni dokument
-        document.getElementById("datumOdmora").textContent = tekstZaDokument;
+        document.getElementById('datumOdmora').textContent = tekstZaDokument;
 
         // Zatvori modal
         const modal = bootstrap.Modal.getInstance(
-          document.getElementById("danOdmoraModal")
+          document.getElementById('danOdmoraModal')
         );
         modal.hide();
+      }
+
+      // ============================================
+      // EXPORT FUNKCIJE - koristi ExportUtils modul
+      // ============================================
+
+      async function downloadPDF() {
+        await ExportUtils.exportToPDF({
+          containerSelector: '.document-container',
+          filePrefix: 'Sedmicni_Odmor',
+          getFileName: () => {
+            const firmaNaziv =
+              document.getElementById('firma-naziv')?.textContent || 'Firma';
+            const datum = new Date()
+              .toISOString()
+              .slice(0, 10)
+              .replace(/-/g, '_');
+            return `Sedmicni_Odmor_${firmaNaziv.replace(
+              /\s+/g,
+              '_'
+            )}_${datum}.pdf`;
+          },
+        });
+      }
+
+      function downloadWord() {
+        ExportUtils.exportToWord({
+          containerSelector: '.document-container',
+          filePrefix: 'Sedmicni_Odmor',
+          compact: true,
+          getFileName: () => {
+            const firmaNaziv =
+              document.getElementById('firma-naziv')?.textContent || 'Firma';
+            const datum = new Date()
+              .toISOString()
+              .slice(0, 10)
+              .replace(/-/g, '_');
+            return `Sedmicni_Odmor_${firmaNaziv.replace(
+              /\s+/g,
+              '_'
+            )}_${datum}.doc`;
+          },
+        });
       }
     </script>
 

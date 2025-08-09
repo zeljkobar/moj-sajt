@@ -12,9 +12,16 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
+
+    <!-- PDF/Word Export libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Export Utils module -->
+    <script src="components/export-utils.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         background-color: #f8f9fa;
         padding: 20px;
       }
@@ -62,12 +69,63 @@
           box-shadow: none;
         }
       }
+
+      /* Kompaktna dugmad kao na ugovoru o radu - desna strana */
+      .print-button,
+      .pdf-button,
+      .word-button {
+        position: fixed;
+        right: 20px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1000;
+        min-width: 80px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .print-button {
+        top: 20px;
+        background-color: #007bff;
+      }
+
+      .pdf-button {
+        top: 80px;
+        background-color: #dc3545;
+      }
+
+      .word-button {
+        top: 140px;
+        background-color: #6f42c1;
+      }
+
+      .print-button:hover,
+      .pdf-button:hover,
+      .word-button:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+      }
+
+      /* Sakrij dugmad tokom štampe */
+      @media print {
+        .print-button,
+        .pdf-button,
+        .word-button,
+        .print-btn {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body>
-    <button class="btn btn-primary print-btn" onclick="window.print()">
-      <i class="fas fa-print me-2"></i>Štampaj
-    </button>
+    <!-- Export dugmad - kompaktno sa desne strane -->
+    <button class="print-button" onclick="window.print()">🖨️ Štampaj</button>
+    <button class="pdf-button" onclick="downloadPDF()">📄 PDF</button>
+    <button class="word-button" onclick="downloadWord()">📝 Word</button>
 
     <div class="document-container">
       <div class="header">
@@ -142,10 +200,10 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const radnikId = urlParams.get("radnikId");
-        const firmaId = urlParams.get("firmaId");
+        const radnikId = urlParams.get('radnikId');
+        const firmaId = urlParams.get('firmaId');
 
         if (radnikId && firmaId) {
           loadData(radnikId, firmaId);
@@ -164,70 +222,111 @@
 
           // Mapiranje tipova ugovora
           const tipUgovoraText = {
-            na_neodredjeno: "Na neodređeno vreme",
-            na_odredjeno: "Na određeno vreme",
+            na_neodredjeno: 'Na neodređeno vreme',
+            na_odredjeno: 'Na određeno vreme',
           };
 
           const vrstaUgovoraText = {
-            ugovor_o_radu: "Ugovor o radu",
-            ugovor_o_djelu: "Ugovor o djelu",
-            ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
-            autorski_ugovor: "Autorski ugovor",
+            ugovor_o_radu: 'Ugovor o radu',
+            ugovor_o_djelu: 'Ugovor o djelu',
+            ugovor_o_dopunskom_radu: 'Ugovor o dopunskom radu',
+            autorski_ugovor: 'Autorski ugovor',
           };
 
           const radnoVremeText = {
-            puno_8h: "Puno radno vreme (8 sati dnevno / 40 sati nedeljno)",
+            puno_8h: 'Puno radno vreme (8 sati dnevno / 40 sati nedeljno)',
             skraceno_6h:
-              "Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)",
+              'Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)',
             skraceno_4h:
-              "Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)",
+              'Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)',
             skraceno_2h:
-              "Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)",
+              'Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)',
           };
 
           // Popuni dokument
-          document.getElementById("firmaNaziv").textContent = firma.naziv;
+          document.getElementById('firmaNaziv').textContent = firma.naziv;
           document.getElementById(
-            "firmaAdresa"
+            'firmaAdresa'
           ).textContent = `PIB: ${firma.pib} | ${firma.adresa}`;
-          document.getElementById("firmaNazivText").textContent = firma.naziv;
-          document.getElementById("firmaAdresaText").textContent = firma.adresa;
-          document.getElementById("firmaPib").textContent = firma.pib;
+          document.getElementById('firmaNazivText').textContent = firma.naziv;
+          document.getElementById('firmaAdresaText').textContent = firma.adresa;
+          document.getElementById('firmaPib').textContent = firma.pib;
 
           document.getElementById(
-            "radnikIme"
+            'radnikIme'
           ).textContent = `${radnik.ime} ${radnik.prezime}`;
-          document.getElementById("radnikJmbg").textContent = radnik.jmbg;
-          document.getElementById("radnikPozicija").textContent =
-            radnik.pozicija_naziv || "Nespecifikovano";
+          document.getElementById('radnikJmbg').textContent = radnik.jmbg;
+          document.getElementById('radnikPozicija').textContent =
+            radnik.pozicija_naziv || 'Nespecifikovano';
 
           // Formatiranje datuma
           const datumZaposlenja = radnik.datum_zaposlenja
-            ? new Date(radnik.datum_zaposlenja).toLocaleDateString("sr-Latn-RS")
-            : "N/A";
-          document.getElementById("datumZaposlenja").textContent =
+            ? new Date(radnik.datum_zaposlenja).toLocaleDateString('sr-Latn-RS')
+            : 'N/A';
+          document.getElementById('datumZaposlenja').textContent =
             datumZaposlenja;
 
-          document.getElementById("vrstaUgovora").textContent =
-            vrstaUgovoraText[radnik.vrsta_ugovora] || "N/A";
-          document.getElementById("tipUgovora").textContent =
-            tipUgovoraText[radnik.tip_ugovora] || "N/A";
-          document.getElementById("radnoVreme").textContent =
-            radnoVremeText[radnik.tip_radnog_vremena] || "N/A";
-          document.getElementById("visinaZarade").textContent =
-            radnik.visina_zarade || "0";
+          document.getElementById('vrstaUgovora').textContent =
+            vrstaUgovoraText[radnik.vrsta_ugovora] || 'N/A';
+          document.getElementById('tipUgovora').textContent =
+            tipUgovoraText[radnik.tip_ugovora] || 'N/A';
+          document.getElementById('radnoVreme').textContent =
+            radnoVremeText[radnik.tip_radnog_vremena] || 'N/A';
+          document.getElementById('visinaZarade').textContent =
+            radnik.visina_zarade || '0';
         } catch (error) {
-          console.error("Greška pri učitavanju podataka:", error);
+          console.error('Greška pri učitavanju podataka:', error);
         }
       }
       // Dinamički ubaci razlog iz URL-a
       (function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const razlog = urlParams.get("razlog");
+        const razlog = urlParams.get('razlog');
         if (razlog) {
-          document.getElementById("potvrdaRazlog").textContent = razlog;
+          document.getElementById('potvrdaRazlog').textContent = razlog;
         }
       })();
+
+      // ============================================
+      // EXPORT FUNKCIJE - koristi ExportUtils modul
+      // ============================================
+
+      async function downloadPDF() {
+        await ExportUtils.exportToPDF({
+          containerSelector: '.document-container',
+          filePrefix: 'Potvrda_Zaposlenja',
+          getFileName: () => {
+            const radnikIme =
+              document.getElementById('radnikImePrezime')?.textContent ||
+              'Radnik';
+            const firmaNaziv =
+              document.getElementById('firmaNaziv')?.textContent || 'Firma';
+            return `Potvrda_Zaposlenja_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.pdf`;
+          },
+        });
+      }
+
+      function downloadWord() {
+        ExportUtils.exportToWord({
+          containerSelector: '.document-container',
+          filePrefix: 'Potvrda_Zaposlenja',
+          compact: true,
+          getFileName: () => {
+            const radnikIme =
+              document.getElementById('radnikImePrezime')?.textContent ||
+              'Radnik';
+            const firmaNaziv =
+              document.getElementById('firmaNaziv')?.textContent || 'Firma';
+            return `Potvrda_Zaposlenja_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
+          },
+        });
+      }
     </script>
   </body>
 </html>
