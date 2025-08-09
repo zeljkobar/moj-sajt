@@ -36,7 +36,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         line-height: 1.6;
         margin: 0;
         padding: 20px;
@@ -581,7 +581,7 @@
           // Koristi novu centralizovanu funkciju za popunjavanje
           popuniUgovorSaPodacima(ugovor);
         } catch (error) {
-          console.error("Greška pri dohvaćanju ugovora:", error);
+          console.error('Greška pri dohvaćanju ugovora:', error);
         }
       }
 
@@ -619,47 +619,47 @@
           // Pozovi postojeću logiku popunjavanja sa kreiranim objektom
           popuniUgovorSaPodacima(ugovor);
         } catch (error) {
-          console.error("Greška pri dohvaćanju podataka za ugovor:", error);
+          console.error('Greška pri dohvaćanju podataka za ugovor:', error);
         }
       }
 
       // Funkcija za transformaciju grada u genitiv (iz + grad)
       function transformisiGradUPadez(grad) {
-        if (!grad) return "Bara"; // Default vrednost
+        if (!grad) return 'Bara'; // Default vrednost
 
         // Ukloni razmake i pretvori u lowercase za poređenje
         const gradLower = grad.trim().toLowerCase();
 
         // Mapa najčešćih gradova sa njihovim padežnim oblicima
         const gradoviPadezi = {
-          bar: "Bara",
-          budva: "Budve",
-          podgorica: "Podgorice",
-          nikšić: "Nikšića",
-          niksic: "Nikšića",
-          "herceg novi": "Herceg Novog",
-          cetinje: "Cetinja",
-          ulcinj: "Ulcinja",
-          kotor: "Kotora",
-          tivat: "Tivta",
-          pljevlja: "Pljevalja",
-          "bijelo polje": "Bijelog Polja",
-          berane: "Berana",
-          andrijevica: "Andrijevice",
-          danilovgrad: "Danilovgrada",
-          kolašin: "Kolašina",
-          kolasin: "Kolašina",
-          mojkovac: "Mojkovca",
-          plav: "Plava",
-          rožaje: "Rožaja",
-          rozaje: "Rožaja",
-          šavnik: "Šavnika",
-          savnik: "Šavnika",
-          žabljak: "Žabljaka",
-          zabljak: "Žabljaka",
-          petnjica: "Petnjice",
-          gusinje: "Gusinja",
-          tuzi: "Tuzija",
+          bar: 'Bara',
+          budva: 'Budve',
+          podgorica: 'Podgorice',
+          nikšić: 'Nikšića',
+          niksic: 'Nikšića',
+          'herceg novi': 'Herceg Novog',
+          cetinje: 'Cetinja',
+          ulcinj: 'Ulcinja',
+          kotor: 'Kotora',
+          tivat: 'Tivta',
+          pljevlja: 'Pljevalja',
+          'bijelo polje': 'Bijelog Polja',
+          berane: 'Berana',
+          andrijevica: 'Andrijevice',
+          danilovgrad: 'Danilovgrada',
+          kolašin: 'Kolašina',
+          kolasin: 'Kolašina',
+          mojkovac: 'Mojkovca',
+          plav: 'Plava',
+          rožaje: 'Rožaja',
+          rozaje: 'Rožaja',
+          šavnik: 'Šavnika',
+          savnik: 'Šavnika',
+          žabljak: 'Žabljaka',
+          zabljak: 'Žabljaka',
+          petnjica: 'Petnjice',
+          gusinje: 'Gusinja',
+          tuzi: 'Tuzija',
         };
 
         // Provjeri da li grad postoji u mapi
@@ -671,96 +671,96 @@
         const gradOriginal = grad.trim();
 
         // Gradovi koji se završavaju na -a (ženski rod)
-        if (gradOriginal.endsWith("a")) {
-          return gradOriginal.slice(0, -1) + "e";
+        if (gradOriginal.endsWith('a')) {
+          return gradOriginal.slice(0, -1) + 'e';
         }
 
         // Gradovi koji se završavaju na -o (srednji rod)
-        if (gradOriginal.endsWith("o")) {
-          return gradOriginal.slice(0, -1) + "a";
+        if (gradOriginal.endsWith('o')) {
+          return gradOriginal.slice(0, -1) + 'a';
         }
 
         // Gradovi koji se završavaju na suglasnik (muški rod)
         // Dodaj -a na kraj
-        return gradOriginal + "a";
+        return gradOriginal + 'a';
       }
 
       function popuniUgovorSaPodacima(ugovor) {
         // Popuni tip ugovora
         const tipTekst =
-          ugovor.radnik_tip_ugovora === "na_neodredjeno"
-            ? "neodređeno"
-            : "određeno";
-        document.getElementById("tip-ugovora").textContent = tipTekst;
-        document.getElementById("tip-ugovora-clan7").textContent = tipTekst;
-        document.getElementById("tip-ugovora-clan2").textContent = tipTekst;
+          ugovor.radnik_tip_ugovora === 'na_neodredjeno'
+            ? 'neodređeno'
+            : 'određeno';
+        document.getElementById('tip-ugovora').textContent = tipTekst;
+        document.getElementById('tip-ugovora-clan7').textContent = tipTekst;
+        document.getElementById('tip-ugovora-clan2').textContent = tipTekst;
 
         // Popuni podatke o firmi
-        document.getElementById("firma-naziv").textContent = ugovor.firma_naziv;
-        document.getElementById("firma-pib").textContent = ugovor.firma_pib;
-        document.getElementById("firma-adresa").textContent =
-          ugovor.firma_adresa || "MILA BOSKOVICA";
-        document.getElementById("direktor-ime").textContent =
-          ugovor.direktor_ime_prezime || "SPIČANOVIĆ VOJIN";
+        document.getElementById('firma-naziv').textContent = ugovor.firma_naziv;
+        document.getElementById('firma-pib').textContent = ugovor.firma_pib;
+        document.getElementById('firma-adresa').textContent =
+          ugovor.firma_adresa || 'MILA BOSKOVICA';
+        document.getElementById('direktor-ime').textContent =
+          ugovor.direktor_ime_prezime || 'SPIČANOVIĆ VOJIN';
 
         // Popuni podatke o radniku
         const radnikImePrezime = `${ugovor.radnik_prezime} ${ugovor.radnik_ime}`;
-        document.getElementById("radnik-ime-prezime").textContent =
+        document.getElementById('radnik-ime-prezime').textContent =
           radnikImePrezime.toUpperCase();
-        document.getElementById("radnik-jmbg").textContent = ugovor.radnik_jmbg;
+        document.getElementById('radnik-jmbg').textContent = ugovor.radnik_jmbg;
 
         // Transformiši grad u odgovarajući padež
         const gradUPadežu = transformisiGradUPadez(ugovor.radnik_grad);
-        document.getElementById("radnik-adresa").textContent = gradUPadežu;
+        document.getElementById('radnik-adresa').textContent = gradUPadežu;
 
         // Popuni datume
         const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
         const formatiraniDatumZaposlenja =
-          datumZaposlenja.toLocaleDateString("sr-Latn-RS");
+          datumZaposlenja.toLocaleDateString('sr-Latn-RS');
 
-        document.getElementById("datum-pocetka").textContent =
+        document.getElementById('datum-pocetka').textContent =
           formatiraniDatumZaposlenja;
-        document.getElementById("datum-stupanja").textContent =
+        document.getElementById('datum-stupanja').textContent =
           formatiraniDatumZaposlenja;
-        document.getElementById("datum-zaposlenja-clan2").textContent =
+        document.getElementById('datum-zaposlenja-clan2').textContent =
           formatiraniDatumZaposlenja;
 
         // Prikaži/sakrij datum kraja za određeno/neodređeno vreme
         const datumKrajaWrapper = document.getElementById(
-          "datum-kraja-wrapper"
+          'datum-kraja-wrapper'
         );
         const doDatumPrestankaWrapper = document.getElementById(
-          "do-datum-prestanka-wrapper"
+          'do-datum-prestanka-wrapper'
         );
 
-        if (ugovor.radnik_tip_ugovora === "na_neodredjeno") {
-          datumKrajaWrapper.style.display = "none";
-          doDatumPrestankaWrapper.style.display = "none";
+        if (ugovor.radnik_tip_ugovora === 'na_neodredjeno') {
+          datumKrajaWrapper.style.display = 'none';
+          doDatumPrestankaWrapper.style.display = 'none';
         } else if (ugovor.datum_prestanka) {
           const datumPrestanka = new Date(ugovor.datum_prestanka);
           const formatiraniDatumPrestanka =
-            datumPrestanka.toLocaleDateString("sr-Latn-RS");
-          document.getElementById("datum-kraja").textContent =
+            datumPrestanka.toLocaleDateString('sr-Latn-RS');
+          document.getElementById('datum-kraja').textContent =
             formatiraniDatumPrestanka;
-          document.getElementById("datum-prestanka-clan2").textContent =
+          document.getElementById('datum-prestanka-clan2').textContent =
             formatiraniDatumPrestanka;
-          datumKrajaWrapper.style.display = "inline";
-          doDatumPrestankaWrapper.style.display = "inline";
+          datumKrajaWrapper.style.display = 'inline';
+          doDatumPrestankaWrapper.style.display = 'inline';
         }
 
         // Popuni mesto rada
-        document.getElementById("mesto-rada").textContent =
-          ugovor.mesto_rada || "SUSANJ BB";
+        document.getElementById('mesto-rada').textContent =
+          ugovor.mesto_rada || 'SUSANJ BB';
 
         // Popuni poziciju
-        document.getElementById("pozicija-naziv").textContent =
-          ugovor.pozicija_naziv || "rukovalac građevi";
+        document.getElementById('pozicija-naziv').textContent =
+          ugovor.pozicija_naziv || 'rukovalac građevi';
 
         // Popuni opis pozicije
-        const pozicijaOpisDiv = document.getElementById("pozicija-opis");
+        const pozicijaOpisDiv = document.getElementById('pozicija-opis');
         if (ugovor.opis_poslova) {
           pozicijaOpisDiv.innerHTML = `<p>${ugovor.opis_poslova}</p>`;
-          console.log("Popunjen opis pozicije iz baze:", ugovor.opis_poslova);
+          console.log('Popunjen opis pozicije iz baze:', ugovor.opis_poslova);
         } else {
         }
 
@@ -770,19 +770,19 @@
 
         if (ugovor.tip_radnog_vremena) {
           switch (ugovor.tip_radnog_vremena) {
-            case "puno_8h":
+            case 'puno_8h':
               satiDnevno = 8;
               satiNedeljno = 40;
               break;
-            case "skraceno_6h":
+            case 'skraceno_6h':
               satiDnevno = 6;
               satiNedeljno = 30;
               break;
-            case "skraceno_4h":
+            case 'skraceno_4h':
               satiDnevno = 4;
               satiNedeljno = 20;
               break;
-            case "skraceno_2h":
+            case 'skraceno_2h':
               satiDnevno = 2;
               satiNedeljno = 10;
               break;
@@ -793,57 +793,57 @@
         }
 
         // Funkcija za konvertovanje broja u tekst
-        const brojUTekst = (broj) => {
+        const brojUTekst = broj => {
           const brojevi = {
-            2: "dva",
-            4: "četiri",
-            6: "šest",
-            8: "osam",
-            10: "deset",
-            20: "dvadeset",
-            30: "trideset",
-            40: "četrdeset",
+            2: 'dva',
+            4: 'četiri',
+            6: 'šest',
+            8: 'osam',
+            10: 'deset',
+            20: 'dvadeset',
+            30: 'trideset',
+            40: 'četrdeset',
           };
           return brojevi[broj] || broj.toString();
         };
 
         // Određuj tip radnog vremena
-        let tipRadnogVremena = "PUNIM";
+        let tipRadnogVremena = 'PUNIM';
         if (satiDnevno < 8) {
-          tipRadnogVremena = "SKRAĆENIM";
+          tipRadnogVremena = 'SKRAĆENIM';
         }
 
-        document.getElementById("tip-radnog-vremena").textContent =
+        document.getElementById('tip-radnog-vremena').textContent =
           tipRadnogVremena;
-        document.getElementById("sati-dnevno").textContent = satiDnevno;
-        document.getElementById("sati-dnevno-tekst").textContent =
+        document.getElementById('sati-dnevno').textContent = satiDnevno;
+        document.getElementById('sati-dnevno-tekst').textContent =
           brojUTekst(satiDnevno);
-        document.getElementById("sati-nedeljno").textContent = satiNedeljno;
-        document.getElementById("sati-nedeljno-tekst").textContent =
+        document.getElementById('sati-nedeljno').textContent = satiNedeljno;
+        document.getElementById('sati-nedeljno-tekst').textContent =
           brojUTekst(satiNedeljno);
 
         // Popuni visinu zarade
         if (ugovor.visina_zarade) {
           const formatiranZarada = parseFloat(
             ugovor.visina_zarade
-          ).toLocaleString("sr-Latn-RS", {
+          ).toLocaleString('sr-Latn-RS', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
-          document.getElementById("visina-zarade").textContent =
+          document.getElementById('visina-zarade').textContent =
             formatiranZarada;
         }
 
-        console.log("Ugovor uspešno popunjen:", ugovor);
+        console.log('Ugovor uspešno popunjen:', ugovor);
       }
 
       // Kada se stranica učita, popuni ugovor
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         // Dobij ugovorId ili radnikId iz URL parametara
         const urlParams = new URLSearchParams(window.location.search);
-        const ugovorId = urlParams.get("ugovor");
-        const radnikId = urlParams.get("radnikId");
-        const firmaId = urlParams.get("firmaId");
+        const ugovorId = urlParams.get('ugovor');
+        const radnikId = urlParams.get('radnikId');
+        const firmaId = urlParams.get('firmaId');
 
         // Popuni ugovor kada se stranica učita
         if (ugovorId) {
@@ -859,68 +859,121 @@
       });
 
       // ============================================
-      // PDF EXPORT FUNKCIJA
+      // PDF EXPORT FUNKCIJA - OPTIMIZOVANA VERZIJA
       // ============================================
       async function downloadPDF() {
         try {
           // Sakrij dugmad tokom snimanja
-          document.querySelector(".print-button").style.display = "none";
-          document.querySelector(".pdf-button").style.display = "none";
-          document.querySelector(".word-button").style.display = "none";
+          document.querySelector('.print-button').style.display = 'none';
+          document.querySelector('.pdf-button').style.display = 'none';
+          document.querySelector('.word-button').style.display = 'none';
 
           const { jsPDF } = window.jspdf;
-          const element = document.querySelector(".container");
+          const element = document.querySelector('.container');
 
-          // Kreiranje canvas-a od HTML-a
+          // Ukloni sjenku i forsiraj belu pozadinu za anti-sivilo efekat
+          const originalBg = element.style.backgroundColor;
+          const originalBoxShadow = element.style.boxShadow;
+          element.style.backgroundColor = 'white';
+          element.style.boxShadow = 'none';
+
+          // Kreiranje canvas-a sa optimizovanim podesavanjima
           const canvas = await html2canvas(element, {
-            scale: 2,
+            scale: 1, // Smanjeno sa 2 na 1 - drastično smanjuje veličinu fajla
             useCORS: true,
             allowTaint: false,
+            backgroundColor: '#ffffff', // Bela pozadina
+            removeContainer: true,
+            imageTimeout: 0,
+            logging: false,
           });
 
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
+          // Vrati originalne stilove
+          element.style.backgroundColor = originalBg;
+          element.style.boxShadow = originalBoxShadow;
 
-          const imgWidth = 210;
-          const pageHeight = 295;
+          // Kreiranje PDF-a sa marginama
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pageWidth = 210;
+          const pageHeight = 297;
+          const margin = 5; // 5mm margine
+          const imgWidth = pageWidth - margin * 2;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
 
-          let position = 0;
+          // Optimizovano JPEG kompresija umesto PNG
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+          // Pametniji algoritam za podelu stranica
+          const pageContentHeight = pageHeight - margin * 2;
+          let yPosition = margin;
+          let remainingHeight = imgHeight;
+          let sourceY = 0;
 
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
+          while (remainingHeight > 0) {
+            const sliceHeight = Math.min(remainingHeight, pageContentHeight);
+
+            // Kreiranje segmenta slike
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = (sliceHeight * canvas.width) / imgWidth;
+
+            // Kopiranje odgovarajućeg dela originalne slike
+            tempCtx.drawImage(
+              canvas,
+              0,
+              (sourceY * canvas.width) / imgWidth,
+              canvas.width,
+              tempCanvas.height,
+              0,
+              0,
+              canvas.width,
+              tempCanvas.height
+            );
+
+            const sliceData = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+            if (sourceY > 0) {
+              pdf.addPage();
+            }
+
+            pdf.addImage(
+              sliceData,
+              'JPEG',
+              margin,
+              yPosition,
+              imgWidth,
+              sliceHeight
+            );
+
+            sourceY += sliceHeight;
+            remainingHeight -= sliceHeight;
+            yPosition = margin; // Nova stranica počinje od vrha
           }
 
           // Generisanje imena fajla
           const radnikIme =
-            document.getElementById("radnik-ime-prezime")?.textContent ||
-            "Radnik";
+            document.getElementById('radnik-ime-prezime')?.textContent ||
+            'Radnik';
           const firmaNaziv =
-            document.getElementById("firma-naziv")?.textContent || "Firma";
+            document.getElementById('firma-naziv')?.textContent || 'Firma';
           const fileName = `Ugovor_${radnikIme.replace(
             /\s+/g,
-            "_"
-          )}_${firmaNaziv.replace(/\s+/g, "_")}.pdf`;
+            '_'
+          )}_${firmaNaziv.replace(/\s+/g, '_')}.pdf`;
 
           pdf.save(fileName);
 
           // Pokaži dugmad ponovo
-          document.querySelector(".print-button").style.display = "flex";
-          document.querySelector(".pdf-button").style.display = "flex";
-          document.querySelector(".word-button").style.display = "flex";
+          document.querySelector('.print-button').style.display = 'flex';
+          document.querySelector('.pdf-button').style.display = 'flex';
+          document.querySelector('.word-button').style.display = 'flex';
         } catch (error) {
-          console.error("Greška pri kreiranju PDF-a:", error);
-          alert("Greška pri kreiranju PDF-a. Pokušajte ponovo.");
-          document.querySelector(".print-button").style.display = "flex";
-          document.querySelector(".pdf-button").style.display = "flex";
-          document.querySelector(".word-button").style.display = "flex";
+          console.error('Greška pri kreiranju PDF-a:', error);
+          alert('Greška pri kreiranju PDF-a. Pokušajte ponovo.');
+          document.querySelector('.print-button').style.display = 'flex';
+          document.querySelector('.pdf-button').style.display = 'flex';
+          document.querySelector('.word-button').style.display = 'flex';
         }
       }
 
@@ -933,23 +986,23 @@
       function downloadWordCompact() {
         try {
           // Uzmi sadržaj ugovora
-          const container = document.querySelector(".container");
+          const container = document.querySelector('.container');
           let content = container.innerHTML;
 
           // Optimizuj sadržaj za kompaktni format
-          content = content.replace(/<br\s*\/?>/gi, " ");
-          content = content.replace(/\s+/g, " ");
+          content = content.replace(/<br\s*\/?>/gi, ' ');
+          content = content.replace(/\s+/g, ' ');
 
           // Generisanje naziva fajla
           const radnikIme =
-            document.getElementById("radnik-ime-prezime")?.textContent ||
-            "Radnik";
+            document.getElementById('radnik-ime-prezime')?.textContent ||
+            'Radnik';
           const firmaNaziv =
-            document.getElementById("firma-naziv")?.textContent || "Firma";
+            document.getElementById('firma-naziv')?.textContent || 'Firma';
           const fileName = `Ugovor_Kompakt_${radnikIme.replace(
             /\s+/g,
-            "_"
-          )}_${firmaNaziv.replace(/\s+/g, "_")}.doc`;
+            '_'
+          )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
 
           // Kreiranje kompaktnog Word dokumenta
           const wordContent = `
@@ -1060,11 +1113,11 @@
 
           // Kreiranje blob-a i download-a
           const blob = new Blob([wordContent], {
-            type: "application/msword;charset=utf-8",
+            type: 'application/msword;charset=utf-8',
           });
 
           const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
+          const a = document.createElement('a');
           a.href = url;
           a.download = fileName;
           document.body.appendChild(a);
@@ -1073,11 +1126,11 @@
           URL.revokeObjectURL(url);
         } catch (error) {
           console.error(
-            "Greška pri kreiranju kompaktnog Word dokumenta:",
+            'Greška pri kreiranju kompaktnog Word dokumenta:',
             error
           );
           alert(
-            "Greška pri kreiranju kompaktnog Word dokumenta. Pokušajte ponovo."
+            'Greška pri kreiranju kompaktnog Word dokumenta. Pokušajte ponovo.'
           );
         }
       }
