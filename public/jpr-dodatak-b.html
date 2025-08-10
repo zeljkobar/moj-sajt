@@ -257,6 +257,69 @@
         outline: none;
       }
 
+      /* Osnov osiguranja zdravstvo - 1 kockica */
+      .osnov-zdravstvo-container {
+        position: absolute;
+        top: 1050px; /* Prilagodi poziciju */
+        left: 743px; /* Prilagodi poziciju */
+        display: flex;
+        gap: 0px;
+      }
+
+      .zdravstvo-digit {
+        width: 18px;
+        height: 18px;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 11px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      /* Osnov prestanka osiguranja zdravstvo - 1 kockica */
+      .prestanak-zdravstvo-container {
+        position: absolute;
+        top: 1076px; /* Ispod zdravstvo kockice */
+        left: 745px; /* Ista X pozicija */
+        display: flex;
+        gap: 0px;
+      }
+
+      .prestanak-zdravstvo-digit {
+        width: 14px;
+        height: 14px;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 11px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      /* Prestanak PIO - 1 kockica */
+      .prestanak-pio-container {
+        position: absolute;
+        top: 951px; /* Ispod prestanak zdravstvo */
+        left: 747px; /* Ista X pozicija */
+        display: flex;
+        gap: 0px;
+      }
+
+      .prestanak-pio-digit {
+        width: 14px;
+        height: 14px;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 11px;
+        font-weight: bold;
+        outline: none;
+      }
+
       .field-radno-vrijeme {
         top: 900px;
         left: 250px;
@@ -348,48 +411,69 @@
         font-weight: bold; /* Deblja slova */
         outline: none;
       }
+
+      /* Nova polja - IZDAT OD i SSS */
+      .field-izdat-od {
+        position: absolute;
+        top: 293px; /* Prilagodi poziciju */
+        left: 238px; /* Prilagodi poziciju */
+        width: 400px;
+        height: 18px;
+      }
+
+      .field-sss {
+        position: absolute;
+        top: 323px; /* Prilagodi poziciju */
+        left: 238px; /* Prilagodi poziciju */
+        width: 400px;
+        height: 13px;
+      }
     </style>
   </head>
   <body>
     <div class="form-container">
       <!-- JMBG cifre -->
       <div class="jmbg-container">
-        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="6" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="6" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="9" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="8" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
         <input type="text" class="jmbg-digit" maxlength="1" value="0" />
         <input type="text" class="jmbg-digit" maxlength="1" value="0" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="1" />
-        <input type="text" class="jmbg-digit" maxlength="1" value="2" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
+        <input type="text" class="jmbg-digit" maxlength="1" value="0" />
       </div>
 
       <!-- Opšti podaci -->
-      <input type="text" class="form-field field-prezime" value="OTAŠEVIĆ" />
-      <input type="text" class="form-field field-ime" value="ALEKSANDAR" />
+      <input
+        type="text"
+        class="form-field field-prezime"
+        value="UNESI PREZIME"
+      />
+      <input type="text" class="form-field field-ime" value="UNESI IME" />
 
       <!-- Datum rođenja - podijeljeno na dan/mjesec/godina -->
       <!-- Dan grupa (2 cifre) -->
       <div class="dan-grupa">
         <input type="text" class="dan-digit" maxlength="1" value="0" />
-        <input type="text" class="dan-digit" maxlength="1" value="5" />
+        <input type="text" class="dan-digit" maxlength="1" value="0" />
       </div>
       <!-- Mjesec grupa (2 cifre) -->
       <div class="mjesec-grupa">
         <input type="text" class="mjesec-digit" maxlength="1" value="0" />
-        <input type="text" class="mjesec-digit" maxlength="1" value="2" />
+        <input type="text" class="mjesec-digit" maxlength="1" value="0" />
       </div>
       <!-- Godina grupa (4 cifre) -->
       <div class="godina-grupa">
-        <input type="text" class="godina-digit" maxlength="1" value="1" />
-        <input type="text" class="godina-digit" maxlength="1" value="9" />
-        <input type="text" class="godina-digit" maxlength="1" value="7" />
-        <input type="text" class="godina-digit" maxlength="1" value="3" />
+        <input type="text" class="godina-digit" maxlength="1" value="0" />
+        <input type="text" class="godina-digit" maxlength="1" value="0" />
+        <input type="text" class="godina-digit" maxlength="1" value="0" />
+        <input type="text" class="godina-digit" maxlength="1" value="0" />
       </div>
 
       <input type="text" class="form-field field-mjesto-rodjenja" value="BAR" />
@@ -413,27 +497,48 @@
         class="form-field field-vrsta-dokumenta"
         value="LIČNA KARTA"
       />
-      <input
-        type="text"
-        class="form-field field-broj-dokumenta"
-        value="123456789"
-      />
-      <input type="text" class="form-field field-zanimanje" value="PROGRAMER" />
+      <input type="text" class="form-field field-broj-dokumenta" value="" />
+      <input type="text" class="form-field field-zanimanje" value="" />
 
       <!-- Adresa -->
       <input type="text" class="form-field field-drzava" value="CRNA GORA" />
       <input type="text" class="form-field field-opstina" value="BAR" />
       <input type="text" class="form-field field-mjesto" value="BAR" />
-      <input type="text" class="form-field field-ulica" value="RJETLISI BB" />
+      <input type="text" class="form-field field-ulica" value="BJELISI BB" />
 
       <!-- Nova polja -->
       <input type="text" class="form-field field-opstina-dodatno" value="BAR" />
 
       <!-- Osnov osiguranja - 3 kockice -->
       <div class="osnov-osiguranja-container">
-        <input type="text" class="osnov-digit" maxlength="1" value="0" />
         <input type="text" class="osnov-digit" maxlength="1" value="1" />
         <input type="text" class="osnov-digit" maxlength="1" value="0" />
+        <input type="text" class="osnov-digit" maxlength="1" value="1" />
+      </div>
+
+      <!-- Osnov osiguranja zdravstvo - 1 kockica -->
+      <div class="osnov-zdravstvo-container">
+        <input type="text" class="zdravstvo-digit" maxlength="1" value="1" />
+      </div>
+
+      <!-- Osnov prestanka osiguranja zdravstvo - 1 kockica -->
+      <div class="prestanak-zdravstvo-container">
+        <input
+          type="text"
+          class="prestanak-zdravstvo-digit"
+          maxlength="1"
+          value="0"
+        />
+      </div>
+
+      <!-- Prestanak PIO - 1 kockica -->
+      <div class="prestanak-pio-container">
+        <input
+          type="text"
+          class="prestanak-pio-digit"
+          maxlength="1"
+          value="0"
+        />
       </div>
 
       <input
@@ -476,8 +581,12 @@
         <input type="text" class="zdo-godina-digit" maxlength="1" value="2" />
         <input type="text" class="zdo-godina-digit" maxlength="1" value="4" />
       </div>
+
+      <!-- Nova polja - IZDAT OD i SSS (plava za lakše pozicioniranje) -->
+      <input type="text" class="form-field field-izdat-od" />
+      <input type="text" class="form-field field-sss" />
     </div>
 
-    <script src="jpr-script.js"></script>
+    <script src="jpr-shared-script.js"></script>
   </body>
 </html>
