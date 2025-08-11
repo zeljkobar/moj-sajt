@@ -25,10 +25,6 @@ const { setupActivitiesWithUserFilter } = require('./activities-patch');
 const InventoryService = require('./src/services/inventoryService');
 const cors = require('cors');
 const session = require('express-session');
-// Redis session store dependencies (install when needed for production):
-// npm install connect-redis redis
-const RedisStore = require('connect-redis').default;
-const redis = require('redis');
 const path = require('path');
 const fs = require('fs');
 
@@ -114,43 +110,11 @@ const sessionConfig = {
   store: undefined, // Default MemoryStore - CHANGE FOR PRODUCTION!
 };
 
-// Production Redis store configuration
-if (process.env.NODE_ENV === 'production' && process.env.REDIS_URL) {
-  const redisClient = redis.createClient({
-    url: process.env.REDIS_URL,
-    retry_strategy: options => {
-      if (options.error && options.error.code === 'ECONNREFUSED') {
-        return new Error('Redis server refused connection');
-      }
-      if (options.total_retry_time > 1000 * 60 * 60) {
-        return new Error('Retry time exhausted');
-      }
-      return Math.min(options.attempt * 100, 3000);
-    },
-  });
-
-  redisClient.on('error', err => {
-    console.error('❌ Redis Client Error:', err);
-  });
-
-  redisClient.on('connect', () => {
-    console.log('✅ Redis connected successfully');
-  });
-
-  sessionConfig.store = new RedisStore({
-    client: redisClient,
-    ttl: 86400, // 24 hours
-    prefix: 'summa:sess:',
-  });
-
-  console.log('✅ Using Redis session store');
-}
-
 // Log warning if using MemoryStore in production
 if (process.env.NODE_ENV === 'production' && !sessionConfig.store) {
   console.warn('⚠️  WARNING: Using MemoryStore for sessions in production!');
   console.warn('   Sessions will be lost on server restart.');
-  console.warn('   Consider using Redis or another persistent store.');
+  console.warn('   Consider using a persistent store for production.');
 }
 
 app.use(session(sessionConfig));
@@ -762,19 +726,9 @@ process.on('SIGTERM', () => {
   });
 });
 
-// PRODUCTION: Graceful shutdown with Redis cleanup
+// PRODUCTION: Graceful shutdown
 const shutdownGracefully = async () => {
   console.log('\n⚠️  Shutting down gracefully...');
-
-  // Close Redis connection if exists
-  if (sessionConfig.store && sessionConfig.store.client) {
-    try {
-      await sessionConfig.store.client.quit();
-      console.log('✅ Redis connection closed');
-    } catch (err) {
-      console.error('❌ Error closing Redis connection:', err);
-    }
-  }
 
   // Close server
   server.close(() => {
