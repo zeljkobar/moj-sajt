@@ -1,9 +1,9 @@
-const { executeQuery } = require("../config/database");
+const { executeQuery } = require('../config/database');
 
 // Kreiraj novu pozajmicu
 exports.createPozajmica = async (req, res) => {
-  console.log("=== CREATE POZAJMICA ===");
-  console.log("Request body:", req.body);
+  console.log('=== CREATE POZAJMICA ===');
+  console.log('Request body:', req.body);
 
   const {
     firma_id,
@@ -16,7 +16,7 @@ exports.createPozajmica = async (req, res) => {
     napomene,
   } = req.body;
 
-  console.log("Extracted values:", {
+  console.log('Extracted values:', {
     firma_id,
     radnik_id,
     iznos,
@@ -30,14 +30,14 @@ exports.createPozajmica = async (req, res) => {
   try {
     // Proveri da li broj ugovora već postoji
     const existingContract = await executeQuery(
-      "SELECT id FROM pozajmnice WHERE broj_ugovora = ?",
+      'SELECT id FROM pozajmnice WHERE broj_ugovora = ?',
       [broj_ugovora]
     );
 
     if (existingContract.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "Broj ugovora već postoji",
+        message: 'Broj ugovora već postoji',
       });
     }
 
@@ -60,15 +60,15 @@ exports.createPozajmica = async (req, res) => {
     res.json({
       success: true,
       pozajmnicaId: result.insertId,
-      message: "Pozajmica je uspešno kreirana",
+      message: 'Pozajmica je uspešno kreirana',
     });
   } catch (error) {
-    console.error("=== ERROR CREATING POZAJMICA ===");
-    console.error("Error details:", error);
-    console.error("Stack trace:", error.stack);
+    console.error('=== ERROR CREATING POZAJMICA ===');
+    console.error('Error details:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: "Greška pri kreiranju pozajmice",
+      message: 'Greška pri kreiranju pozajmice',
       error: error.message,
     });
   }
@@ -80,87 +80,78 @@ exports.getAllPozajmice = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Nije autentifikovan",
+        message: 'Nije autentifikovan',
       });
     }
 
     const username = req.session.user.username;
     const userRole = req.session.user.role;
 
-    console.log("=== POZAJMICE DEBUG ===");
-    console.log("Username:", username);
-    console.log("User Role:", userRole);
+    console.log('=== POZAJMICE DEBUG ===');
+    console.log('Username:', username);
+    console.log('User Role:', userRole);
 
     // Dobij user_id
     const users = await executeQuery(
-      "SELECT id FROM users WHERE username = ?",
+      'SELECT id FROM users WHERE username = ?',
       [username]
     );
 
     if (users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Korisnik nije pronađen",
+        message: 'Korisnik nije pronađen',
       });
     }
 
     const userId = users[0].id;
-    console.log("User ID:", userId);
+    console.log('User ID:', userId);
     let pozajmice = [];
 
-    if (userRole === "firma") {
-      // Za firmu korisnika - vrati pozajmice samo za njegovu firmu
-      const firme = await executeQuery(
-        "SELECT id FROM firme WHERE user_id = ?",
-        [userId]
-      );
+    // UNIFIKOVANA LOGIKA - SVI korisnici (admin, firma, agencija) vide samo SVOJE firme
+    const firme = await executeQuery('SELECT id FROM firme WHERE user_id = ?', [
+      userId,
+    ]);
 
-      console.log("Firme za user_id", userId, ":", firme);
+    console.log('Firme za user_id', userId, ':', firme);
 
-      if (firme.length === 0) {
-        console.log("Nema firmi za korisnika");
-        return res.json({
-          success: true,
-          pozajmice: [],
-        });
-      }
-
-      const firmaId = firme[0].id;
-      console.log("Filtering pozajmice for firma_id:", firmaId);
-
-      pozajmice = await executeQuery(
-        `SELECT p.*, 
-                f.naziv as firma_naziv,
-                r.ime as radnik_ime, r.prezime as radnik_prezime
-         FROM pozajmnice p
-         LEFT JOIN firme f ON p.firma_id = f.id
-         LEFT JOIN radnici r ON p.radnik_id = r.id  
-         WHERE p.firma_id = ?
-         ORDER BY p.datum_izdavanja DESC`,
-        [firmaId]
-      );
-    } else if (userRole === "admin") {
-      // Za admina - vrati sve pozajmice
-      pozajmice = await executeQuery(
-        `SELECT p.*, 
-                f.naziv as firma_naziv,
-                r.ime as radnik_ime, r.prezime as radnik_prezime
-         FROM pozajmnice p
-         LEFT JOIN firme f ON p.firma_id = f.id
-         LEFT JOIN radnici r ON p.radnik_id = r.id  
-         ORDER BY p.datum_izdavanja DESC`
-      );
+    if (firme.length === 0) {
+      console.log('Nema firmi za korisnika');
+      return res.json({
+        success: true,
+        pozajmice: [],
+      });
     }
+
+    // Kreiraj listu ID-jeva firmi
+    const firmaIds = firme.map(f => f.id);
+    const placeholders = firmaIds.map(() => '?').join(',');
+
+    console.log("Filtering pozajmice for all user's firma_ids:", firmaIds);
+
+    pozajmice = await executeQuery(
+      `SELECT p.*, 
+              f.naziv as firma_naziv,
+              r.ime as radnik_ime, r.prezime as radnik_prezime
+       FROM pozajmnice p
+       LEFT JOIN firme f ON p.firma_id = f.id
+       LEFT JOIN radnici r ON p.radnik_id = r.id  
+       WHERE p.firma_id IN (${placeholders})
+       ORDER BY p.datum_izdavanja DESC`,
+      firmaIds
+    );
+
+    console.log('Found pozajmice count:', pozajmice.length);
 
     res.json({
       success: true,
       pozajmice,
     });
   } catch (error) {
-    console.error("Error fetching pozajmice:", error);
+    console.error('Error fetching pozajmice:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju pozajmica",
+      message: 'Greška pri dohvaćanju pozajmica',
     });
   }
 };
@@ -187,10 +178,10 @@ exports.getPozajmiceByFirma = async (req, res) => {
       pozajmice,
     });
   } catch (error) {
-    console.error("Error fetching pozajmice by firma:", error);
+    console.error('Error fetching pozajmice by firma:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju pozajmica",
+      message: 'Greška pri dohvaćanju pozajmica',
     });
   }
 };
@@ -232,13 +223,13 @@ exports.updatePozajmica = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Pozajmica je uspešno ažurirana",
+      message: 'Pozajmica je uspešno ažurirana',
     });
   } catch (error) {
-    console.error("Error updating pozajmica:", error);
+    console.error('Error updating pozajmica:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri ažuriranju pozajmice",
+      message: 'Greška pri ažuriranju pozajmice',
     });
   }
 };
@@ -248,17 +239,17 @@ exports.deletePozajmica = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await executeQuery("DELETE FROM pozajmnice WHERE id = ?", [id]);
+    await executeQuery('DELETE FROM pozajmnice WHERE id = ?', [id]);
 
     res.json({
       success: true,
-      message: "Pozajmica je uspešno obrisana",
+      message: 'Pozajmica je uspešno obrisana',
     });
   } catch (error) {
-    console.error("Error deleting pozajmica:", error);
+    console.error('Error deleting pozajmica:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri brisanju pozajmice",
+      message: 'Greška pri brisanju pozajmice',
     });
   }
 };
@@ -275,13 +266,13 @@ exports.getNextBrojUgovora = async (req, res) => {
 
     res.json({
       success: true,
-      nextBrojUgovora: nextNumber.toString().padStart(3, "0"),
+      nextBrojUgovora: nextNumber.toString().padStart(3, '0'),
     });
   } catch (error) {
-    console.error("Error getting next broj ugovora:", error);
+    console.error('Error getting next broj ugovora:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri generisanju broja ugovora",
+      message: 'Greška pri generisanju broja ugovora',
     });
   }
 };
@@ -310,7 +301,7 @@ exports.getPozajmicaById = async (req, res) => {
     if (pozajmice.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Pozajmica nije pronađena",
+        message: 'Pozajmica nije pronađena',
       });
     }
 
@@ -319,10 +310,10 @@ exports.getPozajmicaById = async (req, res) => {
       pozajmica: pozajmice[0],
     });
   } catch (error) {
-    console.error("Error fetching pozajmica by id:", error);
+    console.error('Error fetching pozajmica by id:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju pozajmice",
+      message: 'Greška pri dohvaćanju pozajmice',
     });
   }
 };
