@@ -1,4 +1,4 @@
-const { executeQuery } = require("../config/database");
+const { executeQuery } = require('../config/database');
 
 // ============================================
 // POZAJMICA POVRAĆAJI CONTROLLER
@@ -11,28 +11,43 @@ exports.createPovracaj = async (req, res) => {
   try {
     // Proveri da li pozajmica postoji
     const [pozajmica] = await executeQuery(
-      "SELECT id, iznos, ukupno_vraceno, preostalo_dugovanje FROM pozajmnice WHERE id = ?",
+      'SELECT id, iznos, ukupno_vraceno, preostalo_dugovanje FROM pozajmnice WHERE id = ?',
       [pozajmica_id]
     );
 
     if (!pozajmica) {
       return res.status(404).json({
         success: false,
-        message: "Pozajmica nije pronađena",
+        message: 'Pozajmica nije pronađena',
       });
     }
 
-    if (iznos_povracaja <= 0) {
+    if (parseFloat(iznos_povracaja) <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Iznos povraćaja mora biti veći od 0",
+        message: 'Iznos povraćaja mora biti veći od 0',
       });
     }
 
-    if (iznos_povracaja > pozajmica.preostalo_dugovanje) {
+    // Konvertuj u brojeve za pravilno poređenje
+    const iznosPovracajaNum = Number(iznos_povracaja);
+    const preostaloNum = Number(pozajmica.preostalo_dugovanje);
+
+    if (isNaN(iznosPovracajaNum) || isNaN(preostaloNum)) {
+      return res.status(500).json({
+        success: false,
+        message: 'Greška pri konverziji brojeva',
+      });
+    }
+
+    if (iznosPovracajaNum > preostaloNum) {
       return res.status(400).json({
         success: false,
-        message: `Iznos povraćaja (${iznos_povracaja}€) ne može biti veći od preostalog dugovanja (${pozajmica.preostalo_dugovanje}€)`,
+        message: `Iznos povraćaja (${iznosPovracajaNum.toFixed(
+          2
+        )}€) ne može biti veći od preostalog dugovanja (${preostaloNum.toFixed(
+          2
+        )}€)`,
       });
     }
 
@@ -46,13 +61,13 @@ exports.createPovracaj = async (req, res) => {
     res.json({
       success: true,
       povracajId: result.insertId,
-      message: "Povraćaj je uspešno zabeležen",
+      message: 'Povraćaj je uspešno zabeležen',
     });
   } catch (error) {
-    console.error("Error creating povracaj:", error);
+    console.error('Error creating povracaj:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri kreiranju povraćaja",
+      message: 'Greška pri kreiranju povraćaja',
     });
   }
 };
@@ -76,10 +91,10 @@ exports.getPovracajeByPozajmica = async (req, res) => {
       povracaji,
     });
   } catch (error) {
-    console.error("Error fetching povracaji:", error);
+    console.error('Error fetching povracaji:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju povraćaja",
+      message: 'Greška pri dohvaćanju povraćaja',
     });
   }
 };
@@ -107,10 +122,10 @@ exports.getPovracajeByFirma = async (req, res) => {
       povracaji,
     });
   } catch (error) {
-    console.error("Error fetching povracaji by firma:", error);
+    console.error('Error fetching povracaji by firma:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju povraćaja",
+      message: 'Greška pri dohvaćanju povraćaja',
     });
   }
 };
@@ -123,20 +138,20 @@ exports.updatePovracaj = async (req, res) => {
   try {
     // Prvo obriši stari povraćaj da se izračuna novo stanje
     const [oldPovracaj] = await executeQuery(
-      "SELECT pozajmica_id, iznos_povracaja FROM pozajmica_povracaji WHERE id = ?",
+      'SELECT pozajmica_id, iznos_povracaja FROM pozajmica_povracaji WHERE id = ?',
       [id]
     );
 
     if (!oldPovracaj) {
       return res.status(404).json({
         success: false,
-        message: "Povraćaj nije pronađen",
+        message: 'Povraćaj nije pronađen',
       });
     }
 
     // Proveri da li je novi iznos valjan
     const [pozajmica] = await executeQuery(
-      "SELECT iznos, ukupno_vraceno FROM pozajmnice WHERE id = ?",
+      'SELECT iznos, ukupno_vraceno FROM pozajmnice WHERE id = ?',
       [oldPovracaj.pozajmica_id]
     );
 
@@ -149,7 +164,7 @@ exports.updatePovracaj = async (req, res) => {
     if (novoPreostaloDugovanje < 0) {
       return res.status(400).json({
         success: false,
-        message: "Novi iznos povraćaja je prevelik",
+        message: 'Novi iznos povraćaja je prevelik',
       });
     }
 
@@ -163,13 +178,13 @@ exports.updatePovracaj = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Povraćaj je uspešno ažuriran",
+      message: 'Povraćaj je uspešno ažuriran',
     });
   } catch (error) {
-    console.error("Error updating povracaj:", error);
+    console.error('Error updating povracaj:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri ažuriranju povraćaja",
+      message: 'Greška pri ažuriranju povraćaja',
     });
   }
 };
@@ -179,17 +194,17 @@ exports.deletePovracaj = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await executeQuery("DELETE FROM pozajmica_povracaji WHERE id = ?", [id]);
+    await executeQuery('DELETE FROM pozajmica_povracaji WHERE id = ?', [id]);
 
     res.json({
       success: true,
-      message: "Povraćaj je uspešno obrisan",
+      message: 'Povraćaj je uspešno obrisan',
     });
   } catch (error) {
-    console.error("Error deleting povracaj:", error);
+    console.error('Error deleting povracaj:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri brisanju povraćaja",
+      message: 'Greška pri brisanju povraćaja',
     });
   }
 };
@@ -219,10 +234,10 @@ exports.getStatistikeByFirma = async (req, res) => {
       statistike,
     });
   } catch (error) {
-    console.error("Error fetching statistike:", error);
+    console.error('Error fetching statistike:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dohvaćanju statistika",
+      message: 'Greška pri dohvaćanju statistika',
     });
   }
 };

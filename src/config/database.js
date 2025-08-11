@@ -1,22 +1,22 @@
-const mysql = require("mysql2/promise");
-require("dotenv").config();
-const fs = require("fs");
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+const fs = require('fs');
 
 // Database configuration
 const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "summasum_local",
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'summasum_local',
   waitForConnections: true,
   connectionLimit: 5,
   queueLimit: 0,
   idleTimeout: 300000, // 5 minutes
   maxIdle: 2,
   // MySQL2 specific options
-  charset: "utf8mb4",
-  timezone: "+00:00",
+  charset: 'utf8mb4',
+  timezone: '+00:00',
 };
 
 // Create connection pool
@@ -26,14 +26,14 @@ const pool = mysql.createPool(dbConfig);
 async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log("✅ Database connected successfully");
+    console.log('✅ Database connected successfully');
     console.log(
       `📊 Connected to: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`
     );
     connection.release();
     return true;
   } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
+    console.error('❌ Database connection failed:', error.message);
     return false;
   }
 }
@@ -46,7 +46,7 @@ async function executeQuery(sql, params = []) {
     const [rows] = await connection.execute(sql, params);
     return rows;
   } catch (error) {
-    console.error("Database query error:", error);
+    console.error('Database query error:', error);
     throw error;
   } finally {
     if (connection) {
@@ -64,12 +64,12 @@ async function getConnection() {
 async function executeSQLScript(scriptPath) {
   let connection;
   try {
-    const script = fs.readFileSync(scriptPath, "utf8");
+    const script = fs.readFileSync(scriptPath, 'utf8');
     connection = await pool.getConnection();
     await connection.query(script);
-    console.log("✅ SQL script executed successfully");
+    console.log('✅ SQL script executed successfully');
   } catch (error) {
-    console.error("❌ Error executing SQL script:", error.message);
+    console.error('❌ Error executing SQL script:', error.message);
   } finally {
     if (connection) {
       connection.release();
