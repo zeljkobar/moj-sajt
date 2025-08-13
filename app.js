@@ -21,7 +21,6 @@ const zadaciRoutes = require('./src/routes/zadaciRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
-const { setupActivitiesWithUserFilter } = require('./activities-patch');
 const InventoryService = require('./src/services/inventoryService');
 const cors = require('cors');
 const session = require('express-session');
@@ -640,9 +639,6 @@ app.use('/api/odluka', odlukaRoutes);
 app.use('/api/zadaci', zadaciRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
-
-// Setup activities endpoint with user filtering
-setupActivitiesWithUserFilter(app, authMiddleware);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 
