@@ -33,11 +33,13 @@ let redisClient = null;
 let RedisStore = null;
 try {
   const redis = require('redis');
-  RedisStore = require('connect-redis')(session);
+  RedisStore = require('connect-redis');
 
   redisClient = redis.createClient({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
+    socket: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+    },
   });
 
   redisClient.on('error', err => {
@@ -134,7 +136,10 @@ const sessionConfig = {
   name: 'summa.sid', // Custom session name
   store:
     redisClient && RedisStore
-      ? new RedisStore({ client: redisClient })
+      ? new RedisStore({
+          client: redisClient,
+          prefix: 'sess:',
+        })
       : undefined,
   cookie: {
     secure: false, // Temporarily disable for HTTP testing
