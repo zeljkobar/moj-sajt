@@ -28,6 +28,37 @@ const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
 
+// Pokušaj da učitaš Redis pakete
+let redisClient = null;
+let RedisStore = null;
+try {
+  const redis = require('redis');
+  RedisStore = require('connect-redis')(session);
+
+  redisClient = redis.createClient({
+    host: process.env.REDIS_HOST || 'localhost',
+    port: process.env.REDIS_PORT || 6379,
+  });
+
+  redisClient.on('error', err => {
+    console.error('Redis Client Error', err);
+    redisClient = null; // Fallback na MemoryStore
+  });
+
+  redisClient.on('connect', () => {
+    console.log('✅ Connected to Redis');
+  });
+
+  // Konektuj se na Redis
+  redisClient.connect().catch(err => {
+    console.error('Failed to connect to Redis:', err);
+    redisClient = null;
+  });
+} catch (error) {
+  console.warn('⚠️  Redis packages not found, using MemoryStore');
+  redisClient = null;
+}
+
 // Import novih middleware komponenti
 const { httpLogger, logInfo, logError } = require('./src/utils/logger');
 const {
@@ -44,6 +75,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://summasummarum.me',
   'http://summasummarum.me',
+  'http://185.102.78.178',
+  'https://185.102.78.178',
 ];
 
 // Primeni osnovni rate limiting na sve zahteve
@@ -99,22 +132,23 @@ const sessionConfig = {
   resave: false,
   saveUninitialized: false,
   name: 'summa.sid', // Custom session name
+  store:
+    redisClient && RedisStore
+      ? new RedisStore({ client: redisClient })
+      : undefined,
   cookie: {
-    secure:
-      process.env.NODE_ENV === 'production' && !process.env.IISNODE_VERSION,
+    secure: false, // Temporarily disable for HTTP testing
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 sata
     sameSite: 'lax', // CSRF protection
   },
-  // Add session store warning for production
-  store: undefined, // Default MemoryStore - CHANGE FOR PRODUCTION!
 };
 
-// Log warning if using MemoryStore in production
-if (process.env.NODE_ENV === 'production' && !sessionConfig.store) {
-  console.warn('⚠️  WARNING: Using MemoryStore for sessions in production!');
+if (sessionConfig.store) {
+  console.log('✅ Using Redis session store');
+} else {
+  console.warn('⚠️  Using MemoryStore for sessions');
   console.warn('   Sessions will be lost on server restart.');
-  console.warn('   Consider using a persistent store for production.');
 }
 
 app.use(session(sessionConfig));
@@ -706,14 +740,14 @@ app.use(handleNotFound);
 // Globalni error handler (mora biti poslednji middleware)
 app.use(globalErrorHandler);
 
-// IIS uses named pipes, not ports
-const server = app.listen(port, () => {
+// Listen on all interfaces, not just localhost
+const server = app.listen(port, '0.0.0.0', () => {
   if (process.env.IISNODE_VERSION) {
     logInfo('Server started', { environment: 'IIS with iisnode', port });
     console.log(`🚀 Server running on IIS with iisnode`);
   } else {
     logInfo('Server started', { environment: 'development', port });
-    console.log(`🚀 Server radi na http://localhost:${port}`);
+    console.log(`🚀 Server radi na http://0.0.0.0:${port}`);
   }
 });
 
