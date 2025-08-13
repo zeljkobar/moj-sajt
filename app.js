@@ -33,7 +33,7 @@ let redisClient = null;
 let RedisStore = null;
 try {
   const redis = require('redis');
-  RedisStore = require('connect-redis');
+  RedisStore = require('connect-redis').default;
 
   redisClient = redis.createClient({
     socket: {
