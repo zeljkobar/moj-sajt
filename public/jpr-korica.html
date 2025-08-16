@@ -3,236 +3,679 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JPR Obrazac</title>
+    <title>JPR Korica - Jedinstvena prijava za registraciju</title>
     <link rel="stylesheet" href="jpr-styles.css" />
+    <style>
+      .form-container {
+        position: relative;
+        width: 794px; /* A4 širina */
+        margin: 0 auto;
+        background-image: url('images/korica.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%; /* Rastegni na punu veličinu */
+        height: 1123px; /* A4 visina */
+        background-color: #f9f9f9; /* Fallback */
+        -webkit-print-color-adjust: exact; /* Za Chrome/Safari */
+        print-color-adjust: exact; /* Standardno */
+      }
+
+      /* Print stilovi */
+      @media print {
+        .form-container {
+          background-image: url('images/korica.png') !important;
+          background-repeat: no-repeat !important;
+          background-size: 100% 100% !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Uklanjanje margina stranice pri štampanju */
+        @page {
+          margin: 0;
+        }
+
+        body {
+          margin: 0;
+        }
+      }
+
+      .form-field {
+        position: absolute;
+        border: none;
+        background: transparent;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 2px;
+        outline: none;
+      }
+
+      .form-field:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+
+      /* Uklanjanje browser autocomplete stilova */
+      .form-field:-webkit-autofill,
+      .form-field:-webkit-autofill:hover,
+      .form-field:-webkit-autofill:focus,
+      .form-field:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+        -webkit-text-fill-color: black !important;
+        background: transparent !important;
+      }
+
+      /* Checkbox stil */
+      .checkbox-field {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+
+      .checkbox-field:checked::after {
+        content: 'X';
+        position: absolute;
+        left: 3px;
+        top: 1px;
+        font-size: 10px;
+        color: black;
+        font-weight: bold;
+      }
+
+      /* JMBG polja - 13 cifara */
+      .jmbg-container {
+        position: absolute;
+        top: 951px;
+        left: 83px;
+        display: flex;
+        gap: 0px;
+      }
+
+      .jmbg-digit {
+        width: 13px;
+        height: 22px;
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      .jmbg-digit:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+
+      /* PIB polja - 13 cifara */
+      .pib-container {
+        position: absolute;
+        top: 337px;
+        left: 205px;
+        display: flex;
+        gap: 0px;
+      }
+
+      .pib-digit {
+        width: 11.65px;
+        height: 18px;
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      .pib-digit:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+    </style>
   </head>
   <body>
-    <div class="header">
-      <div class="header-left">
-        <p>CRNA GORA</p>
-        <p>PORESKA UPRAVA</p>
-      </div>
-      <div class="header-right">
-        <p>OBRAZAC JPR</p>
-      </div>
-    </div>
-    <h1>
-      Jedinstvena prijava za registraciju poreskih obveznika,<br />
-      obveznika doprinosa i osiguranika
-    </h1>
-    <div class="document-type">
-      <div style="font-weight: bold; margin-bottom: 5px; font-size: 12px">
-        Tip dokumenta
-      </div>
-      <table>
-        <tr>
-          <td><span class="checkbox"></span></td>
-          <td>Registracija</td>
-        </tr>
-        <tr>
-          <td><span class="checkbox checked"></span></td>
-          <td>Promjena / dopuna podataka</td>
-        </tr>
-        <tr>
-          <td><span class="checkbox"></span></td>
-          <td>Prestanak registracije</td>
-        </tr>
-      </table>
-      <div
-        style="
-          margin-top: 5px;
-          margin-left: 25px;
-          font-size: 11px;
-          font-style: italic;
-        "
-      >
-        (Upisati «X» u odgovarajuće polje)
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>1. Podaci o podnosiocu</h3>
-      <table>
-        <tr>
-          <th>1.1 Tip lica</th>
-          <td style="border: none; padding: 8px 4px">
-            <span class="checkbox checked"></span> Pravno lice
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="checkbox"></span> Fizičko lice
-          </td>
-        </tr>
-        <tr>
-          <th>1.2 Matični broj/JMBG</th>
-          <td style="border: none; padding: 4px">
-            <div class="maticni-box">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <th>1.3 Puni naziv / Prezime</th>
-          <td><input type="text" /></td>
-        </tr>
-        <tr>
-          <th>1.4 Skraćeni naziv / Ime</th>
-          <td><input type="text" /></td>
-        </tr>
-      </table>
-    </div>
-    <div class="form-section">
-      <h3>2. Adresa sjedišta / prebivališta, odnosno boravišta</h3>
-      <table>
-        <tr>
-          <th>2.1 Država</th>
-          <td><input type="text" value="CRNA GORA" /></td>
-        </tr>
-        <tr>
-          <th>2.2 Opština</th>
-          <td><input type="text" value="BAR" /></td>
-        </tr>
-        <tr>
-          <th>2.3 Mjesto</th>
-          <td><input type="text" value="BAR" /></td>
-        </tr>
-        <tr>
-          <th>2.4 Ulica i broj</th>
-          <td><input type="text" value="BJELISI 79" /></td>
-        </tr>
-        <tr>
-          <th>2.5 Broj telefona/fax</th>
-          <td><input type="text" value="067440040" /></td>
-        </tr>
-        <tr>
-          <th>2.6 e-mail</th>
-          <td><input type="text" /></td>
-        </tr>
-      </table>
-    </div>
-    <div class="form-section">
-      <h3>3. Dodatak uz prijavu:</h3>
-      <p>
-        <span class="checkbox"></span> 3.1 Dodatak A: Registracija pravnog lica
-      </p>
-      <p>
-        <span class="checkbox"></span> 3.2 Dodatak B: Registracija fizičkog lica
-      </p>
-      <p>
-        3.2.1 Broj dodataka B
-        <span
-          style="
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            border: 1px solid black;
-            text-align: center;
-            line-height: 13px;
-            font-size: 11px;
-            margin-left: 10px;
-            margin-right: 3px;
-          "
-          >1</span
-        >
-      </p>
-      <p><span class="checkbox"></span> 3.3 Dodatak C: Evidencija objekata</p>
-    </div>
-    <div class="form-section">
-      <h3>4. Napomena</h3>
-      <h4 class="napomena">OVLAŠĆENJE ZA ELEKTRONSKI POTPIS</h4>
-      <div class="signature-section">
-        <div
-          style="
-            border: 1px solid black;
-            padding: 8px;
-            margin-bottom: 0;
-            background-color: #f9f9f9;
-            font-size: 12px;
-          "
-        >
-          Pod krivičnom odgovornošću izjavljujem da su podaci navedeni u prijavi
-          tačni i potpuni.
-        </div>
-        <div class="container" style="margin-top: 0">
-          <div class="section" style="flex: 2">
-            <p>PIB:</p>
-            <div class="pib-box" id="pib-container">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-            </div>
-            <p>Potpis podnosioca / ovlašćenog lica:</p>
-            <div class="signature-line"></div>
-          </div>
-          <div
-            class="section"
-            style="
-              text-align: center;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex: 1;
-            "
-          >
-            <p style="font-size: 12px">Mjesto za pečat:</p>
-          </div>
-          <div
-            class="section"
-            style="
-              text-align: center;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex: 1.5;
-            "
-          >
-            <p style="font-size: 12px">Datum: ___/___/______</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="form-section">
-      <h3>POPUNJAVA PORESKI ORGAN:</h3>
-      <div class="four-sections-container">
-        <div>
-          <p>Broj dokumenta:</p>
-          <p>___ / ___ - _________</p>
-        </div>
-        <div>
-          <p>Datum prijema:</p>
-          <p>___ / ___ / _________</p>
-        </div>
-        <div>
-          <p>Datum obrade:</p>
-          <p>___ / ___ / _________</p>
-        </div>
-        <div>
-          <p>Prezime i ime ovlašćenog službenika:</p>
-          <p>______________________________</p>
-        </div>
-      </div>
-    </div>
-    <div class="spacer"></div>
+    <div class="form-container">
+      <!-- Tip dokumenta checkboxes -->
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 184px; left: 439px"
+        id="registracija"
+        tabindex="1"
+      />
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 206px; left: 439px"
+        id="promjena"
+        tabindex="2"
+        checked
+      />
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 226px; left: 439px"
+        id="prestanak"
+        tabindex="3"
+      />
 
-    <script src="jpr-shared-script.js"></script>
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 302px; left: 206px"
+        id="pravno_lice"
+        tabindex="4"
+      />
+
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 302px; left: 414px"
+        id="fizicko_lice"
+        tabindex="5"
+      />
+      <!-- Osnovni podaci o podnosiocu -->
+      <!-- Naziv/Ime i prezime -->
+      <input
+        type="text"
+        class="form-field"
+        id="nazivFirme"
+        tabindex="19"
+        style="top: 371px; left: 207px; width: 512px"
+        placeholder="Naziv firme / Ime i prezime"
+      />
+      <!-- Jedinstveni matični broj - 13 cifara -->
+      <div class="jmbg-container">
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg1"
+          tabindex="28"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg2"
+          tabindex="29"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg3"
+          tabindex="30"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg4"
+          tabindex="31"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg5"
+          tabindex="32"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg6"
+          tabindex="33"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg7"
+          tabindex="34"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg8"
+          tabindex="35"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg9"
+          tabindex="36"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg10"
+          tabindex="37"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg11"
+          tabindex="38"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg12"
+          tabindex="39"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg13"
+          tabindex="40"
+          maxlength="1"
+        />
+      </div>
+
+      <!-- PIB - 13 cifara -->
+      <div class="pib-container">
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib1"
+          tabindex="6"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib2"
+          tabindex="7"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib3"
+          tabindex="8"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib4"
+          tabindex="9"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib5"
+          tabindex="10"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib6"
+          tabindex="11"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib7"
+          tabindex="12"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib8"
+          tabindex="13"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib9"
+          tabindex="14"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib10"
+          tabindex="15"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib11"
+          tabindex="16"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib12"
+          tabindex="17"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib13"
+          tabindex="18"
+          maxlength="1"
+        />
+      </div>
+
+      <!-- Adresa -->
+      <input
+        type="text"
+        class="form-field"
+        id="adresa"
+        tabindex="24"
+        style="top: 560px; left: 190px; width: 400px"
+        placeholder="Adresa"
+      />
+
+      <!-- Mesto -->
+      <input
+        type="text"
+        class="form-field"
+        id="mesto"
+        tabindex="23"
+        style="top: 540px; left: 190px; width: 200px"
+        placeholder="Mesto"
+      />
+
+      <!-- Poštanski broj -->
+      <input
+        type="text"
+        class="form-field"
+        id="skraceniNaziv"
+        tabindex="20"
+        style="top: 434px; left: 207px; width: 512px"
+        placeholder="Skraceni naziv"
+      />
+      <!-- Telefon -->
+      <input
+        type="text"
+        class="form-field"
+        id="telefon"
+        tabindex="25"
+        style="top: 582px; left: 190px; width: 150px"
+        placeholder="Telefon"
+      />
+
+      <!-- Email -->
+      <input
+        type="text"
+        class="form-field"
+        id="email"
+        tabindex="26"
+        style="top: 601px; left: 190px; width: 400px"
+        placeholder="Email"
+      />
+
+      <!-- Kontakt osoba -->
+
+      <!-- Napomena -->
+      <textarea
+        class="form-field"
+        id="napomena"
+        tabindex="27"
+        style="
+          top: 828px;
+          left: 14px;
+          width: 704px;
+          height: 76px;
+          resize: none;
+          font-size: 16px;
+        "
+        placeholder="Napomena"
+      ></textarea>
+      <!-- Datum - Dan, Mesec, Godina -->
+      <input
+        type="text"
+        class="form-field"
+        id="dan"
+        tabindex="41"
+        maxlength="2"
+        style="top: 980px; left: 564px; width: 30px"
+        placeholder="DD"
+      />
+      <input
+        type="text"
+        class="form-field"
+        id="mesec"
+        tabindex="42"
+        maxlength="2"
+        style="top: 980px; left: 600px; width: 30px"
+        placeholder="MM"
+      />
+      <input
+        type="text"
+        class="form-field"
+        id="godina"
+        tabindex="43"
+        maxlength="4"
+        style="top: 980px; left: 640px; width: 50px"
+        placeholder="YYYY"
+      />
+      <!-- Drzava -->
+      <input
+        type="text"
+        class="form-field"
+        id="drzava"
+        tabindex="21"
+        style="top: 496px; left: 190px; width: 200px"
+        placeholder="Država"
+      />
+
+      <!-- Mesto -->
+      <input
+        type="text"
+        class="form-field"
+        id="opstina"
+        tabindex="22"
+        style="top: 519px; left: 190px; width: 200px"
+        placeholder="Opstina"
+      />
+
+      <!-- Potpis -->
+    </div>
+
+    <script>
+      // Čitanje URL parametara
+      function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          firmaId: params.get('firmaId'),
+          context: params.get('context'),
+          radnikIme: params.get('radnikIme'),
+          radnikPrezime: params.get('radnikPrezime'),
+          radnikJmbg: params.get('radnikJmbg'),
+        };
+      }
+
+      // Popunjavanje PIB cifara
+      function populatePIB(pib) {
+        console.log('Popunjavam PIB:', pib); // Debug log
+        if (pib && pib.length > 0) {
+          const pibStr = pib.toString().replace(/\D/g, ''); // Ukloni sve što nije cifra
+          for (let i = 0; i < Math.min(pibStr.length, 13); i++) {
+            const element = document.getElementById('pib' + (i + 1));
+            if (element) {
+              element.value = pibStr[i] || '';
+            }
+          }
+        }
+      }
+
+      // Popunjavanje JMBG cifara
+      function populateJMBG(jmbg) {
+        console.log('Popunjavam JMBG:', jmbg); // Debug log
+        if (jmbg && jmbg.length > 0) {
+          const jmbgStr = jmbg.toString().replace(/\D/g, ''); // Ukloni sve što nije cifra
+          for (let i = 0; i < Math.min(jmbgStr.length, 13); i++) {
+            const element = document.getElementById('jmbg' + (i + 1));
+            if (element) {
+              element.value = jmbgStr[i] || '';
+            }
+          }
+        }
+      }
+
+      // Generisanje napomene na osnovu konteksta
+      function generateNapomena(context, radnikIme, radnikPrezime, radnikJmbg) {
+        const imePrezime = `${radnikIme || ''} ${radnikPrezime || ''}`.trim();
+
+        switch (context) {
+          case 'radnik':
+            return `Prijava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
+          case 'odjava':
+            return `Odjava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
+          case 'ovlascenje':
+            return `Dodavanje ovlašćenog lica ${imePrezime} sa JMBG ${
+              radnikJmbg || ''
+            }`;
+          default:
+            return '';
+        }
+      }
+
+      // Učitavanje podataka firme i popunjavanje forme
+      async function loadFirmaData(firmaId) {
+        try {
+          const response = await fetch(`/api/firme/id/${firmaId}`);
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju podataka firme');
+          }
+
+          const firma = await response.json();
+          console.log('Podaci firme:', firma); // Debug log
+
+          // Popunjavanje osnovnih podataka
+          document.getElementById('nazivFirme').value = firma.naziv || '';
+          document.getElementById('skraceniNaziv').value =
+            firma.skraceni_naziv || firma.naziv || '';
+
+          // PIB - pokušaj različite formate
+          const pib = firma.pib || firma.PIB || '';
+          console.log('PIB vrednost:', pib); // Debug log
+          populatePIB(pib.toString());
+
+          // JMBG direktora iz podataka firme
+          const direktorJmbg =
+            firma.direktor_jmbg ||
+            firma.direktorJmbg ||
+            firma.jmbg_direktora ||
+            firma.jmbg ||
+            '';
+          console.log('JMBG direktora vrednost:', direktorJmbg); // Debug log
+          populateJMBG(direktorJmbg.toString());
+
+          document.getElementById('adresa').value = firma.adresa || '';
+          document.getElementById('mesto').value =
+            firma.mesto || firma.grad || '';
+          document.getElementById('opstina').value =
+            firma.opstina || firma.mesto || firma.grad || '';
+          document.getElementById('drzava').value = firma.drzava || 'Crna Gora';
+          document.getElementById('telefon').value = firma.telefon || '';
+          document.getElementById('email').value = firma.email || '';
+
+          // Postavljanje datuma na danas
+          const danas = new Date();
+          document.getElementById('dan').value = danas
+            .getDate()
+            .toString()
+            .padStart(2, '0');
+          document.getElementById('mesec').value = (danas.getMonth() + 1)
+            .toString()
+            .padStart(2, '0');
+          document.getElementById('godina').value = danas
+            .getFullYear()
+            .toString();
+        } catch (error) {
+          console.error('Greška pri učitavanju podataka firme:', error);
+          alert('Greška pri učitavanju podataka firme');
+        }
+      }
+
+      // Glavna funkcija za inicijalizaciju
+      async function initializeForm() {
+        const params = getUrlParams();
+
+        if (params.firmaId) {
+          await loadFirmaData(params.firmaId);
+        }
+
+        // Generisanje napomene na osnovu konteksta
+        if (params.context) {
+          const napomena = generateNapomena(
+            params.context,
+            params.radnikIme,
+            params.radnikPrezime,
+            params.radnikJmbg
+          );
+          document.getElementById('napomena').value = napomena;
+        }
+
+        // Označavanje checkbox-a na osnovu konteksta
+        document.getElementById('promjena').checked = true; // Uvek promjena za sve kontekste
+      }
+
+      // Automatski fokus između polja datuma
+      document.getElementById('dan').addEventListener('input', function (e) {
+        if (this.value.length === 2) {
+          document.getElementById('mesec').focus();
+        }
+      });
+
+      document.getElementById('mesec').addEventListener('input', function (e) {
+        if (this.value.length === 2) {
+          document.getElementById('godina').focus();
+        }
+      });
+
+      // Automatski fokus između JMBG cifara
+      for (let i = 1; i <= 13; i++) {
+        document
+          .getElementById('jmbg' + i)
+          .addEventListener('input', function (e) {
+            if (this.value.length === 1 && i < 13) {
+              document.getElementById('jmbg' + (i + 1)).focus();
+            }
+          });
+      }
+
+      // Automatski fokus između PIB cifara
+      for (let i = 1; i <= 13; i++) {
+        document
+          .getElementById('pib' + i)
+          .addEventListener('input', function (e) {
+            if (this.value.length === 1 && i < 13) {
+              document.getElementById('pib' + (i + 1)).focus();
+            }
+          });
+      }
+
+      // Pokretanje inicijalizacije kada se stranica učita
+      window.addEventListener('DOMContentLoaded', initializeForm);
+    </script>
   </body>
 </html>
