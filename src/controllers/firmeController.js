@@ -1,12 +1,12 @@
-const { executeQuery } = require("../config/database");
-const { ROLES, canCreateMultipleFirms } = require("../middleware/roleAuth");
+const { executeQuery } = require('../config/database');
+const { ROLES, canCreateMultipleFirms } = require('../middleware/roleAuth');
 
 const firmeController = {
   // Helper funkcija za dobijanje user_id na osnovu username-a
-  getUserId: async (username) => {
+  getUserId: async username => {
     try {
       const users = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
       return users.length > 0 ? users[0].id : null;
@@ -16,7 +16,7 @@ const firmeController = {
   },
 
   // Helper funkcija za čitanje firmi korisnika iz baze
-  readUserFirme: async (username) => {
+  readUserFirme: async username => {
     try {
       const userId = await firmeController.getUserId(username);
       if (!userId) return [];
@@ -41,7 +41,7 @@ const firmeController = {
   getAllFirme: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
@@ -49,7 +49,7 @@ const firmeController = {
 
       res.json({ firme });
     } catch (error) {
-      res.status(500).json({ message: "Greška pri dobijanju firmi" });
+      res.status(500).json({ message: 'Greška pri dobijanju firmi' });
     }
   },
 
@@ -57,13 +57,13 @@ const firmeController = {
   getAktivneFirme: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       const aktivneFirme = await executeQuery(
@@ -78,7 +78,7 @@ const firmeController = {
 
       res.json(aktivneFirme);
     } catch (error) {
-      res.status(500).json({ message: "Greška pri dobijanju aktivnih firmi" });
+      res.status(500).json({ message: 'Greška pri dobijanju aktivnih firmi' });
     }
   },
 
@@ -86,13 +86,13 @@ const firmeController = {
   getFirmeNaNuli: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       const firmeNaNuli = await executeQuery(
@@ -107,7 +107,7 @@ const firmeController = {
 
       res.json(firmeNaNuli);
     } catch (error) {
-      res.status(500).json({ message: "Greška pri dobijanju firmi na nuli" });
+      res.status(500).json({ message: 'Greška pri dobijanju firmi na nuli' });
     }
   },
 
@@ -115,7 +115,7 @@ const firmeController = {
   addFirma: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const {
@@ -135,20 +135,20 @@ const firmeController = {
       // Validacija
       if (!naziv || !pib || !adresa) {
         return res.status(400).json({
-          message: "Naziv, PIB i adresa su obavezni",
+          message: 'Naziv, PIB i adresa su obavezni',
         });
       }
 
       // PIB validacija
-      if (!/^[0-9]{8,9}$/.test(pib)) {
+      if (!/^[0-9]{8}$|^[0-9]{13}$/.test(pib)) {
         return res.status(400).json({
-          message: "PIB mora imati 8 ili 9 cifara",
+          message: 'PIB mora imati 8 ili 13 cifara',
         });
       }
 
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Provera limita firmi na osnovu role korisnika
@@ -157,7 +157,7 @@ const firmeController = {
       if (userRole === ROLES.FIRMA) {
         // Korisnik tipa "firma" može imati samo jednu firmu
         const existingFirmsCount = await executeQuery(
-          "SELECT COUNT(*) as count FROM firme WHERE user_id = ?",
+          'SELECT COUNT(*) as count FROM firme WHERE user_id = ?',
           [userId]
         );
 
@@ -179,7 +179,7 @@ const firmeController = {
 
       if (existingFirma.length > 0) {
         return res.status(400).json({
-          message: "Firma sa ovim PIB-om već postoji",
+          message: 'Firma sa ovim PIB-om već postoji',
         });
       }
 
@@ -194,29 +194,29 @@ const firmeController = {
           pib,
           naziv,
           adresa,
-          grad || "",
-          pdvBroj || "",
-          telefon || "",
-          email || "",
-          direktor_ime_prezime || "",
-          direktor_jmbg || "",
-          status || "aktivan",
+          grad || '',
+          pdvBroj || '',
+          telefon || '',
+          email || '',
+          direktor_ime_prezime || '',
+          direktor_jmbg || '',
+          status || 'aktivan',
         ]
       );
 
       res.json({
         success: true,
-        message: "Firma je uspešno dodana",
+        message: 'Firma je uspešno dodana',
         firmaId: result.insertId,
       });
     } catch (error) {
-      if (error.code === "ER_DUP_ENTRY") {
+      if (error.code === 'ER_DUP_ENTRY') {
         return res.status(400).json({
-          message: "Firma sa ovim PIB-om već postoji",
+          message: 'Firma sa ovim PIB-om već postoji',
         });
       }
 
-      res.status(500).json({ message: "Greška pri dodavanju firme" });
+      res.status(500).json({ message: 'Greška pri dodavanju firme' });
     }
   },
 
@@ -224,7 +224,7 @@ const firmeController = {
   updateFirma: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const { pib } = req.params;
@@ -244,13 +244,13 @@ const firmeController = {
       // Validacija
       if (!naziv || !adresa) {
         return res.status(400).json({
-          message: "Naziv i adresa su obavezni",
+          message: 'Naziv i adresa su obavezni',
         });
       }
 
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Proveri da li firma postoji i pripada korisniku
@@ -263,7 +263,7 @@ const firmeController = {
 
       if (existingFirma.length === 0) {
         return res.status(404).json({
-          message: "Firma nije pronađena",
+          message: 'Firma nije pronađena',
         });
       }
 
@@ -277,13 +277,13 @@ const firmeController = {
         [
           naziv,
           adresa,
-          grad || "",
-          pdvBroj || "",
-          telefon || "",
-          email || "",
-          direktor_ime_prezime || "",
-          direktor_jmbg || "",
-          status || "aktivan",
+          grad || '',
+          pdvBroj || '',
+          telefon || '',
+          email || '',
+          direktor_ime_prezime || '',
+          direktor_jmbg || '',
+          status || 'aktivan',
           userId,
           pib,
         ]
@@ -291,10 +291,10 @@ const firmeController = {
 
       res.json({
         success: true,
-        message: "Firma je uspešno ažurirana",
+        message: 'Firma je uspešno ažurirana',
       });
     } catch (error) {
-      res.status(500).json({ message: "Greška pri ažuriranju firme" });
+      res.status(500).json({ message: 'Greška pri ažuriranju firme' });
     }
   },
 
@@ -302,7 +302,7 @@ const firmeController = {
   deleteFirma: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const { pib } = req.params;
@@ -310,7 +310,7 @@ const firmeController = {
 
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Proveri da li firma postoji i pripada korisniku
@@ -323,7 +323,7 @@ const firmeController = {
 
       if (existingFirma.length === 0) {
         return res.status(404).json({
-          message: "Firma nije pronađena",
+          message: 'Firma nije pronađena',
         });
       }
 
@@ -337,37 +337,37 @@ const firmeController = {
 
       res.json({
         success: true,
-        message: "Firma je uspešno obrisana",
+        message: 'Firma je uspešno obrisana',
       });
     } catch (error) {
-      res.status(500).json({ message: "Greška pri brisanju firme" });
+      res.status(500).json({ message: 'Greška pri brisanju firme' });
     }
   },
 
   // GET /api/firme/:pib - dobij firmu po PIB-u
   getFirmaByPib: async (req, res) => {
     try {
-      console.log("getFirmaByPib pozvan");
-      console.log("Session:", req.session);
-      console.log("User:", req.session?.user);
+      console.log('getFirmaByPib pozvan');
+      console.log('Session:', req.session);
+      console.log('User:', req.session?.user);
 
       if (!req.session || !req.session.user) {
-        console.log("Nema sesije ili korisnika");
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        console.log('Nema sesije ili korisnika');
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const { pib } = req.params;
       const username = req.session.user.username;
 
-      console.log("PIB:", pib);
-      console.log("Username:", username);
+      console.log('PIB:', pib);
+      console.log('Username:', username);
 
       const userId = await firmeController.getUserId(username);
-      console.log("UserId:", userId);
+      console.log('UserId:', userId);
 
       if (!userId) {
-        console.log("UserId nije pronađen");
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        console.log('UserId nije pronađen');
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       const firma = await executeQuery(
@@ -379,18 +379,18 @@ const firmeController = {
         [userId, pib]
       );
 
-      console.log("Rezultat pretrage:", firma);
+      console.log('Rezultat pretrage:', firma);
 
       if (firma.length === 0) {
         return res.status(404).json({
-          message: "Firma nije pronađena",
+          message: 'Firma nije pronađena',
         });
       }
 
       res.json(firma[0]);
     } catch (error) {
-      console.error("Greška u getFirmaByPib:", error);
-      res.status(500).json({ message: "Greška pri dobijanju firme" });
+      console.error('Greška u getFirmaByPib:', error);
+      res.status(500).json({ message: 'Greška pri dobijanju firme' });
     }
   },
 
@@ -408,15 +408,15 @@ const firmeController = {
   getFirmaById: async (req, res) => {
     const { id } = req.params;
     try {
-      const [firma] = await executeQuery("SELECT * FROM firme WHERE id = ?", [
+      const [firma] = await executeQuery('SELECT * FROM firme WHERE id = ?', [
         id,
       ]);
       if (!firma) {
-        return res.status(404).json({ message: "Firma nije pronađena" });
+        return res.status(404).json({ message: 'Firma nije pronađena' });
       }
       res.json(firma);
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -425,15 +425,15 @@ const firmeController = {
     const { id } = req.params;
     try {
       const [radnik] = await executeQuery(
-        "SELECT * FROM radnici WHERE id = ?",
+        'SELECT * FROM radnici WHERE id = ?',
         [id]
       );
       if (!radnik) {
-        return res.status(404).json({ message: "Radnik nije pronađen" });
+        return res.status(404).json({ message: 'Radnik nije pronađen' });
       }
       res.json(radnik);
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -441,7 +441,7 @@ const firmeController = {
   searchFirme: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
@@ -453,7 +453,7 @@ const firmeController = {
 
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Pretraži firme sa svim potrebnim podacima
@@ -479,8 +479,8 @@ const firmeController = {
 
       res.json(firme);
     } catch (error) {
-      console.error("Search firme error:", error);
-      res.status(500).json({ message: "Greška na serveru" });
+      console.error('Search firme error:', error);
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -488,13 +488,13 @@ const firmeController = {
   getMyCompany: async (req, res) => {
     try {
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
       const userId = await firmeController.getUserId(username);
       if (!userId) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Za korisnike tipa "firma" - trebaju da imaju tačno jednu firmu
@@ -511,7 +511,7 @@ const firmeController = {
         );
 
         if (firme.length === 0) {
-          return res.status(404).json({ message: "Firma nije pronađena" });
+          return res.status(404).json({ message: 'Firma nije pronađena' });
         }
 
         return res.json(firme[0]);
@@ -526,14 +526,14 @@ const firmeController = {
         );
 
         if (firme.length === 0) {
-          return res.status(404).json({ message: "Nema firmi" });
+          return res.status(404).json({ message: 'Nema firmi' });
         }
 
         return res.json({ firme });
       }
     } catch (error) {
-      console.error("getMyCompany error:", error);
-      res.status(500).json({ message: "Greška na serveru" });
+      console.error('getMyCompany error:', error);
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 };
