@@ -173,7 +173,124 @@ const getNotifications = async (req, res) => {
       });
     });
 
-    // 4. STARE POZAJMICE (za svoje firme)
+    // 4. PDV OBAVEŠTENJA - za firme koje zahtevaju pažnju
+    // Kopirana logika iz pdvController.js
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonthNum = today.getMonth() + 1;
+    const currentDay = today.getDate();
+
+    // Određuj ciljni mjesec
+    let targetMonth = currentMonthNum;
+    let targetYear = currentYear;
+
+    if (currentDay <= 20) {
+      targetMonth = currentMonthNum - 1;
+      if (targetMonth < 1) {
+        targetMonth = 12;
+        targetYear--;
+      }
+    }
+
+    const targetMonthString = `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, '0')}-01`;
+
+    // Kalkuliraj dane do roka
+    const danaDoRoka = () => {
+      const danas = new Date();
+      let rokMonth = targetMonth + 1;
+      let rokYear = targetYear;
+
+      if (rokMonth > 12) {
+        rokMonth = 1;
+        rokYear++;
+      }
+
+      const rok = new Date(rokYear, rokMonth - 1, 15);
+      const diff = Math.ceil((rok - danas) / (1000 * 60 * 60 * 24));
+      return diff;
+    };
+
+    const daysToDeadline = danaDoRoka();
+
+    // Dohvati PDV firme koje zahtevaju pažnju
+    const pdvQuery = `
+      SELECT 
+        f.id,
+        f.naziv,
+        f.pdvBroj,
+        pp.predano,
+        pp.datum_predanja,
+        CASE 
+          WHEN pp.predano = 1 THEN 'predano'
+          WHEN ? < 0 THEN 'kasni'
+          WHEN ? <= 3 THEN 'uskoro'
+          ELSE 'nepredano'
+        END as status
+      FROM firme f
+      LEFT JOIN pdv_prijave pp ON f.id = pp.firma_id AND pp.mjesec = ?
+      WHERE f.user_id = ? 
+        AND f.pdvBroj IS NOT NULL 
+        AND f.pdvBroj != ''
+        AND f.status = 'aktivan'
+        AND (pp.predano IS NULL OR pp.predano = 0)
+      ORDER BY 
+        CASE 
+          WHEN ? < 0 THEN 1
+          WHEN ? <= 3 THEN 2
+          ELSE 3
+        END,
+        f.naziv ASC
+      LIMIT 10
+    `;
+
+    const pdvFirme = await executeQuery(pdvQuery, [
+      daysToDeadline,
+      daysToDeadline,
+      targetMonthString,
+      userId,
+      daysToDeadline,
+      daysToDeadline,
+    ]);
+
+    pdvFirme.forEach(firma => {
+      let type, icon, title;
+
+      // Prikaži samo ako je zakasnjelo ili ako je 5 dana ili manje do roka
+      if (daysToDeadline < 0 || daysToDeadline <= 5) {
+        if (daysToDeadline < 0) {
+          type = 'urgent';
+          icon = '🚨';
+          title = `PDV prijava zakasnjela ${Math.abs(daysToDeadline)} ${
+            Math.abs(daysToDeadline) === 1 ? 'dan' : 'dana'
+          }`;
+        } else if (daysToDeadline <= 3) {
+          type = 'urgent';
+          icon = '⏰';
+          title = `PDV prijava ističe za ${daysToDeadline} ${
+            daysToDeadline === 1 ? 'dan' : 'dana'
+          }`;
+        } else if (daysToDeadline <= 5) {
+          type = 'warning';
+          icon = '📋';
+          title = `PDV prijava ističe za ${daysToDeadline} dana`;
+        }
+
+        notifications.push({
+          id: `pdv_${firma.id}`,
+          type,
+          icon,
+          title,
+          description: `${firma.naziv} - PDV ${firma.pdvBroj}`,
+          days: daysToDeadline,
+          action: `/pdv-pregled.html`,
+          timestamp: new Date(),
+        });
+      }
+    });
+
+    // 5. STARE POZAJMICE (za svoje firme)
     // PRIVREMENO ISKLJUČENO - tabela 'pozajmice' ne postoji u bazi
     /*
     const starePozajmiceQuery = `
