@@ -190,7 +190,8 @@
 
       <p>
         <strong>ZAPOSLENI:</strong>
-        <span id="radnik-ime-prezime">DEJAN NOVOVIĆ</span> iz Bara jmbg:
+        <span id="radnik-ime-prezime">DEJAN NOVOVIĆ</span> iz
+        <span id="radnik-grad">Bara</span> jmbg:
         <span id="radnik-jmbg">0506981250010</span>, sa adresom stanovanja:
         <span id="radnik-adresa">Bar, Ulica 123</span>, <br />
       </p>
@@ -712,9 +713,11 @@
           radnikImePrezime.toUpperCase();
         document.getElementById('radnik-jmbg').textContent = ugovor.radnik_jmbg;
 
-        // Transformiši grad u odgovarajući padež
-        const gradUPadežu = transformisiGradUPadez(ugovor.radnik_grad);
-        document.getElementById('radnik-adresa').textContent = gradUPadežu;
+        // Popuni grad i adresu radnika
+        const gradUPadezuZaIz = transformisiGradUPadez(ugovor.radnik_grad);
+        document.getElementById('radnik-grad').textContent = gradUPadezuZaIz;
+        document.getElementById('radnik-adresa').textContent =
+          ugovor.radnik_adresa || 'Bar, Ulica 123';
 
         // Popuni datume
         const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
