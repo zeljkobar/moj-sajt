@@ -67,7 +67,7 @@ h1 {
 }
 
 .checkbox.checked::after {
-  content: "X";
+  content: 'X';
   position: absolute;
   left: 50%;
   top: 50%;
@@ -98,7 +98,7 @@ h1 {
   width: 35%;
 }
 
-.form-section input[type="text"] {
+.form-section input[type='text'] {
   width: 100%;
   border: none;
   padding: 3px;
@@ -229,11 +229,23 @@ h1 {
 
 /* Print stilovi */
 @media print {
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
   body {
     margin: 0;
     padding: 5mm;
     max-height: none;
     page-break-inside: avoid;
+    page-break-after: avoid !important;
+  }
+
+  html,
+  body {
+    height: 100% !important;
+    overflow: hidden !important;
   }
 
   .spacer {
@@ -242,10 +254,13 @@ h1 {
 
   * {
     page-break-inside: avoid;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
   }
 
   .form-section {
     page-break-inside: avoid;
+    page-break-after: avoid !important;
     margin-bottom: 5px;
   }
 }

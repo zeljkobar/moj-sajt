@@ -27,15 +27,32 @@
           background-size: 100% 100% !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
+          page-break-after: avoid !important;
+          page-break-inside: avoid !important;
         }
 
         /* Uklanjanje margina stranice pri štampanju */
         @page {
-          margin: 0;
+          margin: 15mm 15mm 15mm 10mm; /* gore, desno, dole, levo */
+          size: A4;
         }
 
         body {
           margin: 0;
+          page-break-after: avoid !important;
+        }
+
+        html,
+        body {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+
+        /* Sprečava dodatne stranice */
+        * {
+          page-break-after: avoid !important;
+          page-break-before: avoid !important;
+          page-break-inside: avoid !important;
         }
       }
 
