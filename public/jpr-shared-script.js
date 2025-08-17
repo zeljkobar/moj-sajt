@@ -123,35 +123,37 @@ function fillNotesBasedOnContext(context) {
 
   if (!notesElement) return;
 
+  // Dobij radnik info iz URL-a
+  const radnikInfo = getRadnikInfoFromURL();
+
+  // Generiši napomenu koristeći generateNapomena funkciju
+  const napomena = generateNapomena(
+    context,
+    radnikInfo?.ime,
+    radnikInfo?.prezime,
+    radnikInfo?.jmbg
+  );
+
+  notesElement.textContent = napomena;
+}
+
+/**
+ * Generisanje napomene na osnovu konteksta
+ */
+function generateNapomena(context, radnikIme, radnikPrezime, radnikJmbg) {
+  const imePrezime = `${radnikIme || ''} ${radnikPrezime || ''}`.trim();
+
   switch (context) {
-    case 'pregled':
-      // Za pregled tab - ostavi prazno
-      notesElement.textContent = '';
-      break;
     case 'radnik':
-      // Za radnik kontekst - popuni sa podacima radnika
-      const radnikInfo = getRadnikInfoFromURL();
-      if (radnikInfo) {
-        notesElement.textContent = `Prijava radnika - ${radnikInfo.ime} ${radnikInfo.prezime} JMBG ${radnikInfo.jmbg}`;
-      } else {
-        notesElement.textContent = 'Prijava radnika';
-      }
-      break;
+      return `Prijava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
     case 'odjava':
-      // Za odjavu radnika kontekst - popuni sa podacima radnika
-      const odjavRadnikInfo = getRadnikInfoFromURL();
-      if (odjavRadnikInfo) {
-        notesElement.textContent = `Odjava radnika - ${odjavRadnikInfo.ime} ${odjavRadnikInfo.prezime} JMBG ${odjavRadnikInfo.jmbg}`;
-      } else {
-        notesElement.textContent = 'Odjava radnika';
-      }
-      break;
+      return `Odjava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
     case 'ovlascenje':
-      // Za ovlašćenje za knjigovođu
-      notesElement.textContent = 'Ovlašćenje za elektronski potpis';
-      break;
+      return `Ovlašćenje za elektronski potpis`;
+    case 'pregled':
+      return ''; // Za pregled tab - ostavi prazno
     default:
-      notesElement.textContent = '';
+      return '';
   }
 }
 
@@ -696,6 +698,205 @@ function fillPrestankFields() {
 }
 
 // =============================================================================
+// JPR KORICA DODATNE FUNKCIJE
+// =============================================================================
+
+/**
+ * Čitanje URL parametara (JPR KORICA)
+ */
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    firmaId: params.get('firmaId'),
+    context: params.get('context'),
+    radnikIme: params.get('radnikIme'),
+    radnikPrezime: params.get('radnikPrezime'),
+    radnikJmbg: params.get('radnikJmbg'),
+  };
+}
+
+/**
+ * Popunjavanje PIB cifara (JPR KORICA)
+ */
+function populatePIB(pib) {
+  console.log('Popunjavam PIB:', pib); // Debug log
+  if (pib && pib.length > 0) {
+    const pibStr = pib.toString().replace(/\D/g, ''); // Ukloni sve što nije cifra
+    for (let i = 0; i < Math.min(pibStr.length, 13); i++) {
+      const element = document.getElementById('pib' + (i + 1));
+      if (element) {
+        element.value = pibStr[i] || '';
+      }
+    }
+  }
+}
+
+/**
+ * Popunjavanje JMBG cifara (JPR KORICA)
+ */
+function populateJMBG(jmbg) {
+  console.log('Popunjavam JMBG:', jmbg); // Debug log
+  if (jmbg && jmbg.length > 0) {
+    const jmbgStr = jmbg.toString().replace(/\D/g, ''); // Ukloni sve što nije cifra
+    for (let i = 0; i < Math.min(jmbgStr.length, 13); i++) {
+      const element = document.getElementById('jmbg' + (i + 1));
+      if (element) {
+        element.value = jmbgStr[i] || '';
+      }
+    }
+  }
+}
+
+/**
+ * Učitavanje podataka firme i popunjavanje forme (JPR KORICA)
+ */
+async function loadFirmaData(firmaId) {
+  try {
+    const response = await fetch(`/api/firme/id/${firmaId}`);
+    if (!response.ok) {
+      throw new Error('Greška pri učitavanju podataka firme');
+    }
+
+    const firma = await response.json();
+    console.log('Podaci firme:', firma); // Debug log
+
+    // Popunjavanje osnovnih podataka
+    document.getElementById('nazivFirme').value = firma.naziv || '';
+    document.getElementById('skraceniNaziv').value =
+      firma.skraceni_naziv || firma.naziv || '';
+
+    // PIB - pokušaj različite formate
+    const pib = firma.pib || firma.PIB || '';
+    console.log('PIB vrednost:', pib); // Debug log
+    populatePIB(pib.toString());
+
+    // JMBG direktora iz podataka firme
+    const direktorJmbg =
+      firma.direktor_jmbg ||
+      firma.direktorJmbg ||
+      firma.jmbg_direktora ||
+      firma.jmbg ||
+      '';
+    console.log('JMBG direktora vrednost:', direktorJmbg); // Debug log
+    populateJMBG(direktorJmbg.toString());
+
+    document.getElementById('adresa').value = firma.adresa || '';
+    document.getElementById('mesto').value = firma.mesto || firma.grad || '';
+    document.getElementById('opstina').value =
+      firma.opstina || firma.mesto || firma.grad || '';
+    document.getElementById('drzava').value = firma.drzava || 'Crna Gora';
+    document.getElementById('telefon').value = firma.telefon || '';
+    document.getElementById('email').value = firma.email || '';
+
+    // Postavljanje datuma na danas
+    const danas = new Date();
+    document.getElementById('dan').value = danas
+      .getDate()
+      .toString()
+      .padStart(2, '0');
+    document.getElementById('mesec').value = (danas.getMonth() + 1)
+      .toString()
+      .padStart(2, '0');
+    document.getElementById('godina').value = danas.getFullYear().toString();
+  } catch (error) {
+    console.error('Greška pri učitavanju podataka firme:', error);
+    alert('Greška pri učitavanju podataka firme');
+  }
+}
+
+/**
+ * Glavna funkcija za inicijalizaciju JPR Korice
+ */
+async function initializeFormKorica() {
+  console.log('=== initializeFormKorica pokrenuta ===');
+  const params = getUrlParams();
+  console.log('URL parametri:', params);
+
+  if (params.firmaId) {
+    console.log('Pozivam loadFirmaData sa firmaId:', params.firmaId);
+    await loadFirmaData(params.firmaId);
+  } else {
+    console.log('Nema firmaId u URL parametrima');
+  }
+
+  // Generisanje napomene na osnovu konteksta
+  if (params.context) {
+    console.log('Generiram napomenu za kontekst:', params.context);
+    const napomena = generateNapomena(
+      params.context,
+      params.radnikIme,
+      params.radnikPrezime,
+      params.radnikJmbg
+    );
+    const napomenaElement = document.getElementById('napomena');
+    if (napomenaElement) {
+      napomenaElement.value = napomena;
+      console.log('Napomena postavljena:', napomena);
+    } else {
+      console.error('Element napomena nije pronađen');
+    }
+  }
+
+  // Označavanje checkbox-a na osnovu konteksta
+  const promjenaElement = document.getElementById('promjena');
+  if (promjenaElement) {
+    promjenaElement.checked = true; // Uvek promjena za sve kontekste
+    console.log('Checkbox promjena označen');
+  } else {
+    console.error('Element promjena nije pronađen');
+  }
+  console.log('=== initializeFormKorica završena ===');
+}
+
+/**
+ * Postavljanje event listener-a za automatski fokus (JPR KORICA)
+ */
+function setupAutoFocusListeners() {
+  // Automatski fokus između polja datuma
+  const danElement = document.getElementById('dan');
+  if (danElement) {
+    danElement.addEventListener('input', function (e) {
+      if (this.value.length === 2) {
+        document.getElementById('mesec').focus();
+      }
+    });
+  }
+
+  const mesecElement = document.getElementById('mesec');
+  if (mesecElement) {
+    mesecElement.addEventListener('input', function (e) {
+      if (this.value.length === 2) {
+        document.getElementById('godina').focus();
+      }
+    });
+  }
+
+  // Automatski fokus između JMBG cifara
+  for (let i = 1; i <= 13; i++) {
+    const jmbgElement = document.getElementById('jmbg' + i);
+    if (jmbgElement) {
+      jmbgElement.addEventListener('input', function (e) {
+        if (this.value.length === 1 && i < 13) {
+          document.getElementById('jmbg' + (i + 1)).focus();
+        }
+      });
+    }
+  }
+
+  // Automatski fokus između PIB cifara
+  for (let i = 1; i <= 13; i++) {
+    const pibElement = document.getElementById('pib' + i);
+    if (pibElement) {
+      pibElement.addEventListener('input', function (e) {
+        if (this.value.length === 1 && i < 13) {
+          document.getElementById('pib' + (i + 1)).focus();
+        }
+      });
+    }
+  }
+}
+
+// =============================================================================
 // INICIJALIZACIJA
 // =============================================================================
 
@@ -703,32 +904,15 @@ function fillPrestankFields() {
  * Inicijalizacija za JPR Koricu
  */
 async function initializeJPRKorica() {
-  // Dobij ID firme iz URL-a
-  const firmaId = getFirmaIdFromURL();
+  console.log('=== Pokretam inicijalizaciju JPR Korice ===');
 
-  // Dobij kontekst (odakle je pozvan JPR)
-  const context = getContextFromURL();
+  // Pokretanje nove inicijalizacije
+  await initializeFormKorica();
 
-  if (!firmaId) {
-    fillCurrentDate();
-    // Popuni napomene na osnovu konteksta čak i bez ID firme
-    fillNotesBasedOnContext(context);
-    return;
-  }
+  // Postavljanje event listener-a
+  setupAutoFocusListeners();
 
-  // Dobij podatke firme iz baze
-  const firmaData = await fetchFirmaData(firmaId);
-
-  if (firmaData) {
-    // Popuni obrazac sa podacima firme
-    fillFirmaData(firmaData);
-  }
-
-  // Popuni napomene na osnovu konteksta
-  fillNotesBasedOnContext(context);
-
-  // Popuni trenutni datum
-  fillCurrentDate();
+  console.log('=== Inicijalizacija JPR Korice završena ===');
 }
 
 /**
@@ -747,16 +931,23 @@ function initializeJPR() {
 
   if (
     title.includes('DODATAK B') ||
-    document.querySelector('.jmbg-container')
+    (document.querySelector('.jmbg-container') &&
+      !document.querySelector('.pib-container'))
   ) {
     // JPR Dodatak B
+    console.log('Pokretam inicijalizaciju za JPR Dodatak B');
     initializeJPRDodatakB();
   } else if (
+    title.includes('JPR Korica') ||
     title.includes('JPR Obrazac') ||
+    document.querySelector('.pib-container') ||
     document.querySelector('.maticni-box')
   ) {
     // JPR Korica
+    console.log('Pokretam inicijalizaciju za JPR Koricu');
     initializeJPRKorica();
+  } else {
+    console.log('Nepoznat tip dokumenta, naslov:', title);
   }
 }
 

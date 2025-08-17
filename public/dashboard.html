@@ -11,9 +11,9 @@
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag("js", new Date());
+      gtag('js', new Date());
 
-      gtag("config", "G-DGZCVVHKXW");
+      gtag('config', 'G-DGZCVVHKXW');
     </script>
 
     <meta charset="UTF-8" />
@@ -298,10 +298,6 @@
               <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
             </button>
 
-            <a href="firma-detalji.html" class="btn btn-info quick-action-btn">
-              <i class="fas fa-money-bill-wave me-2"></i>Kreiraj pozajmicu
-            </a>
-
             <a
               href="pdv_prijava/index.html"
               class="btn btn-warning quick-action-btn"
@@ -562,23 +558,23 @@
     <script src="script.js"></script>
     <script src="radnik-modal.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         // Postavi trenutni datum
         const today = new Date();
         const options = {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         };
         // Koristi sr-Latn-RS za latinični prikaz
-        document.getElementById("currentDate").textContent =
-          today.toLocaleDateString("sr-Latn-RS", options);
+        document.getElementById('currentDate').textContent =
+          today.toLocaleDateString('sr-Latn-RS', options);
 
         // Učitavanje korisničkih podataka
         loadUserData();
         loadDashboardStats();
 
-        console.log("Dashboard učitan");
+        console.log('Dashboard učitan');
 
         // Setup quick search
         setupQuickSearch();
@@ -593,24 +589,24 @@
       // Funkcije za učitavanje podataka
       async function loadUserData() {
         try {
-          console.log("Učitavam korisničke podatke...");
-          const response = await fetch("/api/users/current", {
-            method: "GET",
-            credentials: "include",
+          console.log('Učitavam korisničke podatke...');
+          const response = await fetch('/api/users/current', {
+            method: 'GET',
+            credentials: 'include',
           });
 
-          console.log("Response status:", response.status);
+          console.log('Response status:', response.status);
 
           if (response.ok) {
             const userData = await response.json();
-            console.log("Učitani korisnički podaci:", userData);
+            console.log('Učitani korisnički podaci:', userData);
 
             // Update imena u dashboard header-u
-            document.getElementById("userName").textContent =
-              userData.ime + " " + userData.prezime;
+            document.getElementById('userName').textContent =
+              userData.ime + ' ' + userData.prezime;
 
             // Provjeri da li je korisnik firma bez podataka
-            if (userData.role === "firma") {
+            if (userData.role === 'firma') {
               console.log(
                 "🔍 Korisnik ima rolu 'firma', provjeravam podatke firme..."
               );
@@ -621,79 +617,79 @@
             // Update imena u navigaciji se radi automatski preko navigation.js
           } else {
             console.error(
-              "Greška pri učitavanju korisničkih podataka:",
+              'Greška pri učitavanju korisničkih podataka:',
               response.status
             );
             const errorData = await response.text();
-            console.error("Error response:", errorData);
-            document.getElementById("userName").textContent = "Korisnice";
+            console.error('Error response:', errorData);
+            document.getElementById('userName').textContent = 'Korisnice';
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa API:", error);
-          document.getElementById("userName").textContent = "Korisnice";
+          console.error('Greška pri povezivanju sa API:', error);
+          document.getElementById('userName').textContent = 'Korisnice';
         }
       }
 
       // Funkcija za provjeru podataka firme i preusmjeravanje
       async function checkCompanyDataAndRedirect() {
         try {
-          console.log("🔍 Počinje provjera podataka firme...");
+          console.log('🔍 Počinje provjera podataka firme...');
 
-          const response = await fetch("/api/firme/my-company", {
-            credentials: "include",
+          const response = await fetch('/api/firme/my-company', {
+            credentials: 'include',
           });
 
-          console.log("📡 API response status:", response.status);
+          console.log('📡 API response status:', response.status);
 
           if (response.status === 404) {
             // Firma ne postoji za ovog korisnika - preusmjeri na onboarding stranicu
             console.log(
-              "❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html"
+              '❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html'
             );
-            window.location.href = "company-onboarding.html";
+            window.location.href = 'company-onboarding.html';
             return;
           }
 
           if (!response.ok) {
             // Neki drugi error - pretpostavi da nema firmu
             console.log(
-              "❌ API error (" +
+              '❌ API error (' +
                 response.status +
-                "), preusmjeravam na company-onboarding.html"
+                '), preusmjeravam na company-onboarding.html'
             );
-            window.location.href = "company-onboarding.html";
+            window.location.href = 'company-onboarding.html';
             return;
           }
 
           // API je uspešan (200) - firma postoji, preusmjeri na dashboard-firma.html
           console.log(
-            "✅ Korisnik ima firmu, preusmjeravam na dashboard-firma.html"
+            '✅ Korisnik ima firmu, preusmjeravam na dashboard-firma.html'
           );
-          window.location.href = "dashboard-firma.html";
+          window.location.href = 'dashboard-firma.html';
         } catch (error) {
           // U slučaju greške, pretpostavi da nema firmu
-          console.error("💥 Greška pri provjeri podataka firme:", error);
-          window.location.href = "company-onboarding.html";
+          console.error('💥 Greška pri provjeri podataka firme:', error);
+          window.location.href = 'company-onboarding.html';
         }
       }
 
       function loadDashboardStats() {
         // Ajax poziv za statistike dashboard-a
-        fetch("/api/dashboard-stats", {
-          credentials: "include",
+        fetch('/api/dashboard-stats', {
+          credentials: 'include',
         })
-          .then((response) => {
+          .then(response => {
             if (!response.ok) {
-              throw new Error("API poziv neuspešan");
+              throw new Error('API poziv neuspešan');
             }
             return response.json();
           })
-          .then((data) => {
-            console.log("Dashboard stats API response:", data);
+          .then(data => {
+            console.log('Dashboard stats API response:', data);
             updateDashboardStats(data);
           })
-          .catch((error) => {
-            console.error("Greška pri učitavanju statistika:", error);
+          .catch(error => {
+            console.error('Greška pri učitavanju statistika:', error);
             // Postavi default vrednosti u slučaju greške
             updateDashboardStats({
               total: 0,
@@ -707,28 +703,28 @@
       // Funkcija za ažuriranje statistika na stranici
       function updateDashboardStats(stats) {
         // Ukupno firmi
-        const ukupnoFirmi = document.querySelector(".stat-number.text-primary");
+        const ukupnoFirmi = document.querySelector('.stat-number.text-primary');
         if (ukupnoFirmi) {
           ukupnoFirmi.innerHTML = stats.total || 0;
         }
 
         // Aktivne firme
         const aktivneFirme = document.querySelector(
-          ".stat-number.text-warning"
+          '.stat-number.text-warning'
         );
         if (aktivneFirme) {
           aktivneFirme.innerHTML = stats.aktivne || 0;
         }
 
         // Firme na PDV nuli
-        const firmeNaNuli = document.querySelector(".stat-number.text-danger");
+        const firmeNaNuli = document.querySelector('.stat-number.text-danger');
         if (firmeNaNuli) {
           firmeNaNuli.innerHTML = stats.naNuli || 0;
         }
 
         // Aktivnih radnika
         const aktivniRadnici = document.querySelector(
-          ".stat-number.text-success"
+          '.stat-number.text-success'
         );
         if (aktivniRadnici) {
           aktivniRadnici.innerHTML = stats.aktivniRadnici || 0;
@@ -738,37 +734,37 @@
       // Funkcija za učitavanje PDV podataka
       async function loadPDVData() {
         try {
-          const response = await fetch("/api/pdv", {
-            credentials: "include",
+          const response = await fetch('/api/pdv', {
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
-            console.log("PDV API response:", data);
+            console.log('PDV API response:', data);
             updatePDVSection(data);
           } else {
-            console.error("Greška pri učitavanju PDV podataka");
+            console.error('Greška pri učitavanju PDV podataka');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa PDV API:", error);
+          console.error('Greška pri povezivanju sa PDV API:', error);
         }
       }
 
       // Funkcija za ažuriranje PDV sekcije
       function updatePDVSection(pdvData) {
-        console.log("Updating PDV section with:", pdvData);
+        console.log('Updating PDV section with:', pdvData);
 
         // Funkcija za formatiranje meseca (ista kao u pdv-pregled.html)
         function formatMonth(dateString) {
           const date = new Date(dateString);
-          return date.toLocaleDateString("sr-Latn-RS", {
-            year: "numeric",
-            month: "long",
+          return date.toLocaleDateString('sr-Latn-RS', {
+            year: 'numeric',
+            month: 'long',
           });
         }
 
         // Ažuriraj naslov sa stvarnim mesecоm i rokom
-        const naslov = document.querySelector(".pdv-calendar-card h5");
+        const naslov = document.querySelector('.pdv-calendar-card h5');
         if (naslov && pdvData.rok_info) {
           const mesecNaziv = formatMonth(pdvData.rok_info.trenutni_mjesec);
           naslov.innerHTML = `
@@ -778,22 +774,22 @@
 
           // Ažuriraj dugme sa danima do roka
           const dugme = document.querySelector(
-            ".pdv-calendar-card .btn-primary, .pdv-calendar-card .btn-warning, .pdv-calendar-card .btn-danger"
+            '.pdv-calendar-card .btn-primary, .pdv-calendar-card .btn-warning, .pdv-calendar-card .btn-danger'
           );
           if (dugme) {
             const danaDoRoka = pdvData.rok_info.dana_do_roka;
             dugme.innerHTML = `
               <i class="fas fa-calendar-alt me-1"></i>
-              ${danaDoRoka > 0 ? danaDoRoka + " dana do roka" : "Rok prošao"}
+              ${danaDoRoka > 0 ? danaDoRoka + ' dana do roka' : 'Rok prošao'}
             `;
 
             // Promeni boju dugmeta na osnovu roka
             dugme.className =
               danaDoRoka <= 5
-                ? "btn btn-sm btn-danger"
+                ? 'btn btn-sm btn-danger'
                 : danaDoRoka <= 10
-                ? "btn btn-sm btn-warning"
-                : "btn btn-sm btn-primary";
+                ? 'btn btn-sm btn-warning'
+                : 'btn btn-sm btn-primary';
           }
         }
 
@@ -805,10 +801,10 @@
         };
 
         if (pdvData.firme) {
-          pdvData.firme.forEach((firma) => {
-            if (firma.status === "predano") {
+          pdvData.firme.forEach(firma => {
+            if (firma.status === 'predano') {
               stats.poslano++;
-            } else if (firma.status === "kasni") {
+            } else if (firma.status === 'kasni') {
               stats.zakasnjeno++;
             } else {
               stats.na_cekanju++;
@@ -818,27 +814,27 @@
 
         // Ažuriraj brojeve u karticama
         const kartice = document.querySelectorAll(
-          ".pdv-calendar-card .text-center"
+          '.pdv-calendar-card .text-center'
         );
 
         if (kartice[0]) {
           // Poslano na vreme
-          kartice[0].querySelector("h3").innerHTML = stats.poslano;
+          kartice[0].querySelector('h3').innerHTML = stats.poslano;
         }
 
         if (kartice[1]) {
           // Na čekanju
-          kartice[1].querySelector("h3").innerHTML = stats.na_cekanju;
+          kartice[1].querySelector('h3').innerHTML = stats.na_cekanju;
           if (pdvData.rok_info) {
             kartice[1].querySelector(
-              "small"
+              'small'
             ).textContent = `Čeka unos (rok za ${pdvData.rok_info.dana_do_roka} dana)`;
           }
         }
 
         if (kartice[2]) {
           // Zakašnjeno
-          kartice[2].querySelector("h3").innerHTML = stats.zakasnjeno;
+          kartice[2].querySelector('h3').innerHTML = stats.zakasnjeno;
         }
       }
 
@@ -850,52 +846,52 @@
       // Funkcija za učitavanje pozajmica iz baze
       async function loadPozajmice() {
         try {
-          const response = await fetch("/api/pozajmice", {
-            credentials: "include",
+          const response = await fetch('/api/pozajmice', {
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Pozajmice API response:", data);
+            console.log('Pozajmice API response:', data);
             updatePozajmiceSection(data.pozajmice);
           } else {
-            console.error("Greška pri učitavanju pozajmica");
+            console.error('Greška pri učitavanju pozajmica');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa pozajmice API:", error);
+          console.error('Greška pri povezivanju sa pozajmice API:', error);
         }
       }
 
       // Funkcija za ažuriranje sekcije sa pozajmicama
       function updatePozajmiceSection(pozajmice) {
         const container = document
-          .querySelector(".quick-action-card h5 i.fa-coins")
-          .closest(".quick-action-card");
+          .querySelector('.quick-action-card h5 i.fa-coins')
+          .closest('.quick-action-card');
 
         // Sakrij loader
-        const loader = container.querySelector(".pozajmice-loading");
+        const loader = container.querySelector('.pozajmice-loading');
         if (loader) {
-          loader.style.display = "none";
+          loader.style.display = 'none';
         }
 
         // Filtruj aktivne pozajmice (preostalo_dugovanje > 0 ili status === 'aktivna')
         const aktivnePozajmice = pozajmice.filter(
-          (p) =>
-            p.status === "aktivna" &&
+          p =>
+            p.status === 'aktivna' &&
             (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
         );
 
         if (aktivnePozajmice.length === 0) {
           // Prikaži poruku da nema aktivnih pozajmica
-          const noPozajmice = document.createElement("div");
-          noPozajmice.className = "text-center py-3 text-muted mb-3";
+          const noPozajmice = document.createElement('div');
+          noPozajmice.className = 'text-center py-3 text-muted mb-3';
           noPozajmice.innerHTML = `
             <i class="fas fa-piggy-bank fa-2x mb-2 text-warning"></i>
             <div>Nema aktivnih pozajmica</div>
           `;
           container.insertBefore(
             noPozajmice,
-            container.querySelector(".d-grid")
+            container.querySelector('.d-grid')
           );
           return;
         }
@@ -904,23 +900,23 @@
         const pozajmiceZaPrikaz = aktivnePozajmice.slice(0, 3);
 
         // Dodaj stvarne pozajmice
-        pozajmiceZaPrikaz.forEach((pozajmica) => {
+        pozajmiceZaPrikaz.forEach(pozajmica => {
           const pozajmicaElement = createPozajmicaElement(pozajmica);
           container.insertBefore(
             pozajmicaElement,
-            container.querySelector(".d-grid")
+            container.querySelector('.d-grid')
           );
         });
       }
 
       // Kreiranje HTML elementa za pozajmicu
       function createPozajmicaElement(pozajmica) {
-        const div = document.createElement("div");
+        const div = document.createElement('div');
 
         // Formatiranje datuma
         const datumOdobrenja = new Date(
           pozajmica.datum_izdavanja
-        ).toLocaleDateString("sr-Latn-RS");
+        ).toLocaleDateString('sr-Latn-RS');
 
         // Koristim različite kolone ovisno o tome šta postoji
         const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;
@@ -932,22 +928,22 @@
           pozajmica.ukupno_vraceno || ukupanIznos - preostaloIznos;
 
         // Određivanje boje na osnovu statusa
-        let borderClass = "border-primary";
-        let statusClass = "text-success";
-        let statusText = "Aktivna";
+        let borderClass = 'border-primary';
+        let statusClass = 'text-success';
+        let statusText = 'Aktivna';
 
         if (preostaloIznos > 0 && vraćenoIznos > 0) {
           // Izračunaj procenat vraćenog
           const vraćeniProcenat = (vraćenoIznos / ukupanIznos) * 100;
 
           if (vraćeniProcenat > 50) {
-            borderClass = "border-info";
-            statusClass = "text-info";
-            statusText = "U toku vraćanja";
+            borderClass = 'border-info';
+            statusClass = 'text-info';
+            statusText = 'U toku vraćanja';
           } else if (vraćeniProcenat < 20) {
-            borderClass = "border-warning";
-            statusClass = "text-warning";
-            statusText = "Početak vraćanja";
+            borderClass = 'border-warning';
+            statusClass = 'text-warning';
+            statusText = 'Početak vraćanja';
           }
         }
 
@@ -959,7 +955,7 @@
           pozajmica.radnik_prezime
         }</strong>
               <br /><small class="text-muted">${
-                pozajmica.firma_naziv || "Nepoznata firma"
+                pozajmica.firma_naziv || 'Nepoznata firma'
               }</small>
             </div>
             <div class="text-end">
@@ -971,7 +967,7 @@
           ${
             vraćenoIznos > 0 && ukupanIznos !== preostaloIznos
               ? `<br><small class="text-info">Vraćeno: ${vraćenoIznos}€ od ${ukupanIznos}€</small>`
-              : ""
+              : ''
           }
         `;
 
@@ -981,42 +977,42 @@
       // Funkcija za učitavanje notifikacija iz baze
       async function loadNotifications() {
         try {
-          const response = await fetch("/api/notifications", {
-            credentials: "include",
+          const response = await fetch('/api/notifications', {
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Notifications API response:", data);
+            console.log('Notifications API response:', data);
             updateNotificationsSection(data.notifications);
           } else {
-            console.error("Greška pri učitavanju notifikacija");
+            console.error('Greška pri učitavanju notifikacija');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa serverom:", error);
+          console.error('Greška pri povezivanju sa serverom:', error);
         }
       }
 
       // Funkcija za ažuriranje sekcije sa notifikacijama
       function updateNotificationsSection(notifications) {
         const container = document
-          .querySelector(".quick-action-card h5 i.fa-exclamation-triangle")
-          .closest(".quick-action-card");
+          .querySelector('.quick-action-card h5 i.fa-exclamation-triangle')
+          .closest('.quick-action-card');
 
         // Sakrij loader
-        const loader = container.querySelector(".notifications-loading");
+        const loader = container.querySelector('.notifications-loading');
         if (loader) {
-          loader.style.display = "none";
+          loader.style.display = 'none';
         }
 
         // Očisti postojeće fiksne notifikacije
-        const existingItems = container.querySelectorAll(".firma-card");
-        existingItems.forEach((item) => item.remove());
+        const existingItems = container.querySelectorAll('.firma-card');
+        existingItems.forEach(item => item.remove());
 
         if (notifications.length === 0) {
           // Prikaži poruku da nema notifikacija
-          const noNotifications = document.createElement("div");
-          noNotifications.className = "text-center py-3 text-muted";
+          const noNotifications = document.createElement('div');
+          noNotifications.className = 'text-center py-3 text-muted';
           noNotifications.innerHTML = `
             <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
             <div>Nema hitnih obaveštenja</div>
@@ -1026,7 +1022,7 @@
         }
 
         // Dodaj stvarne notifikacije
-        notifications.forEach((notification) => {
+        notifications.forEach(notification => {
           const notificationElement = createNotificationElement(notification);
           container.appendChild(notificationElement);
         });
@@ -1034,67 +1030,67 @@
 
       // Kreiranje HTML elementa za notifikaciju
       function createNotificationElement(notification) {
-        console.log("Creating notification element for:", notification);
+        console.log('Creating notification element for:', notification);
 
-        const div = document.createElement("div");
+        const div = document.createElement('div');
 
-        let badgeClass = "bg-info";
-        let cardClass = "info";
+        let badgeClass = 'bg-info';
+        let cardClass = 'info';
 
-        if (notification.type === "urgent") {
-          badgeClass = "bg-danger";
-          cardClass = "danger";
-        } else if (notification.type === "warning") {
-          badgeClass = "bg-warning";
-          cardClass = "warning";
+        if (notification.type === 'urgent') {
+          badgeClass = 'bg-danger';
+          cardClass = 'danger';
+        } else if (notification.type === 'warning') {
+          badgeClass = 'bg-warning';
+          cardClass = 'warning';
         }
 
         // Kreiraj pravilnu action URL-u
-        let actionUrl = "";
+        let actionUrl = '';
 
         // Prvo pokušaj da izvučeš firma_id iz action URL-a ako postoji
         if (
           notification.action &&
-          notification.action.includes("firma-detalji.html")
+          notification.action.includes('firma-detalji.html')
         ) {
-          console.log("Parsing action URL:", notification.action);
+          console.log('Parsing action URL:', notification.action);
 
           // Parsuj action URL da izvučeš firma_id
           try {
-            const urlParts = notification.action.split("?");
+            const urlParts = notification.action.split('?');
             if (urlParts.length > 1) {
               const actionParams = new URLSearchParams(urlParts[1]);
-              const firmaIdFromAction = actionParams.get("id");
+              const firmaIdFromAction = actionParams.get('id');
 
-              console.log("Extracted firma_id from action:", firmaIdFromAction);
+              console.log('Extracted firma_id from action:', firmaIdFromAction);
 
               if (
                 firmaIdFromAction &&
-                firmaIdFromAction !== "undefined" &&
-                firmaIdFromAction !== "null"
+                firmaIdFromAction !== 'undefined' &&
+                firmaIdFromAction !== 'null'
               ) {
                 actionUrl = `firma-detalji.html?id=${firmaIdFromAction}`;
 
                 // Ako je vezano za radnika, dodaj hash za radnici tab
                 if (
                   notification.radnik_id ||
-                  notification.id.includes("ugovor_") ||
-                  actionParams.get("radnikId")
+                  notification.id.includes('ugovor_') ||
+                  actionParams.get('radnikId')
                 ) {
-                  actionUrl += "#radnici";
+                  actionUrl += '#radnici';
                 }
               } else {
                 console.log(
-                  "No valid firma_id found in action URL, using fallback"
+                  'No valid firma_id found in action URL, using fallback'
                 );
                 actionUrl = notification.action;
               }
             } else {
-              console.log("No query params in action URL");
+              console.log('No query params in action URL');
               actionUrl = notification.action;
             }
           } catch (error) {
-            console.error("Error parsing action URL:", error);
+            console.error('Error parsing action URL:', error);
             actionUrl = notification.action;
           }
         } else if (notification.firma_id) {
@@ -1103,7 +1099,7 @@
 
           // Ako je vezano za radnika, dodaj hash za radnici tab
           if (notification.radnik_id || notification.ugovor_id) {
-            actionUrl += "#radnici";
+            actionUrl += '#radnici';
           }
         } else if (notification.action) {
           // Fallback na originalnu action vrednost
@@ -1111,9 +1107,9 @@
         }
 
         console.log(
-          "Generated action URL:",
+          'Generated action URL:',
           actionUrl,
-          "from notification:",
+          'from notification:',
           notification
         );
 
@@ -1133,7 +1129,7 @@
                   ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
                 <i class="fas fa-eye"></i>
               </a>`
-                  : ""
+                  : ''
               }
             </div>
           </div>
@@ -1143,7 +1139,7 @@
       }
 
       // Učitaj notifikacije, statistike, PDV podatke i pozajmice kada se stranica učita
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         loadNotifications();
         loadDashboardStats();
         loadPDVData();
@@ -1151,10 +1147,10 @@
       });
 
       // Kalendar interakcija
-      document.querySelectorAll(".calendar-day").forEach((day) => {
-        day.addEventListener("click", function () {
+      document.querySelectorAll('.calendar-day').forEach(day => {
+        day.addEventListener('click', function () {
           if (this.textContent.trim()) {
-            console.log("Kliknuto na dan:", this.textContent);
+            console.log('Kliknuto na dan:', this.textContent);
             // Otvori modal sa detaljima dana
           }
         });
@@ -1162,16 +1158,16 @@
 
       // Quick Search funkcionalnost
       function setupQuickSearch() {
-        const searchInput = document.getElementById("quickSearchInput");
-        const clearButton = document.getElementById("clearSearch");
-        const searchResults = document.getElementById("searchResults");
+        const searchInput = document.getElementById('quickSearchInput');
+        const clearButton = document.getElementById('clearSearch');
+        const searchResults = document.getElementById('searchResults');
         let searchTimeout;
 
-        searchInput.addEventListener("input", function () {
+        searchInput.addEventListener('input', function () {
           const query = this.value.trim();
 
           if (query.length > 0) {
-            clearButton.style.display = "block";
+            clearButton.style.display = 'block';
 
             // Debounce search
             clearTimeout(searchTimeout);
@@ -1179,46 +1175,46 @@
               performSearch(query);
             }, 300);
           } else {
-            clearButton.style.display = "none";
-            searchResults.style.display = "none";
+            clearButton.style.display = 'none';
+            searchResults.style.display = 'none';
           }
         });
 
-        clearButton.addEventListener("click", function () {
-          searchInput.value = "";
-          this.style.display = "none";
-          searchResults.style.display = "none";
+        clearButton.addEventListener('click', function () {
+          searchInput.value = '';
+          this.style.display = 'none';
+          searchResults.style.display = 'none';
           searchInput.focus();
         });
 
         // Hide results when clicking outside
-        document.addEventListener("click", function (e) {
-          if (!e.target.closest(".search-container")) {
-            searchResults.style.display = "none";
+        document.addEventListener('click', function (e) {
+          if (!e.target.closest('.search-container')) {
+            searchResults.style.display = 'none';
           }
         });
       }
 
       function performSearch(query) {
-        const searchResults = document.getElementById("searchResults");
+        const searchResults = document.getElementById('searchResults');
 
         // Show loading
         searchResults.innerHTML =
           '<div class="search-item">Pretražujem...</div>';
-        searchResults.style.display = "block";
+        searchResults.style.display = 'block';
 
         // Try API calls with proper authentication
         Promise.all([
           fetch(`/api/firme/search?q=${encodeURIComponent(query)}`, {
-            credentials: "include",
+            credentials: 'include',
           }).catch(() => null),
           fetch(`/api/radnici/search?q=${encodeURIComponent(query)}`, {
-            credentials: "include",
+            credentials: 'include',
           }).catch(() => null),
         ])
-          .then((responses) => {
+          .then(responses => {
             // Process valid responses
-            const promises = responses.map((r) => {
+            const promises = responses.map(r => {
               if (r && r.ok) {
                 return r.json();
               } else {
@@ -1230,15 +1226,15 @@
           .then(([firme, radnici]) => {
             displaySearchResults(firme || [], radnici || [], query);
           })
-          .catch((error) => {
-            console.error("Search error:", error);
+          .catch(error => {
+            console.error('Search error:', error);
             displaySearchResults([], [], query);
           });
       }
 
       function displaySearchResults(firme, radnici, query) {
-        const searchResults = document.getElementById("searchResults");
-        let html = "";
+        const searchResults = document.getElementById('searchResults');
+        let html = '';
 
         const totalResults = firme.length + radnici.length;
 
@@ -1249,14 +1245,14 @@
         } else {
           // Firme results
           if (firme.length > 0) {
-            firme.slice(0, 3).forEach((firma) => {
+            firme.slice(0, 3).forEach(firma => {
               html += `<div class="search-item" onclick="navigateToResult('firma', ${
                 firma.id
               }, '${firma.naziv}')">
                 <div class="search-category">Firma</div>
                 <div class="search-title">${firma.naziv}</div>
-                <div class="search-subtitle">${firma.grad || "N/A"} • ${
-                firma.aktivna ? "Aktivna" : "Neaktivna"
+                <div class="search-subtitle">${firma.grad || 'N/A'} • ${
+                firma.aktivna ? 'Aktivna' : 'Neaktivna'
               }</div>
               </div>`;
             });
@@ -1264,10 +1260,10 @@
 
           // Radnici results
           if (radnici.length > 0) {
-            radnici.slice(0, 3).forEach((radnik) => {
+            radnici.slice(0, 3).forEach(radnik => {
               html += `<div class="search-item" onclick="navigateToResult('radnik', ${
                 radnik.id
-              }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ""})">
+              }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ''})">
                 <div class="search-category">Radnik</div>
                 <div class="search-title">${radnik.ime} ${radnik.prezime}</div>
                 <div class="search-subtitle">${radnik.pozicija} • ${
@@ -1286,34 +1282,34 @@
         }
 
         searchResults.innerHTML = html;
-        searchResults.style.display = "block";
+        searchResults.style.display = 'block';
       }
 
       // Navigacija na rezultat pretrage
-      function navigateToResult(type, id, title = "", firmaId = "") {
-        const searchResults = document.getElementById("searchResults");
-        searchResults.style.display = "none";
+      function navigateToResult(type, id, title = '', firmaId = '') {
+        const searchResults = document.getElementById('searchResults');
+        searchResults.style.display = 'none';
 
         switch (type) {
-          case "firma":
+          case 'firma':
             // Otvori firma detalji stranicu
             window.location.href = `/firma-detalji.html?id=${id}`;
             break;
-          case "radnik":
+          case 'radnik':
             // Za radnika, otvori radnik modal sa podacima
-            if (firmaId && firmaId !== "") {
+            if (firmaId && firmaId !== '') {
               // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
               window.location.href = `/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
             } else {
               // Fallback: idi na firmu detalje sa radnici tabom
               console.warn(
-                "Nema firmaId za radnika, fallback na firme stranicu"
+                'Nema firmaId za radnika, fallback na firme stranicu'
               );
               window.location.href = `/firme.html`;
             }
             break;
           default:
-            console.log("Unknown result type:", type);
+            console.log('Unknown result type:', type);
         }
       }
 
@@ -1321,7 +1317,7 @@
         // Umesto da idemo na nepostojećcu search-results.html stranicu,
         // možemo ići na firme.html ili firma-detalji.html stranice sa pretraživanjem
         // ili jednostavno proširiti trenutni prikaz rezultata
-        console.log("Prikaži sve rezultate za:", query);
+        console.log('Prikaži sve rezultate za:', query);
 
         // Za sada ćemo ići na firme stranicu koja ima pretragu
         window.location.href = `/firme.html?search=${encodeURIComponent(
@@ -1333,15 +1329,15 @@
 
       // PDV Kalkulator funkcije
       function initPdvCalculator() {
-        const amountInput = document.getElementById("pdv-amount");
-        const rateSelect = document.getElementById("pdv-rate");
+        const amountInput = document.getElementById('pdv-amount');
+        const rateSelect = document.getElementById('pdv-rate');
         const modeRadios = document.querySelectorAll('input[name="pdv-mode"]');
 
         // Event listeneri za real-time kalkulaciju
-        amountInput.addEventListener("input", calculatePdv);
-        rateSelect.addEventListener("change", calculatePdv);
-        modeRadios.forEach((radio) => {
-          radio.addEventListener("change", function () {
+        amountInput.addEventListener('input', calculatePdv);
+        rateSelect.addEventListener('change', calculatePdv);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
             updateLabels();
             calculatePdv();
           });
@@ -1356,33 +1352,33 @@
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
-        const amountLabel = document.getElementById("amount-label");
-        const resultLabel1 = document.getElementById("result-label-1");
-        const resultLabel2 = document.getElementById("result-label-2");
+        const amountLabel = document.getElementById('amount-label');
+        const resultLabel1 = document.getElementById('result-label-1');
+        const resultLabel2 = document.getElementById('result-label-2');
 
-        if (mode === "add") {
-          amountLabel.textContent = "Iznos bez PDV-a";
-          resultLabel1.textContent = "PDV iznos";
-          resultLabel2.textContent = "Ukupno sa PDV";
+        if (mode === 'add') {
+          amountLabel.textContent = 'Iznos bez PDV-a';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Ukupno sa PDV';
         } else {
-          amountLabel.textContent = "Iznos sa PDV-om";
-          resultLabel1.textContent = "PDV iznos";
-          resultLabel2.textContent = "Iznos bez PDV";
+          amountLabel.textContent = 'Iznos sa PDV-om';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Iznos bez PDV';
         }
       }
 
       function calculatePdv() {
         const amount =
-          parseFloat(document.getElementById("pdv-amount").value) || 0;
+          parseFloat(document.getElementById('pdv-amount').value) || 0;
         const rate =
-          parseFloat(document.getElementById("pdv-rate").value) || 21;
+          parseFloat(document.getElementById('pdv-rate').value) || 21;
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
 
         let pdvAmount, totalAmount;
 
-        if (mode === "add") {
+        if (mode === 'add') {
           // Dodavanje PDV-a na iznos bez PDV-a
           pdvAmount = amount * (rate / 100);
           totalAmount = amount + pdvAmount;
@@ -1394,15 +1390,15 @@
         }
 
         // Ažuriranje prikaza
-        document.getElementById("pdv-tax-amount").textContent =
-          pdvAmount.toFixed(2) + " €";
-        document.getElementById("pdv-total-amount").textContent =
-          totalAmount.toFixed(2) + " €";
+        document.getElementById('pdv-tax-amount').textContent =
+          pdvAmount.toFixed(2) + ' €';
+        document.getElementById('pdv-total-amount').textContent =
+          totalAmount.toFixed(2) + ' €';
       }
 
       function clearPdvCalculator() {
-        document.getElementById("pdv-amount").value = "";
-        document.getElementById("pdv-rate").value = "21";
+        document.getElementById('pdv-amount').value = '';
+        document.getElementById('pdv-rate').value = '21';
         document.querySelector(
           'input[name="pdv-mode"][value="add"]'
         ).checked = true;
@@ -1414,14 +1410,14 @@
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
-        const amount = document.getElementById("pdv-amount").value;
-        const rate = document.getElementById("pdv-rate").value;
-        const pdvAmount = document.getElementById("pdv-tax-amount").textContent;
+        const amount = document.getElementById('pdv-amount').value;
+        const rate = document.getElementById('pdv-rate').value;
+        const pdvAmount = document.getElementById('pdv-tax-amount').textContent;
         const totalAmount =
-          document.getElementById("pdv-total-amount").textContent;
+          document.getElementById('pdv-total-amount').textContent;
 
         let textToCopy;
-        if (mode === "add") {
+        if (mode === 'add') {
           textToCopy = `PDV Kalkulacija (+${rate}%):
 Iznos bez PDV: ${amount} €
 PDV iznos: ${pdvAmount}
@@ -1437,9 +1433,9 @@ Iznos bez PDV: ${totalAmount}`;
           .writeText(textToCopy)
           .then(() => {
             // Kreiraj toast notification
-            const toast = document.createElement("div");
-            toast.className = "position-fixed top-0 end-0 p-3";
-            toast.style.zIndex = "1056";
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
             toast.innerHTML = `
             <div class="toast show" role="alert">
               <div class="toast-header">
@@ -1459,25 +1455,25 @@ Iznos bez PDV: ${totalAmount}`;
               document.body.removeChild(toast);
             }, 3000);
           })
-          .catch((err) => {
-            console.error("Greška pri kopiranju:", err);
-            alert("Greška pri kopiranju u clipboard");
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
           });
       }
 
       // Obračun zakupa funkcije
       function initZakupCalculator() {
-        const amountInput = document.getElementById("zakup-amount");
-        const gradSelect = document.getElementById("zakup-grad");
+        const amountInput = document.getElementById('zakup-amount');
+        const gradSelect = document.getElementById('zakup-grad');
         const modeRadios = document.querySelectorAll(
           'input[name="zakup-mode"]'
         );
 
         // Event listeneri za real-time kalkulaciju
-        amountInput.addEventListener("input", calculateZakup);
-        gradSelect.addEventListener("change", calculateZakup);
-        modeRadios.forEach((radio) => {
-          radio.addEventListener("change", function () {
+        amountInput.addEventListener('input', calculateZakup);
+        gradSelect.addEventListener('change', calculateZakup);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
             updateZakupLabels();
             calculateZakup();
           });
@@ -1492,32 +1488,32 @@ Iznos bez PDV: ${totalAmount}`;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
-        const amountLabel = document.getElementById("zakup-amount-label");
-        const resultLabel1 = document.getElementById("zakup-result-label-1");
-        const resultLabel2 = document.getElementById("zakup-result-label-2");
+        const amountLabel = document.getElementById('zakup-amount-label');
+        const resultLabel1 = document.getElementById('zakup-result-label-1');
+        const resultLabel2 = document.getElementById('zakup-result-label-2');
 
-        if (mode === "neto") {
-          amountLabel.textContent = "Neto iznos";
-          resultLabel1.textContent = "Porez";
-          resultLabel2.textContent = "Prirez";
+        if (mode === 'neto') {
+          amountLabel.textContent = 'Neto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
         } else {
-          amountLabel.textContent = "Bruto iznos";
-          resultLabel1.textContent = "Porez";
-          resultLabel2.textContent = "Prirez";
+          amountLabel.textContent = 'Bruto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
         }
       }
 
       function calculateZakup() {
         const amount =
-          parseFloat(document.getElementById("zakup-amount").value) || 0;
-        const grad = document.getElementById("zakup-grad").value;
+          parseFloat(document.getElementById('zakup-amount').value) || 0;
+        const grad = document.getElementById('zakup-grad').value;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
 
         // Stope prireza po gradovima
         const prirezStope = {
-          "podgorica-cetinje": 15, // 15%
+          'podgorica-cetinje': 15, // 15%
           budva: 10, // 10%
           ostali: 13, // 13%
         };
@@ -1526,10 +1522,10 @@ Iznos bez PDV: ${totalAmount}`;
         const NETO_KOEFICIJENT = 0.117318; // za neto kalkulaciju
         const BRUTO_KOEFICIJENT = 0.105; // za bruto kalkulaciju
 
-        const prirezStopa = prirezStope[grad] || prirezStope["ostali"];
+        const prirezStopa = prirezStope[grad] || prirezStope['ostali'];
         let porezIznos, prirezIznos, netoIznos;
 
-        if (mode === "neto") {
+        if (mode === 'neto') {
           // Neto → Bruto kalkulacija
           netoIznos = amount;
           porezIznos = netoIznos * NETO_KOEFICIJENT;
@@ -1543,15 +1539,15 @@ Iznos bez PDV: ${totalAmount}`;
         }
 
         // Ažuriranje prikaza
-        document.getElementById("zakup-porez-amount").textContent =
-          porezIznos.toFixed(2) + " €";
-        document.getElementById("zakup-prirez-amount").textContent =
-          prirezIznos.toFixed(2) + " €";
+        document.getElementById('zakup-porez-amount').textContent =
+          porezIznos.toFixed(2) + ' €';
+        document.getElementById('zakup-prirez-amount').textContent =
+          prirezIznos.toFixed(2) + ' €';
       }
 
       function clearZakupCalculator() {
-        document.getElementById("zakup-amount").value = "";
-        document.getElementById("zakup-grad").value = "podgorica-cetinje";
+        document.getElementById('zakup-amount').value = '';
+        document.getElementById('zakup-grad').value = 'podgorica-cetinje';
         document.querySelector(
           'input[name="zakup-mode"][value="neto"]'
         ).checked = true;
@@ -1563,20 +1559,20 @@ Iznos bez PDV: ${totalAmount}`;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
-        const amount = document.getElementById("zakup-amount").value;
-        const grad = document.getElementById("zakup-grad").value;
+        const amount = document.getElementById('zakup-amount').value;
+        const grad = document.getElementById('zakup-grad').value;
         const gradNaziv =
-          document.getElementById("zakup-grad").options[
-            document.getElementById("zakup-grad").selectedIndex
+          document.getElementById('zakup-grad').options[
+            document.getElementById('zakup-grad').selectedIndex
           ].text;
         const porezAmount =
-          document.getElementById("zakup-porez-amount").textContent;
+          document.getElementById('zakup-porez-amount').textContent;
         const prirezAmount = document.getElementById(
-          "zakup-prirez-amount"
+          'zakup-prirez-amount'
         ).textContent;
 
         let textToCopy;
-        if (mode === "neto") {
+        if (mode === 'neto') {
           textToCopy = `Obračun zakupa (Neto → Bruto):
 Grad: ${gradNaziv}
 Neto iznos: ${amount} €
@@ -1584,8 +1580,8 @@ Porez: ${porezAmount}
 Prirez: ${prirezAmount}
 Ukupno bruto: ${(
             parseFloat(amount) +
-            parseFloat(porezAmount.replace(" €", "")) +
-            parseFloat(prirezAmount.replace(" €", ""))
+            parseFloat(porezAmount.replace(' €', '')) +
+            parseFloat(prirezAmount.replace(' €', ''))
           ).toFixed(2)} €`;
         } else {
           textToCopy = `Obračun zakupa (Bruto → Neto):
@@ -1595,8 +1591,8 @@ Porez: ${porezAmount}
 Prirez: ${prirezAmount}
 Neto iznos: ${(
             parseFloat(amount) -
-            parseFloat(porezAmount.replace(" €", "")) -
-            parseFloat(prirezAmount.replace(" €", ""))
+            parseFloat(porezAmount.replace(' €', '')) -
+            parseFloat(prirezAmount.replace(' €', ''))
           ).toFixed(2)} €`;
         }
 
@@ -1604,9 +1600,9 @@ Neto iznos: ${(
           .writeText(textToCopy)
           .then(() => {
             // Kreiraj toast notification
-            const toast = document.createElement("div");
-            toast.className = "position-fixed top-0 end-0 p-3";
-            toast.style.zIndex = "1056";
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
             toast.innerHTML = `
             <div class="toast show" role="alert">
               <div class="toast-header">
@@ -1626,9 +1622,9 @@ Neto iznos: ${(
               document.body.removeChild(toast);
             }, 3000);
           })
-          .catch((err) => {
-            console.error("Greška pri kopiranju:", err);
-            alert("Greška pri kopiranju u clipboard");
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
           });
       }
     </script>
