@@ -599,12 +599,12 @@ body {
 .navbar-search-input {
   width: 100%;
   padding: 8px 35px 8px 15px;
-  border: 1px solid #495057;
+  border: 1px solid #6c757d;
   border-radius: 20px;
   font-size: 0.9rem;
   outline: none;
   transition: all 0.3s ease;
-  background-color: #495057;
+  background-color: #d1e1eeff;
   color: white;
 }
 
@@ -692,6 +692,17 @@ body {
 .navbar-search-subtitle {
   font-size: 0.85rem;
   color: #666;
+}
+
+/* Dark mode styles for navbar search */
+[data-theme="dark"] .navbar-search-input {
+  background-color: #495057;
+  border-color: #495057;
+  color: white;
+}
+
+[data-theme="dark"] .navbar-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 </style>
 `;
