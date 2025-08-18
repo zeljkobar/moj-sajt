@@ -295,6 +295,37 @@
 
             <div class="tab-content">
               <div class="tab-pane fade show active" id="aktivni-radnici">
+                <!-- Legenda za ikonice -->
+                <div class="alert alert-light border mb-3">
+                  <h6 class="mb-2">Legenda ikonica:</h6>
+                  <div class="row">
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-eye text-primary"></i>
+                      <small>Detalji radnika</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-edit text-warning"></i>
+                      <small>Uredi radnika</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-file-contract text-success"></i>
+                      <small>Generiši ugovor</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-handshake text-danger"></i>
+                      <small>Otkaz radnika</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-file-alt text-info"></i>
+                      <small>JPR obrazac</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-trash text-dark"></i>
+                      <small>Obriši radnika</small>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead class="table-light">
@@ -346,6 +377,29 @@
 
               <!-- Neaktivni radnici tab -->
               <div class="tab-pane fade" id="neaktivni-radnici">
+                <!-- Legenda za ikonice neaktivnih radnika -->
+                <div class="alert alert-light border mb-3">
+                  <h6 class="mb-2">Legenda ikonica:</h6>
+                  <div class="row">
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-eye text-primary"></i>
+                      <small>Detalji radnika</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-file-alt text-success"></i>
+                      <small>Pregled otkaza</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-trash text-danger"></i>
+                      <small>Obriši otkaz</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-file-alt text-info"></i>
+                      <small>JPR odjava</small>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead class="table-light">
@@ -371,6 +425,21 @@
 
               <!-- Ugovori koji ističu tab -->
               <div class="tab-pane fade" id="ugovori-detalji">
+                <!-- Legenda za ikonice ugovora koji ističu -->
+                <div class="alert alert-light border mb-3">
+                  <h6 class="mb-2">Legenda ikonica:</h6>
+                  <div class="row">
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-calendar-plus text-success"></i>
+                      <small>Produži ugovor</small>
+                    </div>
+                    <div class="col-md-4 col-sm-6 mb-1">
+                      <i class="fas fa-eye text-primary"></i>
+                      <small>Detalji radnika</small>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead class="table-light">
@@ -1836,6 +1905,95 @@
               onclick="generisiAneksRadnoVreme()"
             >
               <i class="fas fa-file-contract me-1"></i>Generiši aneks
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za produžavanje ugovora -->
+    <div
+      class="modal fade"
+      id="produzUgovorModal"
+      tabindex="-1"
+      aria-labelledby="produzUgovorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="produzUgovorModalLabel">
+              <i class="fas fa-calendar-plus me-2"></i>Produži ugovor
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Produžavate ugovor za radnika:
+              <strong id="produzRadnikIme">-</strong>
+            </div>
+
+            <div class="mb-3">
+              <label for="trenutniDatumIsteka" class="form-label">
+                <strong>Trenutni datum isteka ugovora:</strong>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="trenutniDatumIsteka"
+                readonly
+                style="background-color: #f8f9fa"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="noviDatumIsteka" class="form-label">
+                <strong>Novi datum isteka ugovora:</strong>
+                <span class="text-danger">*</span>
+              </label>
+              <input
+                type="date"
+                class="form-control"
+                id="noviDatumIsteka"
+                required
+              />
+              <div class="form-text">
+                Izaberite novi datum do kada će važiti ugovor
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="napomenaProduzenja" class="form-label">
+                <strong>Napomena produženja:</strong>
+              </label>
+              <textarea
+                class="form-control"
+                id="napomenaProduzenja"
+                rows="3"
+                placeholder="Opcionalno: razlog produženja ili dodatne napomene..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="potvrdiProduzUgovor()"
+            >
+              <i class="fas fa-calendar-plus me-1"></i>Produži ugovor
             </button>
           </div>
         </div>

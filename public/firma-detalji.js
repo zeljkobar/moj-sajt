@@ -644,11 +644,6 @@ function updateNeaktivniRadnici(radnici, otkaziMap = {}) {
             })" title="Detalji">
               <i class="fas fa-eye"></i>
             </button>
-            <button class="btn btn-sm btn-outline-info" onclick="generisiPotvrdu(${
-              radnik.id
-            })" title="Potvrda o zaposlenju">
-              <i class="fas fa-certificate"></i>
-            </button>
             ${
               otkaz
                 ? `
@@ -1437,10 +1432,105 @@ function generisiPotvrdu(radnikId) {
   );
 }
 
+let currentRadnikForProduzenje = null;
+
 function produzUgovor(radnikId) {
-  if (confirm('Da li želite da produžite ugovor za ovog radnika?')) {
-    // TODO: Implementirati logiku za produžavanje ugovora
-    alert('Funkcionalnost će biti implementirana');
+  // Pronađi radnika u listi
+  const radnik = allRadnici.find(r => r.id === radnikId);
+  if (!radnik) {
+    alert('Greška pri učitavanju podataka o radniku');
+    return;
+  }
+
+  // Postavi globalne podatke
+  currentRadnikForProduzenje = radnik;
+
+  // Popuni modal sa podacima
+  document.getElementById(
+    'produzRadnikIme'
+  ).textContent = `${radnik.ime} ${radnik.prezime}`;
+
+  // Format trenutnog datuma isteka
+  const trenutniDatum = new Date(radnik.datum_prestanka);
+  document.getElementById('trenutniDatumIsteka').value =
+    trenutniDatum.toLocaleDateString('sr-RS');
+
+  // Postavi minimum date za novi datum (mora biti nakon trenutnog)
+  const sutra = new Date(trenutniDatum);
+  sutra.setDate(sutra.getDate() + 1);
+  const minDate = sutra.toISOString().split('T')[0];
+  document.getElementById('noviDatumIsteka').min = minDate;
+  document.getElementById('noviDatumIsteka').value = '';
+
+  // Očisti napomenu
+  document.getElementById('napomenaProduzenja').value = '';
+
+  // Prikaži modal
+  const modal = new bootstrap.Modal(
+    document.getElementById('produzUgovorModal')
+  );
+  modal.show();
+}
+
+async function potvrdiProduzUgovor() {
+  try {
+    const noviDatum = document.getElementById('noviDatumIsteka').value;
+    const napomena = document.getElementById('napomenaProduzenja').value.trim();
+
+    if (!noviDatum) {
+      alert('Molimo unesite novi datum isteka ugovora');
+      return;
+    }
+
+    // Proveri da li je novi datum u budućnosti
+    const noviDatumObj = new Date(noviDatum);
+    const trenutniDatumObj = new Date(
+      currentRadnikForProduzenje.datum_prestanka
+    );
+
+    if (noviDatumObj <= trenutniDatumObj) {
+      alert('Novi datum mora biti nakon trenutnog datuma isteka');
+      return;
+    }
+
+    // Pripremi podatke za slanje
+    const podaci = {
+      radnik_id: currentRadnikForProduzenje.id,
+      novi_datum_prestanka: noviDatum,
+      napomena: napomena || null,
+    };
+
+    // Pošalji zahtev na server
+    const response = await fetch('/api/radnici/produzi-ugovor', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(podaci),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert('Ugovor je uspešno produžen!');
+
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('produzUgovorModal')
+      );
+      modal.hide();
+
+      // Osvježi tabele
+      await loadRadnici(currentFirmaId);
+
+      // Reset globalnih podataka
+      currentRadnikForProduzenje = null;
+    } else {
+      alert(result.message || 'Greška pri produžavanju ugovora');
+    }
+  } catch (error) {
+    console.error('Greška pri produžavanju ugovora:', error);
+    alert('Greška pri produžavanju ugovora');
   }
 }
 

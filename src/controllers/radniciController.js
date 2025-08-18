@@ -1,4 +1,4 @@
-const { executeQuery } = require("../config/database");
+const { executeQuery } = require('../config/database');
 
 const radniciController = {
   // GET /api/radnici - dobij radnike za firme ulogovanog korisnika
@@ -6,19 +6,19 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Dobij radnike samo za firme koje pripadaju ovom korisniku
@@ -42,7 +42,7 @@ const radniciController = {
 
       res.json(radnici);
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -68,7 +68,7 @@ const radniciController = {
       );
       res.json(radnici);
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -78,19 +78,19 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Dobij radnika samo ako pripada firmi ovog korisnika
@@ -113,12 +113,12 @@ const radniciController = {
 
       if (!radnik) {
         return res.status(404).json({
-          message: "Radnik nije pronađen ili nemate dozvolu za pristup",
+          message: 'Radnik nije pronađen ili nemate dozvolu za pristup',
         });
       }
       res.json(radnik);
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -144,30 +144,30 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Proveri da li firma pripada korisniku
       const [firmaCheck] = await executeQuery(
-        "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+        'SELECT id FROM firme WHERE id = ? AND user_id = ?',
         [firma_id, user.id]
       );
 
       if (!firmaCheck) {
         return res.status(403).json({
-          message: "Nemate dozvolu da dodajete radnike u ovu firmu",
+          message: 'Nemate dozvolu da dodajete radnike u ovu firmu',
         });
       }
 
@@ -185,14 +185,14 @@ const radniciController = {
       ) {
         return res
           .status(400)
-          .json({ message: "Sva obavezna polja moraju biti popunjena" });
+          .json({ message: 'Sva obavezna polja moraju biti popunjena' });
       }
 
       // Validacija JMBG dužine
       if (jmbg.length !== 13) {
         return res
           .status(400)
-          .json({ message: "JMBG mora imati tačno 13 cifara" });
+          .json({ message: 'JMBG mora imati tačno 13 cifara' });
       }
 
       // Dodaj radnika u bazu
@@ -212,8 +212,8 @@ const radniciController = {
           firma_id,
           datum_zaposlenja,
           visina_zarade,
-          tip_radnog_vremena || "puno_8h",
-          tip_ugovora || "na_neodredjeno",
+          tip_radnog_vremena || 'puno_8h',
+          tip_ugovora || 'na_neodredjeno',
           datum_prestanka || null,
           napomene || null,
         ]
@@ -223,11 +223,11 @@ const radniciController = {
 
       // Automatski kreiraj ugovor za novog radnika
       const vrstaUgovoraText = {
-        ugovor_o_radu: "Ugovor o radu",
-        ugovor_o_djelu: "Ugovor o djelu",
-        ugovor_o_dopunskom_radu: "Ugovor o dopunskom radu",
-        autorski_ugovor: "Autorski ugovor",
-        ugovor_o_pozajmnici: "Ugovor o pozajmnici",
+        ugovor_o_radu: 'Ugovor o radu',
+        ugovor_o_djelu: 'Ugovor o djelu',
+        ugovor_o_dopunskom_radu: 'Ugovor o dopunskom radu',
+        autorski_ugovor: 'Autorski ugovor',
+        ugovor_o_pozajmnici: 'Ugovor o pozajmnici',
       };
 
       await executeQuery(
@@ -240,7 +240,7 @@ const radniciController = {
           radnikId,
           datum_zaposlenja,
           tip_ugovora,
-          vrstaUgovoraText[vrsta_ugovora] || "Ugovor",
+          vrstaUgovoraText[vrsta_ugovora] || 'Ugovor',
           vrsta_ugovora,
         ]
       );
@@ -249,7 +249,7 @@ const radniciController = {
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Greška na serveru", error: error.message });
+        .json({ message: 'Greška na serveru', error: error.message });
     }
   },
 
@@ -276,19 +276,19 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Proveri da li radnik pripada korisniku pre ažuriranja
@@ -301,19 +301,19 @@ const radniciController = {
 
       if (!radnikCheck) {
         return res.status(403).json({
-          message: "Nemate dozvolu da ažurirate ovog radnika",
+          message: 'Nemate dozvolu da ažurirate ovog radnika',
         });
       }
 
       // Proveri da li nova firma pripada korisniku
       const [firmaCheck] = await executeQuery(
-        "SELECT id FROM firme WHERE id = ? AND user_id = ?",
+        'SELECT id FROM firme WHERE id = ? AND user_id = ?',
         [firma_id, user.id]
       );
 
       if (!firmaCheck) {
         return res.status(403).json({
-          message: "Nemate dozvolu da dodelite radnika ovoj firmi",
+          message: 'Nemate dozvolu da dodelite radnika ovoj firmi',
         });
       }
 
@@ -328,7 +328,7 @@ const radniciController = {
       ) {
         return res
           .status(400)
-          .json({ message: "Sva obavezna polja moraju biti popunjena" });
+          .json({ message: 'Sva obavezna polja moraju biti popunjena' });
       }
 
       // Ažuriraj radnika
@@ -348,8 +348,8 @@ const radniciController = {
           firma_id,
           datum_zaposlenja,
           visina_zarade,
-          tip_radnog_vremena || "puno_8h",
-          tip_ugovora || "na_neodredjeno",
+          tip_radnog_vremena || 'puno_8h',
+          tip_ugovora || 'na_neodredjeno',
           datum_prestanka || null,
           napomene || null,
           id,
@@ -364,9 +364,9 @@ const radniciController = {
         );
       }
 
-      res.json({ success: true, message: "Radnik je uspešno ažuriran" });
+      res.json({ success: true, message: 'Radnik je uspešno ažuriran' });
     } catch (error) {
-      res.status(500).json({ message: "Greška na serveru" });
+      res.status(500).json({ message: 'Greška na serveru' });
     }
   },
 
@@ -378,19 +378,19 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Proveri da li radnik pripada korisniku
@@ -404,13 +404,13 @@ const radniciController = {
       if (!radnikCheck) {
         return res.status(403).json({
           success: false,
-          message: "Nemate dozvolu da obrišete ovog radnika",
+          message: 'Nemate dozvolu da obrišete ovog radnika',
         });
       }
 
       // Prvo proveri da li radnik ima ugovore
       const ugovori = await executeQuery(
-        "SELECT COUNT(*) as count FROM ugovori WHERE radnik_id = ?",
+        'SELECT COUNT(*) as count FROM ugovori WHERE radnik_id = ?',
         [id]
       );
 
@@ -424,29 +424,29 @@ const radniciController = {
       }
 
       // Ako je force=true, prvo obriši ugovore
-      if (force === "true" && ugovori[0].count > 0) {
-        await executeQuery("DELETE FROM ugovori WHERE radnik_id = ?", [id]);
+      if (force === 'true' && ugovori[0].count > 0) {
+        await executeQuery('DELETE FROM ugovori WHERE radnik_id = ?', [id]);
       }
 
-      await executeQuery("DELETE FROM radnici WHERE id = ?", [id]);
+      await executeQuery('DELETE FROM radnici WHERE id = ?', [id]);
       res.json({
         success: true,
         message:
-          force === "true" && ugovori[0].count > 0
+          force === 'true' && ugovori[0].count > 0
             ? `Radnik i ${ugovori[0].count} povezan(ih) ugovor(a) su uspešno obrisani`
-            : "Radnik je uspešno obrisan",
+            : 'Radnik je uspešno obrisan',
       });
     } catch (error) {
       // Specifično rukovanje foreign key greškom
-      if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      if (error.code === 'ER_ROW_IS_REFERENCED_2') {
         res.status(400).json({
           success: false,
-          message: "Ne možete obrisati radnika jer ima povezane ugovore.",
+          message: 'Ne možete obrisati radnika jer ima povezane ugovore.',
         });
       } else {
         res.status(500).json({
           success: false,
-          message: "Greška na serveru",
+          message: 'Greška na serveru',
           error: error.message,
         });
       }
@@ -458,7 +458,7 @@ const radniciController = {
     try {
       // Proveri autentifikaciju
       if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: "Nije autentifikovan" });
+        return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
@@ -470,12 +470,12 @@ const radniciController = {
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
-        "SELECT id FROM users WHERE username = ?",
+        'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Korisnik nije pronađen" });
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
       // Pretraži radnike sa svim potrebnim podacima
@@ -514,8 +514,62 @@ const radniciController = {
 
       res.json(radnici);
     } catch (error) {
-      console.error("Search radnici error:", error);
-      res.status(500).json({ message: "Greška na serveru" });
+      console.error('Search radnici error:', error);
+      res.status(500).json({ message: 'Greška na serveru' });
+    }
+  },
+
+  // POST /api/radnici/produzi-ugovor - produžavanje ugovora radnika
+  produzUgovor: async (req, res) => {
+    try {
+      console.log('Pozvan produzUgovor endpoint');
+      console.log('Request body:', req.body);
+      console.log('Session:', req.session);
+
+      // Proveri autentifikaciju
+      if (!req.session || !req.session.user) {
+        console.log('Autentifikacija neuspešna');
+        return res.status(401).json({ message: 'Nije autentifikovan' });
+      }
+
+      const { radnik_id, novi_datum_prestanka } = req.body;
+
+      // Validacija unosa
+      if (!radnik_id || !novi_datum_prestanka) {
+        console.log('Nedostaju podaci:', { radnik_id, novi_datum_prestanka });
+        return res.status(400).json({
+          message:
+            'Nedostaju obavezni podaci (radnik_id, novi_datum_prestanka)',
+        });
+      }
+
+      console.log(
+        'Početak update-a radnika:',
+        radnik_id,
+        'novi datum:',
+        novi_datum_prestanka
+      );
+
+      // Jednostavan update datum_prestanka polja
+      const result = await executeQuery(
+        'UPDATE radnici SET datum_prestanka = ? WHERE id = ?',
+        [novi_datum_prestanka, radnik_id]
+      );
+
+      console.log('Update result:', result);
+
+      res.json({
+        success: true,
+        message: 'Ugovor je uspešno produžen',
+        affectedRows: result.affectedRows,
+      });
+    } catch (error) {
+      console.error('Greška pri produžavanju ugovora:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška na serveru',
+        error: error.message,
+      });
     }
   },
 };
