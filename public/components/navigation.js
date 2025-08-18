@@ -12,7 +12,7 @@ class Navigation {
   generateNavHTML() {
     // Različita navigacija za różne tipove korisnika
     const pdvCalendarItem =
-      this.userRole !== "firma"
+      this.userRole !== 'firma'
         ? `
               <!-- PDV Kalendar -->
               <li class="nav-item">
@@ -20,7 +20,7 @@ class Navigation {
                   <i class="fas fa-receipt me-1"></i>PDV Kalendar
                 </a>
               </li>`
-        : "";
+        : '';
 
     return `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
@@ -69,6 +69,30 @@ class Navigation {
               </li>
             </ul>
 
+            <!-- Global Search -->
+            <div class="navbar-search-container d-none d-lg-block me-3">
+              <div class="navbar-search-wrapper">
+                <input
+                  type="text"
+                  id="navbarSearchInput"
+                  placeholder="Pretražite..."
+                  class="navbar-search-input"
+                />
+                <button
+                  id="navbarClearSearch"
+                  class="navbar-clear-btn"
+                  style="display: none;"
+                >
+                  ×
+                </button>
+                <div
+                  id="navbarSearchResults"
+                  class="navbar-search-results"
+                  style="display: none"
+                ></div>
+              </div>
+            </div>
+
             <!-- User info and logout -->
             <ul class="navbar-nav">
               <!-- Dark mode toggle -->
@@ -107,8 +131,8 @@ class Navigation {
     this.initialized = true;
 
     // Ukloni postojeće navigacije ako postoje
-    const existingNavs = document.querySelectorAll("nav.navbar");
-    existingNavs.forEach((nav) => nav.remove());
+    const existingNavs = document.querySelectorAll('nav.navbar');
+    existingNavs.forEach(nav => nav.remove());
 
     // Najprije učitaj informacije o korisniku da bi imali ulogu
     await this.loadUserInfo();
@@ -117,15 +141,15 @@ class Navigation {
     const navHTML = this.generateNavHTML();
 
     // Pokušaj da koristiš navigation placeholder, a ako ne postoji, dodaj na vrh stranice
-    const navPlaceholder = document.getElementById("navigation-placeholder");
+    const navPlaceholder = document.getElementById('navigation-placeholder');
     if (navPlaceholder) {
       navPlaceholder.innerHTML = navHTML;
     } else {
-      document.body.insertAdjacentHTML("afterbegin", navHTML);
+      document.body.insertAdjacentHTML('afterbegin', navHTML);
     }
 
     // Kratka pauza da se osiguramo da je HTML dodat u DOM
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     // Ponovo pozovi loadUserInfo da ažuriraš UI sa korisničkim podacima
     await this.loadUserInfo();
@@ -148,8 +172,8 @@ class Navigation {
   // Učitava informacije o trenutnom korisniku
   async loadUserInfo() {
     try {
-      const response = await fetch("/api/check-auth", {
-        credentials: "include",
+      const response = await fetch('/api/check-auth', {
+        credentials: 'include',
       });
       const data = await response.json();
 
@@ -158,36 +182,36 @@ class Navigation {
         this.userRole = data.user?.role;
 
         // Ažuriraj UI sa korisničkim podacima
-        const usernameElement = document.getElementById("navbar-username");
+        const usernameElement = document.getElementById('navbar-username');
         if (usernameElement && this.currentUser) {
-          usernameElement.textContent = this.currentUser.username || "Korisnik";
+          usernameElement.textContent = this.currentUser.username || 'Korisnik';
         }
 
         // Prikaži admin meni ako je korisnik admin
-        if (this.userRole === "admin") {
-          const adminMenu = document.getElementById("adminMenu");
+        if (this.userRole === 'admin') {
+          const adminMenu = document.getElementById('adminMenu');
           if (adminMenu) {
-            adminMenu.style.display = "block";
+            adminMenu.style.display = 'block';
           }
         }
       }
     } catch (error) {
-      console.error("Greška pri učitavanju korisničkih podataka:", error);
+      console.error('Greška pri učitavanju korisničkih podataka:', error);
     }
   }
 
   // Označava aktivnu stavku menija na osnovu trenutne stranice
   setActiveMenuItem() {
     const currentPage = window.location.pathname
-      .split("/")
+      .split('/')
       .pop()
-      .replace(".html", "");
-    const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+      .replace('.html', '');
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
 
-    navLinks.forEach((link) => {
-      const href = link.getAttribute("href");
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
       if (href && href.includes(currentPage)) {
-        link.classList.add("active");
+        link.classList.add('active');
       }
     });
   }
@@ -195,24 +219,173 @@ class Navigation {
   // Dodaje event listenere
   attachEventListeners() {
     // Logout funkcionalnost
-    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", async (e) => {
+      logoutBtn.addEventListener('click', async e => {
         e.preventDefault();
         try {
-          const response = await fetch("/api/logout", {
-            method: "POST",
-            credentials: "include",
+          const response = await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include',
           });
           if (response.ok) {
-            window.location.href = "/index.html";
+            window.location.href = '/index.html';
           }
         } catch (error) {
-          console.error("Greška pri odjavi:", error);
-          window.location.href = "/index.html";
+          console.error('Greška pri odjavi:', error);
+          window.location.href = '/index.html';
         }
       });
     }
+
+    // Navbar search funkcionalnost
+    this.setupNavbarSearch();
+  }
+
+  // Setup navbar search functionality
+  setupNavbarSearch() {
+    const searchInput = document.getElementById('navbarSearchInput');
+    const clearButton = document.getElementById('navbarClearSearch');
+    const searchResults = document.getElementById('navbarSearchResults');
+
+    if (!searchInput || !clearButton || !searchResults) {
+      return; // Elementi nisu pronađeni
+    }
+
+    let searchTimeout;
+
+    searchInput.addEventListener('input', e => {
+      const query = e.target.value.trim();
+
+      if (query.length > 0) {
+        clearButton.style.display = 'block';
+
+        // Debounce search
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          this.performNavbarSearch(query);
+        }, 300);
+      } else {
+        clearButton.style.display = 'none';
+        searchResults.style.display = 'none';
+      }
+    });
+
+    clearButton.addEventListener('click', () => {
+      searchInput.value = '';
+      clearButton.style.display = 'none';
+      searchResults.style.display = 'none';
+      searchInput.focus();
+    });
+
+    // Hide results when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.navbar-search-container')) {
+        searchResults.style.display = 'none';
+      }
+    });
+
+    // Hide results when pressing escape
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        searchResults.style.display = 'none';
+        searchInput.blur();
+      }
+    });
+  }
+
+  // Perform search in navbar
+  async performNavbarSearch(query) {
+    const searchResults = document.getElementById('navbarSearchResults');
+
+    if (!searchResults) return;
+
+    // Show loading
+    searchResults.innerHTML =
+      '<div class="navbar-search-item">Pretražujem...</div>';
+    searchResults.style.display = 'block';
+
+    try {
+      // Fetch search results
+      const [firmeResponse, radniciResponse] = await Promise.all([
+        fetch(`/api/firme/search?q=${encodeURIComponent(query)}`, {
+          credentials: 'include',
+        }).catch(() => null),
+        fetch(`/api/radnici/search?q=${encodeURIComponent(query)}`, {
+          credentials: 'include',
+        }).catch(() => null),
+      ]);
+
+      const firme =
+        firmeResponse && firmeResponse.ok ? await firmeResponse.json() : [];
+      const radnici =
+        radniciResponse && radniciResponse.ok
+          ? await radniciResponse.json()
+          : [];
+
+      this.displayNavbarSearchResults(firme, radnici, query);
+    } catch (error) {
+      console.error('Navbar search error:', error);
+      this.displayNavbarSearchResults([], [], query);
+    }
+  }
+
+  // Display search results in navbar
+  displayNavbarSearchResults(firme, radnici, query) {
+    const searchResults = document.getElementById('navbarSearchResults');
+
+    if (!searchResults) return;
+
+    let html = '';
+    const totalResults = firme.length + radnici.length;
+
+    if (totalResults === 0) {
+      html = `<div class="navbar-search-item">
+        <div class="navbar-search-title">Nema rezultata za "${query}"</div>
+      </div>`;
+    } else {
+      // Firme results (limit to 3)
+      if (firme.length > 0) {
+        firme.slice(0, 3).forEach(firma => {
+          html += `<div class="navbar-search-item" onclick="navigateToNavbarResult('firma', ${
+            firma.id
+          }, '${firma.naziv}')">
+            <div class="navbar-search-category">Firma</div>
+            <div class="navbar-search-title">${firma.naziv}</div>
+            <div class="navbar-search-subtitle">${firma.grad || 'N/A'} • ${
+            firma.aktivna ? 'Aktivna' : 'Neaktivna'
+          }</div>
+          </div>`;
+        });
+      }
+
+      // Radnici results (limit to 3)
+      if (radnici.length > 0) {
+        radnici.slice(0, 3).forEach(radnik => {
+          html += `<div class="navbar-search-item" onclick="navigateToNavbarResult('radnik', ${
+            radnik.id
+          }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ''})">
+            <div class="navbar-search-category">Radnik</div>
+            <div class="navbar-search-title">${radnik.ime} ${
+            radnik.prezime
+          }</div>
+            <div class="navbar-search-subtitle">${radnik.pozicija || 'N/A'} • ${
+            radnik.firma || 'N/A'
+          }</div>
+          </div>`;
+        });
+      }
+
+      // Show more results if needed
+      if (totalResults > 6) {
+        html += `<div class="navbar-search-item" onclick="showAllNavbarResults('${query}')">
+          <div class="navbar-search-title text-primary">Prikaži sve rezultate (${totalResults})</div>
+        </div>`;
+      }
+    }
+
+    searchResults.innerHTML = html;
+    searchResults.style.display = 'block';
   }
 
   // Inicijalizuje dark mode funkcionalnost
@@ -223,34 +396,34 @@ class Navigation {
     }
     this.darkModeInitialized = true;
 
-    const savedTheme = localStorage.getItem("theme") || "light";
+    const savedTheme = localStorage.getItem('theme') || 'light';
 
     // Postaviće početnu temu
-    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
 
     // Ukloni postojeće event listener-e da izbjegnem duplikate
     if (this.themeToggleHandler) {
-      document.body.removeEventListener("click", this.themeToggleHandler);
+      document.body.removeEventListener('click', this.themeToggleHandler);
     }
 
     // Kreiraj handler funkciju kao svojstvo klase
-    this.themeToggleHandler = (e) => {
-      if (e.target.closest(".theme-toggle")) {
+    this.themeToggleHandler = e => {
+      if (e.target.closest('.theme-toggle')) {
         e.preventDefault();
         e.stopImmediatePropagation(); // Spriječi duple pozive
 
         const currentTheme =
-          document.documentElement.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
+          document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        document.documentElement.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
         this.updateThemeToggleText(newTheme);
       }
     };
 
     // Dodaj event listener
-    document.body.addEventListener("click", this.themeToggleHandler);
+    document.body.addEventListener('click', this.themeToggleHandler);
 
     // Ažuriraj tekst nakon kratke pauze
     setTimeout(() => {
@@ -260,10 +433,10 @@ class Navigation {
 
   // Ažurira tekst theme toggle dugmeta
   updateThemeToggleText(theme) {
-    const themeToggles = document.querySelectorAll(".theme-toggle");
-    themeToggles.forEach((toggle) => {
+    const themeToggles = document.querySelectorAll('.theme-toggle');
+    themeToggles.forEach(toggle => {
       toggle.innerHTML =
-        theme === "dark"
+        theme === 'dark'
           ? '<i class="fas fa-sun"></i> Light'
           : '<i class="fas fa-moon"></i> Dark';
     });
@@ -272,7 +445,7 @@ class Navigation {
   // Inicijalizuje Bootstrap komponente
   initializeBootstrap() {
     // Proverava da li je Bootstrap dostupan
-    if (typeof window.bootstrap === "undefined") {
+    if (typeof window.bootstrap === 'undefined') {
       // Pokušaj ponovo nakon kratke pauze
       setTimeout(() => this.initializeBootstrap(), 500);
       return;
@@ -281,7 +454,7 @@ class Navigation {
     // Čekaj da se DOM potpuno završi
     setTimeout(() => {
       // Inicijalizuj sve dropdown komponente
-      const dropdownElements = document.querySelectorAll(".dropdown-toggle");
+      const dropdownElements = document.querySelectorAll('.dropdown-toggle');
 
       dropdownElements.forEach((element, index) => {
         try {
@@ -302,16 +475,16 @@ class Navigation {
       });
 
       // Inicijalizuj navbar toggle za mobile
-      const navbarToggler = document.querySelector(".navbar-toggler");
+      const navbarToggler = document.querySelector('.navbar-toggler');
       if (navbarToggler) {
         try {
-          const navbarCollapse = document.querySelector(".navbar-collapse");
+          const navbarCollapse = document.querySelector('.navbar-collapse');
           if (navbarCollapse) {
             new bootstrap.Collapse(navbarCollapse, { toggle: false });
           }
         } catch (error) {
           console.error(
-            "❌ Greška pri inicijalizaciji navbar collapse:",
+            '❌ Greška pri inicijalizaciji navbar collapse:',
             error
           );
         }
@@ -412,11 +585,119 @@ body {
     color: white;
   }
 }
+
+/* Navbar Search Styles */
+.navbar-search-container {
+  position: relative;
+  width: 300px;
+}
+
+.navbar-search-wrapper {
+  position: relative;
+}
+
+.navbar-search-input {
+  width: 100%;
+  padding: 8px 35px 8px 15px;
+  border: 1px solid #495057;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s ease;
+  background-color: #495057;
+  color: white;
+}
+
+.navbar-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.navbar-search-input:focus {
+  border-color: #667eea;
+  background-color: white;
+  color: #333;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.navbar-search-input:focus::placeholder {
+  color: #999;
+}
+
+.navbar-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.navbar-clear-btn:hover {
+  color: white;
+}
+
+.navbar-search-input:focus + .navbar-clear-btn {
+  color: #999;
+}
+
+.navbar-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 5px;
+}
+
+.navbar-search-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #333;
+}
+
+.navbar-search-item:hover {
+  background-color: #f8f9fa;
+}
+
+.navbar-search-item:last-child {
+  border-bottom: none;
+}
+
+.navbar-search-category {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.navbar-search-title {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.navbar-search-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+}
 </style>
 `;
 
 // Automatska inicijalizacija navigacije kada se stranica učita
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Globalna zaštita od duple inicijalizacije
   if (window.navigationInitialized) {
     return;
@@ -424,7 +705,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.navigationInitialized = true;
 
   // Dodaj CSS stilove
-  document.head.insertAdjacentHTML("beforeend", navigationCSS);
+  document.head.insertAdjacentHTML('beforeend', navigationCSS);
 
   // Inicijalizuj navigaciju
   const nav = new Navigation();
@@ -440,9 +721,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 window.loadNavigation = async function () {
   try {
     // Dodaj CSS stilove ako već nisu dodani
-    if (!document.querySelector("style[data-navigation-css]")) {
-      const style = document.createElement("style");
-      style.setAttribute("data-navigation-css", "true");
+    if (!document.querySelector('style[data-navigation-css]')) {
+      const style = document.createElement('style');
+      style.setAttribute('data-navigation-css', 'true');
       style.innerHTML = navigationCSS;
       document.head.appendChild(style);
     }
@@ -458,12 +739,75 @@ window.loadNavigation = async function () {
 
     return true;
   } catch (error) {
-    console.error("Greška pri učitavanju navigacije:", error);
+    console.error('Greška pri učitavanju navigacije:', error);
     return false;
   }
 };
 
+// Globalne funkcije za navbar search navigaciju
+window.navigateToNavbarResult = function (type, id, title = '', firmaId = '') {
+  const searchResults = document.getElementById('navbarSearchResults');
+  if (searchResults) {
+    searchResults.style.display = 'none';
+  }
+
+  // Clear search input
+  const searchInput = document.getElementById('navbarSearchInput');
+  if (searchInput) {
+    searchInput.value = '';
+  }
+
+  // Hide clear button
+  const clearButton = document.getElementById('navbarClearSearch');
+  if (clearButton) {
+    clearButton.style.display = 'none';
+  }
+
+  switch (type) {
+    case 'firma':
+      // Otvori firma detalji stranicu
+      window.location.href = `/firma-detalji.html?id=${id}`;
+      break;
+    case 'radnik':
+      // Za radnika, otvori radnik modal sa podacima
+      if (firmaId && firmaId !== '') {
+        // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
+        window.location.href = `/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
+      } else {
+        // Fallback: idi na firme stranicu
+        console.warn('Nema firmaId za radnika, fallback na firme stranicu');
+        window.location.href = `/firme.html`;
+      }
+      break;
+    default:
+      console.log('Unknown result type:', type);
+  }
+};
+
+window.showAllNavbarResults = function (query) {
+  // Hide search results
+  const searchResults = document.getElementById('navbarSearchResults');
+  if (searchResults) {
+    searchResults.style.display = 'none';
+  }
+
+  // Clear search input
+  const searchInput = document.getElementById('navbarSearchInput');
+  if (searchInput) {
+    searchInput.value = '';
+  }
+
+  // Hide clear button
+  const clearButton = document.getElementById('navbarClearSearch');
+  if (clearButton) {
+    clearButton.style.display = 'none';
+  }
+
+  // Navigate to firme page with search
+  window.location.href = `/firme.html?search=${encodeURIComponent(query)}`;
+};
+
 // Export za module sisteme
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = Navigation;
 }
