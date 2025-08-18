@@ -285,6 +285,23 @@
                         : ""
                     }
                   </p>
+                  
+                  <!-- Statistike firmi i radnika -->
+                  <div class="mb-2">
+                    <div class="row text-center">
+                      <div class="col-6">
+                        <span class="badge bg-primary">
+                          <i class="fas fa-building"></i> ${user.broj_firmi || 0} ${user.broj_firmi === 1 ? 'firma' : 'firmi'}
+                        </span>
+                      </div>
+                      <div class="col-6">
+                        <span class="badge bg-info">
+                          <i class="fas fa-users"></i> ${user.broj_radnika || 0} ${user.broj_radnika === 1 ? 'radnik' : 'radnika'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <small class="text-muted d-block mb-3">${
                     roleInfo.description
                   }</small>
