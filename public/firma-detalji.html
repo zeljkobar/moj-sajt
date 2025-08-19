@@ -1068,10 +1068,10 @@
                 </div>
               </div>
 
-              <!-- Radno vreme -->
+              <!-- Radno vrijeme -->
               <div class="mb-3">
                 <label for="edit_tip_radnog_vremena" class="form-label"
-                  >Radno vreme:</label
+                  >Radno vrijeme:</label
                 >
                 <select
                   class="form-select"
@@ -1080,18 +1080,68 @@
                   required
                 >
                   <option value="puno_8h">
-                    Puno radno vreme (8 sati dnevno / 40 sati nedeljno)
+                    Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)
                   </option>
                   <option value="skraceno_6h">
-                    Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)
+                    Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)
                   </option>
                   <option value="skraceno_4h">
-                    Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)
+                    Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)
                   </option>
                   <option value="skraceno_2h">
-                    Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)
+                    Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)
                   </option>
                 </select>
+              </div>
+
+              <!-- Radi subotom checkbox -->
+              <div class="mb-3">
+                <label class="form-label">Radni dani:</label>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 12px;
+                    background-color: var(--card-bg-secondary, #f8f9fa);
+                    border: 1px solid var(--border-color, #dee2e6);
+                    border-radius: 6px;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    id="edit_subota"
+                    name="subota"
+                    checked
+                    style="
+                      margin: 0;
+                      width: 16px;
+                      height: 16px;
+                      cursor: pointer;
+                    "
+                  />
+                  <label
+                    for="edit_subota"
+                    style="
+                      margin: 0;
+                      font-weight: normal;
+                      cursor: pointer;
+                      flex: 1;
+                    "
+                  >
+                    Radi subotom
+                  </label>
+                </div>
+                <small
+                  style="
+                    color: #6c757d;
+                    font-size: 12px;
+                    margin-top: 6px;
+                    display: block;
+                  "
+                >
+                  💡 Utiče na broj dana godišnjeg odmora (20 ili 24 dana)
+                </small>
               </div>
 
               <!-- Tip ugovora -->

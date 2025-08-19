@@ -2372,6 +2372,10 @@ async function populateEditModal(radnik) {
     radnik.visina_zarade || '';
   document.getElementById('edit_tip_radnog_vremena').value =
     radnik.tip_radnog_vremena || 'puno_8h';
+
+  // Radi subotom checkbox
+  document.getElementById('edit_subota').checked = radnik.subota ? true : false;
+
   document.getElementById('edit_tip_ugovora').value =
     radnik.tip_ugovora || 'na_neodredjeno';
 
@@ -2461,6 +2465,7 @@ async function submitEditRadnik() {
       tip_ugovora: formData.get('tip_ugovora'),
       datum_prestanka: formData.get('datum_prestanka') || null,
       napomene: formData.get('napomene'),
+      subota: document.getElementById('edit_subota').checked,
     };
 
     const radnikId = formData.get('radnik_id');
