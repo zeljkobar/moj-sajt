@@ -241,7 +241,7 @@
   background-color: var(--light-color);
 }
 
-[data-theme="dark"] .search-item:hover {
+[data-theme='dark'] .search-item:hover {
   background-color: var(--secondary-color);
 }
 
@@ -367,7 +367,7 @@
   border-color: var(--primary-color);
 }
 
-[data-theme="dark"] .calendar-day:hover {
+[data-theme='dark'] .calendar-day:hover {
   background: var(--secondary-color);
 }
 
@@ -404,7 +404,7 @@
   margin-bottom: 2rem;
 }
 
-[data-theme="dark"] .welcome-section {
+[data-theme='dark'] .welcome-section {
   background: rgba(102, 126, 234, 0.2);
 }
 
@@ -584,7 +584,7 @@
   background: rgba(102, 126, 234, 0.1);
 }
 
-[data-theme="dark"] .status-card.selected {
+[data-theme='dark'] .status-card.selected {
   background: rgba(102, 126, 234, 0.2);
 }
 
@@ -652,7 +652,7 @@
   color: var(--text-color);
 }
 
-[data-theme="dark"] .nav-tabs .nav-link:hover {
+[data-theme='dark'] .nav-tabs .nav-link:hover {
   background-color: var(--secondary-color);
 }
 
@@ -712,7 +712,7 @@
   opacity: 0.7;
 }
 
-[data-theme="dark"] .todo-item.completed {
+[data-theme='dark'] .todo-item.completed {
   background-color: var(--secondary-color);
 }
 
@@ -870,5 +870,86 @@
 
   .search-box {
     margin-bottom: var(--spacing-md);
+  }
+}
+
+/* =================================================================
+   GODIŠNJI ODMORI STRANICA (godisnji-odmori.html)
+   ================================================================= */
+.stats-card {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stats-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+}
+
+.avatar-sm {
+  width: 35px;
+  height: 35px;
+}
+
+.quick-action-btn {
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* =================================================================
+   PLAN GODIŠNJEG ODMORA STRANICA (plan-godisnjeg-odmora.html)
+   ================================================================= */
+.calendar-month-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+  .month-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .day-cell {
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  .stats-card {
+    margin-bottom: 15px;
+  }
+
+  .radnici-sidebar {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 576px) {
+  .month-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-action-btn {
+    font-size: 14px;
+    padding: 8px 12px;
   }
 }

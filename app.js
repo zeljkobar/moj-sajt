@@ -19,6 +19,7 @@ const povracajRoutes = require('./src/routes/povracajRoutes');
 const odlukaRoutes = require('./src/routes/odlukaRoutes');
 const zadaciRoutes = require('./src/routes/zadaciRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
+const godisnjiomdoriRoutes = require('./src/routes/godisnjiomdori');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
 const InventoryService = require('./src/services/inventoryService');
@@ -51,10 +52,10 @@ try {
   });
 
   // Konektuj se na Redis
-  redisClient.connect().catch(err => {
+  /*redisClient.connect().catch(err => {
     console.error('Failed to connect to Redis:', err);
     redisClient = null;
-  });
+  });*/
 } catch (error) {
   console.warn('⚠️  Redis packages not found, using MemoryStore');
   redisClient = null;
@@ -639,6 +640,7 @@ app.use('/api/odluka', odlukaRoutes);
 app.use('/api/zadaci', zadaciRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 
