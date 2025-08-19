@@ -27,7 +27,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               r.status,
+               r.status, r.subota,
                p.naziv as pozicija_naziv, f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 
@@ -55,7 +55,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               r.status,
+               r.status, r.subota,
                p.naziv as pozicija_naziv, p.opis_poslova,
                u.vrsta_ugovora
         FROM radnici r 
@@ -99,7 +99,7 @@ const radniciController = {
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
-               r.status,
+               r.status, r.subota,
                p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 
@@ -139,6 +139,7 @@ const radniciController = {
       vrsta_ugovora,
       datum_prestanka,
       napomene,
+      subota,
     } = req.body;
 
     try {
@@ -200,8 +201,8 @@ const radniciController = {
         `INSERT INTO radnici (
           ime, prezime, jmbg, grad, adresa, pozicija_id, firma_id, 
           datum_zaposlenja, visina_zarade, tip_radnog_vremena, 
-          tip_ugovora, datum_prestanka, napomene
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          tip_ugovora, datum_prestanka, napomene, subota
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           ime,
           prezime,
@@ -216,6 +217,7 @@ const radniciController = {
           tip_ugovora || 'na_neodredjeno',
           datum_prestanka || null,
           napomene || null,
+          subota !== undefined ? (subota ? 1 : 0) : 1, // Konvertuj boolean u 1/0 za MySQL
         ]
       );
 
@@ -271,6 +273,7 @@ const radniciController = {
       datum_prestanka,
       napomene,
       vrsta_ugovora,
+      subota,
     } = req.body;
 
     try {
@@ -336,7 +339,7 @@ const radniciController = {
         `UPDATE radnici SET 
           ime = ?, prezime = ?, jmbg = ?, grad = ?, adresa = ?, pozicija_id = ?, firma_id = ?,
           datum_zaposlenja = ?, visina_zarade = ?, tip_radnog_vremena = ?,
-          tip_ugovora = ?, datum_prestanka = ?, napomene = ?
+          tip_ugovora = ?, datum_prestanka = ?, napomene = ?, subota = ?
         WHERE id = ?`,
         [
           ime,
@@ -352,6 +355,7 @@ const radniciController = {
           tip_ugovora || 'na_neodredjeno',
           datum_prestanka || null,
           napomene || null,
+          subota !== undefined ? (subota ? 1 : 0) : 1, // Konvertuj boolean u 1/0 za MySQL
           id,
         ]
       );

@@ -3,7 +3,7 @@
  * Koristi se na stranicama: firma-detalji.html
  */
 
-console.log("🚀 radnik-modal.js loaded successfully!");
+console.log('🚀 radnik-modal.js loaded successfully!');
 
 class RadnikModal {
   constructor() {
@@ -148,19 +148,19 @@ class RadnikModal {
 
             <!-- Radno vreme -->
             <div class="form-group">
-              <label for="tip_radnog_vremena">Radno vreme:</label>
+              <label for="tip_radnog_vremena">Radno vrijeme:</label>
               <select id="tip_radnog_vremena" name="tip_radnog_vremena" required>
                 <option value="puno_8h">
-                  Puno radno vreme (8 sati dnevno / 40 sati nedeljno)
+                  Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)
                 </option>
                 <option value="skraceno_6h">
-                  Skraćeno radno vreme (6 sati dnevno / 30 sati nedeljno)
+                  Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)
                 </option>
                 <option value="skraceno_4h">
-                  Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)
+                  Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)
                 </option>
                 <option value="skraceno_2h">
-                  Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)
+                  Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)
                 </option>
               </select>
               <small
@@ -168,6 +168,29 @@ class RadnikModal {
                 style="color: #6c757d; font-size: 12px; display: none"
               >
                 💡 Za dopunski rad: maksimalno 4 sata dnevno po zakonu
+              </small>
+            </div>
+
+            <!-- Radi subotom checkbox -->
+            <div class="form-group">
+              <label style="margin-bottom: 8px; display: block;">Radni dani:</label>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background-color: var(--card-bg-secondary, #f8f9fa); border: 1px solid var(--border-color, #dee2e6); border-radius: 6px;">
+                <input 
+                  type="checkbox" 
+                  id="subota" 
+                  name="subota" 
+                  checked 
+                  style="margin: 0; width: 16px; height: 16px; cursor: pointer;"
+                />
+                <label 
+                  for="subota" 
+                  style="margin: 0; font-weight: normal; cursor: pointer; flex: 1;"
+                >
+                  Radi subotom
+                </label>
+              </div>
+              <small style="color: #6c757d; font-size: 12px; margin-top: 6px; display: block;">
+                💡 Utiče na broj dana godišnjeg odmora (20 ili 24 dana)
               </small>
             </div>
 
@@ -397,16 +420,16 @@ class RadnikModal {
   // Inicijalizacija modala
   init() {
     // Dodaj CSS ako ne postoji
-    if (!document.querySelector("#radnik-modal-css")) {
-      const style = document.createElement("style");
-      style.id = "radnik-modal-css";
+    if (!document.querySelector('#radnik-modal-css')) {
+      const style = document.createElement('style');
+      style.id = 'radnik-modal-css';
       style.textContent = this.getModalCSS();
       document.head.appendChild(style);
     }
 
     // Dodaj HTML ako ne postoji
-    if (!document.querySelector("#radnikModal")) {
-      const modalContainer = document.createElement("div");
+    if (!document.querySelector('#radnikModal')) {
+      const modalContainer = document.createElement('div');
       modalContainer.innerHTML = this.getModalHTML();
       document.body.appendChild(modalContainer);
     }
@@ -417,14 +440,14 @@ class RadnikModal {
 
   // Setup event listeneri
   setupEventListeners() {
-    const form = document.getElementById("radnikForm");
+    const form = document.getElementById('radnikForm');
     if (form) {
-      form.addEventListener("submit", (e) => this.handleSubmit(e));
+      form.addEventListener('submit', e => this.handleSubmit(e));
     }
 
     // Zatvaranje modala klikom van njega
-    window.addEventListener("click", (event) => {
-      const modal = document.getElementById("radnikModal");
+    window.addEventListener('click', event => {
+      const modal = document.getElementById('radnikModal');
       if (event.target === modal) {
         this.close();
       }
@@ -441,66 +464,66 @@ class RadnikModal {
   // Učitaj firme
   async loadFirme() {
     try {
-      const response = await fetch("/api/firme");
+      const response = await fetch('/api/firme');
       if (response.ok) {
         const firmeData = await response.json();
         // Koristi isti pattern kao u edit modalu: data.firme || data
         const firme = firmeData.firme || firmeData;
-        const firmaSelect = document.getElementById("firma_id");
+        const firmaSelect = document.getElementById('firma_id');
 
         if (firmaSelect) {
           firmaSelect.innerHTML = '<option value="">Izaberite firmu</option>';
           if (Array.isArray(firme)) {
-            firme.forEach((firma) => {
-              const option = document.createElement("option");
+            firme.forEach(firma => {
+              const option = document.createElement('option');
               option.value = firma.id;
               option.textContent = firma.naziv;
               firmaSelect.appendChild(option);
             });
           } else {
-            console.error("Firme nisu u nizu formatu:", firme);
+            console.error('Firme nisu u nizu formatu:', firme);
           }
         }
       }
     } catch (error) {
-      console.error("Greška pri učitavanju firmi:", error);
+      console.error('Greška pri učitavanju firmi:', error);
     }
   }
 
   // Učitaj pozicije
   async loadPozicije() {
     try {
-      const response = await fetch("/api/pozicije");
+      const response = await fetch('/api/pozicije');
       if (response.ok) {
         const pozicijeData = await response.json();
         // Koristi isti pattern kao za firme
         const pozicije = pozicijeData.pozicije || pozicijeData;
-        const pozicijaSelect = document.getElementById("pozicija_id");
+        const pozicijaSelect = document.getElementById('pozicija_id');
 
         if (pozicijaSelect) {
           pozicijaSelect.innerHTML =
             '<option value="">Izaberite poziciju</option>';
           if (Array.isArray(pozicije)) {
-            pozicije.forEach((pozicija) => {
-              const option = document.createElement("option");
+            pozicije.forEach(pozicija => {
+              const option = document.createElement('option');
               option.value = pozicija.id;
               option.textContent = pozicija.naziv;
               pozicijaSelect.appendChild(option);
             });
           } else {
-            console.error("Pozicije nisu u nizu formatu:", pozicije);
+            console.error('Pozicije nisu u nizu formatu:', pozicije);
           }
         }
       }
     } catch (error) {
-      console.error("Greška pri učitavanju pozicija:", error);
+      console.error('Greška pri učitavanju pozicija:', error);
     }
   }
 
   // Postavi današnji datum
   setDefaultDate() {
-    const today = new Date().toISOString().split("T")[0];
-    const datumField = document.getElementById("datum_zaposlenja");
+    const today = new Date().toISOString().split('T')[0];
+    const datumField = document.getElementById('datum_zaposlenja');
     if (datumField) {
       datumField.value = today;
     }
@@ -512,23 +535,23 @@ class RadnikModal {
     if (options.firmId) {
       this.firmId = options.firmId;
       // Sakrij firma select ako je firmId setovano
-      const firmaContainer = document.getElementById("firmaSelectContainer");
+      const firmaContainer = document.getElementById('firmaSelectContainer');
       if (firmaContainer) {
-        firmaContainer.style.display = "none";
+        firmaContainer.style.display = 'none';
       }
       // Postavi vrednost u hidden field
-      const firmaSelect = document.getElementById("firma_id");
+      const firmaSelect = document.getElementById('firma_id');
       if (firmaSelect) {
         firmaSelect.value = options.firmId;
         firmaSelect.required = false;
       }
     } else {
       // Prikaži firma select
-      const firmaContainer = document.getElementById("firmaSelectContainer");
+      const firmaContainer = document.getElementById('firmaSelectContainer');
       if (firmaContainer) {
-        firmaContainer.style.display = "block";
+        firmaContainer.style.display = 'block';
       }
-      const firmaSelect = document.getElementById("firma_id");
+      const firmaSelect = document.getElementById('firma_id');
       if (firmaSelect) {
         firmaSelect.required = true;
       }
@@ -539,12 +562,12 @@ class RadnikModal {
     }
 
     // Otvori modal
-    const modal = document.getElementById("radnikModal");
+    const modal = document.getElementById('radnikModal');
     if (modal) {
-      modal.style.display = "block";
+      modal.style.display = 'block';
       // Focus na prvo polje
       setTimeout(() => {
-        const firstInput = document.getElementById("vrsta_ugovora");
+        const firstInput = document.getElementById('vrsta_ugovora');
         if (firstInput) firstInput.focus();
       }, 100);
     }
@@ -552,16 +575,16 @@ class RadnikModal {
 
   // Zatvori modal
   close() {
-    const modal = document.getElementById("radnikModal");
+    const modal = document.getElementById('radnikModal');
     if (modal) {
-      modal.style.display = "none";
+      modal.style.display = 'none';
       this.resetForm();
     }
   }
 
   // Reset forma
   resetForm() {
-    const form = document.getElementById("radnikForm");
+    const form = document.getElementById('radnikForm');
     if (form) {
       form.reset();
       this.setDefaultDate();
@@ -577,16 +600,20 @@ class RadnikModal {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
+    // Eksplicitno dodaj checkbox vrednost za subota
+    const subotaCheckbox = document.getElementById('subota');
+    data.subota = subotaCheckbox ? subotaCheckbox.checked : false;
+
     // Koristi firmId ako je setovan spoljno
     if (this.firmId && !data.firma_id) {
       data.firma_id = this.firmId;
     }
 
     try {
-      const response = await fetch("/api/radnici", {
-        method: "POST",
+      const response = await fetch('/api/radnici', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
@@ -603,38 +630,38 @@ class RadnikModal {
         }
 
         // Prikaži success poruku
-        this.showSuccessMessage("Radnik je uspješno dodan!");
+        this.showSuccessMessage('Radnik je uspješno dodan!');
       } else {
         const error = await response.json();
-        this.showErrorMessage(error.message || "Greška pri dodavanju radnika");
+        this.showErrorMessage(error.message || 'Greška pri dodavanju radnika');
       }
     } catch (error) {
-      console.error("Greška:", error);
-      this.showErrorMessage("Greška pri komunicaciji sa serverom");
+      console.error('Greška:', error);
+      this.showErrorMessage('Greška pri komunicaciji sa serverom');
     }
   }
 
   // Handle promjena vrste ugovora
   toggleRadnoVremeOptions() {
-    const vrstaUgovora = document.getElementById("vrsta_ugovora").value;
-    const radnoVremeSelect = document.getElementById("tip_radnog_vremena");
-    const helpText = document.getElementById("radnoVremeHelp");
+    const vrstaUgovora = document.getElementById('vrsta_ugovora').value;
+    const radnoVremeSelect = document.getElementById('tip_radnog_vremena');
+    const helpText = document.getElementById('radnoVremeHelp');
 
     if (!radnoVremeSelect) return;
 
     // Sačuvaj trenutno izabranu vrednost
     const trenutnaVrednost = radnoVremeSelect.value;
 
-    if (vrstaUgovora === "ugovor_o_dopunskom_radu") {
+    if (vrstaUgovora === 'ugovor_o_dopunskom_radu') {
       // Za dopunski rad - samo 2h ili 4h (max 4h po zakonu)
       radnoVremeSelect.innerHTML = `
         <option value="skraceno_2h">Skraćeno radno vreme (2 sata dnevno / 10 sati nedeljno)</option>
         <option value="skraceno_4h">Skraćeno radno vreme (4 sata dnevno / 20 sati nedeljno)</option>
       `;
       // Postavi default na 4h za dopunski rad
-      radnoVremeSelect.value = "skraceno_4h";
+      radnoVremeSelect.value = 'skraceno_4h';
       // Prikaži poruku o ograničenju
-      if (helpText) helpText.style.display = "block";
+      if (helpText) helpText.style.display = 'block';
     } else {
       // Za ostale ugovore - sve opcije
       radnoVremeSelect.innerHTML = `
@@ -646,35 +673,35 @@ class RadnikModal {
       // Pokušaj da vratiš prethodnu vrednost ako je bila validna
       if (
         trenutnaVrednost &&
-        ["puno_8h", "skraceno_6h", "skraceno_4h", "skraceno_2h"].includes(
+        ['puno_8h', 'skraceno_6h', 'skraceno_4h', 'skraceno_2h'].includes(
           trenutnaVrednost
         )
       ) {
         radnoVremeSelect.value = trenutnaVrednost;
       } else {
-        radnoVremeSelect.value = "puno_8h"; // Default za ostale ugovore
+        radnoVremeSelect.value = 'puno_8h'; // Default za ostale ugovore
       }
       // Sakrij poruku o ograničenju
-      if (helpText) helpText.style.display = "none";
+      if (helpText) helpText.style.display = 'none';
     }
   }
 
   // Handle promjena tipa ugovora
   toggleDatumPrestanka() {
-    const tipUgovora = document.getElementById("tip_ugovora").value;
+    const tipUgovora = document.getElementById('tip_ugovora').value;
     const datumPrestankaGroup = document.getElementById(
-      "datum_prestanka_group"
+      'datum_prestanka_group'
     );
-    const datumPrestankaInput = document.getElementById("datum_prestanka");
+    const datumPrestankaInput = document.getElementById('datum_prestanka');
 
     if (datumPrestankaGroup && datumPrestankaInput) {
-      if (tipUgovora === "na_odredjeno") {
-        datumPrestankaGroup.style.display = "block";
+      if (tipUgovora === 'na_odredjeno') {
+        datumPrestankaGroup.style.display = 'block';
         datumPrestankaInput.required = true;
       } else {
-        datumPrestankaGroup.style.display = "none";
+        datumPrestankaGroup.style.display = 'none';
         datumPrestankaInput.required = false;
-        datumPrestankaInput.value = "";
+        datumPrestankaInput.value = '';
       }
     }
   }
@@ -697,18 +724,18 @@ let radnikModalInstance = null;
 
 // Globalna funkcija za otvaranje modala (kompatibilnost sa postojećim kodom)
 function openRadnikModal(options = {}) {
-  console.log("🎯 openRadnikModal called with options:", options);
+  console.log('🎯 openRadnikModal called with options:', options);
 
   // Lazy inicijalizacija
   if (!radnikModalInstance) {
-    console.log("📝 Creating new RadnikModal instance...");
+    console.log('📝 Creating new RadnikModal instance...');
     radnikModalInstance = new RadnikModal();
   }
 
   if (radnikModalInstance) {
     radnikModalInstance.open(options);
   } else {
-    console.error("RadnikModal nije inicijalizovan");
+    console.error('RadnikModal nije inicijalizovan');
   }
 }
 
@@ -733,6 +760,6 @@ function toggleDatumPrestanka() {
 }
 
 // Export za module sisteme
-if (typeof module !== "undefined" && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = RadnikModal;
 }
