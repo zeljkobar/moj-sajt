@@ -828,6 +828,12 @@ function generateFormalPlan() {
       font-size: 12pt; 
       margin-bottom: 10px; 
     }
+    .legal-basis {
+      font-size: 10pt;
+      text-align: justify;
+      margin: 15px 0;
+      line-height: 1.4;
+    }
     .section { 
       margin-bottom: 20px; 
     }
@@ -874,6 +880,9 @@ function generateFormalPlan() {
 <body>
   <div class="header">
     <div class="subtitle">NZ:25.1/${selectedYear}</div>
+    <p class="legal-basis">Na osnovu čl. 83 stav1, a u skladu sa Zakona o radu ("Službeni list Crne Gore", br. 074/19,8/21,59/21,68/21,145/21) I Opštim kolektivnim ugovorom I u skladu sa potrebama poslovanja, dana ${getFirstWorkingDay(
+      selectedYear
+    )} donosi se sledeći</p>
     <div class="title">PLAN KORIŠĆENJA GODIŠNJEG ODMORA ZA ${selectedYear} GODINU</div>
   </div>
 
@@ -1074,4 +1083,31 @@ function formatDate(date) {
   const mesec = String(date.getMonth() + 1).padStart(2, '0');
   const godina = date.getFullYear();
   return `${dan}.${mesec}.${godina}.`;
+}
+
+// Pronađi prvi radni dan godine
+// Pomoćne funkcije za formatiranje datuma
+function formatDateForCheck(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatDate(date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+function getFirstWorkingDay(year) {
+  let date = new Date(year, 0, 3); // 3. januar
+
+  // Ako je vikend, pomeri na prvi ponedeljak
+  while (date.getDay() === 0 || date.getDay() === 6) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  return formatDate(date);
 }
