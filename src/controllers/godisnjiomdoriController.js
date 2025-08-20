@@ -459,4 +459,68 @@ module.exports = {
       res.status(500).json({ message: 'Greška na serveru' });
     }
   },
+
+  // DELETE /api/godisnji-odmori/:id - obriši zahtjev
+  deleteZahtjev: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: 'Nije autentifikovan' });
+      }
+
+      const username = req.session.user.username;
+      const [user] = await executeQuery(
+        'SELECT id FROM users WHERE username = ?',
+        [username]
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: 'Korisnik nije pronađen' });
+      }
+
+      // Provjeri da li zahtev postoji i pripada korisniku
+      const [zahtevCheck] = await executeQuery(
+        `
+        SELECT go.id, go.radnik_id, go.broj_dana, go.tip_odmora, go.status
+        FROM godisnji_odmori go
+        LEFT JOIN radnici r ON go.radnik_id = r.id
+        LEFT JOIN firme f ON r.firma_id = f.id
+        WHERE go.id = ? AND f.user_id = ?
+      `,
+        [id, user.id]
+      );
+
+      if (!zahtevCheck) {
+        return res
+          .status(404)
+          .json({ message: 'Zahtjev nije pronađen ili nemate pristup' });
+      }
+
+      // Ako je zahtev bio odobren, treba da se vrati broj dana u plan
+      if (
+        zahtevCheck.status === 'odobren' &&
+        zahtevCheck.tip_odmora === 'godisnji'
+      ) {
+        const godina = new Date().getFullYear();
+
+        await executeQuery(
+          `
+          UPDATE godisnji_plan 
+          SET iskorisceno_dana = iskorisceno_dana - ?
+          WHERE radnik_id = ? AND godina = ?
+        `,
+          [zahtevCheck.broj_dana, zahtevCheck.radnik_id, godina]
+        );
+      }
+
+      // Obriši zahtev
+      await executeQuery('DELETE FROM godisnji_odmori WHERE id = ?', [id]);
+
+      res.json({ success: true, message: 'Zahtjev je uspješno obrisan' });
+    } catch (error) {
+      console.error('Greška pri brisanju zahtjeva:', error);
+      res.status(500).json({ message: 'Greška na serveru' });
+    }
+  },
 };

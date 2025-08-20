@@ -20,6 +20,9 @@ router.put('/:id/approve', godisnjiomdoriController.approveZahtjev);
 // PUT /api/godisnji-odmori/:id/reject - odbaci zahtjev
 router.put('/:id/reject', godisnjiomdoriController.rejectZahtjev);
 
+// DELETE /api/godisnji-odmori/:id - obriši zahtjev
+router.delete('/:id', godisnjiomdoriController.deleteZahtjev);
+
 // GET /api/godisnji-odmori/:firma_id - svi odmori za firmu (MORA biti zadnja dinamička ruta)
 router.get('/:firma_id', godisnjiomdoriController.getOdmoriByFirma);
 

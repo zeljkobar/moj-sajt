@@ -3,6 +3,7 @@ console.log('📅 Plan godišnjeg odmora - Nova verzija učitana!');
 // Globalne promenljive
 let firmaId = null;
 let selectedYear = 2025;
+let firmaData = null; // Podaci o firmi
 let radniciData = [];
 let odmoriData = [];
 let prazniciData = [];
@@ -51,6 +52,7 @@ async function loadAllData() {
     ]);
     generateCalendar();
     populateRadniciSidebar();
+    updateSelectionActions(); // Prikaži instrukcije
     showLoading(false);
   } catch (error) {
     console.error('Greška pri učitavanju:', error);
@@ -73,10 +75,11 @@ async function loadFirmaInfo() {
       credentials: 'include', // Uključi session cookies
     });
     if (response.ok) {
-      const firma = await response.json();
+      firmaData = await response.json(); // Sačuvaj podatke o firmi
+      console.log('🏢 Učitana firma:', firmaData);
       document.getElementById(
         'firmaInfo'
-      ).textContent = `Firma: ${firma.naziv} • Plan za ${selectedYear}. godinu`;
+      ).textContent = `Firma: ${firmaData.naziv} • Plan za ${selectedYear}. godinu`;
     } else {
       // Fallback - postavi osnovni tekst
       document.getElementById(
@@ -544,24 +547,88 @@ function handleDayClick(datum) {
     return;
   }
 
-  // Toggle selection
-  if (selectedDays.includes(datum)) {
-    selectedDays = selectedDays.filter(d => d !== datum);
-    showToast('Dan uklonjen iz selekcije', 'info');
-  } else {
+  // Range selection logika
+  if (selectedDays.length === 0) {
+    // Prvi klik - dodaj dan
     selectedDays.push(datum);
-    showToast('Dan dodat u selekciju', 'success');
+    showToast(
+      'Početni datum odabran. Kliknite na krajnji datum za period.',
+      'info'
+    );
+  } else if (selectedDays.length === 1) {
+    // Drugi klik - kreiraj range
+    const startDate = new Date(selectedDays[0]);
+    const endDate = new Date(datum);
+
+    if (startDate > endDate) {
+      // Zameni datume ako je krajnji pre početnog
+      selectedDays = [datum];
+      const dateRange = getDateRange(datum, selectedDays[0]);
+      selectedDays = dateRange.filter(d => isAvailableDay(d));
+    } else {
+      // Normalan redosled
+      const dateRange = getDateRange(selectedDays[0], datum);
+      selectedDays = dateRange.filter(d => isAvailableDay(d));
+    }
+
+    const workingDays = selectedDays.length;
+    showToast(`Period odabran: ${workingDays} radnih dana`, 'success');
+  } else {
+    // Treći+ klik - resetuj i počni novo
+    selectedDays = [datum];
+    showToast('Nova selekcija započeta. Kliknite na krajnji datum.', 'info');
   }
 
   generateCalendar();
   updateSelectionActions();
 }
 
+// Pomoćna funkcija za kreiranje range-a datuma
+function getDateRange(startDate, endDate) {
+  const dates = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 1);
+  }
+
+  return dates;
+}
+
 // Update selection actions
 function updateSelectionActions() {
   let actionsHtml = '';
 
-  if (selectedDays.length > 0) {
+  if (selectedDays.length === 0) {
+    // Instrukcije kada nema selekcije
+    actionsHtml = `
+      <div class="alert alert-light mt-3">
+        <h6><i class="fas fa-info-circle me-2"></i>Kako odabrati period:</h6>
+        <ol class="mb-0">
+          <li>Prvo odaberite radnika iz liste levo</li>
+          <li>Kliknite na <strong>početni datum</strong> odmora</li>
+          <li>Kliknite na <strong>krajnji datum</strong> odmora</li>
+          <li>Automatski će se odabrati svi radni dani u periodu</li>
+        </ol>
+      </div>
+    `;
+  } else if (selectedDays.length === 1) {
+    // Kada je odabran jedan dan
+    const startDate = new Date(selectedDays[0]).toLocaleDateString('sr-RS');
+    actionsHtml = `
+      <div class="alert alert-warning mt-3">
+        <h6><i class="fas fa-calendar-day me-2"></i>Početni datum odabran:</h6>
+        <p class="mb-2"><strong>${startDate}</strong></p>
+        <p class="mb-2"><small>Sada kliknite na krajnji datum da završite period.</small></p>
+        <button class="btn btn-outline-secondary btn-sm" onclick="clearSelectedDays()">
+          <i class="fas fa-times me-1"></i>Poništi
+        </button>
+      </div>
+    `;
+  } else {
+    // Kada je odabran period
     const sortedDays = selectedDays.sort();
     const startDate = new Date(sortedDays[0]).toLocaleDateString('sr-RS');
     const endDate = new Date(
@@ -569,7 +636,7 @@ function updateSelectionActions() {
     ).toLocaleDateString('sr-RS');
 
     actionsHtml = `
-      <div class="alert alert-info mt-3">
+      <div class="alert alert-success mt-3">
         <h6><i class="fas fa-calendar-check me-2"></i>Odabrani period:</h6>
         <p class="mb-2">
           <strong>${startDate}</strong> do <strong>${endDate}</strong> 
@@ -719,18 +786,277 @@ function toggleRadniciSidebar() {
 
 // Štampanje
 function printPlan() {
-  const printDate = document.getElementById('printDate');
-  if (printDate) {
-    printDate.textContent = formatDate(new Date());
+  generateFormalPlan();
+}
+
+// Generiraj formalni plan za štampu
+function generateFormalPlan() {
+  // Pripremi podatke za radnike sa odmorima na čekanju
+  const radniciSaPlanom = prepareRadniciData();
+
+  // Kreiraj HTML sadržaj
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan korišćenja godišnjeg odmora za ${selectedYear} godinu</title>
+  <style>
+    @page { 
+      size: A4; 
+      margin: 2cm; 
+    }
+    body { 
+      font-family: 'Times New Roman', serif; 
+      font-size: 12pt; 
+      line-height: 1.3; 
+      color: black; 
+      margin: 0; 
+      padding: 0;
+    }
+    .header { 
+      text-align: center; 
+      margin-bottom: 30px; 
+    }
+    .title { 
+      font-size: 16pt; 
+      font-weight: bold; 
+      margin-bottom: 20px; 
+    }
+    .subtitle { 
+      font-size: 12pt; 
+      margin-bottom: 10px; 
+    }
+    .section { 
+      margin-bottom: 20px; 
+    }
+    .section-title { 
+      font-weight: bold; 
+      margin-bottom: 10px; 
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 20px 0; 
+      font-size: 10pt;
+    }
+    th, td { 
+      border: 1px solid black; 
+      padding: 8px; 
+      text-align: center; 
+      vertical-align: middle; 
+    }
+    th { 
+      background-color: #f0f0f0; 
+      font-weight: bold; 
+    }
+    .text-left { 
+      text-align: left; 
+    }
+    .signature { 
+      margin-top: 40px; 
+      text-align: left; 
+    }
+    .note { 
+      font-style: italic; 
+      font-size: 10pt; 
+      margin: 10px 0; 
+    }
+    ol { 
+      padding-left: 20px; 
+    }
+    li { 
+      margin-bottom: 8px; 
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="subtitle">NZ:25.1/${selectedYear}</div>
+    <div class="title">PLAN KORIŠĆENJA GODIŠNJEG ODMORA ZA ${selectedYear} GODINU</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">I - Opšte odredbe</div>
+    <p>Ovim planom se utvrđuje redosled i dinamika korišćenja godišnjeg odmora zaposlenih u ${getFirmaName()} za ${selectedYear}. godinu.</p>
+    <p>Godišnji odmor se koristi u skladu sa potrebama procesa rada i interesima zaposlenih.</p>
+    <p>Zaposleni imaju pravo na najmanje 20 radnih dana godišnjeg odmora, osim ako kolektivni ugovor ili interni akti firme ne predviđaju više.</p>
+    <p>Godišnji odmor se ne može koristiti u periodu od 01. maja do 30. septembra, osim u izuzetnim slučajevima uz saglasnost poslodavca.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">II - Raspored korišćenja godišnjeg odmora</div>
+    <p>Zaposleni će koristiti godišnji odmor u sledećim terminima:</p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Ime i prezime</th>
+          <th rowspan="2">Ukupan br. dana god. odmora</th>
+          <th colspan="3">I dio godišnjeg odmora</th>
+          <th colspan="3">II dio godišnjeg odmora</th>
+          <th rowspan="2">Saglasnost zaposlenog</th>
+        </tr>
+        <tr>
+          <th>od</th>
+          <th>do</th>
+          <th>Br. radnih dana</th>
+          <th>od</th>
+          <th>do</th>
+          <th>Br. radnih dana</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${generateTableRows(radniciSaPlanom)}
+      </tbody>
+    </table>
+    
+    <div class="note">
+      (Napomena: Raspored se može prilagoditi i preostala 4 dana se mogu koristiti fleksibilno.)
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">III - Način donošenja i izmjene plana</div>
+    <p>Ovaj plan donosi poslodavac do 30. juna ${selectedYear}. godine.</p>
+    <p>U slučaju nepredviđenih okolnosti, plan se može izmijeniti uz saglasnost poslodavca i zaposlenih.</p>
+    <p>Svaki zaposleni će biti obavješten o svom terminu godišnjeg odmora najmanje 15 dana prije njegovog početka.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">IV - Završne odredbe</div>
+    <p>Ovaj plan stupa na snagu danom donošenja i primjenjuje se na sve zaposlene.</p>
+  </div>
+
+  <div class="signature">
+    <p>Ovlašćeno lice:</p>
+    <p><strong>${getFirmaName()}</strong></p>
+    <br><br>
+    <p>_________________________</p>
+    <p>Izvršni Direktor</p>
+    <p>${getDirectorName()}</p>
+  </div>
+</body>
+</html>`;
+
+  // Otvori u novom prozoru za štampu
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+// Pripremi podatke o radnicima
+function prepareRadniciData() {
+  console.log('📋 Pripremam podatke za radnike...', radniciData.length);
+  const radniciSaPlanom = [];
+
+  radniciData.forEach(radnik => {
+    console.log('👤 Obrađujem radnika:', radnik.ime, radnik.prezime);
+
+    // Pronađi odmore na čekanju za ovog radnika
+    const radnikOdmori = odmoriData
+      .filter(
+        o =>
+          o.radnik_id === radnik.id &&
+          o.status === 'na_cekanju' &&
+          o.tip_odmora === 'godisnji'
+      )
+      .sort((a, b) => new Date(a.datum_od) - new Date(b.datum_od));
+
+    console.log(
+      `📅 Pronašao ${radnikOdmori.length} odmora na čekanju za ${radnik.ime}`
+    );
+
+    const radnikData = {
+      ime: radnik.ime,
+      prezime: radnik.prezime,
+      ukupnoDana: radnik.subota ? 24 : 20,
+      prviOdmor: radnikOdmori[0] || null,
+      drugiOdmor: radnikOdmori[1] || null,
+    };
+
+    radniciSaPlanom.push(radnikData);
+  });
+
+  console.log('✅ Pripremio podatke za', radniciSaPlanom.length, 'radnika');
+  return radniciSaPlanom;
+}
+
+// Generiraj redove tabele
+function generateTableRows(radniciSaPlanom) {
+  return radniciSaPlanom
+    .map(
+      radnik => `
+    <tr>
+      <td class="text-left">${radnik.ime} ${radnik.prezime}</td>
+      <td>${radnik.ukupnoDana}</td>
+      <td>${
+        radnik.prviOdmor ? formatDate(new Date(radnik.prviOdmor.datum_od)) : ''
+      }</td>
+      <td>${
+        radnik.prviOdmor ? formatDate(new Date(radnik.prviOdmor.datum_do)) : ''
+      }</td>
+      <td>${radnik.prviOdmor ? radnik.prviOdmor.broj_dana : ''}</td>
+      <td>${
+        radnik.drugiOdmor
+          ? formatDate(new Date(radnik.drugiOdmor.datum_od))
+          : ''
+      }</td>
+      <td>${
+        radnik.drugiOdmor
+          ? formatDate(new Date(radnik.drugiOdmor.datum_do))
+          : ''
+      }</td>
+      <td>${radnik.drugiOdmor ? radnik.drugiOdmor.broj_dana : ''}</td>
+      <td></td>
+    </tr>
+  `
+    )
+    .join('');
+}
+
+// Pomoćne funkcije
+function getFirmaName() {
+  if (firmaData && firmaData.naziv) {
+    return firmaData.naziv;
   }
 
-  const printFirmaElement = document.getElementById('printFirmaInfo');
-  const firmaInfoElement = document.getElementById('firmaInfo');
-  if (printFirmaElement && firmaInfoElement) {
-    printFirmaElement.textContent = firmaInfoElement.textContent;
+  // Fallback - pokušaj iz DOM elementa
+  const firmaElement = document.getElementById('firmaInfo');
+  return firmaElement
+    ? firmaElement.textContent
+        .replace('Firma: ', '')
+        .replace(` • Plan za ${selectedYear}. godinu`, '')
+    : 'Firma';
+}
+
+function getDirectorName() {
+  // Direktno ime i prezime direktora iz baze
+  if (firmaData && firmaData.direktor_ime_prezime) {
+    return firmaData.direktor_ime_prezime;
   }
 
-  window.print();
+  // Alternativni nazivi kolone
+  if (firmaData && firmaData.direktor) {
+    return firmaData.direktor;
+  }
+
+  if (firmaData && firmaData.direktor_ime) {
+    return firmaData.direktor_ime;
+  }
+
+  if (firmaData && firmaData.kontakt_osoba) {
+    return firmaData.kontakt_osoba;
+  }
+
+  // Konačni fallback
+  return '[Ime direktora]';
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('sr-RS');
 }
 
 // Navigacija nazad

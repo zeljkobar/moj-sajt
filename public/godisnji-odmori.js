@@ -99,14 +99,21 @@ function updateNajaveljeniOdmoriTable() {
           ${
             odmor.status === 'na_cekanju'
               ? `
-            <button class="btn btn-sm btn-success me-1" onclick="approveOdmor(${odmor.id})">
+            <button class="btn btn-sm btn-success me-1" onclick="approveOdmor(${odmor.id})" title="Odobri zahtev">
               <i class="fas fa-check"></i>
             </button>
-            <button class="btn btn-sm btn-danger" onclick="rejectOdmor(${odmor.id})">
+            <button class="btn btn-sm btn-danger me-1" onclick="rejectOdmor(${odmor.id})" title="Odbaci zahtev">
               <i class="fas fa-times"></i>
             </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
+              <i class="fas fa-trash"></i>
+            </button>
           `
-              : '-'
+              : `
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
+              <i class="fas fa-trash"></i>
+            </button>
+          `
           }
         </td>
       </tr>
@@ -210,12 +217,12 @@ function updateRadniciTable() {
         </td>
         <td>
           <button class="btn btn-sm btn-primary me-1" onclick="viewRadnikDetails(${
-            radnik.id
+            radnik.radnik_id
           })">
             <i class="fas fa-eye"></i>
           </button>
           <button class="btn btn-sm btn-success" onclick="planOdmor(${
-            radnik.id
+            radnik.radnik_id
           })">
             <i class="fas fa-plus"></i>
           </button>
@@ -275,11 +282,32 @@ async function loadFirmaInfo() {
 async function loadRadniciStatus() {
   console.log('👥 Učitavam status radnika...');
   try {
-    const response = await fetch(`/api/firme/${currentFirmaId}/radnici`, {
-      credentials: 'include',
-    });
+    // Prvo pokušaj da sinhronizuješ planove
+    try {
+      await fetch(`/api/godisnji-odmori/plan/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          firma_id: currentFirmaId,
+        }),
+      });
+      console.log('✅ Planovi sinhronizovani');
+    } catch (syncError) {
+      console.warn('⚠️ Greška pri sinhronizaciji planova:', syncError);
+    }
 
-    if (!response.ok) throw new Error('Greška pri učitavanju radnika');
+    // Zatim učitaj planove
+    const response = await fetch(
+      `/api/godisnji-odmori/plan/${currentFirmaId}`,
+      {
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) throw new Error('Greška pri učitavanju plana');
 
     const result = await response.json();
     radniciData = result || [];
@@ -314,10 +342,7 @@ function showError(message) {
 
 // Funkcija za otvaranje plana godišnjeg odmora
 function openPlanGodisnjegOdmora() {
-  window.open(
-    `/plan-godisnjeg-odmora.html?firma_id=${currentFirmaId}`,
-    '_blank'
-  );
+  window.location.href = `/plan-godisnjeg-odmora.html?firma_id=${currentFirmaId}`;
 }
 
 // Funkcija za kreiranje novog zahtjeva za odmor
@@ -403,6 +428,41 @@ async function rejectOdmor(id) {
   } catch (error) {
     console.error('Greška pri odbacivanju:', error);
     alert('Greška pri odbacivanju zahtjeva');
+  }
+}
+
+// Funkcija za brisanje zahtjeva za odmor
+async function deleteOdmor(id) {
+  if (
+    !confirm(
+      'Da li ste sigurni da želite da obrišete ovaj zahtjev za odmor? Ova akcija se ne može poništiti.'
+    )
+  )
+    return;
+
+  try {
+    const response = await fetch(`/api/godisnji-odmori/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Greška pri brisanju zahtjeva');
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert('Zahtjev je uspješno obrisan!');
+      // Ponovo učitaj podatke
+      await loadOdmoriData();
+      await loadRadniciStatus();
+    } else {
+      alert('Greška: ' + (result.message || 'Nepoznata greška'));
+    }
+  } catch (error) {
+    console.error('Greška pri brisanju:', error);
+    alert('Greška pri brisanju zahtjeva');
   }
 }
 
@@ -561,10 +621,8 @@ async function viewRadnikDetails(radnikId) {
   console.log('👁️ Prikazujem detalje radnika:', radnikId);
 
   try {
-    // Učitaj podatke o radniku
-    const radnikResponse = await fetch(`/api/firme/${currentFirmaId}/radnici`);
-    const radniciData = await radnikResponse.json();
-    const radnik = radniciData.find(r => r.id === radnikId);
+    // Radnik je već učitan u radniciData preko godisnji_plan endpoint-a
+    const radnik = radniciData.find(r => r.radnik_id === radnikId);
 
     if (!radnik) {
       alert('Radnik nije pronađen!');
@@ -648,10 +706,8 @@ async function planOdmor(radnikId) {
   console.log('➕ Planiram odmor za radnika:', radnikId);
 
   try {
-    // Učitaj podatke o radniku
-    const radnikResponse = await fetch(`/api/firme/${currentFirmaId}/radnici`);
-    const radniciData = await radnikResponse.json();
-    const radnik = radniciData.find(r => r.id === radnikId);
+    // Radnik je već učitan u radniciData preko godisnji_plan endpoint-a
+    const radnik = radniciData.find(r => r.radnik_id === radnikId);
 
     if (!radnik) {
       alert('Radnik nije pronađen!');
