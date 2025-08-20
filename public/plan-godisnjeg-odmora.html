@@ -277,6 +277,51 @@
         color: #2e7d32;
       }
 
+      /* Stilovi za različite radnike kada su svi prikazani */
+      .day.radnik-1 { background: #e8f5e8 !important; border: 2px solid #4caf50; }
+      .day.radnik-2 { background: #e3f2fd !important; border: 2px solid #2196f3; }
+      .day.radnik-3 { background: #fff3e0 !important; border: 2px solid #ff9800; }
+      .day.radnik-4 { background: #f3e5f5 !important; border: 2px solid #9c27b0; }
+      .day.radnik-5 { background: #e0f2f1 !important; border: 2px solid #009688; }
+      .day.radnik-6 { background: #fce4ec !important; border: 2px solid #e91e63; }
+      .day.radnik-7 { background: #f1f8e9 !important; border: 2px solid #8bc34a; }
+      .day.radnik-8 { background: #e8eaf6 !important; border: 2px solid #3f51b5; }
+      .day.radnik-9 { background: #fff8e1 !important; border: 2px solid #ffc107; }
+      .day.radnik-10 { background: #fafafa !important; border: 2px solid #607d8b; }
+      
+      /* Ciklus se ponavlja za više radnika */
+      .day.radnik-11 { background: #e8f5e8 !important; border: 2px solid #4caf50; }
+      .day.radnik-12 { background: #e3f2fd !important; border: 2px solid #2196f3; }
+
+      /* Stil za dana kada više radnika ima odmor */
+      .day.multi-employee {
+        background: linear-gradient(45deg, #e8f5e8 25%, #e3f2fd 25%, #e3f2fd 50%, #fff3e0 50%, #fff3e0 75%, #f3e5f5 75%) !important;
+        border: 2px solid #333 !important;
+        animation: multiEmployeeGlow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes multiEmployeeGlow {
+        from { box-shadow: 0 0 4px rgba(0,0,0,0.3); }
+        to { box-shadow: 0 0 8px rgba(0,0,0,0.6); }
+      }
+
+      /* Pending odmori imaju isprekidane bordere */
+      .day.pending.radnik-1 { border-style: dashed; }
+      .day.pending.radnik-2 { border-style: dashed; }
+      .day.pending.radnik-3 { border-style: dashed; }
+      .day.pending.radnik-4 { border-style: dashed; }
+      .day.pending.radnik-5 { border-style: dashed; }
+      .day.pending.radnik-6 { border-style: dashed; }
+      .day.pending.radnik-7 { border-style: dashed; }
+      .day.pending.radnik-8 { border-style: dashed; }
+      .day.pending.radnik-9 { border-style: dashed; }
+      .day.pending.radnik-10 { border-style: dashed; }
+
+      .day.pending.multi-employee {
+        border-style: dashed;
+        opacity: 0.8;
+      }
+
       .radnik-item {
         padding: 12px;
         border-bottom: 1px solid #eee;
@@ -491,16 +536,23 @@
                     <div class="legend-item mb-2">
                       <div
                         class="legend-color"
-                        style="background-color: #007bff"
+                        style="background-color: #e8f5e8; border: 2px solid #4caf50;"
                       ></div>
-                      <span>Odobreni godišnji odmori</span>
+                      <span>Odobreni odmori (svaki radnik ima svoju boju)</span>
                     </div>
                     <div class="legend-item mb-2">
                       <div
                         class="legend-color"
-                        style="background-color: #ffc107"
+                        style="background-color: #fff3e0; border: 2px dashed #ff9800;"
                       ></div>
-                      <span>Pending zahtevi za odmor</span>
+                      <span>Pending zahtevi za odmor (isprekidani okvir)</span>
+                    </div>
+                    <div class="legend-item mb-2">
+                      <div
+                        class="legend-color"
+                        style="background: linear-gradient(45deg, #e8f5e8 25%, #e3f2fd 25%, #e3f2fd 50%, #fff3e0 50%); border: 2px solid #333;"
+                      ></div>
+                      <span>Više radnika na odmoru istog dana</span>
                     </div>
                     <div class="legend-item mb-2">
                       <div
@@ -612,15 +664,15 @@
             <div class="legend">
               <div class="legend-item">
                 <div class="legend-color" style="background: #e8f5e8"></div>
-                <span>Odobreni odmori</span>
+                <span>Odobreni odmori (zelena kad je selektovan radnik)</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color" style="background: #fff3e0"></div>
+                <div class="legend-color" style="background: #fff3cd"></div>
                 <span>Na čekanju</span>
               </div>
               <div class="legend-item">
                 <div class="legend-color" style="background: #ffebee"></div>
-                <span>Odbačeni / Praznici</span>
+                <span>Praznici</span>
               </div>
               <div class="legend-item">
                 <div class="legend-color" style="background: #f8f9fa"></div>
@@ -633,10 +685,20 @@
                 ></div>
                 <span>Radni dani</span>
               </div>
+              <div class="legend-item" style="margin-top: 10px; font-style: italic; color: #666;">
+                <span>💡 Kada nije selektovan radnik, odmori se prikazuju različitim bojama po radniku</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="plan-godisnjeg-odmora.js"></script>
+  </body>
+</html>
     </div>
 
     <!-- Scripts -->

@@ -1,5 +1,45 @@
 const { executeQuery } = require('../config/database');
 
+/**
+ * Računa broj radnih dana između dva datuma
+ * @param {string} datum_od - početni datum (YYYY-MM-DD)
+ * @param {string} datum_do - završni datum (YYYY-MM-DD)
+ * @param {number} radi_subotom - da li radnik radi subotom (1 = da, 0 = ne)
+ * @returns {number} broj radnih dana
+ */
+function calculateWorkingDays(datum_od, datum_do, radi_subotom) {
+  const startDate = new Date(datum_od);
+  const endDate = new Date(datum_do);
+
+  let workingDays = 0;
+  let currentDate = new Date(startDate);
+
+  // Ide kroz svaki dan u rasponu
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getDay(); // 0 = nedelja, 1 = ponedeljak, ..., 6 = subota
+
+    // Nedelja (0) se nikad ne broji kao radni dan
+    if (dayOfWeek === 0) {
+      // preskačemo nedelju
+    }
+    // Subota (6) se broji samo ako radnik radi subotom
+    else if (dayOfWeek === 6) {
+      if (radi_subotom) {
+        workingDays++;
+      }
+    }
+    // Ponedeljak-petak (1-5) se uvek broje kao radni dani
+    else {
+      workingDays++;
+    }
+
+    // Idi na sledeći dan
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return workingDays;
+}
+
 module.exports = {
   // GET /api/godisnji-odmori/:firma_id - svi odmori za firmu
   getOdmoriByFirma: async (req, res) => {
@@ -113,21 +153,34 @@ module.exports = {
   // POST /api/godisnji-odmori - novi zahtjev za odmor
   createZahtjev: async (req, res) => {
     const { radnik_id, datum_od, datum_do, tip_odmora, napomena } = req.body;
+    console.log('🏖️ POST /api/godisnji-odmori called with:', {
+      radnik_id,
+      datum_od,
+      datum_do,
+      tip_odmora,
+      napomena,
+    });
 
     try {
       if (!req.session || !req.session.user) {
+        console.log('❌ Session or user missing');
         return res.status(401).json({ message: 'Nije autentifikovan' });
       }
 
       const username = req.session.user.username;
+      console.log('👤 Username:', username);
+
       const [user] = await executeQuery(
         'SELECT id FROM users WHERE username = ?',
         [username]
       );
 
       if (!user) {
+        console.log('❌ User not found in database');
         return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
+
+      console.log('✅ User ID:', user.id);
 
       // Provjeri da li radnik pripada korisniku
       const [radnikCheck] = await executeQuery(
@@ -139,7 +192,12 @@ module.exports = {
         [radnik_id, user.id]
       );
 
+      console.log('🔍 Radnik check result:', radnikCheck);
+
       if (!radnikCheck) {
+        console.log('❌ Access denied - radnik does not belong to user');
+        console.log('  Radnik ID:', radnik_id);
+        console.log('  User ID:', user.id);
         return res.status(403).json({ message: 'Nemate pristup ovom radniku' });
       }
 
@@ -149,11 +207,22 @@ module.exports = {
           .json({ message: 'Sva obavezna polja moraju biti popunjena' });
       }
 
-      // Izračunaj broj dana
-      const startDate = new Date(datum_od);
-      const endDate = new Date(datum_do);
-      const diffTime = Math.abs(endDate - startDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      // Učitaj podatke o radniku da bismo znali da li radi subotom
+      const [radnikInfo] = await executeQuery(
+        'SELECT subota FROM radnici WHERE id = ?',
+        [radnik_id]
+      );
+
+      if (!radnikInfo) {
+        return res.status(404).json({ message: 'Radnik nije pronađen' });
+      }
+
+      // Izračunaj broj radnih dana na osnovu da li radnik radi subotom
+      const broj_dana = calculateWorkingDays(
+        datum_od,
+        datum_do,
+        radnikInfo.subota
+      );
 
       // Dodaj novi zahtjev
       const result = await executeQuery(
@@ -162,7 +231,7 @@ module.exports = {
         (radnik_id, datum_od, datum_do, broj_dana, tip_odmora, napomena, status)
         VALUES (?, ?, ?, ?, ?, ?, 'na_cekanju')
       `,
-        [radnik_id, datum_od, datum_do, diffDays, tip_odmora, napomena || null]
+        [radnik_id, datum_od, datum_do, broj_dana, tip_odmora, napomena || null]
       );
 
       res.json({

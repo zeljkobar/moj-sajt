@@ -325,6 +325,319 @@
       </div>
     </div>
 
+    <!-- Modal za novi zahtjev -->
+    <div
+      class="modal fade"
+      id="noviZahtjevModal"
+      tabindex="-1"
+      aria-labelledby="noviZahtjevModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="noviZahtjevModalLabel">
+              <i class="fas fa-calendar-plus me-2"></i>Novi zahtjev za odmor
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="noviZahtjevForm">
+              <div class="mb-3">
+                <label for="radnikSelect" class="form-label">Radnik</label>
+                <select class="form-select" id="radnikSelect" required>
+                  <option value="">Izaberite radnika...</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="tipOdmoraSelect" class="form-label"
+                  >Tip odmora</label
+                >
+                <select class="form-select" id="tipOdmoraSelect" required>
+                  <option value="godisnji">Godišnji odmor</option>
+                  <option value="bolovanje">Bolovanje</option>
+                  <option value="porodiljsko">Porodiljsko odsustvo</option>
+                  <option value="placeno_odsustvo">Plaćeno odsustvo</option>
+                  <option value="neplaceno_odsustvo">Neplaćeno odsustvo</option>
+                </select>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="datumOd" class="form-label">Datum od</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="datumOd"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="datumDo" class="form-label">Datum do</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="datumDo"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="napomena" class="form-label"
+                  >Napomena (opcionalno)</label
+                >
+                <textarea
+                  class="form-control"
+                  id="napomena"
+                  rows="3"
+                  placeholder="Dodatne informacije o zahtjevu..."
+                ></textarea>
+              </div>
+
+              <div id="brojDanaPreview" class="alert alert-info d-none">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="brojDanaText">Broj radnih dana: </span>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button type="button" class="btn btn-primary" id="submitZahtjev">
+              <i class="fas fa-paper-plane me-2"></i>Pošalji zahtjev
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za pregled detalja radnika -->
+    <div class="modal fade" id="detaljRadnikModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detaljRadnikNaslov">Detalji radnika</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Osnovne informacije -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <i class="fas fa-user me-2"></i>Osnovne informacije
+                    </h6>
+                    <p class="mb-1">
+                      <strong>Pozicija:</strong>
+                      <span id="detaljPozicija">-</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <i class="fas fa-calendar me-2"></i>Godišnji odmor (2025)
+                    </h6>
+                    <p class="mb-1">
+                      <strong>Ukupno dana:</strong>
+                      <span id="detaljUkupnoDana">-</span>
+                    </p>
+                    <p class="mb-1">
+                      <strong>Iskorišćeno:</strong>
+                      <span id="detaljIskorisenoDana">-</span>
+                    </p>
+                    <p class="mb-0">
+                      <strong>Preostalo:</strong>
+                      <span id="detaljPreostaloDana">-</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabela odmora -->
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">
+                  <i class="fas fa-list me-2"></i>Istorija odmora
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Od</th>
+                        <th>Do</th>
+                        <th>Dani</th>
+                        <th>Status</th>
+                        <th>Napomena</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detaljOdmoriTabela">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                          <i class="fas fa-spinner fa-spin me-2"></i
+                          >Učitavanje...
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Zatvori
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za planiranje odmora -->
+    <div class="modal fade" id="planOdmorModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="planRadnikNaslov">Planiraj odmor</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Info kartica -->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h6 class="card-title">
+                  <i class="fas fa-info-circle me-2"></i>Stanje odmora (2025)
+                </h6>
+                <div class="row text-center">
+                  <div class="col-4">
+                    <div class="text-primary">
+                      <strong id="planUkupnoDana">-</strong>
+                      <br /><small>Ukupno</small>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="text-warning">
+                      <strong id="planIskorisenoDana">-</strong>
+                      <br /><small>Iskorišćeno</small>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="text-success">
+                      <strong id="planPreostaloDana">-</strong>
+                      <br /><small>Preostalo</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forma za planiranje -->
+            <form id="planOdmorForm">
+              <input type="hidden" id="planRadnikId" name="radnik_id" />
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="planDatumOd" class="form-label"
+                    >Datum početka</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="planDatumOd"
+                    name="datum_od"
+                    required
+                    onchange="calculatePlanDays()"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="planDatumDo" class="form-label"
+                    >Datum završetka</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="planDatumDo"
+                    name="datum_do"
+                    required
+                    onchange="calculatePlanDays()"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="planNapomena" class="form-label"
+                  >Napomena (opciono)</label
+                >
+                <textarea
+                  class="form-control"
+                  id="planNapomena"
+                  name="napomena"
+                  rows="3"
+                  placeholder="Dodatne informacije o odmoru..."
+                ></textarea>
+              </div>
+
+              <div id="planBrojDanaPreview" class="alert alert-info d-none">
+                <i class="fas fa-info-circle me-2"></i>
+                <span>Broj dana: <strong id="planBrojDana">0</strong></span>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="planSubmitBtn"
+              onclick="submitPlanOdmor()"
+            >
+              <i class="fas fa-paper-plane me-2"></i>Planiraj odmor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./components/navigation.js"></script>

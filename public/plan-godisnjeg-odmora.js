@@ -94,7 +94,7 @@ async function loadFirmaInfo() {
 // Učitaj radnike
 async function loadRadnici() {
   try {
-    const response = await fetch(`/api/radnici/firma/${firmaId}`, {
+    const response = await fetch(`/api/firme/${firmaId}/radnici`, {
       credentials: 'include', // Uključi session cookies
     });
     if (response.ok) {
@@ -223,8 +223,10 @@ function generateDaysForMonth(godina, mesec) {
 
     let classes = 'day clickable-day';
     if (isPraznicDay(datum)) classes += ' holiday';
-    if (hasOdmorDay(datum)) classes += ' vacation';
-    if (hasPendingOdmor(datum)) classes += ' pending';
+
+    // Dodaj klase za odmore na osnovu nove logike
+    classes += getOdmorClasses(datum);
+
     if (isAvailableDay(datum)) classes += ' available';
     if (isToday(datum)) classes += ' today';
     if (selectedDays.includes(datum)) classes += ' selected';
@@ -295,8 +297,89 @@ function hasPendingOdmor(datum) {
         datum >= odmor.datum_od &&
         datum <= odmor.datum_do
     );
+  } else {
+    // Ako nije selektovan radnik, prikaži sve pendingove
+    return odmoriData.some(
+      odmor =>
+        odmor.status === 'na_cekanju' &&
+        datum >= odmor.datum_od &&
+        datum <= odmor.datum_do
+    );
   }
-  return false;
+}
+
+// Funkcija za dobijanje informacija o odmoru za određeni datum
+function getOdmorInfo(datum) {
+  const odmoríForDate = odmoriData.filter(
+    odmor =>
+      (selectedRadnikId ? odmor.radnik_id === selectedRadnikId : true) &&
+      ['odobren', 'na_cekanju'].includes(odmor.status) &&
+      datum >= odmor.datum_od &&
+      datum <= odmor.datum_do
+  );
+
+  return odmoríForDate;
+}
+
+// Funkcija za dobijanje boje radnika na osnovu ID-a
+function getRadnikColor(radnikId) {
+  const colors = [
+    '#e8f5e8', // zelena - odobreni odmori
+    '#e3f2fd', // plava
+    '#fff3e0', // narandžasta
+    '#f3e5f5', // ljubičasta
+    '#e0f2f1', // teal
+    '#fce4ec', // roza
+    '#f1f8e9', // svetlo zelena
+    '#e8eaf6', // indigo
+  ];
+
+  // Koristi modulo da dobije konzistentnu boju za radnika
+  const index = radnikId % colors.length;
+  return colors[index];
+}
+
+// Funkcija za dobijanje CSS klasa na osnovu odmora
+function getOdmorClasses(datum) {
+  const odmori = getOdmorInfo(datum);
+
+  if (odmori.length === 0) return '';
+
+  let classes = '';
+
+  // Prioritet: odobreni odmori pre pending
+  const odobreni = odmori.filter(o => o.status === 'odobren');
+  const pending = odmori.filter(o => o.status === 'na_cekanju');
+
+  if (odobreni.length > 0) {
+    classes += ' vacation';
+
+    // Kada nije selektovan specifičan radnik, prikaži svima svoje boje
+    if (!selectedRadnikId) {
+      if (odobreni.length === 1) {
+        // Jedan radnik - koristi njegovu specifičnu boju
+        const colorIndex = (odobreni[0].radnik_id % 10) + 1; // Modulo 10 + 1 za radnik-1 do radnik-10
+        classes += ` radnik-${colorIndex}`;
+      } else {
+        // Više radnika - možda označi kao multi-employee
+        classes += ' multi-employee';
+      }
+    }
+  } else if (pending.length > 0) {
+    classes += ' pending';
+
+    // Isto za pending odmore
+    if (!selectedRadnikId) {
+      if (pending.length === 1) {
+        const colorIndex = (pending[0].radnik_id % 10) + 1;
+        classes += ` radnik-${colorIndex}`;
+      } else {
+        classes += ' multi-employee';
+      }
+    }
+  }
+
+  return classes;
 }
 
 function isAvailableDay(datum) {
@@ -322,12 +405,39 @@ function getDayTooltip(datum) {
     return `${formatDate} - ${praznik?.naziv || 'Praznik'}`;
   }
 
-  if (hasOdmorDay(datum)) {
-    return `${formatDate} - Godišnji odmor`;
-  }
+  // Dohvati informacije o odmorima za ovaj datum
+  const odmori = getOdmorInfo(datum);
 
-  if (hasPendingOdmor(datum)) {
-    return `${formatDate} - Zahtev za odmor (čeka odobrenje)`;
+  if (odmori.length > 0) {
+    let tooltip = formatDate;
+
+    // Grupišj po statusu
+    const odobreni = odmori.filter(o => o.status === 'odobren');
+    const pending = odmori.filter(o => o.status === 'na_cekanju');
+
+    if (odobreni.length > 0) {
+      tooltip += '\n✅ Odobreni odmori:';
+      odobreni.forEach(odmor => {
+        const radnik = radniciData.find(r => r.id === odmor.radnik_id);
+        const radnikNaziv = radnik
+          ? `${radnik.ime} ${radnik.prezime}`
+          : `Radnik ${odmor.radnik_id}`;
+        tooltip += `\n  • ${radnikNaziv} (${odmor.tip_odmora})`;
+      });
+    }
+
+    if (pending.length > 0) {
+      tooltip += '\n⏳ Na čekanju:';
+      pending.forEach(odmor => {
+        const radnik = radniciData.find(r => r.id === odmor.radnik_id);
+        const radnikNaziv = radnik
+          ? `${radnik.ime} ${radnik.prezime}`
+          : `Radnik ${odmor.radnik_id}`;
+        tooltip += `\n  • ${radnikNaziv} (${odmor.tip_odmora})`;
+      });
+    }
+
+    return tooltip;
   }
 
   if (isAvailableDay(datum)) {
@@ -361,7 +471,7 @@ function populateRadniciSidebar() {
       return total + days;
     }, 0);
 
-    const dostupnoDana = radnik.radi_subotom ? 24 : 20;
+    const dostupnoDana = radnik.subota ? 24 : 20;
     const preostalo = dostupnoDana - ukupnoDana;
 
     html += `
@@ -374,7 +484,7 @@ function populateRadniciSidebar() {
             <strong>${radnik.ime} ${radnik.prezime}</strong>
             <div class="small text-muted">
               ${radnik.pozicija || 'Radnik'}
-              ${radnik.radi_subotom ? '• Subota' : ''}
+              ${radnik.subota ? '• Subota' : ''}
             </div>
           </div>
           <div class="text-end">
