@@ -654,7 +654,19 @@ async function viewRadnikDetails(radnikId) {
     }
 
     // Učitaj odmor podatke za radnika
-    const odmorResponse = await fetch(`/api/godisnji-odmori/${currentFirmaId}`);
+    const odmorResponse = await fetch(`/api/godisnji-odmori/${currentFirmaId}`, {
+      credentials: 'include'
+    });
+    
+    if (!odmorResponse.ok) {
+      if (odmorResponse.status === 401) {
+        alert('Morate se ulogirati da biste pristupili ovoj stranici.');
+        window.location.href = '/prijava.html';
+        return;
+      }
+      throw new Error(`HTTP ${odmorResponse.status}: ${odmorResponse.statusText}`);
+    }
+    
     const sviOdmori = await odmorResponse.json();
     const radnikOdmori = sviOdmori.filter(o => o.radnik_id === radnikId);
 
