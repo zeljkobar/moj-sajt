@@ -393,6 +393,43 @@ module.exports = {
     }
   },
 
+  // Funkcija za kalkulaciju proporcionalnih dana
+  calculateProporcionalniDani: (radnik, godina) => {
+    const baseRadni = radnik.subota ? 24 : 20; // Bazni broj dana (rad subotom ili ne)
+
+    if (!radnik.datum_zaposlenja) {
+      return baseRadni; // Ako nema datum zaposlenja, vrati pun broj
+    }
+
+    const datumZaposlenja = new Date(radnik.datum_zaposlenja);
+    const godinaZaposlenja = datumZaposlenja.getFullYear();
+
+    // Ako je zaposlen pre trenutne godine, ima pun broj dana
+    if (godinaZaposlenja < godina) {
+      return baseRadni;
+    }
+
+    // Ako je zaposlen u trenutnoj godini, kalkuliši proporcionalno
+    if (godinaZaposlenja === godina) {
+      const mesecZaposlenja = datumZaposlenja.getMonth() + 1; // 1-12
+      const mesecaDoKrajaGodine = 12 - mesecZaposlenja + 1; // Uključi mesec zaposlenja
+
+      let proporcionalni;
+      if (radnik.subota) {
+        // 2 dana po mesecu za rad subotom
+        proporcionalni = mesecaDoKrajaGodine * 2;
+      } else {
+        // 1.666 dana po mesecu, zaokruži na najbliži ceo broj
+        proporcionalni = Math.round(mesecaDoKrajaGodine * 1.666);
+      }
+
+      return Math.min(proporcionalni, baseRadni); // Ne može više od maksimuma
+    }
+
+    // Ako je zaposlen u budućnosti, nema pravo na odmor
+    return 0;
+  },
+
   // POST /api/godisnji-plan/sync - sinhronizacija planova za sve radnike
   syncPlanovi: async (req, res) => {
     const { firma_id } = req.body;
@@ -416,13 +453,16 @@ module.exports = {
       // Učitaj sve radnike u firmi
       const radnici = await executeQuery(
         `
-        SELECT id, subota FROM radnici WHERE firma_id = ?
+        SELECT id, subota, datum_zaposlenja FROM radnici WHERE firma_id = ?
       `,
         [firma_id]
       );
 
       for (const radnik of radnici) {
-        const ukupnoDana = radnik.subota ? 24 : 20;
+        const ukupnoDana = module.exports.calculateProporcionalniDani(
+          radnik,
+          godina
+        );
 
         // Provjeri da li plan već postoji
         const [postojiPlan] = await executeQuery(

@@ -4,8 +4,6 @@
  * Datum: 2025-08-19
  */
 
-console.log('🏖️ godisnji-odmori.js loaded successfully!');
-
 // Globalne varijable
 let currentFirmaId = null;
 let radniciData = [];
@@ -13,25 +11,18 @@ let odmoríData = [];
 
 // Učitavanje podataka o odmorima
 async function loadOdmoriData() {
-  console.log('🔄 Učitavam podatke o odmorima...');
   try {
-    console.log('🔍 Učitavam odmor podatke za firmu:', currentFirmaId);
     const response = await fetch(`/api/godisnji-odmori/${currentFirmaId}`, {
       credentials: 'include',
     });
 
-    console.log('📡 Response status:', response.status);
     if (!response.ok) throw new Error('Greška pri učitavanju odmora');
 
     const result = await response.json();
     odmoríData = result || []; // Backend vraća direktno array, ne result.data
-    console.log('✅ Učitani odmori:', odmoríData.length);
-    console.log('📊 Podaci o odmorima:', odmoríData);
 
     // Ažuriraj tabele
-    console.log('🔄 Pozivam updateNajaveljeniOdmoriTable()...');
     updateNajaveljeniOdmoriTable();
-    console.log('🔄 Pozivam updateIstorijaTable()...');
     updateIstorijaTable();
   } catch (error) {
     console.error('❌ Greška pri učitavanju odmora:', error);
@@ -41,9 +32,6 @@ async function loadOdmoriData() {
 
 // Ažuriranje tabele najavljenih odmora
 function updateNajaveljeniOdmoriTable() {
-  console.log('🔄 Ažuriram tabelu najavljenih odmora...');
-  console.log('📊 Podaci o odmorima:', odmoríData);
-
   const tabela = document.getElementById('najaveljeniOdmoriTabela');
 
   if (!tabela) {
@@ -57,8 +45,6 @@ function updateNajaveljeniOdmoriTable() {
     const danas = new Date();
     return datumOd >= danas || o.status === 'na_cekanju';
   });
-
-  console.log('📅 Najavljeni odmori:', najavljeni.length);
 
   if (najavljeni.length === 0) {
     tabela.innerHTML = `
@@ -175,7 +161,6 @@ function updateIstorijaTable() {
 
 // Ažuriranje tabele radnika i status
 function updateRadniciTable() {
-  console.log('👥 Ažuriram tabelu radnika...');
   const tabela = document.getElementById('radniciStatusTabela');
 
   if (!tabela) {
@@ -246,8 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
-  console.log('📊 Inicijalizujem godišnje odmore za firmu:', currentFirmaId);
-
   // Učitaj podatke
   loadInitialData();
 });
@@ -264,8 +247,6 @@ async function loadInitialData() {
       loadOdmoriData(),
       loadDashboardStats(),
     ]);
-
-    console.log('✅ Svi podaci uspješno učitani');
   } catch (error) {
     console.error('❌ Greška pri učitavanju podataka:', error);
     showError('Greška pri učitavanju podataka godišnjih odmora');
@@ -275,12 +256,9 @@ async function loadInitialData() {
 }
 
 // Dummy funkcije koje nedostaju
-async function loadFirmaInfo() {
-  console.log('📊 Učitavam info o firmi...');
-}
+async function loadFirmaInfo() {}
 
 async function loadRadniciStatus() {
-  console.log('👥 Učitavam status radnika...');
   try {
     // Prvo pokušaj da sinhronizuješ planove
     try {
@@ -294,7 +272,6 @@ async function loadRadniciStatus() {
           firma_id: currentFirmaId,
         }),
       });
-      console.log('✅ Planovi sinhronizovani');
     } catch (syncError) {
       console.warn('⚠️ Greška pri sinhronizaciji planova:', syncError);
     }
@@ -311,7 +288,6 @@ async function loadRadniciStatus() {
 
     const result = await response.json();
     radniciData = result || [];
-    console.log('✅ Učitani radnici:', radniciData.length);
 
     // Ažuriraj tabelu radnika
     updateRadniciTable();
@@ -321,9 +297,7 @@ async function loadRadniciStatus() {
   }
 }
 
-async function loadDashboardStats() {
-  console.log('📈 Učitavam dashboard statistike...');
-}
+async function loadDashboardStats() {}
 
 function showPreloader() {
   const preloader = document.getElementById('preloader');
@@ -471,10 +445,7 @@ function populateRadniciDropdown() {
   const select = document.getElementById('radnikSelect');
   select.innerHTML = '<option value="">Izaberite radnika...</option>';
 
-  console.log('👥 Popunjavam dropdown sa radnicima:', radniciData);
-
   radniciData.forEach(radnik => {
-    console.log('🔍 Radnik:', radnik);
     const option = document.createElement('option');
     option.value = radnik.radnik_id; // Koristim radnik_id jer to je polje iz godisnji_plan tabele
     option.textContent = `${radnik.ime} ${radnik.prezime} (${
@@ -495,8 +466,6 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = '/dashboard.html';
     return;
   }
-
-  console.log('📊 Inicijalizujem godišnje odmore za firmu:', currentFirmaId);
 
   // Učitaj podatke
   loadInitialData();
@@ -618,8 +587,6 @@ async function submitNoviZahtjev() {
 
 // Funkcija za pregled detalja radnika
 async function viewRadnikDetails(radnikId) {
-  console.log('👁️ Prikazujem detalje radnika:', radnikId);
-
   try {
     // Radnik je već učitan u radniciData preko godisnji_plan endpoint-a
     const radnik = radniciData.find(r => r.radnik_id === radnikId);
@@ -703,8 +670,6 @@ async function viewRadnikDetails(radnikId) {
 
 // Funkcija za planiranje odmora
 async function planOdmor(radnikId) {
-  console.log('➕ Planiram odmor za radnika:', radnikId);
-
   try {
     // Radnik je već učitan u radniciData preko godisnji_plan endpoint-a
     const radnik = radniciData.find(r => r.radnik_id === radnikId);

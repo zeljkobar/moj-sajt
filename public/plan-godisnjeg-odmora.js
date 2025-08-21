@@ -1,5 +1,3 @@
-console.log('📅 Plan godišnjeg odmora - Nova verzija učitana!');
-
 // Globalne promenljive
 let firmaId = null;
 let selectedYear = 2025;
@@ -7,14 +5,13 @@ let firmaData = null; // Podaci o firmi
 let radniciData = [];
 let odmoriData = [];
 let prazniciData = [];
+let planoviData = []; // Dodaj globalan array za planove
 let selectedRadnikId = null;
 let selectedDays = [];
 let dragMode = false;
 
 // Inicijalizacija
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('🚀 Pokretam inicijalizaciju...');
-
   const urlParams = new URLSearchParams(window.location.search);
   firmaId = urlParams.get('firma_id');
 
@@ -49,6 +46,7 @@ async function loadAllData() {
       loadRadnici(),
       loadPraznici(),
       loadOdmori(),
+      loadPlanovi(), // Dodaj učitavanje planova
     ]);
     generateCalendar();
     populateRadniciSidebar();
@@ -76,7 +74,6 @@ async function loadFirmaInfo() {
     });
     if (response.ok) {
       firmaData = await response.json(); // Sačuvaj podatke o firmi
-      console.log('🏢 Učitana firma:', firmaData);
       document.getElementById(
         'firmaInfo'
       ).textContent = `Firma: ${firmaData.naziv} • Plan za ${selectedYear}. godinu`;
@@ -102,7 +99,6 @@ async function loadRadnici() {
     });
     if (response.ok) {
       radniciData = await response.json();
-      console.log('👥 Učitano radnika:', radniciData.length);
     }
   } catch (error) {
     console.error('Greška pri učitavanju radnika:', error);
@@ -118,8 +114,6 @@ async function loadPraznici() {
     if (response.ok) {
       const result = await response.json();
       prazniciData = result.data || result; // Handle both formats
-      console.log('🎉 Učitano praznika:', prazniciData.length);
-      console.log('📊 Format praznika:', prazniciData.slice(0, 2)); // Debug: show first 2 holidays
     } else {
       console.error('Greška pri učitavanju praznika:', response.status);
       prazniciData = [];
@@ -127,6 +121,27 @@ async function loadPraznici() {
   } catch (error) {
     console.error('Greška pri učitavanju praznika:', error);
     prazniciData = [];
+  }
+}
+
+// Učitaj planove
+async function loadPlanovi() {
+  try {
+    const response = await fetch(
+      `/api/godisnji-odmori/plan/${firmaId}?godina=${selectedYear}`,
+      {
+        credentials: 'include', // Uključi session cookies
+      }
+    );
+    if (response.ok) {
+      planoviData = await response.json();
+    } else {
+      console.error('Greška pri učitavanju planova:', response.status);
+      planoviData = [];
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju planova:', error);
+    planoviData = [];
   }
 }
 
@@ -142,15 +157,6 @@ async function loadOdmori() {
     if (response.ok) {
       const result = await response.json();
       odmoriData = result.data || result; // Handle both formats
-      console.log(
-        '🏖️ Učitano odmora:',
-        Array.isArray(odmoriData) ? odmoriData.length : 0
-      );
-
-      // Debug: prikaži prvi odmor ako postoji
-      if (Array.isArray(odmoriData) && odmoriData.length > 0) {
-        console.log('📋 Prvi odmor:', odmoriData[0]);
-      }
     } else {
       console.error('Greška pri učitavanju odmora:', response.status);
       odmoriData = [];
@@ -474,7 +480,11 @@ function populateRadniciSidebar() {
       return total + days;
     }, 0);
 
-    const dostupnoDana = radnik.subota ? 24 : 20;
+    // Pronađi plan za ovog radnika iz API podataka
+    const radnikPlan = planoviData.find(p => p.radnik_id === radnik.id);
+    const dostupnoDana = radnikPlan
+      ? radnikPlan.ukupno_dana
+      : calculateProporcionalniDani(radnik, selectedYear);
     const preostalo = dostupnoDana - ukupnoDana;
 
     html += `
@@ -958,12 +968,9 @@ function generateFormalPlan() {
 
 // Pripremi podatke o radnicima
 function prepareRadniciData() {
-  console.log('📋 Pripremam podatke za radnike...', radniciData.length);
   const radniciSaPlanom = [];
 
   radniciData.forEach(radnik => {
-    console.log('👤 Obrađujem radnika:', radnik.ime, radnik.prezime);
-
     // Pronađi odmore na čekanju za ovog radnika
     const radnikOdmori = odmoriData
       .filter(
@@ -974,14 +981,10 @@ function prepareRadniciData() {
       )
       .sort((a, b) => new Date(a.datum_od) - new Date(b.datum_od));
 
-    console.log(
-      `📅 Pronašao ${radnikOdmori.length} odmora na čekanju za ${radnik.ime}`
-    );
-
     const radnikData = {
       ime: radnik.ime,
       prezime: radnik.prezime,
-      ukupnoDana: radnik.subota ? 24 : 20,
+      ukupnoDana: calculateProporcionalniDani(radnik, selectedYear),
       prviOdmor: radnikOdmori[0] || null,
       drugiOdmor: radnikOdmori[1] || null,
     };
@@ -989,7 +992,6 @@ function prepareRadniciData() {
     radniciSaPlanom.push(radnikData);
   });
 
-  console.log('✅ Pripremio podatke za', radniciSaPlanom.length, 'radnika');
   return radniciSaPlanom;
 }
 
@@ -1026,7 +1028,43 @@ function generateTableRows(radniciSaPlanom) {
     .join('');
 }
 
-// Pomoćne funkcije
+// Kalkuliši proporcionalne dane godišnjeg odmora
+function calculateProporcionalniDani(radnik, godina) {
+  const baseRadni = radnik.subota ? 24 : 20; // Bazni broj dana (rad subotom ili ne)
+
+  if (!radnik.datum_zaposlenja) {
+    return baseRadni; // Ako nema datum zaposlenja, vrati pun broj
+  }
+
+  const datumZaposlenja = new Date(radnik.datum_zaposlenja);
+  const godinaZaposlenja = datumZaposlenja.getFullYear();
+
+  // Ako je zaposlen pre trenutne godine, ima pun broj dana
+  if (godinaZaposlenja < godina) {
+    return baseRadni;
+  }
+
+  // Ako je zaposlen u trenutnoj godini, kalkuliši proporcionalno
+  if (godinaZaposlenja === godina) {
+    const mesecZaposlenja = datumZaposlenja.getMonth() + 1; // 1-12
+    const mesecaDoKrajaGodine = 12 - mesecZaposlenja + 1; // Uključi mesec zaposlenja
+
+    let proporcionalni;
+    if (radnik.subota) {
+      // 2 dana po mesecu za rad subotom
+      proporcionalni = mesecaDoKrajaGodine * 2;
+    } else {
+      // 1.666 dana po mesecu, zaokruži na najbliži ceo broj
+      proporcionalni = Math.round(mesecaDoKrajaGodine * 1.666);
+    }
+
+    const rezultat = Math.min(proporcionalni, baseRadni);
+    return rezultat; // Ne može više od maksimuma
+  }
+
+  // Ako je zaposlen u budućnosti, nema pravo na odmor
+  return 0;
+} // Pomoćne funkcije
 function getFirmaName() {
   if (firmaData && firmaData.naziv) {
     return firmaData.naziv;
