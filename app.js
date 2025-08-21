@@ -642,6 +642,12 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
+// GET /api/odmori/:id - pojedinačni odmor po ID-u (za rešenja)
+app.get('/api/odmori/:id', authMiddleware, async (req, res) => {
+  const godisnjiomdoriController = require('./src/controllers/godisnjiomdoriController');
+  return godisnjiomdoriController.getOdmorById(req, res);
+});
+
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role
 
 // Zaštićena ruta za prijavu poreza na dobit - requires FULL or ADMIN role

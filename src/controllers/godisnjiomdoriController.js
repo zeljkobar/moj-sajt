@@ -107,6 +107,72 @@ module.exports = {
     }
   },
 
+  // GET /api/odmori/:id - pojedinačni odmor po ID-u
+  getOdmorById: async (req, res) => {
+    const { id } = req.params;
+    console.log('🏖️ API poziv za odmor:', id);
+
+    try {
+      if (!req.session || !req.session.user) {
+        return res.status(401).json({ message: 'Neautorizovan pristup' });
+      }
+
+      const odmorResult = await executeQuery(
+        `SELECT 
+          go.id,
+          go.radnik_id,
+          go.datum_od,
+          go.datum_do,
+          go.broj_dana,
+          go.tip_odmora,
+          go.status,
+          go.napomena,
+          go.created_at,
+          go.updated_at,
+          r.ime,
+          r.prezime,
+          r.subota,
+          f.naziv as firma_naziv,
+          f.adresa as firma_adresa,
+          f.grad as firma_grad,
+          f.pib as firma_pib,
+          f.pdvBroj as firma_pdv_broj,
+          gp.ukupno_dana
+        FROM godisnji_odmori go
+        LEFT JOIN radnici r ON go.radnik_id = r.id
+        LEFT JOIN firme f ON r.firma_id = f.id
+        LEFT JOIN godisnji_plan gp ON r.id = gp.radnik_id AND gp.godina = YEAR(go.datum_od)
+        WHERE go.id = ?`,
+        [id]
+      );
+
+      if (odmorResult.length === 0) {
+        return res.status(404).json({ message: 'Odmor nije pronađen' });
+      }
+
+      const odmorData = odmorResult[0];
+      
+      // Izračunaj ukupno iskorišćene dane za tu godinu
+      const godina = new Date(odmorData.datum_od).getFullYear();
+      const iskorisceniDaniResult = await executeQuery(
+        `SELECT COALESCE(SUM(broj_dana), 0) as ukupno_iskorisceno
+         FROM godisnji_odmori 
+         WHERE radnik_id = ? 
+         AND status = 'odobren' 
+         AND YEAR(datum_od) = ?`,
+        [odmorData.radnik_id, godina]
+      );
+
+      odmorData.ukupno_iskorisceno = iskorisceniDaniResult[0].ukupno_iskorisceno;
+
+      console.log('📊 Pronađen odmor:', odmorData);
+      res.json(odmorData);
+    } catch (error) {
+      console.error('Greška pri učitavanju odmora:', error);
+      res.status(500).json({ message: 'Greška na serveru' });
+    }
+  },
+
   // GET /api/godisnji-plan/:firma_id - planovi za firmu
   getPlanByFirma: async (req, res) => {
     const { firma_id } = req.params;

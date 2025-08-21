@@ -95,6 +95,15 @@ function updateNajaveljeniOdmoriTable() {
               <i class="fas fa-trash"></i>
             </button>
           `
+              : odmor.status === 'odobren'
+              ? `
+            <button class="btn btn-sm btn-primary me-1" onclick="generateResenjeOdmor(${odmor.id})" title="Generiši rešenje o godišnjem odmoru">
+              <i class="fas fa-file-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
+              <i class="fas fa-trash"></i>
+            </button>
+          `
               : `
             <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
               <i class="fas fa-trash"></i>
@@ -128,7 +137,7 @@ function updateIstorijaTable() {
   if (istorija.length === 0) {
     tabela.innerHTML = `
       <tr>
-        <td colspan="8" class="text-center text-muted py-4">
+        <td colspan="7" class="text-center text-muted py-4">
           <i class="fas fa-history me-2"></i>Nema istorije odmora
         </td>
       </tr>
@@ -146,12 +155,14 @@ function updateIstorijaTable() {
         <td>${new Date(odmor.datum_do).toLocaleDateString('sr-RS')}</td>
         <td>${odmor.broj_dana}</td>
         <td><span class="badge bg-success">Odobren</span></td>
-        <td>${odmor.odobrio_username || '-'}</td>
-        <td>${
-          odmor.updated_at
-            ? new Date(odmor.updated_at).toLocaleDateString('sr-RS')
-            : '-'
-        }</td>
+        <td>
+          <button class="btn btn-sm btn-primary me-1" onclick="generateResenjeOdmor(${odmor.id})" title="Generiši rešenje o godišnjem odmoru">
+            <i class="fas fa-file-alt"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
       </tr>
     `;
   });
@@ -855,5 +866,30 @@ async function submitPlanOdmor() {
     submitBtn.disabled = false;
     submitBtn.innerHTML =
       '<i class="fas fa-paper-plane me-2"></i>Planiraj odmor';
+  }
+}
+
+// Funkcija za generisanje rešenja o godišnjem odmoru
+async function generateResenjeOdmor(odmorId) {
+  try {
+    // Pronađi podatke o odmoru
+    const odmor = odmoríData.find(o => o.id === odmorId);
+    if (!odmor) {
+      alert('Podaci o odmoru nisu pronađeni');
+      return;
+    }
+
+    // Proveri da li je odmor odobren
+    if (odmor.status !== 'odobren') {
+      alert('Rešenje se može generisati samo za odobrene odmove');
+      return;
+    }
+
+    // Generiši i otvori rešenje o godišnjem odmoru
+    const url = `/resenje-godisnji-odmor.html?odmorId=${odmorId}`;
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error('Greška pri generisanju rešenja:', error);
+    alert('Greška pri generisanju rešenja: ' + error.message);
   }
 }
