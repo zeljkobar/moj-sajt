@@ -217,6 +217,9 @@ function updateRadniciTable() {
   });
 
   tabela.innerHTML = html;
+  
+  // Ažuriraj statistike nakon što su radnici učitani
+  updateDashboardStats();
 }
 
 // Inicijalizacija stranice
@@ -310,18 +313,11 @@ async function loadDashboardStats() {
 
 // Funkcija za ažuriranje dashboard statistika
 function updateDashboardStats() {
-  console.log('🔢 Ažuriram statistike...');
-  console.log('📊 Radnici:', radniciData.length);
-  console.log('🏖️ Odmori:', odmoríData.length);
-  
   // Ukupno radnika
   const ukupnoRadnika = radniciData.length;
   const ukupnoRadnikaElement = document.getElementById('ukupnoRadnika');
   if (ukupnoRadnikaElement) {
     ukupnoRadnikaElement.textContent = ukupnoRadnika;
-    console.log('✅ Postavljen ukupno radnika:', ukupnoRadnika);
-  } else {
-    console.error('❌ Element ukupnoRadnika nije pronađen');
   }
 
   // Na čekanju (odmori sa statusom 'na_cekanju')
@@ -329,9 +325,6 @@ function updateDashboardStats() {
   const naCekanjuElement = document.getElementById('naCekanju');
   if (naCekanjuElement) {
     naCekanjuElement.textContent = naCekanju;
-    console.log('✅ Postavljen na čekanju:', naCekanju);
-  } else {
-    console.error('❌ Element naCekanju nije pronađen');
   }
 
   // Odobreni ovaj mesec (odobreni odmori u tekućem mesecu)
@@ -346,9 +339,6 @@ function updateDashboardStats() {
   const odobreniElement = document.getElementById('odobreniMjesec');
   if (odobreniElement) {
     odobreniElement.textContent = odobreniOvajMesec;
-    console.log('✅ Postavljen odobreni ovaj mesec:', odobreniOvajMesec);
-  } else {
-    console.error('❌ Element odobreniMjesec nije pronađen');
   }
 
   // Ukupno dana iskorišćeno (suma dana za sve odobrene odmori)
@@ -363,12 +353,7 @@ function updateDashboardStats() {
   const ukupnoDanaElement = document.getElementById('ukupnoDanaKorisceno');
   if (ukupnoDanaElement) {
     ukupnoDanaElement.textContent = ukupnoDanaKorisceno;
-    console.log('✅ Postavljen ukupno dana:', ukupnoDanaKorisceno);
-  } else {
-    console.error('❌ Element ukupnoDanaKorisceno nije pronađen');
   }
-  
-  console.log('🏁 Statistike ažurirane');
 }
 
 function showPreloader() {
