@@ -183,7 +183,8 @@
       <div class="clan">
         Zajmodavac daje zajmoprimcu na zajam novac u iznosu od
         <span id="iznosEur"></span> eura koji mu je potreban da bi zajmoprimac
-        isplatio <span id="svrhaText"></span>.
+        isplatio <span id="svrhaText"></span>. Novac će biti uplaćen na žiro
+        račun firme broj <span id="ziroRacun"></span>.
       </div>
 
       <div class="clan-broj">Član 2.</div>
@@ -307,6 +308,8 @@
           pozajmica.firma_adresa || '';
         document.getElementById('firmaPib').textContent =
           pozajmica.firma_pib || '';
+        document.getElementById('ziroRacun').textContent =
+          pozajmica.firma_ziro_racun || '';
 
         // Radnik (zajmodavac) podaci
         const zajmodavacIme = `${pozajmica.radnik_ime || ''} ${

@@ -889,7 +889,6 @@ function generateFormalPlan() {
 </head>
 <body>
   <div class="header">
-    <div class="subtitle">NZ:25.1/${selectedYear}</div>
     <p class="legal-basis">Na osnovu čl. 83 stav1, a u skladu sa Zakona o radu ("Službeni list Crne Gore", br. 074/19,8/21,59/21,68/21,145/21) I Opštim kolektivnim ugovorom I u skladu sa potrebama poslovanja, dana ${getFirstWorkingDay(
       selectedYear
     )} donosi se sledeći</p>

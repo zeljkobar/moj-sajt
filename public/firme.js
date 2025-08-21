@@ -9,7 +9,7 @@
 
 let allFirms = [];
 let filteredFirms = [];
-let currentFilter = "all";
+let currentFilter = 'all';
 let currentPib = null;
 let originalStatus = null;
 
@@ -17,19 +17,19 @@ let originalStatus = null;
 // INICIJALIZACIJA
 // =============================================================================
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   const currentPage = getCurrentPage();
 
   switch (currentPage) {
-    case "firme":
+    case 'firme':
       loadFirms();
       setupEventListeners();
 
       // Čitaj search parametar iz URL-a i postavi ga u search input
       const urlParams = new URLSearchParams(window.location.search);
-      const searchQuery = urlParams.get("search");
+      const searchQuery = urlParams.get('search');
       if (searchQuery) {
-        const searchInput = document.getElementById("searchInput");
+        const searchInput = document.getElementById('searchInput');
         if (searchInput) {
           searchInput.value = searchQuery;
           // Pokreni filter da se primeni search
@@ -37,10 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
       break;
-    case "dodaj-firmu":
+    case 'dodaj-firmu':
       initAddFirmPage();
       break;
-    case "edit-firmu":
+    case 'edit-firmu':
       initEditFirmPage();
       break;
   }
@@ -48,9 +48,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function getCurrentPage() {
   const path = window.location.pathname;
-  if (path.includes("firme.html")) return "firme";
-  if (path.includes("dodaj-firmu.html")) return "dodaj-firmu";
-  if (path.includes("edit-firmu.html")) return "edit-firmu";
+  if (path.includes('firme.html')) return 'firme';
+  if (path.includes('dodaj-firmu.html')) return 'dodaj-firmu';
+  if (path.includes('edit-firmu.html')) return 'edit-firmu';
   return null;
 }
 
@@ -60,20 +60,20 @@ function getCurrentPage() {
 
 function setupEventListeners() {
   // Search funkcionalnost
-  const searchInput = document.getElementById("searchInput");
+  const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener("input", function (e) {
+    searchInput.addEventListener('input', function (e) {
       filterFirms();
     });
   }
 
   // Tab filtering
-  document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", function () {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
       document
-        .querySelectorAll(".tab-btn")
-        .forEach((b) => b.classList.remove("active"));
-      this.classList.add("active");
+        .querySelectorAll('.tab-btn')
+        .forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
       currentFilter = this.dataset.filter;
       filterFirms();
     });
@@ -82,13 +82,13 @@ function setupEventListeners() {
 
 async function loadFirms() {
   try {
-    const loadingSpinner = document.querySelector(".loading-spinner");
+    const loadingSpinner = document.querySelector('.loading-spinner');
     if (loadingSpinner) {
-      loadingSpinner.style.display = "block";
+      loadingSpinner.style.display = 'block';
     }
 
-    const response = await fetch("/api/firme", {
-      credentials: "include",
+    const response = await fetch('/api/firme', {
+      credentials: 'include',
     });
     const data = await response.json();
 
@@ -96,27 +96,27 @@ async function loadFirms() {
     updateCounts();
     filterFirms();
   } catch (error) {
-    console.error("Greška pri učitavanju firmi:", error);
-    const container = document.getElementById("firmsContainer");
+    console.error('Greška pri učitavanju firmi:', error);
+    const container = document.getElementById('firmsContainer');
     if (container) {
       container.innerHTML =
         '<div class="alert alert-danger">Greška pri učitavanju firmi</div>';
     }
   } finally {
-    const loadingSpinner = document.querySelector(".loading-spinner");
+    const loadingSpinner = document.querySelector('.loading-spinner');
     if (loadingSpinner) {
-      loadingSpinner.style.display = "none";
+      loadingSpinner.style.display = 'none';
     }
   }
 }
 
 function updateCounts() {
-  const activeFirms = allFirms.filter((f) => f.status === "aktivan");
-  const zeroFirms = allFirms.filter((f) => f.status === "nula");
+  const activeFirms = allFirms.filter(f => f.status === 'aktivan');
+  const zeroFirms = allFirms.filter(f => f.status === 'nula');
 
-  const totalCount = document.getElementById("totalCount");
-  const activeCount = document.getElementById("activeCount");
-  const zeroCount = document.getElementById("zeroCount");
+  const totalCount = document.getElementById('totalCount');
+  const activeCount = document.getElementById('activeCount');
+  const zeroCount = document.getElementById('zeroCount');
 
   if (totalCount) totalCount.textContent = allFirms.length;
   if (activeCount) activeCount.textContent = activeFirms.length;
@@ -124,21 +124,21 @@ function updateCounts() {
 }
 
 function filterFirms() {
-  const searchInput = document.getElementById("searchInput");
-  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+  const searchInput = document.getElementById('searchInput');
+  const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
 
   // Filter by status
   let firms = allFirms;
-  if (currentFilter === "active") {
-    firms = allFirms.filter((f) => f.status === "aktivan");
-  } else if (currentFilter === "zero") {
-    firms = allFirms.filter((f) => f.status === "nula");
+  if (currentFilter === 'active') {
+    firms = allFirms.filter(f => f.status === 'aktivan');
+  } else if (currentFilter === 'zero') {
+    firms = allFirms.filter(f => f.status === 'nula');
   }
 
   // Filter by search term
   if (searchTerm) {
     firms = firms.filter(
-      (firm) =>
+      firm =>
         firm.naziv.toLowerCase().includes(searchTerm) ||
         firm.pib.includes(searchTerm) ||
         firm.adresa.toLowerCase().includes(searchTerm) ||
@@ -151,22 +151,22 @@ function filterFirms() {
 }
 
 function renderFirms() {
-  const container = document.getElementById("firmsContainer");
-  const noResults = document.querySelector(".no-results");
+  const container = document.getElementById('firmsContainer');
+  const noResults = document.querySelector('.no-results');
 
   if (!container) return;
 
   if (filteredFirms.length === 0) {
-    container.innerHTML = "";
-    if (noResults) noResults.classList.remove("d-none");
+    container.innerHTML = '';
+    if (noResults) noResults.classList.remove('d-none');
     return;
   }
 
-  if (noResults) noResults.classList.add("d-none");
+  if (noResults) noResults.classList.add('d-none');
 
   const firmsHtml = filteredFirms
     .map(
-      (firm) => `
+      firm => `
     <div class="firm-card card firma-row-clickable" onclick="viewFirmaDetalji(${
       firm.id
     })">
@@ -175,7 +175,7 @@ function renderFirms() {
           <div class="col-md-7">
             <h5 class="card-title mb-2">
               <span class="firm-status ${
-                firm.status === "aktivan" ? "status-active" : "status-zero"
+                firm.status === 'aktivan' ? 'status-active' : 'status-zero'
               }"></span>
               ${firm.naziv}
             </h5>
@@ -184,24 +184,24 @@ function renderFirms() {
             ${
               firm.pdvBroj
                 ? `<p class="mb-1"><strong>PDV broj:</strong> ${firm.pdvBroj}</p>`
-                : ""
+                : ''
             }
             ${
               firm.direktor_ime_prezime
                 ? `<p class="mb-1"><strong>Direktor:</strong> ${firm.direktor_ime_prezime}</p>`
-                : ""
+                : ''
             }
             ${
               firm.direktor_jmbg
                 ? `<p class="mb-0"><strong>JMBG direktora:</strong> ${firm.direktor_jmbg}</p>`
-                : ""
+                : ''
             }
           </div>
           <div class="col-md-3 text-md-center">
             <span class="badge ${
-              firm.status === "aktivan" ? "bg-success" : "bg-warning"
+              firm.status === 'aktivan' ? 'bg-success' : 'bg-warning'
             } fs-6 px-3 py-2">
-              ${firm.status === "aktivan" ? "Aktivna" : "Na nuli"}
+              ${firm.status === 'aktivan' ? 'Aktivna' : 'Na nuli'}
             </span>
           </div>
           <div class="col-md-2 text-md-end">
@@ -221,7 +221,7 @@ function renderFirms() {
               </button>
               <button class="btn btn-sm btn-outline-danger delete-btn" data-pib="${
                 firm.pib
-              }" data-naziv="${firm.naziv.replace(/"/g, "&quot;")}">
+              }" data-naziv="${firm.naziv.replace(/"/g, '&quot;')}">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -231,19 +231,19 @@ function renderFirms() {
     </div>
   `
     )
-    .join("");
+    .join('');
 
   container.innerHTML = firmsHtml;
 
   // Add event listeners directly to each delete button
-  const deleteButtons = document.querySelectorAll(".delete-btn");
-  deleteButtons.forEach((btn) => {
-    btn.addEventListener("click", function (e) {
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
 
-      const pib = this.getAttribute("data-pib");
-      const naziv = this.getAttribute("data-naziv");
+      const pib = this.getAttribute('data-pib');
+      const naziv = this.getAttribute('data-naziv');
 
       if (pib && naziv) {
         deleteFirm(pib, naziv);
@@ -264,43 +264,43 @@ async function deleteFirm(pib, naziv) {
   }
 
   try {
-    console.log("Šalje DELETE zahtev za PIB:", pib);
+    console.log('Šalje DELETE zahtev za PIB:', pib);
 
     // Pokušaj prvo sa DELETE metodom
     let response = await fetch(`/api/firme/${pib}`, {
-      method: "DELETE",
-      credentials: "include", // Dodao credentials za sesiju
+      method: 'DELETE',
+      credentials: 'include', // Dodao credentials za sesiju
     });
 
     // Ako DELETE ne radi (405), pokušaj sa POST fallback
     if (response.status === 405) {
-      console.log("DELETE metoda nije podržana, koristim POST fallback");
+      console.log('DELETE metoda nije podržana, koristim POST fallback');
       response = await fetch(`/api/firme/${pib}/delete`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include", // Dodao credentials za sesiju
+        credentials: 'include', // Dodao credentials za sesiju
       });
     }
 
     const result = await response.json();
-    console.log("Response:", { status: response.status, result });
+    console.log('Response:', { status: response.status, result });
 
     if (response.ok) {
       // Remove firm from local array
-      allFirms = allFirms.filter((f) => f.pib !== pib);
+      allFirms = allFirms.filter(f => f.pib !== pib);
       updateCounts();
       filterFirms();
 
       // Show success message
       alert(`Firma "${naziv}" je uspešno obrisana!`);
     } else {
-      alert(result.message || "Greška pri brisanju firme");
+      alert(result.message || 'Greška pri brisanju firme');
     }
   } catch (error) {
-    console.error("Error deleting firm:", error);
-    alert("Greška pri komunikaciji sa serverom");
+    console.error('Error deleting firm:', error);
+    alert('Greška pri komunikaciji sa serverom');
   }
 }
 
@@ -314,18 +314,18 @@ function initAddFirmPage() {
 }
 
 function setupStatusSelection() {
-  const statusCards = document.querySelectorAll(".status-card");
-  const statusInput = document.getElementById("status");
+  const statusCards = document.querySelectorAll('.status-card');
+  const statusInput = document.getElementById('status');
 
   if (!statusCards.length || !statusInput) return;
 
-  statusCards.forEach((card) => {
-    card.addEventListener("click", function () {
+  statusCards.forEach(card => {
+    card.addEventListener('click', function () {
       // Remove selected class from all cards
-      statusCards.forEach((c) => c.classList.remove("selected"));
+      statusCards.forEach(c => c.classList.remove('selected'));
 
       // Add selected class to clicked card
-      this.classList.add("selected");
+      this.classList.add('selected');
 
       // Set hidden input value
       statusInput.value = this.dataset.status;
@@ -334,42 +334,43 @@ function setupStatusSelection() {
 }
 
 function setupFormSubmit() {
-  const form = document.getElementById("firmForm");
+  const form = document.getElementById('firmForm');
   if (!form) return;
 
-  form.addEventListener("submit", async function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const formData = new FormData(form);
     const data = {
-      naziv: formData.get("naziv"),
-      pib: formData.get("pib"),
-      adresa: formData.get("adresa"),
-      grad: formData.get("grad"),
-      pdvBroj: formData.get("pdvBroj"),
-      telefon: formData.get("telefon"),
-      email: formData.get("email"),
-      direktor_ime_prezime: formData.get("direktorImePrezime"),
-      direktor_jmbg: formData.get("direktorJmbg"),
-      status: formData.get("status"),
+      naziv: formData.get('naziv'),
+      pib: formData.get('pib'),
+      adresa: formData.get('adresa'),
+      grad: formData.get('grad'),
+      pdvBroj: formData.get('pdvBroj'),
+      ziro_racun: formData.get('ziroRacun'),
+      telefon: formData.get('telefon'),
+      email: formData.get('email'),
+      direktor_ime_prezime: formData.get('direktorImePrezime'),
+      direktor_jmbg: formData.get('direktorJmbg'),
+      status: formData.get('status'),
     };
 
     // Validation
     if (!data.status) {
-      showError("Molimo izaberite status firme");
+      showError('Molimo izaberite status firme');
       return;
     }
 
     try {
       // Koristi uvek isti endpoint za dodavanje firmi, bez obzira na status
-      const endpoint = "/api/firme";
+      const endpoint = '/api/firme';
 
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include", // Dodao credentials za sesiju
+        credentials: 'include', // Dodao credentials za sesiju
         body: JSON.stringify(data),
       });
 
@@ -379,19 +380,19 @@ function setupFormSubmit() {
         showSuccess(`Firma "${data.naziv}" je uspešno dodana!`);
         form.reset();
         document
-          .querySelectorAll(".status-card")
-          .forEach((c) => c.classList.remove("selected"));
+          .querySelectorAll('.status-card')
+          .forEach(c => c.classList.remove('selected'));
 
         // Redirect to firms list after 2 seconds
         setTimeout(() => {
-          window.location.href = "/firme.html";
+          window.location.href = '/firme.html';
         }, 2000);
       } else {
-        showError(result.message || "Greška pri dodavanju firme");
+        showError(result.message || 'Greška pri dodavanju firme');
       }
     } catch (error) {
-      console.error("Error:", error);
-      showError("Greška pri komunikaciji sa serverom");
+      console.error('Error:', error);
+      showError('Greška pri komunikaciji sa serverom');
     }
   });
 }
@@ -401,14 +402,14 @@ function setupFormSubmit() {
 // =============================================================================
 
 function initEditFirmPage() {
-  console.log("initEditFirmPage pozvana");
+  console.log('initEditFirmPage pozvana');
   const urlParams = new URLSearchParams(window.location.search);
-  currentPib = urlParams.get("pib");
-  console.log("PIB iz URL-a:", currentPib);
+  currentPib = urlParams.get('pib');
+  console.log('PIB iz URL-a:', currentPib);
 
   if (!currentPib) {
-    console.error("PIB firme nije specificiran u URL-u");
-    showError("PIB firme nije specificiran");
+    console.error('PIB firme nije specificiran u URL-u');
+    showError('PIB firme nije specificiran');
     return;
   }
 
@@ -419,54 +420,56 @@ function initEditFirmPage() {
 
 async function loadFirmData() {
   try {
-    console.log("Učitavam podatke za PIB:", currentPib);
+    console.log('Učitavam podatke za PIB:', currentPib);
     const response = await fetch(`/api/firme/${currentPib}`, {
-      credentials: "include",
+      credentials: 'include',
     });
 
     if (response.status === 401) {
       // Korisnik nije ulogovan - preusmeri na početnu sa porukom
-      alert("Niste ulogovani. Molimo prijavite se prvo.");
-      window.location.href = "/";
+      alert('Niste ulogovani. Molimo prijavite se prvo.');
+      window.location.href = '/';
       return;
     }
 
     if (!response.ok) {
-      throw new Error("Firma nije pronađena");
+      throw new Error('Firma nije pronađena');
     }
 
     const data = await response.json();
-    console.log("Podaci primljeni:", data);
+    console.log('Podaci primljeni:', data);
 
     // Backend vraća { firma: {...} }
     const firm = data.firma || data;
-    console.log("Firma objekat:", firm);
-    console.log("Telefon iz baze:", firm.telefon);
-    console.log("Email iz baze:", firm.email);
-    console.log("Grad iz baze:", firm.grad);
+    console.log('Firma objekat:', firm);
+    console.log('Telefon iz baze:', firm.telefon);
+    console.log('Email iz baze:', firm.email);
+    console.log('Grad iz baze:', firm.grad);
 
     // Populate form
-    const nazivInput = document.getElementById("naziv");
-    const pibInput = document.getElementById("pib");
-    const adresaInput = document.getElementById("adresa");
-    const gradInput = document.getElementById("grad");
-    const pdvBrojInput = document.getElementById("pdvBroj");
-    const telefonInput = document.getElementById("telefon");
-    const emailInput = document.getElementById("email");
-    const direktorImeInput = document.getElementById("direktorImePrezime");
-    const direktorJmbgInput = document.getElementById("direktorJmbg");
-    const statusInput = document.getElementById("status");
+    const nazivInput = document.getElementById('naziv');
+    const pibInput = document.getElementById('pib');
+    const adresaInput = document.getElementById('adresa');
+    const gradInput = document.getElementById('grad');
+    const pdvBrojInput = document.getElementById('pdvBroj');
+    const ziroRacunInput = document.getElementById('ziroRacun');
+    const telefonInput = document.getElementById('telefon');
+    const emailInput = document.getElementById('email');
+    const direktorImeInput = document.getElementById('direktorImePrezime');
+    const direktorJmbgInput = document.getElementById('direktorJmbg');
+    const statusInput = document.getElementById('status');
 
-    if (nazivInput) nazivInput.value = firm.naziv || "";
-    if (pibInput) pibInput.value = firm.pib || "";
-    if (adresaInput) adresaInput.value = firm.adresa || "";
-    if (gradInput) gradInput.value = firm.grad || "";
-    if (pdvBrojInput) pdvBrojInput.value = firm.pdvBroj || "";
-    if (telefonInput) telefonInput.value = firm.telefon || "";
-    if (emailInput) emailInput.value = firm.email || "";
+    if (nazivInput) nazivInput.value = firm.naziv || '';
+    if (pibInput) pibInput.value = firm.pib || '';
+    if (adresaInput) adresaInput.value = firm.adresa || '';
+    if (gradInput) gradInput.value = firm.grad || '';
+    if (pdvBrojInput) pdvBrojInput.value = firm.pdvBroj || '';
+    if (ziroRacunInput) ziroRacunInput.value = firm.ziro_racun || '';
+    if (telefonInput) telefonInput.value = firm.telefon || '';
+    if (emailInput) emailInput.value = firm.email || '';
     if (direktorImeInput)
-      direktorImeInput.value = firm.direktor_ime_prezime || "";
-    if (direktorJmbgInput) direktorJmbgInput.value = firm.direktor_jmbg || "";
+      direktorImeInput.value = firm.direktor_ime_prezime || '';
+    if (direktorJmbgInput) direktorJmbgInput.value = firm.direktor_jmbg || '';
 
     // Set status
     originalStatus = firm.status;
@@ -475,55 +478,56 @@ async function loadFirmData() {
     // Select appropriate status card
     const statusCard = document.querySelector(`[data-status="${firm.status}"]`);
     if (statusCard) {
-      statusCard.classList.add("selected");
+      statusCard.classList.add('selected');
     }
 
     // Show form, hide loading
-    const loadingMessage = document.getElementById("loadingMessage");
-    const formContainer = document.getElementById("formContainer");
+    const loadingMessage = document.getElementById('loadingMessage');
+    const formContainer = document.getElementById('formContainer');
 
-    if (loadingMessage) loadingMessage.style.display = "none";
-    if (formContainer) formContainer.style.display = "block";
+    if (loadingMessage) loadingMessage.style.display = 'none';
+    if (formContainer) formContainer.style.display = 'block';
   } catch (error) {
-    console.error("Error loading firm:", error);
-    showError("Greška pri učitavanju podataka o firmi");
+    console.error('Error loading firm:', error);
+    showError('Greška pri učitavanju podataka o firmi');
 
-    const loadingMessage = document.getElementById("loadingMessage");
-    if (loadingMessage) loadingMessage.style.display = "none";
+    const loadingMessage = document.getElementById('loadingMessage');
+    if (loadingMessage) loadingMessage.style.display = 'none';
   }
 }
 
 function setupEditFormSubmit() {
-  const form = document.getElementById("firmForm");
+  const form = document.getElementById('firmForm');
   if (!form) {
     console.error("Form 'firmForm' nije pronađen na stranici");
     return;
   }
 
-  console.log("Form za edit je pronađen i setup je završen");
+  console.log('Form za edit je pronađen i setup je završen');
 
-  form.addEventListener("submit", async function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    console.log("Form submit event pokrennut");
+    console.log('Form submit event pokrennut');
 
     const formData = new FormData(form);
     const data = {
-      naziv: formData.get("naziv"),
-      pib: formData.get("pib"),
-      adresa: formData.get("adresa"),
-      grad: formData.get("grad"),
-      pdvBroj: formData.get("pdvBroj"),
-      telefon: formData.get("telefon"),
-      email: formData.get("email"),
-      direktor_ime_prezime: formData.get("direktorImePrezime"),
-      direktor_jmbg: formData.get("direktorJmbg"),
-      status: formData.get("status"),
+      naziv: formData.get('naziv'),
+      pib: formData.get('pib'),
+      adresa: formData.get('adresa'),
+      grad: formData.get('grad'),
+      pdvBroj: formData.get('pdvBroj'),
+      ziro_racun: formData.get('ziroRacun'),
+      telefon: formData.get('telefon'),
+      email: formData.get('email'),
+      direktor_ime_prezime: formData.get('direktorImePrezime'),
+      direktor_jmbg: formData.get('direktorJmbg'),
+      status: formData.get('status'),
     };
 
-    console.log("Podaci iz forme:", data);
+    console.log('Podaci iz forme:', data);
 
     if (!data.status) {
-      showError("Molimo izaberite status firme");
+      showError('Molimo izaberite status firme');
       return;
     }
 
@@ -532,42 +536,42 @@ function setupEditFormSubmit() {
 
       // Pokušaj prvo sa PUT metodom
       let response = await fetch(`/api/firme/${currentPib}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
       // Ako PUT ne radi (405), pokušaj sa POST fallback
       if (response.status === 405) {
-        console.log("PUT metoda nije podržana, koristim POST fallback");
+        console.log('PUT metoda nije podržana, koristim POST fallback');
         response = await fetch(`/api/firme/${currentPib}/edit`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
           body: JSON.stringify(data),
         });
       }
 
       const result = await response.json();
-      console.log("Response:", { status: response.status, result });
+      console.log('Response:', { status: response.status, result });
 
       if (response.ok) {
         showSuccess(`Firma "${data.naziv}" je uspešno ažurirana!`);
 
         setTimeout(() => {
-          window.location.href = "/firme.html";
+          window.location.href = '/firme.html';
         }, 2000);
       } else {
-        showError(result.message || "Greška pri ažuriranju firme");
+        showError(result.message || 'Greška pri ažuriranju firme');
       }
     } catch (error) {
-      console.error("Error:", error);
-      showError("Greška pri komunikaciji sa serverom");
+      console.error('Error:', error);
+      showError('Greška pri komunikaciji sa serverom');
     }
   });
 }
@@ -577,16 +581,16 @@ function setupEditFormSubmit() {
 // =============================================================================
 
 function showSuccess(message) {
-  const successDiv = document.getElementById("successMessage");
-  const successText = document.getElementById("successText");
+  const successDiv = document.getElementById('successMessage');
+  const successText = document.getElementById('successText');
 
   if (successDiv && successText) {
     successText.textContent = message;
-    successDiv.style.display = "block";
+    successDiv.style.display = 'block';
 
     // Hide error message if visible
-    const errorDiv = document.getElementById("errorMessage");
-    if (errorDiv) errorDiv.style.display = "none";
+    const errorDiv = document.getElementById('errorMessage');
+    if (errorDiv) errorDiv.style.display = 'none';
 
     // Scroll to top
     window.scrollTo(0, 0);
@@ -594,16 +598,16 @@ function showSuccess(message) {
 }
 
 function showError(message) {
-  const errorDiv = document.getElementById("errorMessage");
-  const errorText = document.getElementById("errorText");
+  const errorDiv = document.getElementById('errorMessage');
+  const errorText = document.getElementById('errorText');
 
   if (errorDiv && errorText) {
     errorText.textContent = message;
-    errorDiv.style.display = "block";
+    errorDiv.style.display = 'block';
 
     // Hide success message if visible
-    const successDiv = document.getElementById("successMessage");
-    if (successDiv) successDiv.style.display = "none";
+    const successDiv = document.getElementById('successMessage');
+    if (successDiv) successDiv.style.display = 'none';
 
     // Scroll to top
     window.scrollTo(0, 0);

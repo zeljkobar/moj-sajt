@@ -217,7 +217,7 @@ function updateRadniciTable() {
   });
 
   tabela.innerHTML = html;
-  
+
   // Ažuriraj statistike nakon što su radnici učitani
   updateDashboardStats();
 }
@@ -244,11 +244,7 @@ async function loadInitialData() {
     showPreloader();
 
     // Prvo učitaj osnovne podatke
-    await Promise.all([
-      loadFirmaInfo(),
-      loadRadniciStatus(),
-      loadOdmoriData(),
-    ]);
+    await Promise.all([loadFirmaInfo(), loadRadniciStatus(), loadOdmoriData()]);
 
     // Zatim ažuriraj statistike kada su podaci učitani
     await loadDashboardStats();
@@ -333,8 +329,10 @@ function updateDashboardStats() {
   const odobreniOvajMesec = odmoríData.filter(o => {
     if (o.status !== 'odobren') return false;
     const datumOd = new Date(o.datum_od);
-    return datumOd.getMonth() + 1 === trenutniMesec && 
-           datumOd.getFullYear() === trenutnaGodina;
+    return (
+      datumOd.getMonth() + 1 === trenutniMesec &&
+      datumOd.getFullYear() === trenutnaGodina
+    );
   }).length;
   const odobreniElement = document.getElementById('odobreniMjesec');
   if (odobreniElement) {
@@ -654,19 +652,24 @@ async function viewRadnikDetails(radnikId) {
     }
 
     // Učitaj odmor podatke za radnika
-    const odmorResponse = await fetch(`/api/godisnji-odmori/${currentFirmaId}`, {
-      credentials: 'include'
-    });
-    
+    const odmorResponse = await fetch(
+      `/api/godisnji-odmori/${currentFirmaId}`,
+      {
+        credentials: 'include',
+      }
+    );
+
     if (!odmorResponse.ok) {
       if (odmorResponse.status === 401) {
         alert('Morate se ulogirati da biste pristupili ovoj stranici.');
         window.location.href = '/prijava.html';
         return;
       }
-      throw new Error(`HTTP ${odmorResponse.status}: ${odmorResponse.statusText}`);
+      throw new Error(
+        `HTTP ${odmorResponse.status}: ${odmorResponse.statusText}`
+      );
     }
-    
+
     const sviOdmori = await odmorResponse.json();
     const radnikOdmori = sviOdmori.filter(o => o.radnik_id === radnikId);
 

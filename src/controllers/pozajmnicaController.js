@@ -287,6 +287,7 @@ exports.getPozajmicaById = async (req, res) => {
               f.naziv as firma_naziv,
               f.adresa as firma_adresa,
               f.pib as firma_pib,
+              f.ziro_racun as firma_ziro_racun,
               f.direktor_ime_prezime as direktor_ime_prezime,
               f.direktor_jmbg as direktor_jmbg,
               f.grad as firma_grad,
