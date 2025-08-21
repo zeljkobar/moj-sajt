@@ -240,13 +240,15 @@ async function loadInitialData() {
   try {
     showPreloader();
 
-    // Paralelno učitavanje podataka
+    // Prvo učitaj osnovne podatke
     await Promise.all([
       loadFirmaInfo(),
       loadRadniciStatus(),
       loadOdmoriData(),
-      loadDashboardStats(),
     ]);
+
+    // Zatim ažuriraj statistike kada su podaci učitani
+    await loadDashboardStats();
   } catch (error) {
     console.error('❌ Greška pri učitavanju podataka:', error);
     showError('Greška pri učitavanju podataka godišnjih odmora');
@@ -297,7 +299,77 @@ async function loadRadniciStatus() {
   }
 }
 
-async function loadDashboardStats() {}
+async function loadDashboardStats() {
+  try {
+    // Izračunaj statistike na osnovu učitanih podataka
+    updateDashboardStats();
+  } catch (error) {
+    console.error('❌ Greška pri učitavanju statistika:', error);
+  }
+}
+
+// Funkcija za ažuriranje dashboard statistika
+function updateDashboardStats() {
+  console.log('🔢 Ažuriram statistike...');
+  console.log('📊 Radnici:', radniciData.length);
+  console.log('🏖️ Odmori:', odmoríData.length);
+  
+  // Ukupno radnika
+  const ukupnoRadnika = radniciData.length;
+  const ukupnoRadnikaElement = document.getElementById('ukupnoRadnika');
+  if (ukupnoRadnikaElement) {
+    ukupnoRadnikaElement.textContent = ukupnoRadnika;
+    console.log('✅ Postavljen ukupno radnika:', ukupnoRadnika);
+  } else {
+    console.error('❌ Element ukupnoRadnika nije pronađen');
+  }
+
+  // Na čekanju (odmori sa statusom 'na_cekanju')
+  const naCekanju = odmoríData.filter(o => o.status === 'na_cekanju').length;
+  const naCekanjuElement = document.getElementById('naCekanju');
+  if (naCekanjuElement) {
+    naCekanjuElement.textContent = naCekanju;
+    console.log('✅ Postavljen na čekanju:', naCekanju);
+  } else {
+    console.error('❌ Element naCekanju nije pronađen');
+  }
+
+  // Odobreni ovaj mesec (odobreni odmori u tekućem mesecu)
+  const trenutniMesec = new Date().getMonth() + 1;
+  const trenutnaGodina = new Date().getFullYear();
+  const odobreniOvajMesec = odmoríData.filter(o => {
+    if (o.status !== 'odobren') return false;
+    const datumOd = new Date(o.datum_od);
+    return datumOd.getMonth() + 1 === trenutniMesec && 
+           datumOd.getFullYear() === trenutnaGodina;
+  }).length;
+  const odobreniElement = document.getElementById('odobreniMjesec');
+  if (odobreniElement) {
+    odobreniElement.textContent = odobreniOvajMesec;
+    console.log('✅ Postavljen odobreni ovaj mesec:', odobreniOvajMesec);
+  } else {
+    console.error('❌ Element odobreniMjesec nije pronađen');
+  }
+
+  // Ukupno dana iskorišćeno (suma dana za sve odobrene odmori)
+  const ukupnoDanaKorisceno = odmoríData
+    .filter(o => o.status === 'odobren')
+    .reduce((total, odmor) => {
+      const datumOd = new Date(odmor.datum_od);
+      const datumDo = new Date(odmor.datum_do);
+      const dani = Math.floor((datumDo - datumOd) / (1000 * 60 * 60 * 24)) + 1;
+      return total + dani;
+    }, 0);
+  const ukupnoDanaElement = document.getElementById('ukupnoDanaKorisceno');
+  if (ukupnoDanaElement) {
+    ukupnoDanaElement.textContent = ukupnoDanaKorisceno;
+    console.log('✅ Postavljen ukupno dana:', ukupnoDanaKorisceno);
+  } else {
+    console.error('❌ Element ukupnoDanaKorisceno nije pronađen');
+  }
+  
+  console.log('🏁 Statistike ažurirane');
+}
 
 function showPreloader() {
   const preloader = document.getElementById('preloader');
