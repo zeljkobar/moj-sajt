@@ -231,7 +231,7 @@
           <div style="margin-left: 20px" id="odmorOptions">
             <!-- Opcija A - ceo godišnji odmor odjednom -->
             <p id="opcijaA" style="display: none">
-              A) u jednom dijelu i to od
+              u jednom dijelu i to od
               <span class="date-line" id="datumOdText"></span> do
               <span class="date-line" id="datumDoText"></span>, s tim da se
               ima<br />
@@ -241,7 +241,7 @@
 
             <!-- Opcija B - deo godišnjeg odmora -->
             <p id="opcijaB" style="display: none">
-              B) U dva dijela s tim što će:<br />
+              U dva dijela s tim što će:<br />
               - prvi dio godišnjeg odmora u trajanju od
               <span id="brojDanaOvajDeo"></span> dana koristiti od
               <span class="date-line" id="datumOdText2"></span><br />
@@ -392,7 +392,8 @@
           datumPovratka.toLocaleDateString('sr-RS');
 
         // Fill in total days - use ukupno_dana from database or calculate based on subota
-        const ukupnoDanaZaGodinu = odmorData.ukupno_dana || (odmorData.subota ? 24 : 20);
+        const ukupnoDanaZaGodinu =
+          odmorData.ukupno_dana || (odmorData.subota ? 24 : 20);
         document.getElementById(
           'ukupnoDanaText'
         ).textContent = `${ukupnoDanaZaGodinu} radna dana`;
@@ -411,7 +412,8 @@
 
           // Fill in option B specific data
           const brojDanaZahteva = parseInt(odmorData.broj_dana);
-          document.getElementById('brojDanaOvajDeo').textContent = brojDanaZahteva;
+          document.getElementById('brojDanaOvajDeo').textContent =
+            brojDanaZahteva;
           document.getElementById('preostaliDani').textContent =
             ukupnoDanaZaGodinu - ukupnoIskorisceno;
 
