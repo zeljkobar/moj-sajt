@@ -14,7 +14,7 @@
     />
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         background-color: #f8f9fa;
         padding: 20px;
       }
@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <div class="title">IZJAVA O SPREČAVANJU MOBINGA NA RADNOM MESTU</div>
+      <div class="title">IZJAVA O SPREČAVANJU MOBINGA NA RADNOM MJESTU</div>
 
       <div class="content">
         <p>
@@ -143,10 +143,10 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const radnikId = urlParams.get("radnikId");
-        const firmaId = urlParams.get("firmaId");
+        const radnikId = urlParams.get('radnikId');
+        const firmaId = urlParams.get('firmaId');
 
         if (radnikId && firmaId) {
           loadData(radnikId, firmaId);
@@ -164,21 +164,21 @@
           const firma = await firmaResponse.json();
 
           // Popuni dokument
-          document.getElementById("firmaNaziv").textContent = firma.naziv;
+          document.getElementById('firmaNaziv').textContent = firma.naziv;
           document.getElementById(
-            "firmaAdresa"
+            'firmaAdresa'
           ).textContent = `PIB: ${firma.pib} | ${firma.adresa}`;
-          document.getElementById("firmaNazivText").textContent = firma.naziv;
+          document.getElementById('firmaNazivText').textContent = firma.naziv;
 
           document.getElementById(
-            "radnikIme"
+            'radnikIme'
           ).textContent = `${radnik.ime} ${radnik.prezime}`;
-          document.getElementById("radnikJmbg").textContent = radnik.jmbg;
+          document.getElementById('radnikJmbg').textContent = radnik.jmbg;
           document.getElementById(
-            "radnikImePotpis"
+            'radnikImePotpis'
           ).textContent = `${radnik.ime} ${radnik.prezime}`;
         } catch (error) {
-          console.error("Greška pri učitavanju podataka:", error);
+          console.error('Greška pri učitavanju podataka:', error);
         }
       }
     </script>

@@ -173,9 +173,6 @@
                 >
                   <i class="fas fa-calendar-alt me-2"></i>Godišnji odmori
                 </button>
-                <button class="btn btn-warning quick-action-btn">
-                  <i class="fas fa-file-alt me-2"></i>Potvrda o zaposlenju
-                </button>
                 <button
                   class="btn btn-secondary quick-action-btn"
                   onclick="window.open(createJPRUrl(currentFirmaData), '_blank')"
@@ -203,9 +200,6 @@
                 >
                   <i class="fas fa-file-export me-2"></i>Generiši poresku
                   prijavu
-                </button>
-                <button class="btn btn-warning quick-action-btn">
-                  <i class="fas fa-calendar-check me-2"></i>Proveri rokove
                 </button>
               </div>
             </div>
@@ -722,7 +716,28 @@
                   <p class="text-muted mb-2">
                     Automatska PDV prijava za upload
                   </p>
-                  <button class="btn btn-primary btn-sm">Generiši</button>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    onclick="window.open(`/pdv_prijava/index.html?firmaId=${currentFirmaId}`, '_blank')"
+                  >
+                    Generiši
+                  </button>
+                </div>
+
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-file-export text-info me-2"></i>Poreska
+                    prijava
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Generiši poresku prijavu za firmu
+                  </p>
+                  <button
+                    class="btn btn-info btn-sm"
+                    onclick="window.open(`/dobit_prijava/index.html?firmaId=${currentFirmaId}`, '_blank')"
+                  >
+                    Generiši
+                  </button>
                 </div>
 
                 <!-- Ovlašćenje - samo za agencije i admine -->
