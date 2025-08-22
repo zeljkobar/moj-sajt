@@ -110,6 +110,7 @@ class Navigation {
                   <span id="navbar-username">Korisnik</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="moj-profil.html"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
                   <li><a class="dropdown-item" href="edit-profil.html"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Odjavi se</a></li>

@@ -124,57 +124,117 @@
       <!-- Statistike -->
       <div class="row mb-4">
         <div class="col-md-3 mb-3">
-          <div class="stat-card">
-            <div class="d-flex align-items-center">
-              <div class="flex-grow-1">
-                <div class="stat-number text-primary">
-                  <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Učitavanje...</span>
+          <a
+            href="firme.html"
+            class="text-decoration-none"
+            style="color: inherit"
+          >
+            <div
+              class="stat-card"
+              style="
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+              "
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,123,255,0.2)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
+            >
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <div class="stat-number text-primary">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
                   </div>
+                  <h6 class="text-muted mb-0">
+                    Ukupno firmi
+                    <i
+                      class="fas fa-external-link-alt ms-1 text-muted"
+                      style="font-size: 0.7rem"
+                    ></i>
+                  </h6>
                 </div>
-                <h6 class="text-muted mb-0">Ukupno firmi</h6>
-              </div>
-              <div class="text-primary">
-                <i class="fas fa-building fa-2x"></i>
+                <div class="text-primary">
+                  <i class="fas fa-building fa-2x"></i>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="col-md-3 mb-3">
-          <div class="stat-card warning">
-            <div class="d-flex align-items-center">
-              <div class="flex-grow-1">
-                <div class="stat-number text-warning">
-                  <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Učitavanje...</span>
+          <a
+            href="firme.html?filter=active"
+            class="text-decoration-none"
+            style="color: inherit"
+          >
+            <div
+              class="stat-card warning"
+              style="
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+              "
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
+            >
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <div class="stat-number text-warning">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
                   </div>
+                  <h6 class="text-muted mb-0">
+                    Aktivne firme
+                    <i
+                      class="fas fa-external-link-alt ms-1 text-muted"
+                      style="font-size: 0.7rem"
+                    ></i>
+                  </h6>
                 </div>
-                <h6 class="text-muted mb-0">Aktivne firme</h6>
-              </div>
-              <div class="text-warning">
-                <i class="fas fa-chart-line fa-2x"></i>
+                <div class="text-warning">
+                  <i class="fas fa-chart-line fa-2x"></i>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="col-md-3 mb-3">
-          <div class="stat-card danger">
-            <div class="d-flex align-items-center">
-              <div class="flex-grow-1">
-                <div class="stat-number text-danger">
-                  <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Učitavanje...</span>
+          <a
+            href="firme.html?filter=zero"
+            class="text-decoration-none"
+            style="color: inherit"
+          >
+            <div
+              class="stat-card danger"
+              style="
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+              "
+              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(220,53,69,0.2)'"
+              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
+            >
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <div class="stat-number text-danger">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
                   </div>
+                  <h6 class="text-muted mb-0">
+                    Firme na PDV nuli
+                    <i
+                      class="fas fa-external-link-alt ms-1 text-muted"
+                      style="font-size: 0.7rem"
+                    ></i>
+                  </h6>
                 </div>
-                <h6 class="text-muted mb-0">Firme na PDV nuli</h6>
-              </div>
-              <div class="text-danger">
-                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                <div class="text-danger">
+                  <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="col-md-3 mb-3">

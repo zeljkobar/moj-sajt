@@ -36,6 +36,24 @@ document.addEventListener('DOMContentLoaded', function () {
           setTimeout(() => filterFirms(), 100);
         }
       }
+
+      // Čitaj filter parametar iz URL-a i postavi odgovarajući tab
+      const filterQuery = urlParams.get('filter');
+      if (filterQuery) {
+        // Aktiviraj odgovarajući tab
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        const targetTab = document.querySelector(
+          `[data-filter="${filterQuery}"]`
+        );
+        if (targetTab) {
+          targetTab.classList.add('active');
+          currentFilter = filterQuery;
+          // Pokreni filter kada se firme učitaju
+          setTimeout(() => filterFirms(), 200);
+        }
+      }
       break;
     case 'dodaj-firmu':
       initAddFirmPage();

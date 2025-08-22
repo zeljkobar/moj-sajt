@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moj profil - SummaSum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+    <style>
+      .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 1rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .stats-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .role-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+      }
+
+      .role-firma {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+      }
+
+      .role-agencija {
+        background: linear-gradient(45deg, #2ecc71, #27ae60);
+        color: white;
+      }
+
+      .role-admin {
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+      }
+
+      .action-card {
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .action-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+      }
+
+      .support-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+      }
+
+      .registration-date {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="dashboard.html">
+          <i class="fas fa-calculator me-2"></i>SummaSum
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html">
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="firme.html">
+                <i class="fas fa-building me-1"></i>Firme
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-user me-1"></i>
+                <span id="navUsername">Korisnik</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item active" href="moj-profil.html">
+                    <i class="fas fa-user-circle me-2"></i>Moj profil
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="edit-profil.html">
+                    <i class="fas fa-edit me-2"></i>Uredi profil
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Odjavi se
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-2 text-center">
+            <div class="profile-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <h2 class="mb-1">
+              <span id="profileFullName">Loading...</span>
+              <span id="profileRole" class="role-badge ms-3">...</span>
+            </h2>
+            <p class="mb-0 opacity-75">
+              <i class="fas fa-at me-2"></i
+              ><span id="profileUsername">...</span>
+            </p>
+            <p class="mb-0 opacity-75">
+              <i class="fas fa-envelope me-2"></i
+              ><span id="profileEmail">...</span>
+            </p>
+            <div class="registration-date">
+              <small>
+                <i class="fas fa-calendar-plus me-2"></i>
+                Član od: <span id="profileRegistrationDate">...</span>
+              </small>
+            </div>
+          </div>
+          <div class="col-md-3 text-end">
+            <a href="edit-profil.html" class="btn btn-light btn-lg">
+              <i class="fas fa-edit me-2"></i>Uredi profil
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h4 class="mb-4">
+            <i class="fas fa-chart-bar me-2 text-primary"></i>Pregled statistika
+          </h4>
+        </div>
+
+        <!-- Firme -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+              <div class="stats-number text-primary" id="statsFirme">0</div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-building me-1"></i>Firme
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radnici -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+              <div class="stats-number text-success" id="statsRadnici">0</div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-users me-1"></i>Radnici
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pozajmnice -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+              <div class="stats-number text-warning" id="statsPozajmnice">
+                0
+              </div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-money-bill-wave me-1"></i>Pozajmnice
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pozicije -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+              <div class="stats-number text-info" id="statsPozicije">0</div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-briefcase me-1"></i>Pozicije
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Otkazi -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body">
+              <div class="stats-number text-danger" id="statsOtkazi">0</div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-file-contract me-1"></i>Otkazi
+              </h6>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tip naloga -->
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+          <div class="card stats-card h-100 text-center border-0 shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <div class="mb-2">
+                <span id="statsAccountType" class="role-badge">FIRMA</span>
+              </div>
+              <h6 class="card-title text-muted mb-0">
+                <i class="fas fa-user-tag me-1"></i>Tip naloga
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h4 class="mb-4">
+            <i class="fas fa-bolt me-2 text-primary"></i>Brze akcije
+          </h4>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div
+            class="card action-card h-100 shadow-sm"
+            onclick="window.location.href='edit-profil.html'"
+          >
+            <div class="card-body text-center">
+              <div class="action-icon bg-primary text-white">
+                <i class="fas fa-edit"></i>
+              </div>
+              <h6 class="card-title">Uredi profil</h6>
+              <p class="card-text text-muted small">Promeni lične podatke</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div
+            class="card action-card h-100 shadow-sm"
+            onclick="window.location.href='firme.html'"
+          >
+            <div class="card-body text-center">
+              <div class="action-icon bg-success text-white">
+                <i class="fas fa-building"></i>
+              </div>
+              <h6 class="card-title">Upravljaj firmama</h6>
+              <p class="card-text text-muted small">Dodaj ili uredi firme</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div
+            class="card action-card h-100 shadow-sm"
+            onclick="window.location.href='dashboard.html'"
+          >
+            <div class="card-body text-center">
+              <div class="action-icon bg-info text-white">
+                <i class="fas fa-tachometer-alt"></i>
+              </div>
+              <h6 class="card-title">Dashboard</h6>
+              <p class="card-text text-muted small">
+                Vrati se na glavnu stranicu
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="card action-card h-100 shadow-sm" onclick="logout()">
+            <div class="card-body text-center">
+              <div class="action-icon bg-warning text-white">
+                <i class="fas fa-sign-out-alt"></i>
+              </div>
+              <h6 class="card-title">Odjavi se</h6>
+              <p class="card-text text-muted small">Završi radnu sesiju</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Card -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card support-card shadow-sm">
+            <div class="card-body text-center py-4">
+              <h5 class="card-title">
+                <i class="fas fa-headset me-2"></i>Kontakt podrška
+              </h5>
+              <p class="card-text mb-3">
+                Imate pitanje ili problem? Kontaktirajte našu podršku!
+              </p>
+              <div class="row">
+                <div class="col-md-4">
+                  <p class="mb-1">
+                    <i class="fas fa-envelope me-2"></i>
+                    <strong>Email:</strong>
+                  </p>
+                  <p>zeljkodj@t-com.me</p>
+                </div>
+                <div class="col-md-4">
+                  <p class="mb-1">
+                    <i class="fas fa-phone me-2"></i>
+                    <strong>Telefon:</strong>
+                  </p>
+                  <p>+382 67 440 040</p>
+                </div>
+                <div class="col-md-4">
+                  <p class="mb-1">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Radno vrijeme:</strong>
+                  </p>
+                  <p>Ponedeljak - Petak, 09:00 - 17:00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./components/navigation.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+      // Load profile data on page load
+      document.addEventListener('DOMContentLoaded', async function () {
+        try {
+          await loadProfileData();
+          await initializeNavigation();
+        } catch (error) {
+          console.error('Error initializing profile:', error);
+          showAlert('danger', 'Greška pri učitavanju profila');
+        }
+      });
+
+      async function loadProfileData() {
+        try {
+          const response = await fetch('/api/profile/stats', {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = 'prijava.html';
+              return;
+            }
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          populateProfileData(data);
+        } catch (error) {
+          console.error('Error loading profile data:', error);
+          showAlert(
+            'danger',
+            'Greška pri učitavanju profila: ' + error.message
+          );
+        }
+      }
+
+      function populateProfileData(data) {
+        const { user, statistics } = data;
+
+        // Basic profile info
+        document.getElementById(
+          'profileFullName'
+        ).textContent = `${user.ime} ${user.prezime}`;
+        document.getElementById('profileUsername').textContent = user.username;
+        document.getElementById('profileEmail').textContent =
+          user.email || 'Nije unesen';
+
+        // Role badge
+        const roleElement = document.getElementById('profileRole');
+        const accountTypeElement = document.getElementById('statsAccountType');
+        const roleClass = getRoleClass(user.role);
+        const roleName = getRoleName(user.role);
+
+        roleElement.textContent = roleName;
+        roleElement.className = `role-badge ms-3 ${roleClass}`;
+
+        accountTypeElement.textContent = roleName;
+        accountTypeElement.className = `role-badge ${roleClass}`;
+
+        // Registration date
+        const regDate = new Date(user.created_at);
+        const formattedDate = regDate.toLocaleDateString('sr-RS', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+        document.getElementById('profileRegistrationDate').textContent =
+          formattedDate;
+
+        // Statistics
+        document.getElementById('statsFirme').textContent =
+          statistics.broj_firmi;
+        document.getElementById('statsRadnici').textContent =
+          statistics.broj_radnika;
+        document.getElementById('statsPozajmnice').textContent =
+          statistics.broj_pozajmnica;
+        document.getElementById('statsPozicije').textContent =
+          statistics.broj_pozicija;
+        document.getElementById('statsOtkazi').textContent =
+          statistics.broj_otkaza;
+
+        // Update navigation username
+        const navUsername = document.getElementById('navUsername');
+        if (navUsername) {
+          navUsername.textContent = user.username;
+        }
+      }
+
+      function getRoleClass(role) {
+        switch (role) {
+          case 'firma':
+            return 'role-firma';
+          case 'agencija':
+            return 'role-agencija';
+          case 'admin':
+            return 'role-admin';
+          default:
+            return 'role-firma';
+        }
+      }
+
+      function getRoleName(role) {
+        switch (role) {
+          case 'firma':
+            return 'FIRMA';
+          case 'agencija':
+            return 'AGENCIJA';
+          case 'admin':
+            return 'ADMIN';
+          default:
+            return 'FIRMA';
+        }
+      }
+
+      function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        // Insert at top of container
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+          if (alertDiv && alertDiv.parentNode) {
+            alertDiv.remove();
+          }
+        }, 5000);
+      }
+
+      async function logout() {
+        try {
+          const response = await fetch('/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            window.location.href = 'prijava.html';
+          } else {
+            throw new Error('Greška pri odjavi');
+          }
+        } catch (error) {
+          console.error('Logout error:', error);
+          // Force redirect even if logout fails
+          window.location.href = 'prijava.html';
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -642,6 +642,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
+// Profile API endpoint
+const profileController = require('./src/controllers/profileController');
+app.get(
+  '/api/profile/stats',
+  authMiddleware,
+  profileController.getProfileStats
+);
+
 // GET /api/odmori/:id - pojedinačni odmor po ID-u (za rešenja)
 app.get('/api/odmori/:id', authMiddleware, async (req, res) => {
   const godisnjiomdoriController = require('./src/controllers/godisnjiomdoriController');
