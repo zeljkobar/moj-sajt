@@ -1,18 +1,18 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const authController = require("../controllers/authController");
+const authController = require('../controllers/authController');
 const {
   validateLogin,
   validateRegistration,
-} = require("../middleware/validation");
-const rateLimiter = require("../middleware/rateLimiting");
-const { logInfo } = require("../utils/logger");
+} = require('../middleware/validation');
+const rateLimiter = require('../middleware/rateLimiting');
+const { logInfo } = require('../utils/logger');
 
 // POST rute sa validacijom (rate limiting je globalno preko smartRateLimiter)
 router.post(
-  "/login",
+  '/login',
   (req, res, next) => {
-    logInfo("Login request received", {
+    logInfo('Login request received', {
       url: req.originalUrl,
       method: req.method,
     });
@@ -21,10 +21,14 @@ router.post(
   validateLogin,
   authController.login
 );
-router.post("/logout", authController.logout);
-router.post("/register", validateRegistration, authController.register);
+router.post('/logout', authController.logout);
+router.post('/register', validateRegistration, authController.register);
+
+// Password reset routes
+router.post('/request-password-reset', authController.requestPasswordReset);
+router.post('/reset-password', authController.resetPassword);
 
 // GET rute
-router.get("/check-auth", authController.checkAuth);
+router.get('/check-auth', authController.checkAuth);
 
 module.exports = router;

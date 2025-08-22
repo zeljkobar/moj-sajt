@@ -72,6 +72,41 @@
             </div>
           </div>
         </div>
+
+        <div class="col-md-6 mt-4">
+          <div class="card">
+            <div class="card-header">
+              <h5>🔐 Test Password Reset Email</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Email adresa:</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="testResetEmail"
+                  placeholder="test@example.com"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ime korisnika:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="testResetName"
+                  placeholder="Test Korisnik"
+                />
+              </div>
+              <button
+                class="btn btn-warning"
+                onclick="testPasswordResetEmail()"
+              >
+                Pošalji Test Reset Email
+              </button>
+              <div id="resetEmailResult" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="row mt-4">
@@ -96,16 +131,16 @@
     <script>
       // Test email konfiguracije
       async function testConfig() {
-        const resultDiv = document.getElementById("configResult");
-        const statusDiv = document.getElementById("emailStatus");
+        const resultDiv = document.getElementById('configResult');
+        const statusDiv = document.getElementById('emailStatus');
 
         resultDiv.innerHTML =
           '<div class="text-info">Testiram konfiguraciju...</div>';
 
         try {
-          const response = await fetch("/api/email/test-config", {
-            method: "GET",
-            credentials: "include",
+          const response = await fetch('/api/email/test-config', {
+            method: 'GET',
+            credentials: 'include',
           });
 
           const data = await response.json();
@@ -124,7 +159,7 @@
                               data.config.emailUser
                             }</li>
                             <li><strong>Password Set:</strong> ${
-                              data.config.hasPassword ? "✅ Da" : "❌ Ne"
+                              data.config.hasPassword ? '✅ Da' : '❌ Ne'
                             }</li>
                             <li><strong>App URL:</strong> ${
                               data.config.appUrl
@@ -150,10 +185,10 @@
 
       // Test welcome email
       async function testWelcomeEmail() {
-        const email = document.getElementById("testEmail").value;
-        const name = document.getElementById("testName").value;
-        const userType = document.getElementById("testUserType").value;
-        const resultDiv = document.getElementById("emailResult");
+        const email = document.getElementById('testEmail').value;
+        const name = document.getElementById('testName').value;
+        const userType = document.getElementById('testUserType').value;
+        const resultDiv = document.getElementById('emailResult');
 
         if (!email || !name) {
           resultDiv.innerHTML =
@@ -165,12 +200,12 @@
           '<div class="text-info">Šaljem test email...</div>';
 
         try {
-          const response = await fetch("/api/email/test-welcome", {
-            method: "POST",
+          const response = await fetch('/api/email/test-welcome', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
-            credentials: "include",
+            credentials: 'include',
             body: JSON.stringify({
               email: email,
               name: name,
@@ -204,9 +239,64 @@
         }
       }
 
+      // Test password reset email
+      async function testPasswordResetEmail() {
+        const email = document.getElementById('testResetEmail').value;
+        const name = document.getElementById('testResetName').value;
+        const resultDiv = document.getElementById('resetEmailResult');
+
+        if (!email || !name) {
+          resultDiv.innerHTML =
+            '<div class="alert alert-warning">Molimo unesite email i ime!</div>';
+          return;
+        }
+
+        resultDiv.innerHTML =
+          '<div class="text-info">Šaljem test password reset email...</div>';
+
+        try {
+          const response = await fetch('/api/email/test-password-reset', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              email: email,
+              name: name,
+              testToken: 'test-reset-token-' + Date.now(),
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>✅ Password reset email uspešno poslat!</strong>
+                            <br><small>Message ID: ${data.messageId}</small>
+                        </div>
+                    `;
+          } else {
+            resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>❌ ${data.message}</strong>
+                            <br><small>${data.error}</small>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>❌ Greška:</strong> ${error.message}
+                    </div>
+                `;
+        }
+      }
+
       // Automatski testiraj konfiguraciju kada se stranica učita
       window.onload = function () {
-        console.log("Email Admin panel učitan");
+        console.log('Email Admin panel učitan');
         // Automatski pokreni test konfiguracije
         // testConfig();
       };

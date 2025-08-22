@@ -1,27 +1,28 @@
-const bcrypt = require("bcrypt");
-const { executeQuery } = require("../config/database");
-const emailService = require("../services/emailService");
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const { executeQuery } = require('../config/database');
+const emailService = require('../services/emailService');
 
 // Funkcija za kopiranje template pozicija novom korisniku
 async function copyTemplatesToUser(userId) {
   try {
     // Uzmi sve template pozicije sa opis_poslova
     const templatesQuery =
-      "SELECT naziv, opis_poslova FROM pozicije_templates ORDER BY id";
+      'SELECT naziv, opis_poslova FROM pozicije_templates ORDER BY id';
     const templates = await executeQuery(templatesQuery);
 
     if (templates.length === 0) {
-      console.log("⚠️ Nema template pozicija za kopiranje");
+      console.log('⚠️ Nema template pozicija za kopiranje');
       return false;
     }
 
     // Kopiraj svaku template poziciju sa opis_poslova
     const insertQuery =
-      "INSERT INTO pozicije (naziv, opis_poslova, user_id) VALUES (?, ?, ?)";
+      'INSERT INTO pozicije (naziv, opis_poslova, user_id) VALUES (?, ?, ?)';
 
     for (const template of templates) {
       const opisPoslova =
-        template.opis_poslova || "Opis poslova će biti definisan naknadno.";
+        template.opis_poslova || 'Opis poslova će biti definisan naknadno.';
       await executeQuery(insertQuery, [template.naziv, opisPoslova, userId]);
     }
 
@@ -30,7 +31,7 @@ async function copyTemplatesToUser(userId) {
     );
     return true;
   } catch (error) {
-    console.error("❌ Greška pri kopiranju template pozicija:", error);
+    console.error('❌ Greška pri kopiranju template pozicija:', error);
     return false;
   }
 }
@@ -39,7 +40,7 @@ async function copyTemplatesToUser(userId) {
 async function getUserByUsername(username) {
   try {
     const query =
-      "SELECT id, username, password, email, phone, ime, prezime, jmbg, role, created_at FROM users WHERE username = ?";
+      'SELECT id, username, password, email, phone, ime, prezime, jmbg, role, created_at FROM users WHERE username = ?';
     const users = await executeQuery(query, [username]);
     return users.length > 0 ? users[0] : null;
   } catch (error) {
@@ -65,7 +66,7 @@ async function createUser(userData) {
       userData.ime,
       userData.prezime,
       userData.jmbg,
-      userData.role || "firma", // default role
+      userData.role || 'firma', // default role
     ]);
 
     return result.insertId;
@@ -84,12 +85,12 @@ const authController = {
       if (!user) {
         return res
           .status(401)
-          .json({ message: "Pogrešno korisničko ime ili lozinka" });
+          .json({ message: 'Pogrešno korisničko ime ili lozinka' });
       }
 
       // Proveri password (hash ili plain text za stare korisnike)
       let passwordValid = false;
-      if (user.password.startsWith("$2b$")) {
+      if (user.password.startsWith('$2b$')) {
         // Hashed password
         passwordValid = await bcrypt.compare(password, user.password);
       } else {
@@ -105,10 +106,10 @@ const authController = {
       } else {
         res
           .status(401)
-          .json({ message: "Pogrešno korisničko ime ili lozinka" });
+          .json({ message: 'Pogrešno korisničko ime ili lozinka' });
       }
     } catch (error) {
-      res.status(500).json({ message: "Greška servera" });
+      res.status(500).json({ message: 'Greška servera' });
     }
   },
 
@@ -147,14 +148,14 @@ const authController = {
       if (!username || !email || !password || !ime || !prezime || !jmbg) {
         return res.status(400).json({
           message:
-            "Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni",
+            'Korisničko ime, email, lozinka, ime, prezime i JMBG su obavezni',
         });
       }
 
       // UserType validacija
-      if (userType && !["firma", "agencija"].includes(userType)) {
+      if (userType && !['firma', 'agencija'].includes(userType)) {
         return res.status(400).json({
-          message: "Neispravna vrijednost za tip korisnika",
+          message: 'Neispravna vrijednost za tip korisnika',
         });
       }
 
@@ -163,14 +164,14 @@ const authController = {
       if (!usernameRegex.test(username)) {
         return res.status(400).json({
           message:
-            "Korisničko ime može sadržavati samo slova, brojeve i _ (3-20 karaktera)",
+            'Korisničko ime može sadržavati samo slova, brojeve i _ (3-20 karaktera)',
         });
       }
 
       // Password validacija
       if (password.length < 6) {
         return res.status(400).json({
-          message: "Lozinka mora imati najmanje 6 karaktera",
+          message: 'Lozinka mora imati najmanje 6 karaktera',
         });
       }
 
@@ -178,33 +179,33 @@ const authController = {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({
-          message: "Neispravna email adresa",
+          message: 'Neispravna email adresa',
         });
       }
 
       // JMBG validacija
       if (!/^[0-9]{13}$/.test(jmbg)) {
         return res.status(400).json({
-          message: "JMBG mora imati tačno 13 cifara",
+          message: 'JMBG mora imati tačno 13 cifara',
         });
       }
 
       // Ime/prezime validacija
       if (ime.trim().length < 2 || ime.trim().length > 50) {
         return res.status(400).json({
-          message: "Ime mora imati između 2 i 50 karaktera",
+          message: 'Ime mora imati između 2 i 50 karaktera',
         });
       }
 
       if (prezime.trim().length < 2 || prezime.trim().length > 50) {
         return res.status(400).json({
-          message: "Prezime mora imati između 2 i 50 karaktera",
+          message: 'Prezime mora imati između 2 i 50 karaktera',
         });
       }
 
       // Proveri da li korisnik već postoji (optimizovano u jednom upitu)
       const existingUserQuery = await executeQuery(
-        "SELECT username, email, jmbg FROM users WHERE username = ? OR email = ? OR jmbg = ?",
+        'SELECT username, email, jmbg FROM users WHERE username = ? OR email = ? OR jmbg = ?',
         [username, email, jmbg]
       );
 
@@ -212,17 +213,17 @@ const authController = {
         const existing = existingUserQuery[0];
         if (existing.username === username) {
           return res.status(400).json({
-            message: "Korisnik sa ovim korisničkim imenom već postoji",
+            message: 'Korisnik sa ovim korisničkim imenom već postoji',
           });
         }
         if (existing.email === email) {
           return res.status(400).json({
-            message: "Korisnik sa ovim email-om već postoji",
+            message: 'Korisnik sa ovim email-om već postoji',
           });
         }
         if (existing.jmbg === jmbg) {
           return res.status(400).json({
-            message: "Korisnik sa ovim JMBG-om već postoji",
+            message: 'Korisnik sa ovim JMBG-om već postoji',
           });
         }
       }
@@ -232,15 +233,15 @@ const authController = {
         username,
         email,
         password,
-        phone: phone || "",
+        phone: phone || '',
         ime: ime.trim(),
         prezime: prezime.trim(),
         jmbg,
-        role: userType || "firma", // default role je 'firma'
+        role: userType || 'firma', // default role je 'firma'
       });
 
       // Kopiraj template pozicije za novog korisnika (ne blokiramo registraciju ako ne uspe)
-      copyTemplatesToUser(userId).catch((error) => {
+      copyTemplatesToUser(userId).catch(error => {
         console.error(
           `❌ Greška pri kopiranju template pozicija za korisnika ${username}:`,
           error
@@ -250,8 +251,8 @@ const authController = {
       // Pošalji welcome email (ne čekamo rezultat da ne sporimo registraciju)
       const userName = `${ime.trim()} ${prezime.trim()}`;
       emailService
-        .sendWelcomeEmail(email, userName, userType || "firma")
-        .then((result) => {
+        .sendWelcomeEmail(email, userName, userType || 'firma')
+        .then(result => {
           if (result.success) {
             console.log(`✅ Welcome email poslat za korisnika: ${username}`);
           } else {
@@ -261,7 +262,7 @@ const authController = {
             );
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error(
             `❌ Greška pri slanju welcome email-a za: ${username}`,
             error
@@ -270,18 +271,170 @@ const authController = {
 
       res.json({
         success: true,
-        message: "Registracija je uspešna! Možete se ulogovati.",
+        message: 'Registracija je uspešna! Možete se ulogovati.',
       });
     } catch (error) {
       // Specifične MySQL greške
-      if (error.code === "ER_DUP_ENTRY") {
+      if (error.code === 'ER_DUP_ENTRY') {
         return res.status(400).json({
-          message: "Korisnik sa ovim podacima već postoji",
+          message: 'Korisnik sa ovim podacima već postoji',
         });
       }
 
       res.status(500).json({
-        message: "Greška servera pri registraciji",
+        message: 'Greška servera pri registraciji',
+      });
+    }
+  },
+
+  // Request password reset
+  requestPasswordReset: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          message: 'Email adresa je obavezna',
+        });
+      }
+
+      // Email validacija
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          message: 'Neispravna email adresa',
+        });
+      }
+
+      // Pronađi korisnika po email-u
+      const users = await executeQuery(
+        'SELECT id, username, email, ime, prezime FROM users WHERE email = ?',
+        [email]
+      );
+
+      // Uvek vraćamo isti odgovor iz bezbednosnih razloga (ne otkrivamo da li email postoji)
+      if (users.length === 0) {
+        return res.json({
+          success: true,
+          message:
+            'Ako email postoji u našoj bazi, poslat je link za reset lozinke.',
+        });
+      }
+
+      const user = users[0];
+
+      // Generiši token
+      const resetToken = crypto.randomUUID();
+      const tokenExpires = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 sata
+
+      // Sačuvaj token u bazu
+      await executeQuery(
+        'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+        [resetToken, tokenExpires, user.id]
+      );
+
+      // Logiraj zahtev
+      const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+      const userAgent = req.get('User-Agent') || 'unknown';
+
+      await executeQuery(
+        'INSERT INTO password_reset_logs (user_id, email, token, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+        [user.id, email, resetToken, clientIp, userAgent]
+      );
+
+      // Pošalji email
+      const userName = `${user.ime} ${user.prezime}`;
+      const emailResult = await emailService.sendPasswordResetEmail(
+        email,
+        userName,
+        resetToken
+      );
+
+      if (emailResult.success) {
+        console.log(`✅ Password reset email poslat za: ${email}`);
+      } else {
+        console.error(
+          `❌ Neuspešno slanje reset email-a za: ${email}`,
+          emailResult.error
+        );
+      }
+
+      res.json({
+        success: true,
+        message:
+          'Ako email postoji u našoj bazi, poslat je link za reset lozinke.',
+      });
+    } catch (error) {
+      console.error('❌ Greška pri request password reset:', error);
+      res.status(500).json({
+        message: 'Greška servera pri zahtеvu za reset lozinke',
+      });
+    }
+  },
+
+  // Reset password
+  resetPassword: async (req, res) => {
+    try {
+      const { token, newPassword, confirmPassword } = req.body;
+
+      if (!token || !newPassword || !confirmPassword) {
+        return res.status(400).json({
+          message: 'Token, nova lozinka i potvrda su obavezni',
+        });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({
+          message: 'Lozinka mora imati najmanje 6 karaktera',
+        });
+      }
+
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+          message: 'Lozinke se ne poklapaju',
+        });
+      }
+
+      // Pronađi korisnika sa validnim tokenom
+      const users = await executeQuery(
+        'SELECT id, username, email, ime, prezime FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+        [token]
+      );
+
+      if (users.length === 0) {
+        return res.status(400).json({
+          message: 'Nevalidan ili istek token za reset lozinke',
+        });
+      }
+
+      const user = users[0];
+
+      // Hash nova lozinka
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Ažuriraj lozinku i ukloni token
+      await executeQuery(
+        'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+        [hashedPassword, user.id]
+      );
+
+      // Označi token kao iskorišćen u logovima
+      await executeQuery(
+        "UPDATE password_reset_logs SET used_at = NOW(), status = 'used' WHERE token = ?",
+        [token]
+      );
+
+      console.log(`✅ Password reset uspešno za korisnika: ${user.username}`);
+
+      res.json({
+        success: true,
+        message:
+          'Lozinka je uspešno promenjena. Možete se prijaviti sa novom lozinkom.',
+      });
+    } catch (error) {
+      console.error('❌ Greška pri reset password:', error);
+      res.status(500).json({
+        message: 'Greška servera pri resetovanju lozinke',
       });
     }
   },
