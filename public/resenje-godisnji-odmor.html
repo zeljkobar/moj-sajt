@@ -25,6 +25,8 @@
         }
         body {
           background: white !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
         .container {
           max-width: none !important;
@@ -32,9 +34,25 @@
           padding: 0 !important;
         }
         .document-container {
-          padding: 15mm !important;
+          padding: 20mm 25mm !important;
           margin: 0 !important;
           max-width: none !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        @page {
+          margin: 0;
+          size: A4;
+        }
+        .content {
+          text-align: justify !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        .header-info,
+        .title,
+        .reason-section {
+          page-break-inside: avoid !important;
         }
       }
 
@@ -42,12 +60,13 @@
         background: white;
         min-height: 297mm;
         font-family: 'Times New Roman', serif;
-        font-size: 14px;
-        line-height: 1.6;
+        font-size: 15px;
+        line-height: 1.7;
         color: #000;
-        padding: 20mm;
+        padding: 20mm 25mm;
         margin: 0 auto;
         max-width: 210mm;
+        box-sizing: border-box;
       }
 
       .header-info {
@@ -59,50 +78,57 @@
       .title {
         text-align: center;
         font-weight: bold;
-        font-size: 16px;
-        margin: 40px 0 30px 0;
+        font-size: 18px;
+        margin: 35px 0 25px 0;
         text-transform: uppercase;
+        line-height: 1.4;
       }
 
       .content {
         text-align: justify;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
+        word-wrap: break-word;
+        hyphens: auto;
       }
 
       .content p {
-        margin-bottom: 20px;
+        margin-bottom: 18px;
       }
 
       .reason-section {
-        margin: 30px 0;
+        margin: 25px 0;
+        page-break-inside: avoid;
       }
 
       .reason-section h4 {
         text-align: center;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 16px;
       }
 
       .signature-section {
-        margin-top: 50px;
+        margin-top: 40px;
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
+        page-break-inside: avoid;
       }
 
       .signature-left {
         text-align: left;
+        flex: 1;
       }
 
       .signature-right {
         text-align: right;
+        flex: 1;
       }
 
       .signature-line {
         border-bottom: 1px solid #000;
-        width: 200px;
-        margin-top: 20px;
+        width: 180px;
+        margin-top: 15px;
         display: inline-block;
       }
 
@@ -204,8 +230,7 @@
         <div style="margin: 40px 0">
           <p>
             Na osnovu člana 79, 81 i 85 Zakona o radu (Sl.list CG, br.74/19,
-            8/21),<br />
-            izvršni direktor
+            8/21), izvršni direktor
             <strong><span id="firmaNazivPuni">D.O.O. „FIRMA" Bar</span></strong
             >, donosi
           </p>
@@ -256,8 +281,7 @@
 
           <p>
             Za vrijeme korišćenja godišnjeg odmora zaposlenom pripada naknada
-            zarade u<br />
-            visini 100% kao da je na radu, shodno odredbama OKU.
+            zarade u visini 100% kao da je na radu, shodno odredbama OKU.
           </p>
         </div>
 
@@ -265,23 +289,21 @@
         <div class="reason-section">
           <h4>Obrazloženje</h4>
           <p>
-            U zavisnosti od potrebe procesa i organizacije rada, a uz
-            saglasnost<br />
+            U zavisnosti od potrebe procesa i organizacije rada, a uz saglasnost
             zaposlenog, odlučeno je da
             <strong
               ><span id="radnikImePrezimeObrazlozenje"
                 >Spalević Ljubo</span
               ></strong
             >
-            koristi godišnji odmor za<br />
+            koristi godišnji odmor za
             <span id="godinaOdmoraObrazlozenje">2025</span>.godinu, kao u
             dispozitivu ovog rješenja.
           </p>
 
           <p>
-            Dužina godišnjeg odmora određena je shodno odredbama člana 81<br />
-            Zakona o radu (Sl.list CG, br.74/19, 8/21) i odredbama opšteg
-            kolektivnog<br />
+            Dužina godišnjeg odmora određena je shodno odredbama člana 81 Zakona
+            o radu (Sl.list CG, br.74/19, 8/21) i odredbama opšteg kolektivnog
             ugovora.
           </p>
 
