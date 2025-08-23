@@ -953,3 +953,94 @@
     padding: 8px 12px;
   }
 }
+
+/* =================================================================
+   ZAJMODAVCI COLLAPSIBLE SEKCIJA
+   ================================================================= */
+#zajmodavciCollapse {
+  animation: fadeInSlide 0.3s ease-in-out;
+}
+
+#zajmodavciCollapse .card {
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+}
+
+#zajmodavciCollapse .card-header {
+  background: linear-gradient(135deg, var(--primary-color), #4c63d2);
+  border: none;
+  padding: 1rem 1.5rem;
+}
+
+#zajmodavciCollapse .card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+#zajmodavciCollapse .card-body {
+  padding: 1.5rem;
+  background: var(--light-bg, #f8f9fa);
+}
+
+#zajmodavciCollapse .table {
+  margin-bottom: 0;
+  background: white;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#zajmodavciCollapse .table thead th {
+  background: var(--light-color);
+  color: var(--secondary-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  padding: 1rem;
+}
+
+#zajmodavciCollapse .table tbody tr {
+  transition: var(--transition-normal);
+}
+
+#zajmodavciCollapse .table tbody tr:hover {
+  background: var(--hover-bg, #f1f3f4);
+  transform: translateY(-1px);
+}
+
+/* Animacija za collapsible */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dugme za toggle zajmodavci */
+[data-bs-target='#zajmodavciCollapse'] {
+  transition: all 0.3s ease;
+}
+
+[data-bs-target='#zajmodavciCollapse']:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+[data-bs-target='#zajmodavciCollapse'][aria-expanded='true'] {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-color: var(--primary-color) !important;
+}
+
+[data-bs-target='#zajmodavciCollapse'][aria-expanded='true'] i {
+  transform: rotate(180deg);
+}

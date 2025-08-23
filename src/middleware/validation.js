@@ -458,14 +458,14 @@ const validateZajmodavac = [
     .withMessage('Prezime može sadržavati samo slova i razmake'),
 
   body('jmbg')
-    .optional()
+    .optional({ nullable: true })
     .isLength({ min: 13, max: 13 })
     .withMessage('JMBG mora imati tačno 13 cifara')
     .isNumeric()
     .withMessage('JMBG može sadržavati samo brojeve'),
 
   body('ziro_racun')
-    .optional()
+    .optional({ nullable: true })
     .isLength({ min: 15, max: 20 })
     .withMessage('Žiro račun mora biti između 15 i 20 karaktera'),
 

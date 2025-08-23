@@ -17,6 +17,28 @@ let currentFirmaData = null; // Dodano za čuvanje podataka trenutne firme
 // =============================================================================
 
 /**
+ * Toggle funkcija za collapsible zajmodavci sekciju
+ */
+function toggleZajmodavciSection() {
+  const collapse = document.getElementById('zajmodavciCollapse');
+  const button = document.querySelector(
+    '[data-bs-target="#zajmodavciCollapse"]'
+  );
+
+  // Proveri da li je već učitana tabela zajmodavaca
+  const tabela = document.getElementById('zajmodavciTabela');
+  const hasData =
+    tabela &&
+    tabela.children.length > 0 &&
+    !tabela.innerHTML.includes('Učitavanje zajmodavaca...');
+
+  // Ako se otvara po prvi put ili nema podataka, učitaj zajmodavce
+  if (!hasData && currentFirmaId) {
+    ucitajZajmodavce();
+  }
+}
+
+/**
  * Kreira JPR URL sa ID firme kao parametrom
  * @param {Object} firmaData - Podaci o firmi (treba samo ID)
  * @param {string} context - Kontekst odakle je pozvan (pregled, radnici, itd)
@@ -324,7 +346,6 @@ function loadFirmaData() {
       loadFirmaStats(firmaId);
       loadRadnici(firmaId);
       loadPozajmice(firmaId); // Dodano učitavanje pozajmica
-      ucitajZajmodavce(); // Dodano učitavanje zajmodavaca
       loadZadaci(firmaId); // Dodano učitavanje zadataka
       checkUserPermissions(); // Proveri da li treba da prikaže ovlašćenje
     })
@@ -825,6 +846,23 @@ function setupTabNavigation() {
         waitForRadniciAndOpenModal(radnikId);
       }, 100);
     }
+  }
+
+  // Dodaj event listener za pozajmice tab - učitaj zajmodavce kada se tab aktivira
+  const pozajmiceTab = document.querySelector('#pozajmice-tab');
+  if (pozajmiceTab) {
+    pozajmiceTab.addEventListener('shown.bs.tab', function (e) {
+      // Proverava da li su zajmodavci već učitani
+      const tabela = document.getElementById('zajmodavciTabela');
+      const hasData =
+        tabela && !tabela.innerHTML.includes('Učitavanje zajmodavaca...');
+
+      // Ne učitavaj ponovo ako su već učitani
+      if (!hasData && currentFirmaId) {
+        console.log('Pozajmice tab aktiviran - učitavam zajmodavce...');
+        // Ne učitavamo automatski - čekaćemo da korisnik klikne na dugme
+      }
+    });
   }
 }
 
@@ -4283,6 +4321,16 @@ async function sacuvajZajmodavca() {
     const data = await response.json();
     console.log('Odgovor servera:', data);
 
+    // Detaljniji logging grešaka za create
+    if (!data.success && data.errors) {
+      console.log('CREATE Validation errors:', data.errors);
+      data.errors.forEach(error => {
+        console.log(
+          `Field: ${error.field}, Message: ${error.message}, Value: ${error.value}`
+        );
+      });
+    }
+
     if (data.success) {
       // Zatvori modal
       const modal = bootstrap.Modal.getInstance(
@@ -4392,6 +4440,16 @@ async function sacuvajIzmeneZajmodavca() {
 
     const data = await response.json();
     console.log('Odgovor servera:', data);
+
+    // Detaljniji logging grešaka za update
+    if (!data.success && data.errors) {
+      console.log('UPDATE Validation errors:', data.errors);
+      data.errors.forEach(error => {
+        console.log(
+          `Field: ${error.field}, Message: ${error.message}, Value: ${error.value}`
+        );
+      });
+    }
 
     if (data.success) {
       // Zatvori modal
