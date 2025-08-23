@@ -129,6 +129,18 @@
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
+            id="zajmodavci-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#zajmodavci"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-user-plus me-2"></i>Zajmodavci
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
             id="dokumenti-tab"
             data-bs-toggle="tab"
             data-bs-target="#dokumenti"
@@ -598,6 +610,39 @@
                   </table>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zajmodavci Tab -->
+        <div class="tab-pane fade" id="zajmodavci" role="tabpanel">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4>Upravljanje zajmodavcima</h4>
+              <button class="btn btn-primary" onclick="otvoriZajmodavacModal()">
+                <i class="fas fa-plus me-2"></i>Dodaj zajmodavca
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Ime i prezime</th>
+                    <th>JMBG</th>
+                    <th>Žiro račun</th>
+                    <th>Broj pozajmica</th>
+                    <th>Akcije</th>
+                  </tr>
+                </thead>
+                <tbody id="zajmodavciTabela">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      Učitavanje zajmodavaca...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1293,18 +1338,20 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="radnik_id" class="form-label"
-                      >Zaposlenik (radnik)*</label
+                    <label for="pozajmilac_tip" class="form-label"
+                      >Tip pozajmioca*</label
                     >
                     <select
                       class="form-select"
-                      id="radnik_id"
-                      name="radnik_id"
+                      id="pozajmilac_tip"
+                      name="pozajmilac_tip"
                       required
+                      onchange="togglePozajmilacSelector()"
                     >
-                      <option value="">Izaberite radnika...</option>
+                      <option value="">Izaberite tip pozajmioca...</option>
+                      <option value="radnik">Radnik</option>
+                      <option value="zajmodavac">Zajmodavac</option>
                     </select>
-                    <div class="form-text">Obično direktor firme</div>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -1319,6 +1366,45 @@
                       min="0.01"
                       required
                     />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div
+                  class="col-md-6"
+                  id="radnik_selector"
+                  style="display: none"
+                >
+                  <div class="mb-3">
+                    <label for="radnik_id" class="form-label"
+                      >Zaposlenik (radnik)*</label
+                    >
+                    <select class="form-select" id="radnik_id" name="radnik_id">
+                      <option value="">Izaberite radnika...</option>
+                    </select>
+                    <div class="form-text">Obično direktor firme</div>
+                  </div>
+                </div>
+                <div
+                  class="col-md-6"
+                  id="zajmodavac_selector"
+                  style="display: none"
+                >
+                  <div class="mb-3">
+                    <label for="zajmodavac_id" class="form-label"
+                      >Zajmodavac*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="zajmodavac_id"
+                      name="zajmodavac_id"
+                    >
+                      <option value="">Izaberite zajmodavca...</option>
+                    </select>
+                    <div class="form-text">
+                      Vanjska osoba koja daje pozajmicu
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2065,6 +2151,192 @@
               onclick="potvrdiProduzUgovor()"
             >
               <i class="fas fa-calendar-plus me-1"></i>Produži ugovor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zajmodavac Modal -->
+    <div class="modal fade" id="zajmodavacModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="zajmodavacModalLabel">
+              Dodaj zajmodavca
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="zajmodavacForm">
+              <div class="mb-3">
+                <label for="zajmodavacIme" class="form-label">
+                  <strong>Ime*</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="zajmodavacIme"
+                  required
+                  placeholder="Unesite ime zajmodavca"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="zajmodavacPrezime" class="form-label">
+                  <strong>Prezime*</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="zajmodavacPrezime"
+                  required
+                  placeholder="Unesite prezime zajmodavca"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="zajmodavacJmbg" class="form-label">
+                  <strong>JMBG</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="zajmodavacJmbg"
+                  placeholder="Unesite JMBG (opciono)"
+                  maxlength="13"
+                />
+                <div class="form-text">Unesite 13-cifreni JMBG (opciono)</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="zajmodavacZiroRacun" class="form-label">
+                  <strong>Žiro račun</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="zajmodavacZiroRacun"
+                  placeholder="Unesite broj žiro računa (opciono)"
+                />
+                <div class="form-text">
+                  Unesite broj žiro računa za isplate (opciono)
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="sacuvajZajmodavca()"
+            >
+              <i class="fas fa-save me-1"></i>Sačuvaj
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Zajmodavac Modal -->
+    <div class="modal fade" id="editZajmodavacModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editZajmodavacModalLabel">
+              Uredi zajmodavca
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editZajmodavacForm">
+              <input type="hidden" id="editZajmodavacId" />
+
+              <div class="mb-3">
+                <label for="editZajmodavacIme" class="form-label">
+                  <strong>Ime*</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editZajmodavacIme"
+                  required
+                  placeholder="Unesite ime zajmodavca"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="editZajmodavacPrezime" class="form-label">
+                  <strong>Prezime*</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editZajmodavacPrezime"
+                  required
+                  placeholder="Unesite prezime zajmodavca"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="editZajmodavacJmbg" class="form-label">
+                  <strong>JMBG</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editZajmodavacJmbg"
+                  placeholder="Unesite JMBG (opciono)"
+                  maxlength="13"
+                />
+                <div class="form-text">Unesite 13-cifreni JMBG (opciono)</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="editZajmodavacZiroRacun" class="form-label">
+                  <strong>Žiro račun</strong>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editZajmodavacZiroRacun"
+                  placeholder="Unesite broj žiro računa (opciono)"
+                />
+                <div class="form-text">
+                  Unesite broj žiro računa za isplate (opciono)
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="sacuvajIzmeneZajmodavca()"
+            >
+              <i class="fas fa-save me-1"></i>Sačuvaj izmene
             </button>
           </div>
         </div>

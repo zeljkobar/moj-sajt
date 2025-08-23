@@ -1008,12 +1008,33 @@
         }
 
         div.className = `mb-3 p-3 border ${borderClass} rounded`;
+
+        // Određuj tip pozajmioca i ime
+        let pozajmilacIme = 'Nepoznato';
+        let pozajmilacTip = '';
+
+        if (
+          pozajmica.pozajmilac_tip === 'zajmodavac' ||
+          pozajmica.zajmodavac_ime
+        ) {
+          // Zajmodavac
+          const zajmodavacIme = pozajmica.zajmodavac_ime || 'N/A';
+          const zajmodavacPrezime = pozajmica.zajmodavac_prezime || '';
+          pozajmilacIme = `${zajmodavacIme} ${zajmodavacPrezime}`.trim();
+          pozajmilacTip =
+            '<span class="badge bg-secondary me-1">Zajmodavac</span>';
+        } else if (pozajmica.radnik_ime) {
+          // Radnik
+          const radnikIme = pozajmica.radnik_ime || 'N/A';
+          const radnikPrezime = pozajmica.radnik_prezime || '';
+          pozajmilacIme = `${radnikIme} ${radnikPrezime}`.trim();
+          pozajmilacTip = '<span class="badge bg-primary me-1">Radnik</span>';
+        }
+
         div.innerHTML = `
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div>
-              <strong>${pozajmica.radnik_ime} ${
-          pozajmica.radnik_prezime
-        }</strong>
+              ${pozajmilacTip}<strong>${pozajmilacIme}</strong>
               <br /><small class="text-muted">${
                 pozajmica.firma_naziv || 'Nepoznata firma'
               }</small>

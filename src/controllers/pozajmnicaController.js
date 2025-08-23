@@ -8,6 +8,8 @@ exports.createPozajmica = async (req, res) => {
   const {
     firma_id,
     radnik_id,
+    zajmodavac_id,
+    pozajmilac_tip,
     iznos,
     svrha,
     broj_ugovora,
@@ -19,6 +21,8 @@ exports.createPozajmica = async (req, res) => {
   console.log('Extracted values:', {
     firma_id,
     radnik_id,
+    zajmodavac_id,
+    pozajmilac_tip,
     iznos,
     svrha,
     broj_ugovora,
@@ -28,6 +32,30 @@ exports.createPozajmica = async (req, res) => {
   });
 
   try {
+    // Validacija pozajmilac_tip
+    if (pozajmilac_tip && !['radnik', 'zajmodavac'].includes(pozajmilac_tip)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pozajmilac tip mora biti "radnik" ili "zajmodavac"',
+      });
+    }
+
+    // Validacija na osnovu tipa pozajmioca
+    if (pozajmilac_tip === 'radnik' && !radnik_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Radnik ID je obavezan kada je pozajmilac tip "radnik"',
+      });
+    }
+
+    if (pozajmilac_tip === 'zajmodavac' && !zajmodavac_id) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Zajmodavac ID je obavezan kada je pozajmilac tip "zajmodavac"',
+      });
+    }
+
     // Proveri da li broj ugovora već postoji
     const existingContract = await executeQuery(
       'SELECT id FROM pozajmnice WHERE broj_ugovora = ?',
@@ -42,12 +70,14 @@ exports.createPozajmica = async (req, res) => {
     }
 
     const result = await executeQuery(
-      `INSERT INTO pozajmnice (firma_id, radnik_id, iznos, svrha, broj_ugovora, 
+      `INSERT INTO pozajmnice (firma_id, radnik_id, zajmodavac_id, pozajmilac_tip, iznos, svrha, broj_ugovora, 
        datum_izdavanja, datum_dospeća, napomene) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         firma_id || null,
-        radnik_id || null,
+        pozajmilac_tip === 'radnik' ? radnik_id : null,
+        pozajmilac_tip === 'zajmodavac' ? zajmodavac_id : null,
+        pozajmilac_tip || 'radnik',
         iznos || null,
         svrha || null,
         broj_ugovora || null,
@@ -132,10 +162,13 @@ exports.getAllPozajmice = async (req, res) => {
     pozajmice = await executeQuery(
       `SELECT p.*, 
               f.naziv as firma_naziv,
-              r.ime as radnik_ime, r.prezime as radnik_prezime
+              r.ime as radnik_ime, r.prezime as radnik_prezime,
+              z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime,
+              z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun
        FROM pozajmnice p
        LEFT JOIN firme f ON p.firma_id = f.id
        LEFT JOIN radnici r ON p.radnik_id = r.id  
+       LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id
        WHERE p.firma_id IN (${placeholders})
        ORDER BY p.datum_izdavanja DESC`,
       firmaIds
@@ -164,10 +197,13 @@ exports.getPozajmiceByFirma = async (req, res) => {
     const pozajmice = await executeQuery(
       `SELECT p.*, 
               f.naziv as firma_naziv,
-              r.ime as radnik_ime, r.prezime as radnik_prezime
+              r.ime as radnik_ime, r.prezime as radnik_prezime,
+              z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime,
+              z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun
        FROM pozajmnice p
        LEFT JOIN firme f ON p.firma_id = f.id
        LEFT JOIN radnici r ON p.radnik_id = r.id  
+       LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id
        WHERE p.firma_id = ?
        ORDER BY p.datum_izdavanja DESC`,
       [firmaId]
@@ -282,6 +318,9 @@ exports.getPozajmicaById = async (req, res) => {
   const { id } = req.params;
 
   try {
+    console.log('=== GET POZAJMICA BY ID DEBUG ===');
+    console.log('Pozajmica ID:', id);
+
     const pozajmice = await executeQuery(
       `SELECT p.*, 
               f.naziv as firma_naziv,
@@ -291,13 +330,27 @@ exports.getPozajmicaById = async (req, res) => {
               f.direktor_ime_prezime as direktor_ime_prezime,
               f.direktor_jmbg as direktor_jmbg,
               f.grad as firma_grad,
-              r.ime as radnik_ime, r.prezime as radnik_prezime, r.jmbg as radnik_jmbg
+              r.ime as radnik_ime, r.prezime as radnik_prezime, r.jmbg as radnik_jmbg,
+              z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime, 
+              z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun
        FROM pozajmnice p
        LEFT JOIN firme f ON p.firma_id = f.id
        LEFT JOIN radnici r ON p.radnik_id = r.id  
+       LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id
        WHERE p.id = ?`,
       [id]
     );
+
+    console.log('Found pozajmice:', pozajmice.length);
+    if (pozajmice.length > 0) {
+      const p = pozajmice[0];
+      console.log('Pozajmica data:');
+      console.log('- pozajmilac_tip:', p.pozajmilac_tip);
+      console.log('- radnik_id:', p.radnik_id);
+      console.log('- zajmodavac_id:', p.zajmodavac_id);
+      console.log('- radnik_ime:', p.radnik_ime);
+      console.log('- zajmodavac_ime:', p.zajmodavac_ime);
+    }
 
     if (pozajmice.length === 0) {
       return res.status(404).json({

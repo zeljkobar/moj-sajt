@@ -1,4 +1,4 @@
-const { executeQuery } = require("../config/database");
+const { executeQuery } = require('../config/database');
 
 // GET /api/odluka/povracaj/:povracajId
 const getOdlukaPovracaj = async (req, res) => {
@@ -18,6 +18,7 @@ const getOdlukaPovracaj = async (req, res) => {
         poz.datum_izdavanja,
         poz.iznos as ukupan_iznos_pozajmice,
         poz.svrha,
+        poz.pozajmilac_tip,
         
         f.naziv as firma_naziv,
         f.pib as firma_pib,
@@ -29,6 +30,10 @@ const getOdlukaPovracaj = async (req, res) => {
         r.ime as radnik_ime,
         r.prezime as radnik_prezime,
         r.jmbg as radnik_jmbg,
+        
+        z.ime as zajmodavac_ime,
+        z.prezime as zajmodavac_prezime,
+        z.jmbg as zajmodavac_jmbg,
         
         -- Kalkulacija ukupno vraćeno i preostalo
         COALESCE((
@@ -46,7 +51,8 @@ const getOdlukaPovracaj = async (req, res) => {
       FROM pozajmica_povracaji pov
       JOIN pozajmnice poz ON pov.pozajmica_id = poz.id
       JOIN firme f ON poz.firma_id = f.id
-      JOIN radnici r ON poz.radnik_id = r.id
+      LEFT JOIN radnici r ON poz.radnik_id = r.id AND poz.pozajmilac_tip = 'radnik'
+      LEFT JOIN zajmodavci z ON poz.zajmodavac_id = z.id AND poz.pozajmilac_tip = 'zajmodavac'
       WHERE pov.id = ?
     `;
 
@@ -55,7 +61,7 @@ const getOdlukaPovracaj = async (req, res) => {
     if (!rows || rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Povraćaj nije pronađen",
+        message: 'Povraćaj nije pronađen',
       });
     }
 
@@ -78,24 +84,29 @@ const getOdlukaPovracaj = async (req, res) => {
     ]);
 
     // Generiši broj odluke - jednostavan pristup bez tabele
-    const trenutniDatum = new Date();
-    const mesec = String(trenutniDatum.getMonth() + 1).padStart(2, "0");
-    const dan = String(trenutniDatum.getDate()).padStart(2, "0");
-    const godina = trenutniDatum.getFullYear();
+    const brojOdluke = `POV-${data.pozajmica_id}-${povracajId}`;
 
-    // Format: OD-001/07/2025 (OD = Odluka, broj/mesec/godina)
-    const brojOdluke = `OD-${povracajId}/${mesec}/${godina}`;
+    // Determiniši ime i prezime na osnovu tipa pozajmilaca
+    let pozajmilac_ime_prezime, pozajmilac_jmbg;
+
+    if (data.pozajmilac_tip === 'radnik') {
+      pozajmilac_ime_prezime = `${data.radnik_ime} ${data.radnik_prezime}`;
+      pozajmilac_jmbg = data.radnik_jmbg;
+    } else if (data.pozajmilac_tip === 'zajmodavac') {
+      pozajmilac_ime_prezime = `${data.zajmodavac_ime} ${data.zajmodavac_prezime}`;
+      pozajmilac_jmbg = data.zajmodavac_jmbg;
+    }
 
     const odlukaData = {
       // Osnovni podaci
       broj_odluke: brojOdluke,
-      datum_odluke: new Date().toISOString().split("T")[0],
+      datum_odluke: new Date().toISOString().split('T')[0],
 
       // Podaci o firmi
       firma_naziv: data.firma_naziv,
       firma_pib: data.firma_pib,
       firma_adresa: data.firma_adresa,
-      firma_grad: data.firma_grad || "Baru",
+      firma_grad: data.firma_grad || 'Baru',
       direktor_ime_prezime: data.direktor_ime_prezime,
 
       // Podaci o pozajmici
@@ -103,10 +114,11 @@ const getOdlukaPovracaj = async (req, res) => {
       datum_pozajmice: data.datum_izdavanja,
       ukupan_iznos_pozajmice: data.ukupan_iznos_pozajmice,
       svrha_pozajmice: data.svrha,
+      pozajmilac_tip: data.pozajmilac_tip,
 
-      // Podaci o radniku (zajmodavcu)
-      radnik_ime_prezime: `${data.radnik_ime} ${data.radnik_prezime}`,
-      radnik_jmbg: data.radnik_jmbg,
+      // Podaci o pozajmiocu (radnik ili zajmodavac)
+      pozajmilac_ime_prezime: pozajmilac_ime_prezime,
+      pozajmilac_jmbg: pozajmilac_jmbg,
 
       // Podaci o povraćaju
       iznos_povracaja: data.iznos_povracaja,
@@ -126,10 +138,10 @@ const getOdlukaPovracaj = async (req, res) => {
       odluka: odlukaData,
     });
   } catch (error) {
-    console.error("Greška pri generisanju odluke:", error);
+    console.error('Greška pri generisanju odluke:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri generisanju odluke",
+      message: 'Greška pri generisanju odluke',
       error: error.message,
     });
   }

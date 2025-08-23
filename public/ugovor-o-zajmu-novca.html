@@ -5,7 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ugovor o zajmu novca</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/cs          // Učitaj podatke o pozajmici
+          const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
+            credentials: 'include',
+          });
+          
+          console.log('API Response status:', response.status);
+          console.log('API Response ok:', response.ok);
+          
+          if (response.status === 401) {
+            // Neautentifikovano - redirektuj na prijavu
+            alert('Molimo prijavite se da biste pristupili ugovoru.');
+            window.location.href = '/public/prijava.html';
+            return;
+          }
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          console.log('API Response data:', data);
+          
+          if (!data.success) {
+            throw new Error(data.message || 'Greška pri učitavanju pozajmice');
+          }min.css"
       rel="stylesheet"
     />
     <link
@@ -180,11 +206,8 @@
       </div>
 
       <div class="clan-broj">Član 1.</div>
-      <div class="clan">
-        Zajmodavac daje zajmoprimcu na zajam novac u iznosu od
-        <span id="iznosEur"></span> eura koji mu je potreban da bi zajmoprimac
-        isplatio <span id="svrhaText"></span>. Novac će biti uplaćen na žiro
-        račun firme broj <span id="ziroRacun"></span>.
+      <div class="clan" id="clan1">
+        <!-- Dinamički sadržaj Člana 1 se popunjava JavaScript-om -->
       </div>
 
       <div class="clan-broj">Član 2.</div>
@@ -289,6 +312,12 @@
       }
 
       function populateUgovor(pozajmica) {
+        console.log('=== POPULATE UGOVOR DEBUG ===');
+        console.log('Pozajmica data:', pozajmica);
+        console.log('pozajmilac_tip:', pozajmica.pozajmilac_tip);
+        console.log('zajmodavac_ime:', pozajmica.zajmodavac_ime);
+        console.log('radnik_ime:', pozajmica.radnik_ime);
+
         // Broj ugovora
         document.getElementById(
           'brojUgovora'
@@ -308,16 +337,33 @@
           pozajmica.firma_adresa || '';
         document.getElementById('firmaPib').textContent =
           pozajmica.firma_pib || '';
-        document.getElementById('ziroRacun').textContent =
-          pozajmica.firma_ziro_racun || '';
 
-        // Radnik (zajmodavac) podaci
-        const zajmodavacIme = `${pozajmica.radnik_ime || ''} ${
-          pozajmica.radnik_prezime || ''
-        }`.trim();
+        // Određivanje zajmodavca i popunjavanje podataka
+        let zajmodavacIme = '';
+        let zajmodavacJmbg = '';
+        let zajmodavacZiroRacun = '';
+
+        if (
+          pozajmica.pozajmilac_tip === 'zajmodavac' &&
+          pozajmica.zajmodavac_ime
+        ) {
+          // Vanjski zajmodavac
+          zajmodavacIme = `${pozajmica.zajmodavac_ime || ''} ${
+            pozajmica.zajmodavac_prezime || ''
+          }`.trim();
+          zajmodavacJmbg = pozajmica.zajmodavac_jmbg || '';
+          zajmodavacZiroRacun = pozajmica.zajmodavac_ziro_racun || '';
+        } else {
+          // Radnik kao zajmodavac (stara logika)
+          zajmodavacIme = `${pozajmica.radnik_ime || ''} ${
+            pozajmica.radnik_prezime || ''
+          }`.trim();
+          zajmodavacJmbg = pozajmica.radnik_jmbg || '';
+          zajmodavacZiroRacun = ''; // Radnici nemaju žiro račun
+        }
+
         document.getElementById('zajmodavacIme').textContent = zajmodavacIme;
-        document.getElementById('zajmodavacJmbg').textContent =
-          pozajmica.radnik_jmbg || '';
+        document.getElementById('zajmodavacJmbg').textContent = zajmodavacJmbg;
 
         // Direktor firme (zajmoprimac) podaci
         document.getElementById('direktorIme').textContent =
@@ -327,7 +373,6 @@
 
         // Iznos
         const iznos = parseFloat(pozajmica.iznos).toFixed(2);
-        document.getElementById('iznosEur').textContent = iznos;
         document.getElementById('iznosEur2').textContent = iznos;
         document.getElementById('iznosSlovima').textContent =
           numberToWords(iznos);
@@ -337,8 +382,25 @@
           obaveze_zarade: 'obaveze za zarade',
           obaveze_dobavljaci: 'obaveze prema dobavljačima',
         };
-        document.getElementById('svrhaText').textContent =
-          svrhaTexts[pozajmica.svrha] || pozajmica.svrha;
+        const svrhaText = svrhaTexts[pozajmica.svrha] || pozajmica.svrha;
+
+        // Dinamički generiši Član 1 na osnovu toga da li zajmodavac ima žiro račun
+        const firmaZiroRacun = pozajmica.firma_ziro_racun || '';
+        let clan1Html = `
+          Zajmodavac daje zajmoprimcu na zajam novac u iznosu od
+          <strong>${iznos}</strong> eura koji mu je potreban da bi zajmoprimac
+          isplatio ${svrhaText}.
+        `;
+
+        if (zajmodavacZiroRacun && zajmodavacZiroRacun.trim() !== '') {
+          // Zajmodavac ima žiro račun - prikaži kompletan tekst
+          clan1Html += ` Novac će biti uplaćen sa žiro računa zajmodavca broj <strong>${zajmodavacZiroRacun}</strong> na žiro račun firme broj <strong>${firmaZiroRacun}</strong>.`;
+        } else {
+          // Zajmodavac nema žiro račun - prikaži osnovni tekst
+          clan1Html += ` Novac će biti uplaćen na žiro račun firme broj <strong>${firmaZiroRacun}</strong>.`;
+        }
+
+        document.getElementById('clan1').innerHTML = clan1Html;
       }
 
       function numberToWords(num) {

@@ -324,6 +324,7 @@ function loadFirmaData() {
       loadFirmaStats(firmaId);
       loadRadnici(firmaId);
       loadPozajmice(firmaId); // Dodano učitavanje pozajmica
+      ucitajZajmodavce(); // Dodano učitavanje zajmodavaca
       loadZadaci(firmaId); // Dodano učitavanje zadataka
       checkUserPermissions(); // Proveri da li treba da prikaže ovlašćenje
     })
@@ -1784,14 +1785,33 @@ function updateAktivnePozajmice(pozajmice) {
       const preostaloDugovanje = parseFloat(pozajmica.preostalo_dugovanje || 0);
       const iznos = parseFloat(pozajmica.iznos || 0);
 
-      // Imena radnika - različite varijante naziva kolona
-      const radnikIme = pozajmica.radnik_ime || pozajmica.ime || 'N/A';
-      const radnikPrezime = pozajmica.radnik_prezime || pozajmica.prezime || '';
+      // Određuj tip pozajmioca i ime
+      let pozajmilacIme = 'N/A';
+      let pozajmilacTip = '';
+
+      if (
+        pozajmica.pozajmilac_tip === 'zajmodavac' ||
+        pozajmica.zajmodavac_ime
+      ) {
+        // Zajmodavac
+        const zajmodavacIme = pozajmica.zajmodavac_ime || 'N/A';
+        const zajmodavacPrezime = pozajmica.zajmodavac_prezime || '';
+        pozajmilacIme = `${zajmodavacIme} ${zajmodavacPrezime}`.trim();
+        pozajmilacTip =
+          '<span class="badge bg-secondary me-1">Zajmodavac</span>';
+      } else {
+        // Radnik (default)
+        const radnikIme = pozajmica.radnik_ime || pozajmica.ime || 'N/A';
+        const radnikPrezime =
+          pozajmica.radnik_prezime || pozajmica.prezime || '';
+        pozajmilacIme = `${radnikIme} ${radnikPrezime}`.trim();
+        pozajmilacTip = '<span class="badge bg-primary me-1">Radnik</span>';
+      }
 
       return `
         <tr>
           <td>${pozajmica.broj_ugovora || 'N/A'}</td>
-          <td>${radnikIme} ${radnikPrezime}</td>
+          <td>${pozajmilacTip}${pozajmilacIme}</td>
           <td>${datumPozajmice}</td>
           <td>${iznos.toFixed(2)}€</td>
           <td>${preostaloDugovanje.toFixed(2)}€</td>
@@ -2007,8 +2027,17 @@ async function dodajNovuPozajmnicu() {
     const form = document.getElementById('pozajmicaForm');
     if (form) form.reset();
 
-    // Učitaj radnike prije otvaranja modala
+    // Resetuj prikaz selektora
+    document.getElementById('radnik_selector').style.display = 'none';
+    document.getElementById('zajmodavac_selector').style.display = 'none';
+
+    // Ukloni required atribute sa oba selektora
+    document.getElementById('radnik_id').removeAttribute('required');
+    document.getElementById('zajmodavac_id').removeAttribute('required');
+
+    // Učitaj radnike i zajmodavce prije otvaranja modala
     await loadRadniciForPozajmiceModal();
+    await loadZajmodavceForPozajmiceModal();
 
     // Postavi današnji datum kao default
     const today = new Date().toISOString().split('T')[0];
@@ -2040,6 +2069,67 @@ async function dodajNovuPozajmnicu() {
   }
 }
 
+async function loadZajmodavceForPozajmiceModal() {
+  try {
+    const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Zajmodavci API odgovor:', result);
+
+    const select = document.getElementById('zajmodavac_id');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Izaberite zajmodavca...</option>';
+
+    // API vraća {success: true, data: [...]}
+    if (result.success && Array.isArray(result.data)) {
+      result.data.forEach(zajmodavac => {
+        select.innerHTML += `<option value="${zajmodavac.id}">${zajmodavac.ime} ${zajmodavac.prezime}</option>`;
+      });
+      console.log(
+        `Učitano ${result.data.length} zajmodavaca za pozajmice modal`
+      );
+    } else {
+      console.warn('Neočekivan format odgovora:', result);
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju zajmodavaca za pozajmice:', error);
+  }
+}
+
+function togglePozajmilacSelector() {
+  const pozajmilacTip = document.getElementById('pozajmilac_tip').value;
+  const radnikSelector = document.getElementById('radnik_selector');
+  const zajmodavacSelector = document.getElementById('zajmodavac_selector');
+  const radnikSelect = document.getElementById('radnik_id');
+  const zajmodavacSelect = document.getElementById('zajmodavac_id');
+
+  // Sakrij oba selektora i ukloni required
+  radnikSelector.style.display = 'none';
+  zajmodavacSelector.style.display = 'none';
+  radnikSelect.removeAttribute('required');
+  zajmodavacSelect.removeAttribute('required');
+
+  // Resetuj vrednosti
+  radnikSelect.value = '';
+  zajmodavacSelect.value = '';
+
+  // Prikaži odgovarajući selektor na osnovu izbora
+  if (pozajmilacTip === 'radnik') {
+    radnikSelector.style.display = 'block';
+    radnikSelect.setAttribute('required', 'required');
+  } else if (pozajmilacTip === 'zajmodavac') {
+    zajmodavacSelector.style.display = 'block';
+    zajmodavacSelect.setAttribute('required', 'required');
+  }
+}
+
 async function loadRadniciForPozajmiceModal() {
   try {
     const response = await fetch(`/api/radnici/firma/${currentFirmaId}`, {
@@ -2065,9 +2155,16 @@ async function submitPozajmica() {
     const form = document.getElementById('pozajmicaForm');
     const formData = new FormData(form);
 
+    const pozajmilacTip = formData.get('pozajmilac_tip');
+
+    if (!pozajmilacTip) {
+      alert('Molimo izaberite tip pozajmioca (radnik ili zajmodavac).');
+      return;
+    }
+
     const pozajmicaData = {
       firma_id: currentFirmaId,
-      radnik_id: formData.get('radnik_id'),
+      pozajmilac_tip: pozajmilacTip,
       broj_ugovora: formData.get('broj_ugovora'),
       datum_izdavanja: formData.get('datum_izdavanja'),
       iznos: parseFloat(formData.get('iznos')),
@@ -2075,6 +2172,21 @@ async function submitPozajmica() {
       datum_dospeća: formData.get('datum_dospeća') || null,
       napomene: formData.get('napomene') || null,
     };
+
+    // Dodaj odgovarajući ID na osnovu tipa pozajmioca
+    if (pozajmilacTip === 'radnik') {
+      pozajmicaData.radnik_id = formData.get('radnik_id');
+      if (!pozajmicaData.radnik_id) {
+        alert('Molimo izaberite radnika.');
+        return;
+      }
+    } else if (pozajmilacTip === 'zajmodavac') {
+      pozajmicaData.zajmodavac_id = formData.get('zajmodavac_id');
+      if (!pozajmicaData.zajmodavac_id) {
+        alert('Molimo izaberite zajmodavca.');
+        return;
+      }
+    }
 
     console.log('Šalje se pozajmica sa podacima:', pozajmicaData);
 
@@ -4014,4 +4126,327 @@ function generisjOvlascenje() {
   // Otvori ovlašćenje direktno bez modala
   const url = `ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`;
   window.open(url, '_blank');
+}
+
+// =============================================================================
+// ZAJMODAVCI FUNKCIJE
+// =============================================================================
+
+/**
+ * Učitaj zajmodavce za trenutnu firmu
+ */
+async function ucitajZajmodavce() {
+  console.log('=== UČITAJ ZAJMODAVCE ===');
+  console.log('Firma ID:', currentFirmaId);
+
+  if (!currentFirmaId) {
+    console.warn('Nema ID firme za učitavanje zajmodavaca');
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`);
+    const data = await response.json();
+
+    console.log('Odgovor servera:', data);
+
+    if (data.success) {
+      prikaziZajmodavce(data.data);
+    } else {
+      console.error('Greška pri učitavanju zajmodavaca:', data.message);
+      document.getElementById('zajmodavciTabela').innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center text-danger">
+            Greška: ${data.message}
+          </td>
+        </tr>
+      `;
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju zajmodavaca:', error);
+    document.getElementById('zajmodavciTabela').innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-danger">
+          Greška pri učitavanju podataka
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/**
+ * Prikaži zajmodavce u tabeli
+ */
+function prikaziZajmodavce(zajmodavci) {
+  console.log('=== PRIKAŽI ZAJMODAVCE ===');
+  console.log('Broj zajmodavaca:', zajmodavci.length);
+
+  const tabela = document.getElementById('zajmodavciTabela');
+
+  if (!zajmodavci || zajmodavci.length === 0) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          Nema registrovanih zajmodavaca
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  let html = '';
+  zajmodavci.forEach(zajmodavac => {
+    const jmbg = zajmodavac.jmbg || '-';
+    const ziroRacun = zajmodavac.ziro_racun || '-';
+
+    html += `
+      <tr>
+        <td><strong>${zajmodavac.ime} ${zajmodavac.prezime}</strong></td>
+        <td>${jmbg}</td>
+        <td>${ziroRacun}</td>
+        <td>
+          <span class="badge bg-info">
+            <i class="fas fa-money-bill-wave me-1"></i>0
+          </span>
+        </td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="editujZajmodavca(${zajmodavac.id})" title="Uredi">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-outline-danger" onclick="obrisiZajmodavca(${zajmodavac.id}, '${zajmodavac.ime} ${zajmodavac.prezime}')" title="Obriši">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tabela.innerHTML = html;
+}
+
+/**
+ * Otvori modal za dodavanje novog zajmodavca
+ */
+function otvoriZajmodavacModal() {
+  console.log('=== OTVORI ZAJMODAVAC MODAL ===');
+
+  // Resetuj formu
+  document.getElementById('zajmodavacForm').reset();
+
+  // Otvori modal
+  const modal = new bootstrap.Modal(document.getElementById('zajmodavacModal'));
+  modal.show();
+}
+
+/**
+ * Sačuvaj novog zajmodavca
+ */
+async function sacuvajZajmodavca() {
+  console.log('=== SAČUVAJ ZAJMODAVCA ===');
+
+  const ime = document.getElementById('zajmodavacIme').value.trim();
+  const prezime = document.getElementById('zajmodavacPrezime').value.trim();
+  const jmbg = document.getElementById('zajmodavacJmbg').value.trim();
+  const ziroRacun = document.getElementById('zajmodavacZiroRacun').value.trim();
+
+  // Validacija
+  if (!ime || !prezime) {
+    alert('Ime i prezime su obavezni!');
+    return;
+  }
+
+  if (jmbg && jmbg.length !== 13) {
+    alert('JMBG mora imati tačno 13 cifara!');
+    return;
+  }
+
+  const podaci = {
+    ime,
+    prezime,
+    jmbg: jmbg || null,
+    ziro_racun: ziroRacun || null,
+  };
+
+  console.log('Podaci za slanje:', podaci);
+
+  try {
+    const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(podaci),
+    });
+
+    const data = await response.json();
+    console.log('Odgovor servera:', data);
+
+    if (data.success) {
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('zajmodavacModal')
+      );
+      modal.hide();
+
+      // Prikaži poruku o uspešnom dodavanju
+      alert('Zajmodavac je uspešno dodat!');
+
+      // Osveži listu zajmodavaca
+      ucitajZajmodavce();
+    } else {
+      alert('Greška pri dodavanju zajmodavca: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Greška pri dodavanju zajmodavca:', error);
+    alert('Greška pri komunikaciji sa serverom');
+  }
+}
+
+/**
+ * Otvori modal za editovanje zajmodavca
+ */
+async function editujZajmodavca(zajmodavacId) {
+  console.log('=== EDITUJ ZAJMODAVCA ===');
+  console.log('Zajmodavac ID:', zajmodavacId);
+
+  try {
+    // Učitaj podatke o zajmodavcu
+    const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`);
+    const data = await response.json();
+
+    if (data.success) {
+      const zajmodavac = data.data.find(z => z.id === zajmodavacId);
+
+      if (zajmodavac) {
+        // Popuni formu
+        document.getElementById('editZajmodavacId').value = zajmodavac.id;
+        document.getElementById('editZajmodavacIme').value = zajmodavac.ime;
+        document.getElementById('editZajmodavacPrezime').value =
+          zajmodavac.prezime;
+        document.getElementById('editZajmodavacJmbg').value =
+          zajmodavac.jmbg || '';
+        document.getElementById('editZajmodavacZiroRacun').value =
+          zajmodavac.ziro_racun || '';
+
+        // Otvori modal
+        const modal = new bootstrap.Modal(
+          document.getElementById('editZajmodavacModal')
+        );
+        modal.show();
+      } else {
+        alert('Zajmodavac nije pronađen!');
+      }
+    } else {
+      alert('Greška pri učitavanju podataka zajmodavca: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Greška pri učitavanju zajmodavca:', error);
+    alert('Greška pri komunikaciji sa serverom');
+  }
+}
+
+/**
+ * Sačuvaj izmene zajmodavca
+ */
+async function sacuvajIzmeneZajmodavca() {
+  console.log('=== SAČUVAJ IZMENE ZAJMODAVCA ===');
+
+  const id = document.getElementById('editZajmodavacId').value;
+  const ime = document.getElementById('editZajmodavacIme').value.trim();
+  const prezime = document.getElementById('editZajmodavacPrezime').value.trim();
+  const jmbg = document.getElementById('editZajmodavacJmbg').value.trim();
+  const ziroRacun = document
+    .getElementById('editZajmodavacZiroRacun')
+    .value.trim();
+
+  // Validacija
+  if (!ime || !prezime) {
+    alert('Ime i prezime su obavezni!');
+    return;
+  }
+
+  if (jmbg && jmbg.length !== 13) {
+    alert('JMBG mora imati tačno 13 cifara!');
+    return;
+  }
+
+  const podaci = {
+    ime,
+    prezime,
+    jmbg: jmbg || null,
+    ziro_racun: ziroRacun || null,
+  };
+
+  console.log('Podaci za slanje:', podaci);
+
+  try {
+    const response = await fetch(`/api/zajmodavci/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(podaci),
+    });
+
+    const data = await response.json();
+    console.log('Odgovor servera:', data);
+
+    if (data.success) {
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('editZajmodavacModal')
+      );
+      modal.hide();
+
+      // Prikaži poruku o uspešnom ažuriranju
+      alert('Zajmodavac je uspešno ažuriran!');
+
+      // Osveži listu zajmodavaca
+      ucitajZajmodavce();
+    } else {
+      alert('Greška pri ažuriranju zajmodavca: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Greška pri ažuriranju zajmodavca:', error);
+    alert('Greška pri komunikaciji sa serverom');
+  }
+}
+
+/**
+ * Obriši zajmodavca
+ */
+async function obrisiZajmodavca(zajmodavacId, imePrezime) {
+  console.log('=== OBRIŠI ZAJMODAVCA ===');
+  console.log('Zajmodavac ID:', zajmodavacId);
+
+  if (
+    !confirm(
+      `Da li ste sigurni da želite da obrišete zajmodavca "${imePrezime}"?`
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/zajmodavci/${zajmodavacId}`, {
+      method: 'DELETE',
+    });
+
+    const data = await response.json();
+    console.log('Odgovor servera:', data);
+
+    if (data.success) {
+      alert('Zajmodavac je uspešno obrisan!');
+
+      // Osveži listu zajmodavaca
+      ucitajZajmodavce();
+    } else {
+      alert('Greška pri brisanju zajmodavca: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Greška pri brisanju zajmodavca:', error);
+    alert('Greška pri komunikaciji sa serverom');
+  }
 }

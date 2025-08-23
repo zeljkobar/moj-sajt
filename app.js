@@ -15,6 +15,7 @@ const pdvRoutes = require('./src/routes/pdvRoutes');
 const otkazRoutes = require('./src/routes/otkazRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const pozajmnicaRoutes = require('./src/routes/pozajmnicaRoutes');
+const zajmodavciRoutes = require('./src/routes/zajmodavci');
 const povracajRoutes = require('./src/routes/povracajRoutes');
 const odlukaRoutes = require('./src/routes/odlukaRoutes');
 const zadaciRoutes = require('./src/routes/zadaciRoutes');
@@ -537,6 +538,138 @@ app.get('/api/firme/:id/pozajmice', authMiddleware, async (req, res) => {
   }
 });
 
+// Dodaj i endpoint koji frontend očekuje
+app.get('/api/pozajmice/firma/:firmaId', authMiddleware, async (req, res) => {
+  try {
+    const firmaId = req.params.firmaId;
+    const userId = req.session.user.id;
+
+    // Prvo proveri da li firma pripada korisniku
+    const firma = await executeQuery(
+      'SELECT id FROM firme WHERE id = ? AND user_id = ?',
+      [firmaId, userId]
+    );
+
+    if (firma.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Firma nije pronađena',
+      });
+    }
+
+    // Učitaj pozajmice sa podacima o radnicima ili zajmodavcima
+    const pozajmice = await executeQuery(
+      `
+      SELECT p.*, 
+             r.ime as radnik_ime, r.prezime as radnik_prezime,
+             z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime
+      FROM pozajmnice p
+      LEFT JOIN radnici r ON p.radnik_id = r.id AND p.pozajmilac_tip = 'radnik'
+      LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id AND p.pozajmilac_tip = 'zajmodavac'
+      WHERE p.firma_id = ?
+      ORDER BY p.created_at DESC
+      `,
+      [firmaId]
+    );
+
+    res.json({
+      success: true,
+      pozajmice: pozajmice,
+    });
+  } catch (error) {
+    console.error('Greška pri učitavanju pozajmica:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri učitavanju pozajmica',
+    });
+  }
+});
+
+// Endpoint za sve pozajmice korisnika iz svih firmi (za dashboard)
+app.get('/api/pozajmice', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    // Učitaj sve pozajmice korisnika iz svih firmi
+    const pozajmice = await executeQuery(
+      `
+      SELECT p.*, 
+             f.naziv as firma_naziv,
+             r.ime as radnik_ime, r.prezime as radnik_prezime,
+             z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime
+      FROM pozajmnice p
+      JOIN firme f ON p.firma_id = f.id
+      LEFT JOIN radnici r ON p.radnik_id = r.id AND p.pozajmilac_tip = 'radnik'
+      LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id AND p.pozajmilac_tip = 'zajmodavac'
+      WHERE f.user_id = ?
+      ORDER BY p.created_at DESC
+      LIMIT 10
+      `,
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      pozajmice: pozajmice,
+    });
+  } catch (error) {
+    console.error('Greška pri učitavanju pozajmica:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri učitavanju pozajmica',
+    });
+  }
+});
+
+// Endpoint za pojedinačnu pozajmicu po ID-u (za ugovor)
+app.get('/api/pozajmice/:pozajmicaId', authMiddleware, async (req, res) => {
+  try {
+    const pozajmicaId = req.params.pozajmicaId;
+    const userId = req.session.user.id;
+
+    // Učitaj pozajmicu sa svim podacima uključujući firmu, radnika ili zajmodavca
+    const pozajmice = await executeQuery(
+      `
+      SELECT p.*, 
+             f.naziv as firma_naziv,
+             f.adresa as firma_adresa, 
+             f.pib as firma_pib,
+             f.ziro_racun as firma_ziro_racun,
+             f.direktor_ime_prezime as direktor_ime_prezime,
+             f.direktor_jmbg as direktor_jmbg,
+             f.grad as firma_grad,
+             r.ime as radnik_ime, r.prezime as radnik_prezime, r.jmbg as radnik_jmbg,
+             z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime, 
+             z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun
+      FROM pozajmnice p
+      LEFT JOIN firme f ON p.firma_id = f.id
+      LEFT JOIN radnici r ON p.radnik_id = r.id AND p.pozajmilac_tip = 'radnik'
+      LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id AND p.pozajmilac_tip = 'zajmodavac'
+      WHERE p.id = ? AND f.user_id = ?
+      `,
+      [pozajmicaId, userId]
+    );
+
+    if (pozajmice.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pozajmica nije pronađena',
+      });
+    }
+
+    res.json({
+      success: true,
+      pozajmica: pozajmice[0],
+    });
+  } catch (error) {
+    console.error('Greška pri učitavanju pozajmice:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri učitavanju pozajmice',
+    });
+  }
+});
+
 // API ruta za dashboard statistike
 app.get('/api/dashboard-stats', authMiddleware, async (req, res) => {
   try {
@@ -634,8 +767,30 @@ app.use('/api/pozicije', pozicijeRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/pdv', pdvRoutes);
 app.use('/api/otkazi', otkazRoutes);
-app.use('/api/pozajmice', pozajmnicaRoutes);
+app.use('/api/pozajmnice', pozajmnicaRoutes);
+app.use('/api/firme', zajmodavciRoutes);
 app.use('/api/povracaji', povracajRoutes);
+
+// Direktne rute za zajmodavce (kompatibilnost sa frontend-om)
+const zajmodavciController = require('./src/controllers/zajmodavciController');
+const {
+  validateZajmodavac,
+  validateId,
+} = require('./src/middleware/validation');
+
+app.put(
+  '/api/zajmodavci/:id',
+  authMiddleware,
+  validateId,
+  validateZajmodavac,
+  zajmodavciController.updateZajmodavac
+);
+app.delete(
+  '/api/zajmodavci/:id',
+  authMiddleware,
+  validateId,
+  zajmodavciController.deleteZajmodavac
+);
 app.use('/api/odluka', odlukaRoutes);
 app.use('/api/zadaci', zadaciRoutes);
 app.use('/api/admin', adminRoutes);
