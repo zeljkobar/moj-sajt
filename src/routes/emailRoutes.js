@@ -91,4 +91,84 @@ router.post(
   }
 );
 
+// Pošalji email svim korisnicima - SAMO ADMIN
+router.post('/broadcast', requireRole([ROLES.ADMIN]), async (req, res) => {
+  try {
+    const { subject, message, userType } = req.body;
+
+    if (!subject || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Naslov i poruka su obavezni',
+      });
+    }
+
+    const { executeQuery } = require('../config/database');
+
+    // Filtriraj korisnike po tipu ako je specificirano
+    let whereClause = '';
+    const params = [];
+
+    if (userType && userType !== 'all') {
+      whereClause = 'WHERE role = ?';
+      params.push(userType);
+    }
+
+    // Dobij sve korisnike
+    const users = await executeQuery(
+      `SELECT email, ime, prezime, role FROM users ${whereClause}`,
+      params
+    );
+
+    if (users.length === 0) {
+      return res.json({
+        success: false,
+        message: 'Nema korisnika za slanje email-a',
+      });
+    }
+
+    // Šalji email svakom korisniku
+    const results = [];
+    for (const user of users) {
+      try {
+        const result = await emailService.sendBroadcastEmail(
+          user.email,
+          `${user.ime} ${user.prezime}`,
+          subject,
+          message
+        );
+        results.push({
+          email: user.email,
+          success: result.success,
+          message: result.message,
+        });
+      } catch (error) {
+        results.push({
+          email: user.email,
+          success: false,
+          message: error.message,
+        });
+      }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.length - successCount;
+
+    res.json({
+      success: true,
+      message: `Email poslat ${successCount} korisnicima. ${failCount} neuspešno.`,
+      totalUsers: users.length,
+      successCount,
+      failCount,
+      details: results,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri slanju broadcast email-a',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

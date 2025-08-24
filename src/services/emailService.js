@@ -189,6 +189,46 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Broadcast email - admin obaveštenje svim korisnicima
+  async sendBroadcastEmail(userEmail, userName, subject, message) {
+    console.log(`📢 Šaljem broadcast email za: ${userEmail}`);
+
+    if (!this.transporter) {
+      console.error('❌ Email transporter nije inicijalizovan');
+      return { success: false, error: 'Email sistem nije konfigurisan' };
+    }
+
+    const content = `
+      <h2 style="color: #667eea; margin-bottom: 20px;">📢 Obaveštenje za sve korisnike</h2>
+      <p>Pozdrav <strong>${userName}</strong>,</p>
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+        ${message}
+      </div>
+    `;
+
+    const additionalInfo = `
+      <p style="margin: 5px 0;">• Ovo je administratorsko obaveštenje</p>
+      <p style="margin: 5px 0;">• Za pitanja kontaktirajte podršku</p>
+      <p style="margin: 5px 0;">• Email adresa: ${process.env.EMAIL_USER}</p>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject: `[Summa Summarum] ${subject}`,
+      html: this.createEmailTemplate(subject, content, additionalInfo),
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`✅ Broadcast email poslat za: ${userEmail}`);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ Greška pri slanju broadcast email-a:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService();

@@ -111,6 +111,67 @@
 
       <div class="row mt-4">
         <div class="col-12">
+          <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+              <h5>📢 Pošalji Email Svim Korisnicima (BROADCAST)</h5>
+              <small class="text-muted"
+                >⚠️ Pažljivo koristiti - šalje email svim registrovanim
+                korisnicima!</small
+              >
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Naslov email-a:</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="broadcastSubject"
+                      placeholder="Važno obaveštenje..."
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Tip korisnika:</label>
+                    <select class="form-control" id="broadcastUserType">
+                      <option value="all">Svi korisnici</option>
+                      <option value="firma">Samo firme</option>
+                      <option value="agencija">Samo agencije</option>
+                      <option value="admin">Samo administratori</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Poruka:</label>
+                    <textarea
+                      class="form-control"
+                      id="broadcastMessage"
+                      rows="6"
+                      placeholder="Unesite poruku koju želite da pošaljete svim korisnicima..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <button
+                  class="btn btn-warning btn-lg"
+                  onclick="sendBroadcastEmail()"
+                >
+                  📢 Pošalji Svim Korisnicima
+                </button>
+                <small class="text-muted">
+                  ⚠️ Ova akcija ne može da se opozove!
+                </small>
+              </div>
+              <div id="broadcastResult" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
           <div class="card">
             <div class="card-header">
               <h5>📊 Email Status</h5>
@@ -291,6 +352,91 @@
                         <strong>❌ Greška:</strong> ${error.message}
                     </div>
                 `;
+        }
+      }
+
+      // Broadcast email funkcija
+      async function sendBroadcastEmail() {
+        const subject = document
+          .getElementById('broadcastSubject')
+          .value.trim();
+        const message = document
+          .getElementById('broadcastMessage')
+          .value.trim();
+        const userType = document.getElementById('broadcastUserType').value;
+        const resultDiv = document.getElementById('broadcastResult');
+
+        if (!subject || !message) {
+          resultDiv.innerHTML =
+            '<div class="alert alert-warning">⚠️ Naslov i poruka su obavezni!</div>';
+          return;
+        }
+
+        // Konfirmacija pre slanja
+        const userTypeText =
+          userType === 'all'
+            ? 'svim korisnicima'
+            : `korisnicima tipa "${userType}"`;
+        if (
+          !confirm(
+            `Da li ste sigurni da želite da pošaljete email ${userTypeText}?\n\nNaslov: ${subject}\n\nOva akcija se ne može opozvati!`
+          )
+        ) {
+          return;
+        }
+
+        resultDiv.innerHTML =
+          '<div class="text-info">📨 Šaljem broadcast email... Ovo može potrajati...</div>';
+
+        try {
+          const response = await fetch('/api/email/broadcast', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              subject: subject,
+              message: message,
+              userType: userType,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            resultDiv.innerHTML = `
+              <div class="alert alert-success">
+                <strong>✅ Broadcast email uspešno poslat!</strong>
+                <br><strong>Ukupno korisnika:</strong> ${data.totalUsers}
+                <br><strong>Uspešno poslato:</strong> ${data.successCount}
+                <br><strong>Neuspešno:</strong> ${data.failCount}
+                ${
+                  data.failCount > 0
+                    ? '<br><small class="text-warning">⚠️ Neki email-ovi nisu poslati - proverite log za detalje</small>'
+                    : ''
+                }
+              </div>
+            `;
+
+            // Očisti formu nakon uspešnog slanja
+            document.getElementById('broadcastSubject').value = '';
+            document.getElementById('broadcastMessage').value = '';
+            document.getElementById('broadcastUserType').value = 'all';
+          } else {
+            resultDiv.innerHTML = `
+              <div class="alert alert-danger">
+                <strong>❌ ${data.message}</strong>
+                <br><small>${data.error || ''}</small>
+              </div>
+            `;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+              <strong>❌ Greška pri slanju:</strong> ${error.message}
+            </div>
+          `;
         }
       }
 

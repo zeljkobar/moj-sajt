@@ -268,6 +268,16 @@ app.get('/obracun-zaliha.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/obracun-zaliha.html');
 });
 
+// Zaštićena ruta za email admin panel - SAMO ADMIN
+app.get(
+  '/email-admin.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/email-admin.html');
+  }
+);
+
 // API ruta za pretragu
 app.get('/api/search', authMiddleware, async (req, res) => {
   try {
