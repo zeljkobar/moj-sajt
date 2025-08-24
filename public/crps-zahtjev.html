@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zahtjev za izvod iz CRPS</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="global-components.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+
+    <!-- Tema preloader -->
+    <script src="components/theme-preloader.js"></script>
+
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#007bff" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link rel="apple-touch-icon" href="images/favicon/apple-touch-icon.png" />
+
+    <style>
+      @page {
+        margin: 2cm;
+        size: A4;
+      }
+
+      @media print {
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Times New Roman', serif;
+          font-size: 12pt;
+          line-height: 1.4;
+          color: black;
+          background: white;
+          margin: 0;
+          padding: 0;
+        }
+
+        .no-print {
+          display: none !important;
+        }
+
+        .navbar,
+        .navbar-brand,
+        nav {
+          display: none !important;
+        }
+
+        .print-document {
+          max-width: none;
+          margin: 0;
+          padding: 0;
+          font-size: 12pt;
+          line-height: 1.4;
+        }
+
+        .print-document div {
+          display: block;
+        }
+
+        .print-document span {
+          display: inline !important;
+        }
+
+        .document-header {
+          text-align: center;
+          margin-bottom: 25pt;
+        }
+
+        .document-title {
+          font-size: 14pt;
+          font-weight: bold;
+          text-transform: uppercase;
+          margin-bottom: 8pt;
+        }
+
+        .document-subtitle {
+          font-size: 11pt;
+          margin-bottom: 0;
+        }
+
+        .content-paragraph {
+          margin-bottom: 15pt;
+          text-align: left;
+          font-size: 12pt;
+        }
+
+        .form-field {
+          margin-bottom: 12pt;
+          font-size: 12pt;
+        }
+
+        .field-label {
+          display: inline;
+          font-weight: normal;
+        }
+
+        .field-underline {
+          display: inline-block;
+          border-bottom: 1px solid black;
+          min-width: 250pt;
+          height: 18pt;
+          margin-left: 5pt;
+          vertical-align: baseline;
+        }
+
+        .section-title {
+          font-weight: bold;
+          margin-top: 20pt;
+          margin-bottom: 10pt;
+          font-size: 12pt;
+        }
+
+        .bottom-section {
+          margin-top: 40pt;
+          display: table;
+          width: 100%;
+        }
+
+        .bottom-left {
+          display: table-cell;
+          width: 50%;
+          vertical-align: top;
+        }
+
+        .bottom-right {
+          display: table-cell;
+          width: 50%;
+          text-align: center;
+          vertical-align: top;
+        }
+
+        .signature-line {
+          border-bottom: 1px solid black;
+          height: 50pt;
+          margin-top: 15pt;
+          width: 80%;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .note-section {
+          margin-top: 30pt;
+          font-size: 10pt;
+          font-style: italic;
+        }
+      }
+
+      @media screen {
+        .field-underline {
+          border-bottom: 1px solid #ccc;
+          min-width: 250px;
+          height: 25px;
+          display: inline-block;
+          margin-left: 5px;
+        }
+
+        .document-header {
+          margin-bottom: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary no-print">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <img
+            src="images/summasummarum_logo.svg"
+            alt="Logo"
+            height="30"
+            class="d-inline-block align-text-top"
+          />
+          SummaSummarum
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="dashboard.html">Dashboard</a>
+          <a class="nav-link" href="javascript:history.back()">Nazad</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div
+        class="d-flex justify-content-between align-items-center mb-4 no-print"
+      >
+        <h2>Zahtjev za izvod iz CRPS</h2>
+        <div>
+          <button class="btn btn-secondary me-2" onclick="history.back()">
+            <i class="bi bi-arrow-left"></i> Nazad
+          </button>
+          <button class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Štampaj/PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="print-document">
+        <!-- Main Content -->
+        <div class="content-paragraph">
+          Molim Vas da mi iz centralnog registra izdate:
+        </div>
+
+        <div style="text-align: left; margin: 20pt 0">
+          <div style="font-weight: bold; font-size: 14pt">IZVOD</div>
+          <div
+            style="border-bottom: 1px solid black; width: 100%; margin-top: 5pt"
+          ></div>
+        </div>
+
+        <div class="form-field">Za privredno društvo:</div>
+        <div style="text-align: left; margin: 10pt 0">
+          <div style="font-weight: bold; font-size: 14pt" id="nazivFirme"></div>
+          <div
+            style="border-bottom: 1px solid black; width: 100%; margin-top: 5pt"
+          ></div>
+        </div>
+
+        <div class="form-field">Matični ili registarski broj društva:</div>
+        <div style="text-align: left; margin: 10pt 0">
+          <div style="font-weight: bold" id="pib"></div>
+          <div
+            style="border-bottom: 1px solid black; width: 100%; margin-top: 5pt"
+          ></div>
+        </div>
+
+        <div class="form-field">Ista mi je potrebna zbog:</div>
+        <div style="text-align: left; margin: 10pt 0">
+          <div style="font-weight: bold" id="razlog"></div>
+          <div
+            style="border-bottom: 1px solid black; width: 100%; margin-top: 5pt"
+          ></div>
+        </div>
+
+        <div style="margin-top: 40pt; text-align: center">
+          <table
+            style="
+              display: inline-block;
+              border-collapse: collapse;
+              margin-left: 10px;
+            "
+          >
+            <tr>
+              <td
+                style="
+                  padding: 4pt 8pt 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                "
+              >
+                Podnosilac zahtjeva:
+              </td>
+              <td
+                style="
+                  padding: 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                  font-weight: bold;
+                "
+              >
+                <span id="direktor" style="text-decoration: underline"></span>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 4pt 8pt 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                "
+              >
+                Broj lične karte:
+              </td>
+              <td
+                style="
+                  padding: 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                  font-weight: bold;
+                "
+              >
+                <span
+                  id="maticniBrojDirektora"
+                  style="text-decoration: underline"
+                ></span>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 4pt 8pt 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                "
+              >
+                Današni datum:
+              </td>
+              <td
+                style="
+                  padding: 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                  font-weight: bold;
+                "
+              >
+                <span id="datum" style="text-decoration: underline"></span>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 4pt 8pt 4pt 0;
+                  vertical-align: top;
+                  text-align: left;
+                "
+              >
+                Potpis podnosioca:
+              </td>
+              <td style="padding: 4pt 0; vertical-align: top; text-align: left">
+                ________________
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="margin-top: 60pt">
+          <div style="margin-bottom: 8pt">Uz zahtjev prilazem:</div>
+          <div style="margin-bottom: 4pt">
+            Administrativnu taksu u iznosu od
+            <span style="font-weight: bold">5,00 €</span>
+          </div>
+          <div>
+            Budzet Crne Gore žiro račun &nbsp;&nbsp;<span
+              style="font-weight: bold"
+              >832-3161017-60</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="components/navigation.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+      // Funkcija za dobijanje parametara iz URL-a
+      function getURLParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name) || '';
+      }
+
+      // Popunjavanje forme sa podacima iz URL parametara
+      document.addEventListener('DOMContentLoaded', function () {
+        // Osnovni podaci o firmi
+        const nazivFirme = decodeURIComponent(
+          getURLParameter('nazivFirme')
+        ).replace(/\+/g, ' ');
+        const maticniBroj = getURLParameter('maticniBroj');
+        const pib = getURLParameter('pib');
+        const razlog = decodeURIComponent(getURLParameter('razlog')).replace(
+          /\+/g,
+          ' '
+        );
+
+        // Podaci o direktoru
+        const direktor = decodeURIComponent(
+          getURLParameter('direktor')
+        ).replace(/\+/g, ' ');
+        const maticniBrojDirektora = getURLParameter('maticniBrojDirektora');
+
+        // Popunjavanje osnovnih podataka
+        document.getElementById('nazivFirme').textContent = nazivFirme || '';
+        document.getElementById('pib').textContent = pib || '';
+        document.getElementById('razlog').textContent = razlog || '';
+
+        // Popunjavanje podataka o direktoru
+        document.getElementById('direktor').textContent = direktor || '';
+        document.getElementById('maticniBrojDirektora').textContent =
+          maticniBrojDirektora || '';
+
+        // Automatski datum
+        const danas = new Date();
+        const formatDatum =
+          danas.getDate().toString().padStart(2, '0') +
+          '.' +
+          (danas.getMonth() + 1).toString().padStart(2, '0') +
+          '.' +
+          danas.getFullYear();
+        document.getElementById('datum').textContent = formatDatum;
+
+        // Debug informacije (samo u konzoli)
+        console.log('CRPS Zahtjev - Podaci:', {
+          nazivFirme: nazivFirme,
+          pib: pib,
+          razlog: razlog,
+          direktor: direktor,
+          maticniBrojDirektora: maticniBrojDirektora,
+          datum: formatDatum,
+        });
+      });
+    </script>
+  </body>
+</html>

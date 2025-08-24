@@ -830,6 +830,24 @@
                     </button>
                   </div>
                 </div>
+
+                <!-- Zahtjev za izvod iz CRPS -->
+                <div class="document-card">
+                  <h6>
+                    <i class="fas fa-university text-info me-2"></i>
+                    Zahtjev za izvod iz CRPS
+                  </h6>
+                  <p class="text-muted mb-2">
+                    Zahtjev za izdavanje izvoda iz Centralnog registra
+                    privrednih subjekata
+                  </p>
+                  <button
+                    class="btn btn-info btn-sm"
+                    onclick="otvoriCRPSZahtjev()"
+                  >
+                    <i class="fas fa-file-plus me-1"></i>Generiši
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -2353,6 +2371,60 @@
               onclick="sacuvajIzmeneZajmodavca()"
             >
               <i class="fas fa-save me-1"></i>Sačuvaj izmene
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za razlog CRPS zahtjeva -->
+    <div class="modal fade" id="crpsRazlogModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-file-search text-info me-2"></i>
+              Zahtjev za izvod iz CRPS
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">
+              Molimo unesite razlog zbog kojeg vam je potreban izvod iz
+              Centralnog registra privrednih subjekata:
+            </p>
+            <div class="mb-3">
+              <label for="crpsRazlog" class="form-label"
+                >Razlog zahtjeva:</label
+              >
+              <textarea
+                class="form-control"
+                id="crpsRazlog"
+                rows="3"
+                placeholder="Na primer: potreban za učešće u javnoj nabavci, za osnivanje poslovne banke, za registraciju kod drugog državnog organa..."
+                maxlength="500"
+              ></textarea>
+              <div class="form-text">Maksimalno 500 karaktera</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-info"
+              onclick="kreirajCRPSZahtjev()"
+            >
+              <i class="fas fa-file-plus me-1"></i>Kreiraj zahtjev
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
             </button>
           </div>
         </div>

@@ -4508,3 +4508,68 @@ async function obrisiZajmodavca(zajmodavacId, imePrezime) {
     alert('Greška pri komunikaciji sa serverom');
   }
 }
+
+// =============================================================================
+// CRPS ZAHTJEV FUNKCIJE
+// =============================================================================
+
+/**
+ * Otvara modal za unos razloga CRPS zahtjeva
+ */
+function otvoriCRPSZahtjev() {
+  // Provjeri da li su učitani podaci o firmi
+  if (!currentFirmaData) {
+    alert('Molimo sačekajte da se učitaju podaci o firmi');
+    return;
+  }
+
+  // Otvori modal za unos razloga
+  const modal = new bootstrap.Modal(document.getElementById('crpsRazlogModal'));
+  modal.show();
+
+  // Fokusiraj se na textarea
+  setTimeout(() => {
+    document.getElementById('crpsRazlog').focus();
+  }, 500);
+}
+
+/**
+ * Kreira CRPS zahtjev sa unetim razlogom
+ */
+function kreirajCRPSZahtjev() {
+  const razlog = document.getElementById('crpsRazlog').value.trim();
+
+  if (!razlog) {
+    alert('Molimo unesite razlog zahtjeva');
+    document.getElementById('crpsRazlog').focus();
+    return;
+  }
+
+  if (!currentFirmaData) {
+    alert('Podaci o firmi nisu dostupni');
+    return;
+  }
+
+  // Zatvori modal
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById('crpsRazlogModal')
+  );
+  modal.hide();
+
+  // Kreiraj URL za CRPS stranicu sa parametrima
+  const params = new URLSearchParams({
+    firmaId: currentFirmaData.id,
+    pib: currentFirmaData.pib,
+    nazivFirme: currentFirmaData.naziv,
+    maticniBroj: currentFirmaData.maticni_broj,
+    direktor: currentFirmaData.direktor,
+    maticniBrojDirektora: currentFirmaData.jmbg_direktora || '',
+    razlog: razlog,
+  });
+
+  // Otvori CRPS zahtjev stranicu u istom tabu
+  window.location.href = `crps-zahtjev.html?${params.toString()}`;
+
+  // Obriši textarea za sledeći put
+  document.getElementById('crpsRazlog').value = '';
+}
