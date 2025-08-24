@@ -1,0 +1,61 @@
+# Robots.txt for SummaSummarum.me
+# Omogućava pristup svim search engine-ima
+
+User-agent: *
+Allow: /
+
+# Blokiraj pristup admin i zaštićenim stranicama
+Disallow: /admin-*
+Disallow: /protected/
+Disallow: /database/
+Disallow: /logs/
+Disallow: /src/
+Disallow: /*.sql$
+Disallow: /*.js.map$
+
+# Blokiraj access do fajlova koje ne treba indexirati
+Disallow: /cookies.txt
+Disallow: /package.json
+Disallow: /app.js
+Disallow: /generate_db_structure.js
+
+# Omogući pristup glavnim CSS i JS fajlovima
+Allow: /style.css
+Allow: /script.js
+Allow: /global-components.css
+Allow: /app-pages.css
+Allow: /components/
+
+# Omogući pristup slikama
+Allow: /images/
+
+# Sitemap lokacija
+Sitemap: https://www.summasummarum.me/sitemap.xml
+
+# Crawl-delay za kulturno ponašanje botova
+Crawl-delay: 1
+
+# Specifične direktive za glavne search engine-e
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Blokiraj loše botove
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
