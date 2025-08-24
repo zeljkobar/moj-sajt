@@ -1,179 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-        
-  <!-- Glavna stranica -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.summasummarum.me/</loc>
     <lastmod>2025-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Prijava/Registracija -->
   <url>
     <loc>https://www.summasummarum.me/prijava.html</loc>
     <lastmod>2025-08-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
   <url>
     <loc>https://www.summasummarum.me/registracija.html</loc>
     <lastmod>2025-08-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Dashboard -->
-  <url>
-    <loc>https://www.summasummarum.me/dashboard.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <!-- Firme i upravljanje -->
-  <url>
-    <loc>https://www.summasummarum.me/firme.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/dodaj-firmu.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/pozicije.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Dokumenti i ugovori -->
   <url>
     <loc>https://www.summasummarum.me/ugovor-o-radu.html</loc>
     <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/ugovor-o-djelu.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/ugovor-o-dopunskom-radu.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/ugovor-o-zajmu-novca.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Otkazi i dokumenti -->
-  <url>
-    <loc>https://www.summasummarum.me/otkazi.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/sporazumni-raskid.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Godišnji odmori -->
-  <url>
-    <loc>https://www.summasummarum.me/godisnji-odmori.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/plan-godisnjeg-odmora.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- PDV i porezi -->
-  <url>
-    <loc>https://www.summasummarum.me/pdv0.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/pdv-pregled.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- JPR dokumenti -->
-  <url>
-    <loc>https://www.summasummarum.me/jpr-obrazac.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Ostali dokumenti -->
-  <url>
-    <loc>https://www.summasummarum.me/potvrda-zaposlenja.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/sedmicni-odmor.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Informacione stranice -->
   <url>
     <loc>https://www.summasummarum.me/kontakt.html</loc>
     <lastmod>2025-08-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
-  
   <url>
     <loc>https://www.summasummarum.me/politika-privatnosti.html</loc>
     <lastmod>2025-08-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  
-  <url>
-    <loc>https://www.summasummarum.me/uslovi-koriscenja.html</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  
 </urlset>
