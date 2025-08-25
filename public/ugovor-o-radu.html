@@ -590,14 +590,26 @@
 
       async function popuniUgovorPoRadniku(radnikId, firmaId) {
         try {
+          console.log('Pozivam API za radnika:', radnikId, 'i firmu:', firmaId);
+
           // Učitaj podatke o radniku i firmi direktno
           const [radnikResponse, firmaResponse] = await Promise.all([
             fetch(`/api/radnici/id/${radnikId}`),
             fetch(`/api/firme/id/${firmaId}`),
           ]);
 
+          console.log(
+            'Status odgovora - radnik:',
+            radnikResponse.status,
+            'firma:',
+            firmaResponse.status
+          );
+
           const radnik = await radnikResponse.json();
           const firma = await firmaResponse.json();
+
+          console.log('Podaci o radniku:', radnik);
+          console.log('Podaci o firmi:', firma);
 
           // Kreiraj ugovor objekat u istom formatu kao što API vraća
           const ugovor = {
@@ -689,46 +701,80 @@
       }
 
       function popuniUgovorSaPodacima(ugovor) {
+        console.log('Popunjavam ugovor sa podacima:', ugovor);
+
         // Popuni tip ugovora
         const tipTekst =
           ugovor.radnik_tip_ugovora === 'na_neodredjeno'
             ? 'neodređeno'
             : 'određeno';
-        document.getElementById('tip-ugovora').textContent = tipTekst;
-        document.getElementById('tip-ugovora-clan7').textContent = tipTekst;
-        document.getElementById('tip-ugovora-clan2').textContent = tipTekst;
+
+        const tipUgovoraElement = document.getElementById('tip-ugovora');
+        const tipUgovoraClan7Element =
+          document.getElementById('tip-ugovora-clan7');
+        const tipUgovoraClan2Element =
+          document.getElementById('tip-ugovora-clan2');
+
+        if (tipUgovoraElement) tipUgovoraElement.textContent = tipTekst;
+        if (tipUgovoraClan7Element)
+          tipUgovoraClan7Element.textContent = tipTekst;
+        if (tipUgovoraClan2Element)
+          tipUgovoraClan2Element.textContent = tipTekst;
 
         // Popuni podatke o firmi
-        document.getElementById('firma-naziv').textContent = ugovor.firma_naziv;
-        document.getElementById('firma-pib').textContent = ugovor.firma_pib;
-        document.getElementById('firma-adresa').textContent =
-          ugovor.firma_adresa || 'MILA BOSKOVICA';
-        document.getElementById('direktor-ime').textContent =
-          ugovor.direktor_ime_prezime || 'SPIČANOVIĆ VOJIN';
+        const firmaNazivElement = document.getElementById('firma-naziv');
+        const firmaPibElement = document.getElementById('firma-pib');
+        const firmaAdresaElement = document.getElementById('firma-adresa');
+        const direktorImeElement = document.getElementById('direktor-ime');
+
+        if (firmaNazivElement)
+          firmaNazivElement.textContent = ugovor.firma_naziv;
+        if (firmaPibElement) firmaPibElement.textContent = ugovor.firma_pib;
+        if (firmaAdresaElement)
+          firmaAdresaElement.textContent =
+            ugovor.firma_adresa || 'MILA BOSKOVICA';
+        if (direktorImeElement)
+          direktorImeElement.textContent =
+            ugovor.direktor_ime_prezime || 'SPIČANOVIĆ VOJIN';
 
         // Popuni podatke o radniku
         const radnikImePrezime = `${ugovor.radnik_prezime} ${ugovor.radnik_ime}`;
-        document.getElementById('radnik-ime-prezime').textContent =
-          radnikImePrezime.toUpperCase();
-        document.getElementById('radnik-jmbg').textContent = ugovor.radnik_jmbg;
+        const radnikImePrezimeElement =
+          document.getElementById('radnik-ime-prezime');
+        const radnikJmbgElement = document.getElementById('radnik-jmbg');
+
+        if (radnikImePrezimeElement)
+          radnikImePrezimeElement.textContent = radnikImePrezime.toUpperCase();
+        if (radnikJmbgElement)
+          radnikJmbgElement.textContent = ugovor.radnik_jmbg;
 
         // Popuni grad i adresu radnika
         const gradUPadezuZaIz = transformisiGradUPadez(ugovor.radnik_grad);
-        document.getElementById('radnik-grad').textContent = gradUPadezuZaIz;
-        document.getElementById('radnik-adresa').textContent =
-          ugovor.radnik_adresa || 'Bar, Ulica 123';
+        const radnikGradElement = document.getElementById('radnik-grad');
+        const radnikAdresaElement = document.getElementById('radnik-adresa');
+
+        if (radnikGradElement) radnikGradElement.textContent = gradUPadezuZaIz;
+        if (radnikAdresaElement)
+          radnikAdresaElement.textContent =
+            ugovor.radnik_adresa || 'Bar, Ulica 123';
 
         // Popuni datume
         const datumZaposlenja = new Date(ugovor.datum_zaposlenja);
         const formatiraniDatumZaposlenja =
           datumZaposlenja.toLocaleDateString('sr-Latn-RS');
 
-        document.getElementById('datum-pocetka').textContent =
-          formatiraniDatumZaposlenja;
-        document.getElementById('datum-stupanja').textContent =
-          formatiraniDatumZaposlenja;
-        document.getElementById('datum-zaposlenja-clan2').textContent =
-          formatiraniDatumZaposlenja;
+        const datumPocetkaElement = document.getElementById('datum-pocetka');
+        const datumStupanjaElement = document.getElementById('datum-stupanja');
+        const datumZaposlenjaClan2Element = document.getElementById(
+          'datum-zaposlenja-clan2'
+        );
+
+        if (datumPocetkaElement)
+          datumPocetkaElement.textContent = formatiraniDatumZaposlenja;
+        if (datumStupanjaElement)
+          datumStupanjaElement.textContent = formatiraniDatumZaposlenja;
+        if (datumZaposlenjaClan2Element)
+          datumZaposlenjaClan2Element.textContent = formatiraniDatumZaposlenja;
 
         // Prikaži/sakrij datum kraja za određeno/neodređeno vreme
         const datumKrajaWrapper = document.getElementById(
@@ -739,34 +785,46 @@
         );
 
         if (ugovor.radnik_tip_ugovora === 'na_neodredjeno') {
-          datumKrajaWrapper.style.display = 'none';
-          doDatumPrestankaWrapper.style.display = 'none';
+          if (datumKrajaWrapper) datumKrajaWrapper.style.display = 'none';
+          if (doDatumPrestankaWrapper)
+            doDatumPrestankaWrapper.style.display = 'none';
         } else if (ugovor.datum_prestanka) {
           const datumPrestanka = new Date(ugovor.datum_prestanka);
           const formatiraniDatumPrestanka =
             datumPrestanka.toLocaleDateString('sr-Latn-RS');
-          document.getElementById('datum-kraja').textContent =
-            formatiraniDatumPrestanka;
-          document.getElementById('datum-prestanka-clan2').textContent =
-            formatiraniDatumPrestanka;
-          datumKrajaWrapper.style.display = 'inline';
-          doDatumPrestankaWrapper.style.display = 'inline';
+
+          const datumKrajaElement = document.getElementById('datum-kraja');
+          const datumPrestankaClan2Element = document.getElementById(
+            'datum-prestanka-clan2'
+          );
+
+          if (datumKrajaElement)
+            datumKrajaElement.textContent = formatiraniDatumPrestanka;
+          if (datumPrestankaClan2Element)
+            datumPrestankaClan2Element.textContent = formatiraniDatumPrestanka;
+          if (datumKrajaWrapper) datumKrajaWrapper.style.display = 'inline';
+          if (doDatumPrestankaWrapper)
+            doDatumPrestankaWrapper.style.display = 'inline';
         }
 
         // Popuni mesto rada
-        document.getElementById('mesto-rada').textContent =
-          ugovor.mesto_rada || 'SUSANJ BB';
+        const mestoRadaElement = document.getElementById('mesto-rada');
+        if (mestoRadaElement) {
+          mestoRadaElement.textContent = ugovor.mesto_rada || 'SUSANJ BB';
+        }
 
         // Popuni poziciju
-        document.getElementById('pozicija-naziv').textContent =
-          ugovor.pozicija_naziv || 'rukovalac građevi';
+        const pozicijaNazivElement = document.getElementById('pozicija-naziv');
+        if (pozicijaNazivElement) {
+          pozicijaNazivElement.textContent =
+            ugovor.pozicija_naziv || 'rukovalac građevi';
+        }
 
         // Popuni opis pozicije
         const pozicijaOpisDiv = document.getElementById('pozicija-opis');
-        if (ugovor.opis_poslova) {
+        if (pozicijaOpisDiv && ugovor.opis_poslova) {
           pozicijaOpisDiv.innerHTML = `<p>${ugovor.opis_poslova}</p>`;
           console.log('Popunjen opis pozicije iz baze:', ugovor.opis_poslova);
-        } else {
         }
 
         // Popuni radno vreme na osnovu tip_radnog_vremena iz baze
@@ -818,14 +876,24 @@
           tipRadnogVremena = 'SKRAĆENIM';
         }
 
-        document.getElementById('tip-radnog-vremena').textContent =
-          tipRadnogVremena;
-        document.getElementById('sati-dnevno').textContent = satiDnevno;
-        document.getElementById('sati-dnevno-tekst').textContent =
-          brojUTekst(satiDnevno);
-        document.getElementById('sati-nedeljno').textContent = satiNedeljno;
-        document.getElementById('sati-nedeljno-tekst').textContent =
-          brojUTekst(satiNedeljno);
+        const tipRadnogVremenaElement =
+          document.getElementById('tip-radnog-vremena');
+        const satiDnevnoElement = document.getElementById('sati-dnevno');
+        const satiDnevnoTekstElement =
+          document.getElementById('sati-dnevno-tekst');
+        const satiNedeljnoElement = document.getElementById('sati-nedeljno');
+        const satiNedeljnoTekstElement = document.getElementById(
+          'sati-nedeljno-tekst'
+        );
+
+        if (tipRadnogVremenaElement)
+          tipRadnogVremenaElement.textContent = tipRadnogVremena;
+        if (satiDnevnoElement) satiDnevnoElement.textContent = satiDnevno;
+        if (satiDnevnoTekstElement)
+          satiDnevnoTekstElement.textContent = brojUTekst(satiDnevno);
+        if (satiNedeljnoElement) satiNedeljnoElement.textContent = satiNedeljno;
+        if (satiNedeljnoTekstElement)
+          satiNedeljnoTekstElement.textContent = brojUTekst(satiNedeljno);
 
         // Popuni visinu zarade
         if (ugovor.visina_zarade) {
@@ -835,8 +903,10 @@
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           });
-          document.getElementById('visina-zarade').textContent =
-            formatiranZarada;
+          const visinaZaradeElement = document.getElementById('visina-zarade');
+          if (visinaZaradeElement) {
+            visinaZaradeElement.textContent = formatiranZarada;
+          }
         }
 
         console.log('Ugovor uspešno popunjen:', ugovor);
