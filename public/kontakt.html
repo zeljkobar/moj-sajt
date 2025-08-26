@@ -50,6 +50,9 @@
     />
     <link rel="manifest" href="/site.webmanifest" />
 
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -59,7 +62,28 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="global-components.css" />
+    
+    <!-- Dark mode dodatni stilovi za kontakt.html -->
     <style>
+      [data-theme="dark"] body {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+      }
+      
+      [data-theme="dark"] .bg-white {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+      }
+      
+      [data-theme="dark"] .navbar-light {
+        background-color: #2d2d2d !important;
+      }
+      
+      [data-theme="dark"] .navbar-light .navbar-nav .nav-link {
+        color: #e0e0e0 !important;
+      }
+      
       body {
         background-color: #f8f9fa;
         min-height: 100vh;
@@ -103,6 +127,10 @@
             </ul>
             <!-- Login dugmići -->
             <div class="d-flex align-items-center ms-lg-3">
+              <!-- Dark mode toggle -->
+              <button class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
               <a href="/prijava.html" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-sign-in-alt me-1"></i>Prijava
               </a>
@@ -115,6 +143,10 @@
               id="userPanel"
               class="d-none d-flex align-items-center ms-lg-3"
             >
+              <!-- Dark mode toggle za ulogovane korisnike -->
+              <button class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
               <span id="welcomeMsg" class="me-2"></span>
               <button
                 id="logoutBtn"
@@ -219,5 +251,58 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    
+    <!-- Dark mode logika za kontakt.html -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // =====================================
+        // DARK MODE LOGIKA (kopirano iz navigation.js)
+        // =====================================
+        
+        // Inicijalizuj dark mode
+        function initializeDarkMode() {
+          const savedTheme = localStorage.getItem('theme') || 'light';
+          
+          // Postaviće početnu temu
+          document.documentElement.setAttribute('data-theme', savedTheme);
+          
+          // Handler funkcija za toggle
+          const themeToggleHandler = e => {
+            if (e.target.closest('.theme-toggle')) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+
+              const currentTheme = document.documentElement.getAttribute('data-theme');
+              const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+              document.documentElement.setAttribute('data-theme', newTheme);
+              localStorage.setItem('theme', newTheme);
+              updateThemeToggleText(newTheme);
+            }
+          };
+
+          // Dodaj event listener
+          document.body.addEventListener('click', themeToggleHandler);
+
+          // Ažuriraj tekst nakon kratke pauze
+          setTimeout(() => {
+            updateThemeToggleText(savedTheme);
+          }, 200);
+        }
+
+        // Ažurira tekst theme toggle dugmeta
+        function updateThemeToggleText(theme) {
+          const themeToggles = document.querySelectorAll('.theme-toggle');
+          themeToggles.forEach(toggle => {
+            toggle.innerHTML = theme === 'dark'
+              ? '<i class="fas fa-sun"></i> Light'
+              : '<i class="fas fa-moon"></i> Dark';
+          });
+        }
+
+        // Inicijalizuj dark mode
+        initializeDarkMode();
+      });
+    </script>
   </body>
 </html>
