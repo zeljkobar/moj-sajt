@@ -274,6 +274,39 @@
       href="images/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
+    <!-- Dark mode dodatni stilovi za index.html -->
+    <style>
+      [data-theme='dark'] body {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .bg-white {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .text-dark {
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .bg-light {
+        background-color: #404040 !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .navbar-light {
+        background-color: #2d2d2d !important;
+      }
+
+      [data-theme='dark'] .navbar-light .navbar-nav .nav-link {
+        color: #e0e0e0 !important;
+      }
+    </style>
   </head>
   <body>
     <main>
@@ -863,6 +896,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

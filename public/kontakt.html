@@ -11,9 +11,9 @@
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag("js", new Date());
+      gtag('js', new Date());
 
-      gtag("config", "G-DGZCVVHKXW");
+      gtag('config', 'G-DGZCVVHKXW');
     </script>
 
     <meta charset="UTF-8" />
@@ -63,27 +63,27 @@
     />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="global-components.css" />
-    
+
     <!-- Dark mode dodatni stilovi za kontakt.html -->
     <style>
-      [data-theme="dark"] body {
+      [data-theme='dark'] body {
         background-color: #1a1a1a !important;
         color: #e0e0e0 !important;
       }
-      
-      [data-theme="dark"] .bg-white {
+
+      [data-theme='dark'] .bg-white {
         background-color: #2d2d2d !important;
         color: #e0e0e0 !important;
       }
-      
-      [data-theme="dark"] .navbar-light {
+
+      [data-theme='dark'] .navbar-light {
         background-color: #2d2d2d !important;
       }
-      
-      [data-theme="dark"] .navbar-light .navbar-nav .nav-link {
+
+      [data-theme='dark'] .navbar-light .navbar-nav .nav-link {
         color: #e0e0e0 !important;
       }
-      
+
       body {
         background-color: #f8f9fa;
         min-height: 100vh;
@@ -251,28 +251,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-    
+
     <!-- Dark mode logika za kontakt.html -->
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         // =====================================
         // DARK MODE LOGIKA (kopirano iz navigation.js)
         // =====================================
-        
+
         // Inicijalizuj dark mode
         function initializeDarkMode() {
           const savedTheme = localStorage.getItem('theme') || 'light';
-          
+
           // Postaviće početnu temu
           document.documentElement.setAttribute('data-theme', savedTheme);
-          
+
           // Handler funkcija za toggle
           const themeToggleHandler = e => {
             if (e.target.closest('.theme-toggle')) {
               e.preventDefault();
               e.stopImmediatePropagation();
 
-              const currentTheme = document.documentElement.getAttribute('data-theme');
+              const currentTheme =
+                document.documentElement.getAttribute('data-theme');
               const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
               document.documentElement.setAttribute('data-theme', newTheme);
@@ -294,9 +295,10 @@
         function updateThemeToggleText(theme) {
           const themeToggles = document.querySelectorAll('.theme-toggle');
           themeToggles.forEach(toggle => {
-            toggle.innerHTML = theme === 'dark'
-              ? '<i class="fas fa-sun"></i> Light'
-              : '<i class="fas fa-moon"></i> Dark';
+            toggle.innerHTML =
+              theme === 'dark'
+                ? '<i class="fas fa-sun"></i> Light'
+                : '<i class="fas fa-moon"></i> Dark';
           });
         }
 
