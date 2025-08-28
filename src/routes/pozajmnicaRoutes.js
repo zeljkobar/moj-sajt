@@ -17,9 +17,10 @@ router.get(
   pozajmnicaController.getAllPozajmice
 );
 router.get(
-  "/next-broj",
+  "/next-broj/:firmaId",
   authMiddleware,
   rateLimiter.api,
+  validateFirmaId,
   pozajmnicaController.getNextBrojUgovora
 );
 router.get(

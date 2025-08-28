@@ -525,11 +525,11 @@ async function openPozajmnicaModal() {
     const today = new Date().toISOString().split("T")[0];
     document.getElementById("datum_izdavanja").value = today;
 
-    // Generiši sledeći broj ugovora
-    const nextBrojResponse = await fetch("/api/pozajmice/next-broj");
+    // Generiši sledeći broj ugovora za ovu firmu
+    const nextBrojResponse = await fetch(`/api/pozajmnice/next-broj/${firmaId}`);
     if (nextBrojResponse.ok) {
       const data = await nextBrojResponse.json();
-      document.getElementById("broj_ugovora").value = data.broj_ugovora;
+      document.getElementById("broj_ugovora").value = data.nextBrojUgovora;
     }
 
     // Učitaj radnike firme

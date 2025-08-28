@@ -304,19 +304,53 @@ exports.deletePozajmica = async (req, res) => {
   }
 };
 
-// Dohvati sledeći broj ugovora
+// Dohvati sledeći broj ugovora za specifičnu firmu
 exports.getNextBrojUgovora = async (req, res) => {
   try {
-    const result = await executeQuery(
-      "SELECT MAX(CAST(broj_ugovora AS UNSIGNED)) as maxNumber FROM pozajmnice WHERE broj_ugovora REGEXP '^[0-9]+$'"
+    const { firmaId } = req.params;
+    const userId = req.session.user.id;
+    const currentYear = new Date().getFullYear();
+
+    console.log('=== GET NEXT BROJ UGOVORA DEBUG ===');
+    console.log('Firma ID:', firmaId);
+    console.log('User ID:', userId);
+    console.log('Current Year:', currentYear);
+
+    // Proveri da li firma pripada ovom korisniku
+    const firmaCheck = await executeQuery(
+      'SELECT id FROM firme WHERE id = ? AND user_id = ?',
+      [firmaId, userId]
     );
+
+    console.log('Firma check result:', firmaCheck);
+
+    if (firmaCheck.length === 0) {
+      console.log('Firma not found or no permission');
+      return res.status(403).json({
+        success: false,
+        message: 'Nemate dozvolu za pristup ovoj firmi'
+      });
+    }
+
+    // Pronađi najveći broj ugovora za ovu firmu u trenutnoj godini
+    const result = await executeQuery(
+      `SELECT MAX(CAST(SUBSTRING_INDEX(broj_ugovora, '/', 1) AS UNSIGNED)) as maxNumber 
+       FROM pozajmnice 
+       WHERE firma_id = ? AND broj_ugovora LIKE ?`,
+      [firmaId, `%/${currentYear}`]
+    );
+
+    console.log('Max number query result:', result);
 
     const maxNumber = result[0]?.maxNumber || 0;
     const nextNumber = maxNumber + 1;
+    const nextBrojUgovora = `${nextNumber.toString().padStart(3, '0')}/${currentYear}`;
+
+    console.log('Next broj ugovora:', nextBrojUgovora);
 
     res.json({
       success: true,
-      nextBrojUgovora: nextNumber.toString().padStart(3, '0'),
+      nextBrojUgovora: nextBrojUgovora,
     });
   } catch (error) {
     console.error('Error getting next broj ugovora:', error);

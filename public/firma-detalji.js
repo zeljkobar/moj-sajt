@@ -2139,18 +2139,31 @@ async function dodajNovuPozajmnicu() {
     const datumInput = document.getElementById('datum_izdavanja'); // Ispravljen ID
     if (datumInput) datumInput.value = today;
 
-    // Generiši sledeći broj ugovora
+    // Generiši sledeći broj ugovora za ovu firmu
     try {
-      const nextBrojResponse = await fetch('/api/pozajmnice/next-broj', {
+      console.log('Pozivam next-broj za firmu:', currentFirmaId);
+      const nextBrojResponse = await fetch(`/api/pozajmnice/next-broj/${currentFirmaId}`, {
         credentials: 'include',
       });
+      
+      console.log('Next broj response status:', nextBrojResponse.status);
+      
       if (nextBrojResponse.ok) {
         const data = await nextBrojResponse.json();
+        console.log('Next broj data:', data);
         const brojInput = document.getElementById('broj_ugovora');
-        if (brojInput) brojInput.value = data.nextBrojUgovora;
+        if (brojInput) {
+          brojInput.value = data.nextBrojUgovora;
+          console.log('Postavljen broj ugovora:', data.nextBrojUgovora);
+        }
+      } else {
+        const errorData = await nextBrojResponse.json().catch(() => ({ message: 'Nepoznata greška' }));
+        console.error('Error response:', errorData);
+        alert('Greška pri generisanju broja ugovora: ' + (errorData.message || 'Nepoznata greška'));
       }
     } catch (error) {
-      console.warn('Greška pri generisanju broja ugovora:', error);
+      console.error('Greška pri generisanju broja ugovora:', error);
+      alert('Greška pri povezivanju sa serverom za generisanje broja ugovora');
     }
 
     // Otvori modal
