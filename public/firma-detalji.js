@@ -370,10 +370,11 @@ function loadFirmaStats(firmaId) {
   // Učitaj statistike firme
   Promise.all([
     fetch(`/api/firme/${firmaId}/radnici`, { credentials: 'include' }),
-    fetch(`/api/firme/${firmaId}/pozajmice`, { credentials: 'include' }),
+    fetch(`/api/pozajmnice/firma/${firmaId}`, { credentials: 'include' }),
   ])
     .then(responses => Promise.all(responses.map(r => (r.ok ? r.json() : []))))
-    .then(([radnici, pozajmice]) => {
+    .then(([radnici, pozajmiceResponse]) => {
+      const pozajmice = pozajmiceResponse.pozajmice || [];
       updateStats(radnici, pozajmice);
     })
     .catch(error => {
@@ -420,9 +421,10 @@ function updateStats(radnici, pozajmice, otkaziMap = {}) {
 // Funkcija za ažuriranje statistika kada se učitaju otkazi
 function updateStatsWithOtkazi(radnici, otkaziMap) {
   // Pozajmice učitaj zasebno
-  fetch(`/api/firme/${currentFirmaId}/pozajmice`, { credentials: 'include' })
-    .then(response => (response.ok ? response.json() : []))
-    .then(pozajmice => {
+  fetch(`/api/pozajmnice/firma/${currentFirmaId}`, { credentials: 'include' })
+    .then(response => (response.ok ? response.json() : { pozajmice: [] }))
+    .then(pozajmiceResponse => {
+      const pozajmice = pozajmiceResponse.pozajmice || [];
       updateStats(radnici, pozajmice, otkaziMap);
     })
     .catch(error => {
@@ -1766,7 +1768,7 @@ let allPozajmice = [];
 let pozajmiceStatistike = {};
 
 function loadPozajmice(firmaId) {
-  fetch(`/api/pozajmice/firma/${firmaId}`, {
+  fetch(`/api/pozajmnice/firma/${firmaId}`, {
     credentials: 'include',
   })
     .then(response => {
@@ -1784,6 +1786,9 @@ function loadPozajmice(firmaId) {
       }
       updatePozajmiceTable(allPozajmice);
       loadPozajmiceStatistike(firmaId);
+
+      // Ažuriraj broj pozajmica u tabeli zajmodavaca ako je učitana
+      updateZajmodavciBrojPozajmica();
     })
     .catch(error => {
       console.error('Greška pri učitavanju pozajmica:', error);
@@ -2015,25 +2020,77 @@ function getStatusBadge(status) {
 }
 
 function loadPozajmiceStatistike(firmaId) {
-  fetch(`/api/povracaji/statistike/firma/${firmaId}`, {
-    credentials: 'include',
-  })
-    .then(response => {
-      if (!response.ok) {
-        console.warn('Statistike pozajmica nisu dostupne');
-        return null;
+  // Računaj statistike na osnovu već učitanih pozajmica
+  if (allPozajmice && allPozajmice.length > 0) {
+    const aktivnePozajmice = allPozajmice.filter(p => p.status === 'aktivna');
+    const ukupnoPozajmljeno = allPozajmice.reduce(
+      (sum, p) => sum + (parseFloat(p.iznos) || 0),
+      0
+    );
+    const ukupnoVraceno = allPozajmice.reduce(
+      (sum, p) => sum + (parseFloat(p.vraceno_iznos) || 0),
+      0
+    );
+    const ukupnoPreostalo = ukupnoPozajmljeno - ukupnoVraceno;
+
+    pozajmiceStatistike = {
+      ukupno_pozajmica: allPozajmice.length,
+      ukupno_pozajmljeno: ukupnoPozajmljeno.toFixed(2),
+      ukupno_vraceno: ukupnoVraceno.toFixed(2),
+      ukupno_preostalo: ukupnoPreostalo.toFixed(2),
+    };
+
+    updatePozajmiceStatistike();
+  } else {
+    // Ako nema pozajmica, postavi sve na 0
+    pozajmiceStatistike = {
+      ukupno_pozajmica: 0,
+      ukupno_pozajmljeno: 0,
+      ukupno_vraceno: 0,
+      ukupno_preostalo: 0,
+    };
+    updatePozajmiceStatistike();
+  }
+}
+
+// Funkcija za ažuriranje broja pozajmica u tabeli zajmodavaca
+function updateZajmodavciBrojPozajmica() {
+  const tabela = document.getElementById('zajmodavciTabela');
+  if (!tabela || !allPozajmice) return;
+
+  // Prolazi kroz sve redove u tabeli zajmodavaca
+  const redovi = tabela.querySelectorAll('tr');
+  redovi.forEach((red, index) => {
+    if (index === 0) return; // Preskoči header red
+
+    const cells = red.querySelectorAll('td');
+    if (cells.length >= 4) {
+      // Izvuci ID zajmodavca iz button onclick atributa
+      const editButton = red.querySelector(
+        'button[onclick*="editujZajmodavca"]'
+      );
+      if (editButton) {
+        const onclickAttr = editButton.getAttribute('onclick');
+        const match = onclickAttr.match(/editujZajmodavca\((\d+)\)/);
+        if (match) {
+          const zajmodavacId = parseInt(match[1]);
+
+          // Prebroji pozajmice za ovog zajmodavca
+          const brojPozajmica = allPozajmice.filter(
+            p =>
+              p.pozajmilac_tip === 'zajmodavac' &&
+              p.zajmodavac_id === zajmodavacId
+          ).length;
+
+          // Ažuriraj badge sa brojem pozajmica
+          const badge = cells[3].querySelector('.badge');
+          if (badge) {
+            badge.innerHTML = `<i class="fas fa-money-bill-wave me-1"></i>${brojPozajmica}`;
+          }
+        }
       }
-      return response.json();
-    })
-    .then(data => {
-      if (data && data.success) {
-        pozajmiceStatistike = data.statistike;
-        updatePozajmiceStatistike();
-      }
-    })
-    .catch(error => {
-      console.warn('Greška pri učitavanju statistika pozajmica:', error);
-    });
+    }
+  });
 }
 
 function updatePozajmiceStatistike() {
@@ -2084,7 +2141,7 @@ async function dodajNovuPozajmnicu() {
 
     // Generiši sledeći broj ugovora
     try {
-      const nextBrojResponse = await fetch('/api/pozajmice/next-broj', {
+      const nextBrojResponse = await fetch('/api/pozajmnice/next-broj', {
         credentials: 'include',
       });
       if (nextBrojResponse.ok) {
@@ -2228,7 +2285,7 @@ async function submitPozajmica() {
 
     console.log('Šalje se pozajmica sa podacima:', pozajmicaData);
 
-    const response = await fetch('/api/pozajmice', {
+    const response = await fetch('/api/pozajmnice', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2435,7 +2492,7 @@ async function deletePozajmica(pozajmicaId) {
   }
 
   try {
-    const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
+    const response = await fetch(`/api/pozajmnice/${pozajmicaId}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -3975,7 +4032,7 @@ async function submitEditPozajmica() {
   console.log('Šalje se ažuriranje pozajmice sa podacima:', pozajmicaData);
 
   try {
-    const response = await fetch(`/api/pozajmice/${pozajmicaId}`, {
+    const response = await fetch(`/api/pozajmnice/${pozajmicaId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -4237,6 +4294,12 @@ function prikaziZajmodavce(zajmodavci) {
     const jmbg = zajmodavac.jmbg || '-';
     const ziroRacun = zajmodavac.ziro_racun || '-';
 
+    // Prebroji pozajmice za ovog zajmodavca
+    const brojPozajmica = allPozajmice.filter(
+      p =>
+        p.pozajmilac_tip === 'zajmodavac' && p.zajmodavac_id === zajmodavac.id
+    ).length;
+
     html += `
       <tr>
         <td><strong>${zajmodavac.ime} ${zajmodavac.prezime}</strong></td>
@@ -4244,7 +4307,7 @@ function prikaziZajmodavce(zajmodavci) {
         <td>${ziroRacun}</td>
         <td>
           <span class="badge bg-info">
-            <i class="fas fa-money-bill-wave me-1"></i>0
+            <i class="fas fa-money-bill-wave me-1"></i>${brojPozajmica}
           </span>
         </td>
         <td>

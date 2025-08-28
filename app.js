@@ -514,7 +514,7 @@ app.get('/api/firme/:id/radnici', authMiddleware, async (req, res) => {
   }
 });
 
-app.get('/api/firme/:id/pozajmice', authMiddleware, async (req, res) => {
+app.get('/api/firme/:id/pozajmnice', authMiddleware, async (req, res) => {
   try {
     const firmaId = req.params.id;
     const userId = req.session.user.id;
@@ -549,7 +549,7 @@ app.get('/api/firme/:id/pozajmice', authMiddleware, async (req, res) => {
 });
 
 // Dodaj i endpoint koji frontend očekuje
-app.get('/api/pozajmice/firma/:firmaId', authMiddleware, async (req, res) => {
+app.get('/api/pozajmnice/firma/:firmaId', authMiddleware, async (req, res) => {
   try {
     const firmaId = req.params.firmaId;
     const userId = req.session.user.id;
@@ -596,7 +596,7 @@ app.get('/api/pozajmice/firma/:firmaId', authMiddleware, async (req, res) => {
 });
 
 // Endpoint za sve pozajmice korisnika iz svih firmi (za dashboard)
-app.get('/api/pozajmice', authMiddleware, async (req, res) => {
+app.get('/api/pozajmnice', authMiddleware, async (req, res) => {
   try {
     const userId = req.session.user.id;
 
@@ -632,7 +632,7 @@ app.get('/api/pozajmice', authMiddleware, async (req, res) => {
 });
 
 // Endpoint za pojedinačnu pozajmicu po ID-u (za ugovor)
-app.get('/api/pozajmice/:pozajmicaId', authMiddleware, async (req, res) => {
+app.get('/api/pozajmnice/:pozajmicaId', authMiddleware, async (req, res) => {
   try {
     const pozajmicaId = req.params.pozajmicaId;
     const userId = req.session.user.id;

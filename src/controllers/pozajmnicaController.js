@@ -192,8 +192,22 @@ exports.getAllPozajmice = async (req, res) => {
 // Dohvati pozajmice po firmi
 exports.getPozajmiceByFirma = async (req, res) => {
   const { firmaId } = req.params;
+  const userId = req.session.user.id;
 
   try {
+    // Prvo proveri da li firma pripada korisniku
+    const firma = await executeQuery(
+      'SELECT id FROM firme WHERE id = ? AND user_id = ?',
+      [firmaId, userId]
+    );
+
+    if (firma.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Firma nije pronađena',
+      });
+    }
+
     const pozajmice = await executeQuery(
       `SELECT p.*, 
               f.naziv as firma_naziv,
@@ -316,10 +330,12 @@ exports.getNextBrojUgovora = async (req, res) => {
 // Dohvati jednu pozajmicu po ID
 exports.getPozajmicaById = async (req, res) => {
   const { id } = req.params;
+  const userId = req.session.user.id;
 
   try {
     console.log('=== GET POZAJMICA BY ID DEBUG ===');
     console.log('Pozajmica ID:', id);
+    console.log('User ID:', userId);
 
     const pozajmice = await executeQuery(
       `SELECT p.*, 
@@ -337,8 +353,8 @@ exports.getPozajmicaById = async (req, res) => {
        LEFT JOIN firme f ON p.firma_id = f.id
        LEFT JOIN radnici r ON p.radnik_id = r.id  
        LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id
-       WHERE p.id = ?`,
-      [id]
+       WHERE p.id = ? AND f.user_id = ?`,
+      [id, userId]
     );
 
     console.log('Found pozajmice:', pozajmice.length);
