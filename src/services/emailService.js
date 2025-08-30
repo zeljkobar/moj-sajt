@@ -6,6 +6,20 @@ class EmailService {
     this.transporter = createTransporter();
   }
 
+  // Get email address based on email type
+  getEmailAddress(type) {
+    switch (type) {
+      case 'support':
+        return process.env.EMAIL_SUPPORT || process.env.EMAIL_USER;
+      case 'admin':
+        return process.env.EMAIL_ADMIN || process.env.EMAIL_USER;
+      case 'invoices':
+        return process.env.EMAIL_INVOICES || process.env.EMAIL_USER;
+      default:
+        return process.env.EMAIL_USER;
+    }
+  }
+
   // Osnovni template za email
   createEmailTemplate(title, content, additionalInfo = '') {
     return `
@@ -109,7 +123,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: this.getEmailAddress('support'), // Welcome emails from support
       to: userEmail,
       subject: 'Dobrodošli u SummaSummarum! 🎉',
       html: this.createEmailTemplate(
@@ -170,7 +184,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: this.getEmailAddress('support'), // Password reset from support
       to: userEmail,
       subject: 'SummaSummarum - Reset lozinke 🔒',
       html: this.createEmailTemplate(
@@ -214,7 +228,7 @@ class EmailService {
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: this.getEmailAddress('admin'), // Broadcast emails from admin
       to: userEmail,
       subject: `[Summa Summarum] ${subject}`,
       html: this.createEmailTemplate(subject, content, additionalInfo),
