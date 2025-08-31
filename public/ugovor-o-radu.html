@@ -91,7 +91,8 @@
       }
       .print-button,
       .pdf-button,
-      .word-button {
+      .word-button,
+      .jpr-button {
         position: fixed;
         right: 20px;
         background-color: #007bff;
@@ -124,16 +125,23 @@
         background-color: #6f42c1;
       }
 
+      .jpr-button {
+        top: 200px;
+        background-color: #28a745;
+      }
+
       .print-button:hover,
       .pdf-button:hover,
-      .word-button:hover {
+      .word-button:hover,
+      .jpr-button:hover {
         opacity: 0.8;
       }
 
       @media print {
         .print-button,
         .pdf-button,
-        .word-button {
+        .word-button,
+        .jpr-button {
           display: none !important;
         }
         body {
@@ -164,6 +172,9 @@
     <button class="print-button" onclick="window.print()">🖨️ Štampaj</button>
     <button class="pdf-button" onclick="downloadPDF()">📄 PDF</button>
     <button class="word-button" onclick="downloadWordCompact()">📝 Word</button>
+    <button class="jpr-button" onclick="openJPRForContract()">
+      📋 Otvori JPR
+    </button>
 
     <div class="container">
       <p>
@@ -576,6 +587,10 @@
     </div>
 
     <script>
+      // Globalne varijable za JPR
+      let currentRadnikData = null;
+      let currentFirmaData = null;
+
       async function popuniUgovor(ugovorId) {
         try {
           const response = await fetch(`/api/contracts/${ugovorId}`);
@@ -702,6 +717,26 @@
 
       function popuniUgovorSaPodacima(ugovor) {
         console.log('Popunjavam ugovor sa podacima:', ugovor);
+
+        // Sačuvaj podatke za JPR
+        console.log('Debug - ceo ugovor objekat:', ugovor);
+
+        currentRadnikData = {
+          id: ugovor.radnik_id,
+          ime: ugovor.radnik_ime,
+          prezime: ugovor.radnik_prezime,
+          jmbg: ugovor.radnik_jmbg,
+        };
+
+        currentFirmaData = {
+          id: ugovor.firma_id,
+          naziv: ugovor.firma_naziv,
+          pib: ugovor.firma_pib,
+          adresa: ugovor.firma_adresa,
+        };
+
+        console.log('Debug - currentRadnikData:', currentRadnikData);
+        console.log('Debug - currentFirmaData:', currentFirmaData);
 
         // Popuni tip ugovora
         const tipTekst =
@@ -920,6 +955,12 @@
         const radnikId = urlParams.get('radnikId');
         const firmaId = urlParams.get('firmaId');
 
+        // Sačuvaj URL parametre kao fallback za JPR
+        if (radnikId && firmaId) {
+          window.urlRadnikId = radnikId;
+          window.urlFirmaId = firmaId;
+        }
+
         // Popuni ugovor kada se stranica učita
         if (ugovorId) {
           // Postojeći način - preko ugovor ID-a
@@ -972,6 +1013,72 @@
             )}_${firmaNaziv.replace(/\s+/g, '_')}.doc`;
           },
         });
+      }
+
+      // ============================================
+      // JPR FUNKCIJA
+      // ============================================
+
+      function openJPRForContract() {
+        console.log('=== Debug openJPRForContract ===');
+        console.log('currentRadnikData:', currentRadnikData);
+        console.log('currentFirmaData:', currentFirmaData);
+        console.log('window.urlRadnikId:', window.urlRadnikId);
+        console.log('window.urlFirmaId:', window.urlFirmaId);
+
+        // Uvek uzmi firmaId iz URL parametara (kad je pozvan iz firma-detalji)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlFirmaId = urlParams.get('firmaId');
+        const urlRadnikId = urlParams.get('radnikId');
+
+        console.log('URL parametri direkt:', { urlFirmaId, urlRadnikId });
+
+        // Dobij potrebne podatke iz DOM-a
+        const radnikImePrezime =
+          document.getElementById('radnik-ime-prezime')?.textContent || '';
+        const radnikJmbg =
+          document.getElementById('radnik-jmbg')?.textContent || '';
+
+        console.log('DOM podaci:', { radnikImePrezime, radnikJmbg });
+
+        if (!radnikImePrezime || !radnikJmbg) {
+          alert('Nedostaju podaci o radniku u dokumentu!');
+          return;
+        }
+
+        if (!urlFirmaId) {
+          alert('Firma ID nije dostupan u URL parametrima!');
+          return;
+        }
+
+        // Razdvoj ime i prezime
+        const delovi = radnikImePrezime.trim().split(' ');
+        const radnikIme = delovi[0] || '';
+        const radnikPrezime = delovi.slice(1).join(' ') || '';
+
+        console.log('Ime/Prezime:', { radnikIme, radnikPrezime });
+
+        // Kreiraj URL-ove direktno sa URL parametrima
+        const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=radnik&radnikIme=${encodeURIComponent(
+          radnikIme
+        )}&radnikPrezime=${encodeURIComponent(
+          radnikPrezime
+        )}&radnikJmbg=${radnikJmbg}`;
+
+        const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=radnik&radnikIme=${encodeURIComponent(
+          radnikIme
+        )}&radnikPrezime=${encodeURIComponent(
+          radnikPrezime
+        )}&radnikJmbg=${radnikJmbg}`;
+
+        console.log('JPR Korica URL:', koricaUrl);
+        console.log('JPR Dodatak B URL:', dodatakUrl);
+
+        // Otvori oba dokumenta u novim tabovima sa kratkom pauzom
+        window.open(koricaUrl, '_blank');
+        setTimeout(() => {
+          window.open(dodatakUrl, '_blank');
+        }, 200);
       }
     </script>
   </body>

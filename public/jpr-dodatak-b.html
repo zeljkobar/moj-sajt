@@ -445,9 +445,43 @@
         width: 400px;
         height: 13px;
       }
+
+      /* Dugme za štampanje i zatvaranje */
+      .print-close-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s;
+      }
+
+      .print-close-btn:hover {
+        background: #0056b3;
+      }
+
+      /* Sakrij dugme pri štampanju */
+      @media print {
+        .print-close-btn {
+          display: none !important;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- Dugme za štampanje i zatvaranje -->
+    <button class="print-close-btn" onclick="printAndClose()">
+      🖨️ Štampaj i zatvori
+    </button>
+
     <div class="form-container">
       <!-- JMBG cifre -->
       <div class="jmbg-container">
@@ -605,5 +639,18 @@
     </div>
 
     <script src="jpr-shared-script.js"></script>
+
+    <script>
+      // Funkcija za štampanje i zatvaranje taba
+      function printAndClose() {
+        // Pokreni štampanje
+        window.print();
+
+        // Zatvori tab posle kratke pauze (da se završi štampanje)
+        setTimeout(() => {
+          window.close();
+        }, 1000);
+      }
+    </script>
   </body>
 </html>

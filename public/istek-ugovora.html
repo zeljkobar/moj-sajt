@@ -8,9 +8,16 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <!-- Export Utils - modularni PDF/Word export -->
+    <script src="components/export-utils.js"></script>
+
+    <!-- PDF Export biblioteka -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
       body {
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         line-height: 1.6;
         background-color: #f8f9fa;
       }
@@ -32,11 +39,45 @@
         margin-top: 40px;
         text-align: right;
       }
-      .print-btn {
+      .print-btn,
+      .pdf-btn,
+      .word-btn,
+      .jpr-btn {
         position: fixed;
-        top: 20px;
         right: 20px;
         z-index: 1000;
+        min-width: 120px;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        color: white;
+      }
+
+      .print-btn {
+        top: 20px;
+        background-color: #007bff;
+      }
+
+      .pdf-btn {
+        top: 80px;
+        background-color: #dc3545;
+      }
+
+      .word-btn {
+        top: 140px;
+        background-color: #6f42c1;
+      }
+
+      .jpr-btn {
+        top: 200px;
+        background-color: #28a745;
       }
       .two-column-section {
         width: 100%;
@@ -47,17 +88,23 @@
         vertical-align: top;
       }
       @media print {
-        .print-btn {
+        .print-btn,
+        .pdf-btn,
+        .word-btn,
+        .jpr-btn {
           display: none;
         }
         body {
           margin: 0;
           background: white;
+          font-size: 13pt;
         }
         .document-container {
           box-shadow: none;
           margin: 0;
           padding: 20px;
+          font-size: 13pt;
+          line-height: 1.5;
         }
         .two-column-section {
           width: 100% !important;
@@ -67,8 +114,22 @@
           width: 50% !important;
           vertical-align: top !important;
         }
+        /* Uklanjamo page-break da sve bude na jednoj stranici */
         .potvrda-prijema {
-          page-break-before: always;
+          margin-top: 25px;
+          border-top: 1px solid #000;
+          padding-top: 20px;
+        }
+        /* Povećavamo margine za bolje čitanje */
+        h2 {
+          font-size: 15pt !important;
+          margin: 20px 0 !important;
+        }
+        p {
+          margin: 8px 0 !important;
+        }
+        div {
+          margin: 12px 0 !important;
         }
       }
       @media (max-width: 768px) {
@@ -80,164 +141,144 @@
     </style>
   </head>
   <body>
-    <button class="btn btn-primary print-btn" onclick="window.print()">
-      🖨️ Štampaj dokument
-    </button>
+    <button class="print-btn" onclick="window.print()">🖨️ Štampaj</button>
+    <button class="pdf-btn" onclick="downloadPDF()">📄 PDF</button>
+    <button class="word-btn" onclick="downloadWordCompact()">📝 Word</button>
+    <button class="jpr-btn" onclick="openJPRForIstek()">📋 Otvori JPR</button>
 
     <div class="document-container">
-      <div class="header">
-        <h2><strong>RJEŠENJE O ISTEKU UGOVORA O RADU</strong></h2>
+      <div
+        class="header"
+        style="text-align: left; margin-bottom: 30px; line-height: 1.2"
+      >
+        <p style="margin: 2px 0">
+          <span id="nazivFirme">__________________</span> D.o.o.
+          <span id="mestoFirme">Bar</span>
+        </p>
+        <p style="margin: 2px 0">br.<span id="brojResenja">__/25</span></p>
+        <p style="margin: 2px 0">
+          dana <span id="datumResenja">__________________</span>
+        </p>
       </div>
 
-      <div class="content">
-        <table
-          style="width: 100%; margin-bottom: 30px; border-collapse: collapse"
-          class="two-column-section"
-        >
-          <tr>
-            <td style="width: 50%; vertical-align: top; padding-right: 20px">
-              <p>
-                <strong>POSLODAVAC:</strong>
-                <span id="nazivFirme">__________________</span>
-              </p>
-              <p>
-                <strong>Sa sedištem:</strong>
-                <span id="adresaFirme">__________________</span>
-              </p>
-              <p>
-                <strong>PIB:</strong>
-                <span id="pibFirme">__________________</span>
-              </p>
-            </td>
+      <div style="margin: 20px 0; text-align: justify; line-height: 1.4">
+        <p>
+          Na osnovu Zakona o radu čl.143, t.3, /Sl.list CG br.49/08, donosim
+          sledeće:
+        </p>
+      </div>
 
-            <td style="width: 50%; vertical-align: top; padding-left: 20px">
-              <p>
-                <strong>Zaposleni:</strong>
-                <span id="imeRadnika">__________________</span>
-              </p>
-              <p>
-                <strong>JMBG:</strong>
-                <span id="jmbgRadnika">__________________</span>
-              </p>
-              <p>
-                <strong>Sa prebivalištem:</strong>
-                <span id="adresaRadnika">__________________</span>
-              </p>
-            </td>
-          </tr>
-        </table>
+      <div style="text-align: center; margin: 30px 0">
+        <h2 style="font-size: 18pt; font-weight: bold; letter-spacing: 2px">
+          RJEŠENJE
+        </h2>
+        <p>o</p>
+        <p><strong>prestanku radnog odnosa zaposlenom</strong></p>
+      </div>
 
-        <div style="margin: 30px 0">
-          <p style="text-align: center"><strong>OBAVJEŠTENJE</strong></p>
+      <div style="margin: 30px 0; text-align: justify; line-height: 1.6">
+        <p style="margin-bottom: 15px">
+          <strong><span id="imeRadnika">__________________</span></strong> -
+          jmbg. <span id="jmbgRadnika">__________________</span><br />
+          prestaje radni odnos - na poziciji
+          <span id="pozicijaRadnika">__________________</span>, sa razlogom
+          isteka roka na koji je zaključen ugovor o radu, dana
+          <span id="datumIsteka">__________________</span>, koji je istom dan
+          prestanka radnog odnosa.
+        </p>
 
-          <p>
-            Obaveštavamo Vas da Vam
-            <strong
-              >dana <span id="datumIsteka">__________________</span></strong
-            >
-            ističe ugovor o radu na određeno vreme koji je zaključen dana
-            <span id="datumZaposlenja">__________________</span>
-          </p>
+        <p style="margin: 15px 0">
+          2. Radni odnos zaposlenom prestaje danom uručenja ovog rješenja.
+        </p>
 
-          <p>
-            Ugovor o radu ističe u skladu sa odredbama Zakona o radu Republike
-            Crne Gore ("Službeni list RCG", br. 49/08, 26/09, 88/09, 26/10,
-            59/11, 66/12, 31/14, 53/14 i 4/18).
-          </p>
+        <p style="margin: 15px 0">
+          3. Zaposlenom su uredno isplaćene zarade, naknade zarada i druga
+          primanja koja je ostvario/la zaključno sa danom isteka ugovora o radu.
+        </p>
 
-          <p>
-            <strong>Pozicija:</strong>
-            <span id="pozicijaRadnika">__________________</span>
-          </p>
+        <p style="margin: 15px 0">
+          4. Radna knjižica imenovanom/oj je uredno ovjerena i predata.
+        </p>
 
-          <p><strong>Obaveze pre prestanka radnog odnosa:</strong></p>
-          <ul>
-            <li>
-              Vrati svu dokumentaciju, ključeve, opremu i ostala sredstva rada
-              koja su Vam bila povjerena
-            </li>
-            <li>Izvršiti primopredaju posla sa odgovornim licem kompanije</li>
-            <li>Završiti sve započete obaveze u okviru svoje nadležnosti</li>
-          </ul>
+        <p style="margin: 15px 0">5. Rješenje je konačno.</p>
+      </div>
 
-          <p>
-            Molimo Vas da se najkasnije do datuma isteka ugovora obratite HR
-            odeljenju radi kompletiranja postupka prestanka radnog odnosa.
-          </p>
-
-          <p>
-            <strong>Razlog prestanka:</strong> Istek ugovora o radu na određeno
-            vrijeme
-          </p>
-
-          <p>Hvala Vam na dosadašnjoj saradnji i angažovanju.</p>
-        </div>
-
-        <div class="signature-section">
-          <p>
-            <strong>Datum:</strong>
-            <span id="datumObaveštenja">__________________</span>
-          </p>
-          <p>
-            <strong>Mjesto:</strong>
-            <span id="mestoFirme">__________________</span>
-          </p>
-          <p style="margin-top: 20px">____________________</p>
-          <p><strong>POSLODAVAC</strong></p>
-          <p><span id="zastupnikFirme">__________________</span></p>
-        </div>
-
-        <div
-          class="potvrda-prijema"
+      <div style="margin: 30px 0">
+        <p
           style="
-            margin-top: 40px;
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
           "
         >
-          <h5><strong>POTVRDA PRIJEMA</strong></h5>
-          <p>
-            Ovim potvrđujem da sam primio/la obavejštenje o isteku ugovora o
-            radu dana
-            <span id="datumPrijebraObaveštenja">__________________</span>.
-          </p>
+          Obrazloženje:
+        </p>
 
-          <div
-            style="
-              margin-top: 30px;
-              display: flex;
-              justify-content: space-between;
-            "
+        <p style="margin: 15px 0; text-align: justify; line-height: 1.6">
+          U skladu sa Zakonom o radu zaposlenom prestaje radni odnos istekom
+          ugovora o radu.
+        </p>
+
+        <p style="margin: 15px 0; text-align: justify; line-height: 1.6">
+          Istekom roka na koji je zaključen ugovor o radu, dana
+          <span id="datumIsteka2">__________________</span>, stekli su se uslovi
+          za donesenje odluke kao u dispozitivu..
+        </p>
+      </div>
+
+      <div style="margin: 40px 0; text-align: center">
+        <p>
+          <strong
+            ><span id="nazivFirme2">__________________</span> D.O.O.
+            <span id="mestoFirme2">Bar</span></strong
           >
-            <div>
-              <p>____________________</p>
-              <p><strong>Potpis zaposlenog</strong></p>
-              <p><span id="imeRadnika2">__________________</span></p>
-            </div>
-            <div>
-              <p><strong>Datum prijema:</strong> ____________________</p>
-            </div>
-          </div>
-        </div>
+        </p>
+        <p style="margin: 20px 0">
+          <strong
+            >Dir. <span id="zastupnikFirme">__________________</span></strong
+          >
+        </p>
+        <p style="margin: 30px 0">____________________</p>
+        <p style="font-size: 10pt">[potpis i pečat]</p>
+      </div>
+
+      <div
+        class="potvrda-prijema"
+        style="margin-top: 40px; border-top: 2px solid #000; padding-top: 20px"
+      >
+        <p
+          style="
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+          "
+        >
+          Pouka o pravnom lijeku:
+        </p>
+
+        <p style="margin: 15px 0; text-align: justify; line-height: 1.6">
+          Zaposleni o radu od 15 dana od dana prijema rješenja, može pokrenuti
+          spor pred nadležnim sudom.
+        </p>
       </div>
     </div>
 
     <script>
       // Dobijanje podataka iz URL parametara
       const urlParams = new URLSearchParams(window.location.search);
-      const radnikId = urlParams.get("radnikId");
-      const firmaId = urlParams.get("firmaId");
-      const otkazId = urlParams.get("otkazId");
+      const radnikId = urlParams.get('radnikId');
+      const firmaId = urlParams.get('firmaId');
+      const otkazId = urlParams.get('otkazId');
 
       // Funkcija za učitavanje podataka i popunjavanje dokumenta
       async function loadAndPopulateDocument() {
         try {
           console.log(
-            "Učitavam podatke za radnikId:",
+            'Učitavam podatke za radnikId:',
             radnikId,
-            "firmaId:",
+            'firmaId:',
             firmaId,
-            "otkazId:",
+            'otkazId:',
             otkazId
           );
 
@@ -253,39 +294,39 @@
           // Učitaj podatke o radniku
           const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
           const radnik = await radnikResponse.json();
-          console.log("Radnik podatci:", radnik);
+          console.log('Radnik podatci:', radnik);
 
           // Učitaj podatke o firmi
           const firmaResponse = await fetch(`/api/firme/id/${firmaId}`);
           const firma = await firmaResponse.json();
-          console.log("Firma podatci:", firma);
+          console.log('Firma podatci:', firma);
 
           // Učitaj pozicije
-          const pozicijeResponse = await fetch("/api/pozicije");
+          const pozicijeResponse = await fetch('/api/pozicije');
           let pozicije = [];
           let pozicija = null;
 
           if (pozicijeResponse.ok) {
             pozicije = await pozicijeResponse.json();
-            console.log("Pozicije response:", pozicije);
-            console.log("Pozicije type:", typeof pozicije);
-            console.log("Is pozicije array:", Array.isArray(pozicije));
+            console.log('Pozicije response:', pozicije);
+            console.log('Pozicije type:', typeof pozicije);
+            console.log('Is pozicije array:', Array.isArray(pozicije));
 
             // Proveri da li je pozicije array pre poziva .find()
             if (Array.isArray(pozicije)) {
-              pozicija = pozicije.find((p) => p.id == radnik.pozicija_id);
+              pozicija = pozicije.find(p => p.id == radnik.pozicija_id);
             } else {
-              console.error("Pozicije is not an array:", pozicije);
+              console.error('Pozicije is not an array:', pozicije);
             }
           } else {
             const errorData = await pozicijeResponse.json();
             console.error(
-              "Error loading pozicije:",
+              'Error loading pozicije:',
               pozicijeResponse.status,
               errorData
             );
           }
-          console.log("Pozicija:", pozicija);
+          console.log('Pozicija:', pozicija);
 
           // Učitaj podatke o otkazu ako je otkazId prosleđen
           let otkaz = null;
@@ -296,84 +337,399 @@
 
               if (otkazResponse.ok && otkazData.success) {
                 otkaz = otkazData.otkaz; // API vraća podatke u 'otkaz' property
-                console.log("Otkaz podatci:", otkaz);
-                console.log("Datum otkaza iz API-ja:", otkaz.datum_otkaza);
+                console.log('Otkaz podatci:', otkaz);
+                console.log('Datum otkaza iz API-ja:', otkaz.datum_otkaza);
               } else {
                 console.warn(
-                  "Greška pri učitavanju otkaza:",
+                  'Greška pri učitavanju otkaza:',
                   otkazData.message
                 );
               }
             } catch (otkazError) {
-              console.warn("Greška pri učitavanju otkaza:", otkazError);
+              console.warn('Greška pri učitavanju otkaza:', otkazError);
             }
           }
 
           // Popuni dokument
           populateDocument(radnik, firma, pozicija, otkaz);
         } catch (error) {
-          console.error("Greška pri učitavanju podataka:", error);
-          alert("Greška pri učitavanju podataka: " + error.message);
+          console.error('Greška pri učitavanju podataka:', error);
+          alert('Greška pri učitavanju podataka: ' + error.message);
         }
       }
 
       function populateDocument(radnik, firma, pozicija, otkaz) {
         const datumZaposlenja = new Date(
           radnik.datum_zaposlenja
-        ).toLocaleDateString("sr-Latn-RS");
+        ).toLocaleDateString('sr-Latn-RS');
 
         // Koristiti datum otkaza ako postoji, inače datum prestanka ili današnji datum
         let datumIsteka;
         if (otkaz && otkaz.datum_otkaza) {
           datumIsteka = new Date(otkaz.datum_otkaza).toLocaleDateString(
-            "sr-RS"
+            'sr-RS'
           );
         } else if (radnik.datum_prestanka) {
           datumIsteka = new Date(radnik.datum_prestanka).toLocaleDateString(
-            "sr-RS"
+            'sr-RS'
           );
         } else {
-          datumIsteka = new Date().toLocaleDateString("sr-Latn-RS");
+          datumIsteka = new Date().toLocaleDateString('sr-Latn-RS');
         }
 
-        console.log("populateDocument - otkaz:", otkaz);
-        console.log(
-          "populateDocument - datum_otkaza iz otkaza:",
-          otkaz?.datum_otkaza
-        );
-        console.log("populateDocument - formatiran datumIsteka:", datumIsteka);
+        // Generiši broj rešenja i datum rešenja
+        const today = new Date();
+        const brojResenja = `${String(today.getMonth() + 1).padStart(
+          2,
+          '0'
+        )}/${today.getFullYear().toString().slice(-2)}`;
+        const datumResenja = today.toLocaleDateString('sr-Latn-RS');
 
-        // Popunjavanje svih polja - koristi datumIsteka za sve datume u dokumentu
-        document.getElementById("nazivFirme").textContent = firma.naziv || "";
-        document.getElementById("adresaFirme").textContent = firma.adresa || "";
-        document.getElementById("pibFirme").textContent = firma.pib || "";
-        document.getElementById("zastupnikFirme").textContent =
-          firma.direktor_ime_prezime || "Direktor";
+        console.log('populateDocument - otkaz:', otkaz);
+        console.log('populateDocument - formatiran datumIsteka:', datumIsteka);
 
+        // Popunjavanje glavnih polja
+        document.getElementById('nazivFirme').textContent = firma.naziv || '';
+        if (document.getElementById('nazivFirme2')) {
+          document.getElementById('nazivFirme2').textContent =
+            firma.naziv || '';
+        }
+
+        document.getElementById('mestoFirme').textContent = firma.grad || 'Bar';
+        if (document.getElementById('mestoFirme2')) {
+          document.getElementById('mestoFirme2').textContent =
+            firma.grad || 'Bar';
+        }
+
+        document.getElementById('brojResenja').textContent = brojResenja;
+        document.getElementById('datumResenja').textContent = datumResenja;
+
+        document.getElementById('zastupnikFirme').textContent =
+          firma.direktor_ime_prezime || 'Direktor';
+
+        // Podaci o radniku
         document.getElementById(
-          "imeRadnika"
+          'imeRadnika'
         ).textContent = `${radnik.ime} ${radnik.prezime}`;
-        document.getElementById(
-          "imeRadnika2"
-        ).textContent = `${radnik.ime} ${radnik.prezime}`;
-        document.getElementById("jmbgRadnika").textContent = radnik.jmbg || "";
-        document.getElementById("adresaRadnika").textContent =
-          radnik.adresa || "";
-        document.getElementById("pozicijaRadnika").textContent = pozicija
+        document.getElementById('jmbgRadnika').textContent = radnik.jmbg || '';
+        document.getElementById('pozicijaRadnika').textContent = pozicija
           ? pozicija.naziv
-          : "";
+          : '';
 
-        document.getElementById("datumZaposlenja").textContent =
-          datumZaposlenja;
-        document.getElementById("datumIsteka").textContent = datumIsteka;
-        document.getElementById("datumObaveštenja").textContent = datumIsteka;
-        document.getElementById("datumPrijebraObaveštenja").textContent =
-          datumIsteka;
-        document.getElementById("mestoFirme").textContent = firma.grad || "Bar";
+        // Datumi
+        document.getElementById('datumIsteka').textContent = datumIsteka;
+        if (document.getElementById('datumIsteka2')) {
+          document.getElementById('datumIsteka2').textContent = datumIsteka;
+        }
+      }
+
+      // PDF Download funkcija sa print stilovima
+      function downloadPDF() {
+        if (typeof ExportUtils !== 'undefined') {
+          // Primeni print stilove pre export-a
+          applyPrintStylesForPDF();
+
+          ExportUtils.exportToPDF({
+            containerSelector: '.document-container',
+            filePrefix: 'Istek_ugovora',
+            getFileName: () => {
+              const radnikIme =
+                document.getElementById('imeRadnika')?.textContent?.trim() ||
+                'Radnik';
+              const datum = new Date().toISOString().slice(0, 10);
+              return `Istek_ugovora_${radnikIme.replace(
+                /\s+/g,
+                '_'
+              )}_${datum}.pdf`;
+            },
+          })
+            .then(() => {
+              // Vrati originalne stilove nakon export-a
+              removePrintStylesForPDF();
+            })
+            .catch(() => {
+              // Vrati originalne stilove i ako je došlo do greške
+              removePrintStylesForPDF();
+            });
+        } else {
+          console.error('ExportUtils not loaded');
+          alert('PDF export utilities are not available');
+        }
+      }
+
+      // Funkcija za primenu print stilova za PDF
+      function applyPrintStylesForPDF() {
+        const style = document.createElement('style');
+        style.id = 'pdf-print-styles';
+        style.innerHTML = `
+          .print-btn, .pdf-btn, .word-btn, .jpr-btn {
+            display: none !important;
+          }
+          body {
+            margin: 0 !important;
+            background: white !important;
+            font-size: 13pt !important;
+          }
+          .document-container {
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 25px !important;
+            background: white !important;
+            font-size: 13pt !important;
+            line-height: 1.5 !important;
+          }
+          .two-column-section {
+            width: 100% !important;
+            border-collapse: collapse !important;
+          }
+          .two-column-section td {
+            width: 50% !important;
+            vertical-align: top !important;
+          }
+          .potvrda-prijema {
+            margin-top: 25px !important;
+            border-top: 1px solid #000 !important;
+            padding-top: 20px !important;
+          }
+          h2 {
+            font-size: 15pt !important;
+            margin: 20px 0 !important;
+          }
+          p {
+            margin: 8px 0 !important;
+          }
+          div {
+            margin: 12px 0 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // Funkcija za uklanjanje print stilova nakon PDF export-a
+      function removePrintStylesForPDF() {
+        const style = document.getElementById('pdf-print-styles');
+        if (style) {
+          style.remove();
+        }
+      }
+
+      // Word Download funkcija (improved)
+      function downloadWordCompact() {
+        try {
+          // Primeni print stilove i za Word
+          applyPrintStylesForPDF();
+
+          const container = document.querySelector('.document-container');
+          if (!container) {
+            throw new Error('Document container not found');
+          }
+
+          let content = container.innerHTML;
+
+          // Ukloni dugmad i skriptove
+          content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+          content = content.replace(/class="[^"]*btn[^"]*"/gi, '');
+
+          // Ukloni problematične inline stilove za flex
+          content = content.replace(
+            /style="[^"]*display:\s*flex[^"]*"/gi,
+            'style=""'
+          );
+          content = content.replace(
+            /style="[^"]*justify-content:[^"]*"/gi,
+            'style=""'
+          );
+
+          // Očisti prazne style atribute
+          content = content.replace(/style=""/gi, '');
+
+          // Generiši ime fajla
+          const radnikIme =
+            document.getElementById('imeRadnika')?.textContent?.trim() ||
+            'Radnik';
+          const datum = new Date().toISOString().slice(0, 10);
+          const fileName = `Istek_ugovora_${radnikIme.replace(
+            /\s+/g,
+            '_'
+          )}_${datum}.doc`;
+
+          // Kreiraj pravilno formatiran Word dokument
+          const wordDocument = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+              <meta charset='utf-8'>
+              <title>Istek ugovora o radu</title>
+              <!--[if gte mso 9]>
+              <xml>
+                <w:WordDocument>
+                  <w:View>Print</w:View>
+                  <w:Zoom>90</w:Zoom>
+                  <w:DoNotPromptForConvert/>
+                  <w:DoNotPromptForConvert/>
+                </w:WordDocument>
+              </xml>
+              <![endif]-->
+              <style>
+                @page {
+                  size: A4;
+                  margin: 2cm 1.5cm 2cm 1.5cm;
+                }
+                body { 
+                  font-family: 'Times New Roman', serif; 
+                  font-size: 13pt;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 25px;
+                  color: #000;
+                  background: white;
+                }
+                h1, h2, h5 { 
+                  font-size: 15pt; 
+                  font-weight: bold;
+                  margin: 20px 0; 
+                  text-align: center;
+                }
+                p {
+                  margin: 8px 0;
+                  text-align: justify;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                }
+                td {
+                  vertical-align: top;
+                  padding: 5px;
+                }
+                .signature-section {
+                  margin-top: 40px;
+                  text-align: right;
+                }
+                .potvrda-prijema {
+                  margin-top: 25px;
+                  border-top: 1px solid #000;
+                  padding-top: 20px;
+                }
+                /* Zameni flex sa table za Word kompatibilnost */
+                div[style*="display: flex"] {
+                  display: table !important;
+                  width: 100% !important;
+                }
+                div[style*="display: flex"] > div {
+                  display: table-cell !important;
+                  vertical-align: top !important;
+                }
+                /* Spreči prelome unutar potpisa */
+                .signature-section, 
+                div[style*="justify-content: space-between"] {
+                  page-break-inside: avoid !important;
+                }
+              </style>
+            </head>
+            <body>
+              ${content}
+            </body>
+            </html>
+          `;
+
+          // Kreiraj i download fajl
+          const blob = new Blob([wordDocument], {
+            type: 'application/msword',
+          });
+
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+
+          // Ukloni print stilove
+          setTimeout(() => {
+            removePrintStylesForPDF();
+          }, 100);
+        } catch (error) {
+          console.error('Word export error:', error);
+          alert('Greška pri kreiranju Word dokumenta: ' + error.message);
+          // Ukloni print stilove i u slučaju greške
+          removePrintStylesForPDF();
+        }
+      }
+
+      // JPR funkcija za istek ugovora
+      function openJPRForIstek() {
+        console.log('=== Debug openJPRForIstek ===');
+
+        // Čitaj URL parametre direktno
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRadnikId = urlParams.get('radnikId');
+        const urlFirmaId = urlParams.get('firmaId');
+
+        console.log('URL radnikId:', urlRadnikId);
+        console.log('URL firmaId:', urlFirmaId);
+
+        if (!urlFirmaId) {
+          alert('Greška: nedostaju potrebni parametri za JPR (firmaId)');
+          return;
+        }
+
+        // Uzmi ime i JMBG radnika iz dokumenta
+        const imeRadnikaElement = document.getElementById('imeRadnika');
+        const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
+
+        const radnikImePrezime = imeRadnikaElement
+          ? imeRadnikaElement.textContent.trim()
+          : '';
+        const radnikJmbg = jmbgRadnikaElement
+          ? jmbgRadnikaElement.textContent.trim()
+          : '';
+
+        console.log('Radnik ime i prezime:', radnikImePrezime);
+        console.log('Radnik JMBG:', radnikJmbg);
+
+        if (!radnikImePrezime || !radnikJmbg) {
+          alert('Greška: ime ili JMBG radnika nije pronađeno u dokumentu');
+          return;
+        }
+
+        // Razdeli ime i prezime
+        const imePrezimeParts = radnikImePrezime.split(' ');
+        const radnikIme = imePrezimeParts[0] || '';
+        const radnikPrezime = imePrezimeParts.slice(1).join(' ') || '';
+
+        console.log('Podeljeno - Ime:', radnikIme, 'Prezime:', radnikPrezime);
+
+        // Generiši JPR URL-ove za odjavu (kao u firma-detalji.js)
+        const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+          radnikIme
+        )}&radnikPrezime=${encodeURIComponent(
+          radnikPrezime
+        )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+        const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+          radnikIme
+        )}&radnikPrezime=${encodeURIComponent(
+          radnikPrezime
+        )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+        console.log('JPR Korica URL:', koricaUrl);
+        console.log('JPR Dodatak B URL:', dodatakUrl);
+
+        // Otvori JPR korica u novom tabu
+        window.open(koricaUrl, '_blank');
+
+        // Otvori JPR dodatak B nakon kratke pauze
+        setTimeout(() => {
+          window.open(dodatakUrl, '_blank');
+        }, 500);
       }
 
       // Učitaj podatke kada se stranica učita
-      document.addEventListener("DOMContentLoaded", loadAndPopulateDocument);
+      document.addEventListener('DOMContentLoaded', loadAndPopulateDocument);
     </script>
   </body>
 </html>

@@ -110,6 +110,12 @@
             <i class="fas fa-arrow-left me-2"></i>Povratak na dashboard
           </a>
           <div class="navbar-nav ms-auto">
+            <button
+              class="btn btn-outline-light me-2"
+              onclick="openJPRForRadnik()"
+            >
+              <i class="fas fa-file-alt me-1"></i>Otvori JPR
+            </button>
             <button class="btn btn-outline-light" onclick="window.print()">
               <i class="fas fa-print me-1"></i>Štampaj
             </button>
@@ -171,6 +177,8 @@
       let novoRadnoVreme = null;
       let staroRadnoVreme = null;
       let razlogPromene = null;
+      let currentRadnik = null;
+      let currentFirma = null;
 
       // Inicijalizacija
       document.addEventListener('DOMContentLoaded', function () {
@@ -206,6 +214,10 @@
 
           const radnik = await radnikResponse.json();
           const firma = await firmaResponse.json();
+
+          // Sačuvaj u globalne varijable za JPR
+          currentRadnik = radnik;
+          currentFirma = firma;
 
           // Popuni dokument
           populateDocument(radnik, firma);
@@ -334,6 +346,89 @@
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>${message}</p>
             `;
+      }
+
+      // Funkcija za otvaranje JPR-a za promenu radnog vremena
+      function openJPRForRadnik() {
+        // Uzmi podatke o radniku i firmi iz globalnih varijabli
+        if (!currentRadnik || !currentFirma) {
+          alert('Podaci o radniku ili firmi nisu učitani!');
+          return;
+        }
+
+        if (
+          !currentRadnik.ime ||
+          !currentRadnik.prezime ||
+          !currentRadnik.jmbg
+        ) {
+          alert('Nedostaju potrebni podaci o radniku (ime, prezime, JMBG)!');
+          return;
+        }
+
+        if (!datumPromene) {
+          alert('Datum promene radnog vremena nije dostupan!');
+          return;
+        }
+
+        console.log('Otvaramo JPR za promenu radnog vremena:', currentRadnik);
+        console.log('Datum promene:', datumPromene);
+
+        // Izračunaj datum odjave (dan pre datuma promene)
+        const datumAneksa = new Date(datumPromene);
+        const datumOdjave = new Date(datumAneksa);
+        datumOdjave.setDate(datumOdjave.getDate() - 1);
+
+        const datumOdjaveString = datumOdjave.toISOString().split('T')[0];
+        const datumPrijaveString = datumPromene;
+
+        console.log('Datum odjave (dan pre):', datumOdjaveString);
+        console.log('Datum prijave (aneks):', datumPrijaveString);
+
+        // 1. JPR KORICA - kontekst "promjena-radnog-vremena"
+        const koricaUrl = `jpr-korica.html?firmaId=${
+          currentFirma.id
+        }&context=promjena-radnog-vremena&radnikIme=${encodeURIComponent(
+          currentRadnik.ime
+        )}&radnikPrezime=${encodeURIComponent(
+          currentRadnik.prezime
+        )}&radnikJmbg=${currentRadnik.jmbg}`;
+
+        // 2. PRVI DODATAK B - ODJAVA (dan pre aneksa)
+        const odjavaDodatakUrl = `jpr-dodatak-b.html?firmaId=${
+          currentFirma.id
+        }&context=odjava&radnikIme=${encodeURIComponent(
+          currentRadnik.ime
+        )}&radnikPrezime=${encodeURIComponent(
+          currentRadnik.prezime
+        )}&radnikJmbg=${currentRadnik.jmbg}&datumOdjave=${datumOdjaveString}`;
+
+        // 3. DRUGI DODATAK B - PRIJAVA (datum aneksa sa novim radnim vremenom)
+        const prijavaDodatakUrl = `jpr-dodatak-b.html?firmaId=${
+          currentFirma.id
+        }&context=radnik&radnikIme=${encodeURIComponent(
+          currentRadnik.ime
+        )}&radnikPrezime=${encodeURIComponent(
+          currentRadnik.prezime
+        )}&radnikJmbg=${
+          currentRadnik.jmbg
+        }&datumPrijave=${datumPrijaveString}&novoRadnoVreme=${encodeURIComponent(
+          novoRadnoVreme
+        )}`;
+
+        console.log('JPR Korica URL:', koricaUrl);
+        console.log('Odjava Dodatak B URL:', odjavaDodatakUrl);
+        console.log('Prijava Dodatak B URL:', prijavaDodatakUrl);
+
+        // Otvori sve tri dokumenta u novim tabovima sa pauzama
+        window.open(koricaUrl, '_blank');
+
+        setTimeout(() => {
+          window.open(odjavaDodatakUrl, '_blank');
+        }, 200);
+
+        setTimeout(() => {
+          window.open(prijavaDodatakUrl, '_blank');
+        }, 400);
       }
     </script>
   </body>

@@ -148,6 +148,10 @@ function generateNapomena(context, radnikIme, radnikPrezime, radnikJmbg) {
       return `Prijava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
     case 'odjava':
       return `Odjava radnika ${imePrezime} sa JMBG ${radnikJmbg || ''}`;
+    case 'promjena-radnog-vremena':
+      return `Promjena radnog vremena radnika ${imePrezime} sa JMBG ${
+        radnikJmbg || ''
+      }`;
     case 'ovlascenje':
       return `Ovlašćenje za elektronski potpis`;
     case 'pregled':
@@ -440,14 +444,35 @@ async function fillRadnikDataBasedOnContext(radnik, context) {
   // Zajedničko popunjavanje (za oba konteksta)
   fillCommonRadnikData(radnik);
 
+  // Dobij dodatne URL parametre za promenu radnog vremena
+  const urlParams = new URLSearchParams(window.location.search);
+  const datumOdjave = urlParams.get('datumOdjave');
+  const datumPrijave = urlParams.get('datumPrijave');
+  const novoRadnoVremeParam = urlParams.get('novoRadnoVreme');
+
   // Specifično popunjavanje na osnovu konteksta
   if (context === 'radnik') {
     // Prijava radnika - popuni datum zaposlenja u PIO i ZDO polja
-    fillDateFieldsForPrijava(radnik);
+    if (datumPrijave) {
+      // Za promenu radnog vremena - koristi prosleđeni datum prijave
+      fillDateFieldsForPromenaRadnogVremena(
+        datumPrijave,
+        'prijava',
+        novoRadnoVremeParam
+      );
+    } else {
+      // Standardna prijava - koristi datum zaposlenja iz baze
+      fillDateFieldsForPrijava(radnik);
+    }
   } else if (context === 'odjava') {
-    // Odjava radnika - dohvati podatke o otkazu za pravi datum prestanka
-    const otkazData = await fetchOtkazData(radnik.id);
-    fillDateFieldsForOdjava(radnik, otkazData);
+    if (datumOdjave) {
+      // Za promenu radnog vremena - koristi prosleđeni datum odjave
+      fillDateFieldsForPromenaRadnogVremena(datumOdjave, 'odjava');
+    } else {
+      // Standardna odjava - dohvati podatke o otkazu za pravi datum prestanka
+      const otkazData = await fetchOtkazData(radnik.id);
+      fillDateFieldsForOdjava(radnik, otkazData);
+    }
   }
 }
 
@@ -695,6 +720,92 @@ function fillPrestankFields() {
   prestanakPioDigits.forEach(digit => {
     digit.value = '1';
   });
+}
+
+/**
+ * Popunjavanje datum polja za promenu radnog vremena (prijava/odjava)
+ */
+function fillDateFieldsForPromenaRadnogVremena(
+  datumString,
+  tip,
+  novoRadnoVreme = null
+) {
+  if (!datumString) return;
+
+  const datum = new Date(datumString);
+  const dan = String(datum.getDate()).padStart(2, '0');
+  const mesec = String(datum.getMonth() + 1).padStart(2, '0');
+  const godina = String(datum.getFullYear());
+
+  console.log(
+    `Popunjavam ${tip} datum za promenu radnog vremena: ${dan}.${mesec}.${godina}`
+  );
+
+  // Popuni PIO datum polja
+  const pioDigits = document.querySelectorAll('.pio-digit');
+  if (pioDigits.length >= 8) {
+    pioDigits[0].value = dan[0];
+    pioDigits[1].value = dan[1];
+    pioDigits[2].value = mesec[0];
+    pioDigits[3].value = mesec[1];
+    pioDigits[4].value = godina[0];
+    pioDigits[5].value = godina[1];
+    pioDigits[6].value = godina[2];
+    pioDigits[7].value = godina[3];
+  }
+
+  // Popuni ZDO datum polja
+  const zdoDanDigits = document.querySelectorAll('.zdo-dan-digit');
+  if (zdoDanDigits.length >= 2) {
+    zdoDanDigits[0].value = dan[0];
+    zdoDanDigits[1].value = dan[1];
+  }
+
+  const zdoMesecDigits = document.querySelectorAll('.zdo-mjesec-digit');
+  if (zdoMesecDigits.length >= 2) {
+    zdoMesecDigits[0].value = mesec[0];
+    zdoMesecDigits[1].value = mesec[1];
+  }
+
+  const zdoGodinaDigits = document.querySelectorAll('.zdo-godina-digit');
+  if (zdoGodinaDigits.length >= 4) {
+    zdoGodinaDigits[0].value = godina[0];
+    zdoGodinaDigits[1].value = godina[1];
+    zdoGodinaDigits[2].value = godina[2];
+    zdoGodinaDigits[3].value = godina[3];
+  }
+
+  if (tip === 'odjava') {
+    // ODJAVA: popuni prestanak polja sa "1" i očisti radno vreme
+    fillPrestankFields();
+    clearFieldsForOdjava();
+  } else if (tip === 'prijava') {
+    // PRIJAVA: očisti prestanak polja i popuni novo radno vreme
+    clearPrestankFields();
+
+    // Popuni novo radno vreme ako je prosleđeno
+    if (novoRadnoVreme) {
+      const radnoVrijemeField = document.querySelector('.field-radno-vrijeme');
+      if (radnoVrijemeField) {
+        // Mapiranje tipova radnog vremena za JPR
+        const radnoVremeMapping = {
+          puno_8h: 'PUNO RADNO VREME',
+          skraceno_6h: 'SKRACENO RADNO VREME',
+          skraceno_4h: 'SKRACENO RADNO VREME',
+          skraceno_2h: 'SKRACENO RADNO VREME',
+          puno: 'PUNO RADNO VREME',
+          nepuno: 'NEPUNO RADNO VREME',
+          skraceno: 'SKRACENO RADNO VREME',
+        };
+
+        // Probaj da mapiraš tip ili koristi originalan tekst
+        const mappedValue =
+          radnoVremeMapping[novoRadnoVreme] || novoRadnoVreme.toUpperCase();
+        radnoVrijemeField.value = mappedValue;
+        console.log('Popunio novo radno vreme:', mappedValue);
+      }
+    }
+  }
 }
 
 // =============================================================================
