@@ -212,7 +212,7 @@ class ExportUtils {
             body { 
               font-family: 'Times New Roman', serif; 
               font-size: ${compact ? '11pt' : '12pt'};
-              line-height: ${compact ? '1.3' : '1.6'};
+              line-height: ${compact ? '1.4' : '1.6'};
               margin: 0;
               padding: 0;
               color: #000;
@@ -244,7 +244,7 @@ class ExportUtils {
             /* Paragraf i tekst */
             p {
               margin: ${compact ? '6px 0' : '10px 0'};
-              text-align: justify;
+              text-align: left;
               text-indent: 0;
             }
             
@@ -257,9 +257,6 @@ class ExportUtils {
             }
             .text-right {
               text-align: right !important;
-            }
-            .text-justify {
-              text-align: justify !important;
             }
             .text-end {
               text-align: right !important;

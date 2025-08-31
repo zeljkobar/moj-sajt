@@ -34,7 +34,7 @@
         margin: 20px auto;
         max-width: 800px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        font-family: "Times New Roman", serif;
+        font-family: 'Times New Roman', serif;
         line-height: 1.6;
       }
 
@@ -169,20 +169,22 @@
       let firmaId = null;
       let datumPromene = null;
       let novoRadnoVreme = null;
+      let staroRadnoVreme = null;
       let razlogPromene = null;
 
       // Inicijalizacija
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         // Uzmi parametre iz URL-a
         const urlParams = new URLSearchParams(window.location.search);
-        radnikId = urlParams.get("radnikId");
-        firmaId = urlParams.get("firmaId");
-        datumPromene = urlParams.get("datumPromene");
-        novoRadnoVreme = urlParams.get("novoRadnoVreme");
-        razlogPromene = urlParams.get("razlogPromene") || "";
+        radnikId = urlParams.get('radnikId');
+        firmaId = urlParams.get('firmaId');
+        datumPromene = urlParams.get('datumPromene');
+        novoRadnoVreme = urlParams.get('novoRadnoVreme');
+        staroRadnoVreme = urlParams.get('staroRadnoVreme');
+        razlogPromene = urlParams.get('razlogPromene') || '';
 
         if (!radnikId || !firmaId || !datumPromene || !novoRadnoVreme) {
-          showError("Nedostaju potrebni parametri");
+          showError('Nedostaju potrebni parametri');
           return;
         }
 
@@ -194,12 +196,12 @@
         try {
           // Učitaj podatke o radniku i firmi paralelno
           const [radnikResponse, firmaResponse] = await Promise.all([
-            fetch(`/api/radnici/id/${radnikId}`, { credentials: "include" }),
-            fetch(`/api/firme/id/${firmaId}`, { credentials: "include" }),
+            fetch(`/api/radnici/id/${radnikId}`, { credentials: 'include' }),
+            fetch(`/api/firme/id/${firmaId}`, { credentials: 'include' }),
           ]);
 
           if (!radnikResponse.ok || !firmaResponse.ok) {
-            throw new Error("Greška pri učitavanju podataka");
+            throw new Error('Greška pri učitavanju podataka');
           }
 
           const radnik = await radnikResponse.json();
@@ -209,11 +211,11 @@
           populateDocument(radnik, firma);
 
           // Sakrij loading i prikaži dokument
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("document-content").style.display = "block";
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('document-content').style.display = 'block';
         } catch (error) {
-          console.error("Greška:", error);
-          showError("Greška pri učitavanju podataka");
+          console.error('Greška:', error);
+          showError('Greška pri učitavanju podataka');
         }
       }
 
@@ -221,41 +223,42 @@
       function populateDocument(radnik, firma) {
         // Popuni imena za potpise
         document.getElementById(
-          "radnik-ime-potpis"
+          'radnik-ime-potpis'
         ).textContent = `${radnik.ime} ${radnik.prezime}`;
-        document.getElementById("direktor-ime").textContent =
-          firma.direktor_ime_prezime || "SLAVICA MILOŠEVIĆ";
+        document.getElementById('direktor-ime').textContent =
+          firma.direktor_ime_prezime || 'SLAVICA MILOŠEVIĆ';
 
         // Generiši tekst aneksa
         const aneksTekst = getAneksTekst(radnik, firma);
-        document.getElementById("aneks-tekst").innerHTML = aneksTekst;
+        document.getElementById('aneks-tekst').innerHTML = aneksTekst;
       }
 
       // Funkcija za formatiranje datuma
       function formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString("sr-Latn-RS", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
+        return date.toLocaleDateString('sr-Latn-RS', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
         });
       }
 
       // Funkcija za generisanje teksta aneksa
       function getAneksTekst(radnik, firma) {
-        const staroRadnoVreme =
+        const staroRadnoVremeText =
+          staroRadnoVreme ||
           radnik.radno_vreme ||
           radnik.radnoVreme ||
           radnik.radno_vrijeme ||
-          "Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)";
+          'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)';
 
         return `
                 <p><strong>Zaključen između:</strong></p>
                 <p>1. <strong>${firma.naziv}</strong>, ${
-          firma.adresa || "JOVANA TOMAŠEVIĆA G9"
+          firma.adresa || 'JOVANA TOMAŠEVIĆA G9'
         }, 
                 PIB: ${firma.pib}, koju zastupa direktor <strong>${
-          firma.direktor_ime_prezime || "SLAVICA MILOŠEVIĆ"
+          firma.direktor_ime_prezime || 'SLAVICA MILOŠEVIĆ'
         }</strong> 
                 (u daljem tekstu: poslodavac)</p>
                 
@@ -277,7 +280,7 @@
                 <table class="info-table">
                     <tr>
                         <td class="label">DOSADAŠNJE RADNO VRIJEME:</td>
-                        <td><strong>${staroRadnoVreme}</strong></td>
+                        <td><strong>${staroRadnoVremeText}</strong></td>
                     </tr>
                     <tr>
                         <td class="label">NOVO RADNO VRIJEME:</td>
@@ -295,7 +298,7 @@
                         <td><strong>${razlogPromene}</strong></td>
                     </tr>
                     `
-                        : ""
+                        : ''
                     }
                 </table>
                 
@@ -325,9 +328,9 @@
 
       // Prikaz greške
       function showError(message) {
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("error").style.display = "block";
-        document.getElementById("error").innerHTML = `
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>${message}</p>
             `;

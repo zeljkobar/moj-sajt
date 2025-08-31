@@ -1147,6 +1147,10 @@ function generisiAneksRadnoVreme() {
 
   const radnikId = getCurrentRadnikIdFromModal();
 
+  // Sačuvaj trenutno radno vreme pre ažuriranja
+  const staroRadnoVreme =
+    document.getElementById('trenutnoRadnoVreme').textContent;
+
   // Prvo ažuriraj podatke radnika u bazi
   updateRadnikRadnoVremeIFetchData(radnikId, novoRadnoVreme, datumPromene)
     .then(() => {
@@ -1162,6 +1166,7 @@ function generisiAneksRadnoVreme() {
         firmaId: currentFirmaId,
         datumPromene: datumPromene,
         novoRadnoVreme: novoRadnoVreme,
+        staroRadnoVreme: staroRadnoVreme,
         razlogPromene: razlogPromene,
       });
 
@@ -2142,12 +2147,15 @@ async function dodajNovuPozajmnicu() {
     // Generiši sledeći broj ugovora za ovu firmu
     try {
       console.log('Pozivam next-broj za firmu:', currentFirmaId);
-      const nextBrojResponse = await fetch(`/api/pozajmnice/next-broj/${currentFirmaId}`, {
-        credentials: 'include',
-      });
-      
+      const nextBrojResponse = await fetch(
+        `/api/pozajmnice/next-broj/${currentFirmaId}`,
+        {
+          credentials: 'include',
+        }
+      );
+
       console.log('Next broj response status:', nextBrojResponse.status);
-      
+
       if (nextBrojResponse.ok) {
         const data = await nextBrojResponse.json();
         console.log('Next broj data:', data);
@@ -2157,9 +2165,14 @@ async function dodajNovuPozajmnicu() {
           console.log('Postavljen broj ugovora:', data.nextBrojUgovora);
         }
       } else {
-        const errorData = await nextBrojResponse.json().catch(() => ({ message: 'Nepoznata greška' }));
+        const errorData = await nextBrojResponse
+          .json()
+          .catch(() => ({ message: 'Nepoznata greška' }));
         console.error('Error response:', errorData);
-        alert('Greška pri generisanju broja ugovora: ' + (errorData.message || 'Nepoznata greška'));
+        alert(
+          'Greška pri generisanju broja ugovora: ' +
+            (errorData.message || 'Nepoznata greška')
+        );
       }
     } catch (error) {
       console.error('Greška pri generisanju broja ugovora:', error);
