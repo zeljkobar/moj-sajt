@@ -11,9 +11,9 @@
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag("js", new Date());
+      gtag('js', new Date());
 
-      gtag("config", "G-DGZCVVHKXW");
+      gtag('config', 'G-DGZCVVHKXW');
     </script>
 
     <meta charset="UTF-8" />
@@ -455,16 +455,16 @@
     <script>
       let currentFirma = null;
 
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function () {
         // Postavi trenutni datum
         const today = new Date();
         const options = {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         };
-        document.getElementById("currentDate").textContent =
-          today.toLocaleDateString("sr-Latn-RS", options);
+        document.getElementById('currentDate').textContent =
+          today.toLocaleDateString('sr-Latn-RS', options);
 
         // Učitavanje podataka
         loadUserData();
@@ -478,59 +478,59 @@
 
         // Event listeneri
         document
-          .getElementById("viewFirmaDetails")
-          .addEventListener("click", function () {
+          .getElementById('viewFirmaDetails')
+          .addEventListener('click', function () {
             if (currentFirma) {
               window.location.href = `firma-detalji.html?id=${currentFirma.id}`;
             }
           });
 
         document
-          .getElementById("createPozajmica")
-          .addEventListener("click", function () {
+          .getElementById('createPozajmica')
+          .addEventListener('click', function () {
             if (currentFirma) {
               window.location.href = `firma-detalji.html?id=${currentFirma.id}#pozajmice`;
             }
           });
 
         document
-          .getElementById("viewAllPozajmice")
-          .addEventListener("click", function () {
+          .getElementById('viewAllPozajmice')
+          .addEventListener('click', function () {
             if (currentFirma) {
               window.location.href = `firma-detalji.html?id=${currentFirma.id}#pozajmice`;
             }
           });
 
-        console.log("Dashboard firme učitan");
+        console.log('Dashboard firme učitan');
       });
 
       // Funkcija za učitavanje korisničkih podataka
       async function loadUserData() {
         try {
-          const response = await fetch("/api/users/current", {
-            method: "GET",
-            credentials: "include",
+          const response = await fetch('/api/users/current', {
+            method: 'GET',
+            credentials: 'include',
           });
 
           if (response.ok) {
             const userData = await response.json();
-            document.getElementById("userName").textContent =
-              userData.ime + " " + userData.prezime;
+            document.getElementById('userName').textContent =
+              userData.ime + ' ' + userData.prezime;
           } else {
-            console.error("Greška pri učitavanju korisničkih podataka");
-            document.getElementById("userName").textContent = "Korisnice";
+            console.error('Greška pri učitavanju korisničkih podataka');
+            document.getElementById('userName').textContent = 'Korisnice';
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa API:", error);
-          document.getElementById("userName").textContent = "Korisnice";
+          console.error('Greška pri povezivanju sa API:', error);
+          document.getElementById('userName').textContent = 'Korisnice';
         }
       }
 
       // Funkcija za učitavanje podataka firme
       async function loadMyFirma() {
         try {
-          const response = await fetch("/api/firme/my-company", {
-            credentials: "include",
+          const response = await fetch('/api/firme/my-company', {
+            credentials: 'include',
           });
 
           if (response.ok) {
@@ -538,75 +538,75 @@
             currentFirma = firma;
             displayFirmaData(firma);
           } else {
-            console.error("Greška pri učitavanju podataka firme");
+            console.error('Greška pri učitavanju podataka firme');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa API:", error);
+          console.error('Greška pri povezivanju sa API:', error);
         }
       }
 
       // Funkcija za prikaz podataka firme
       function displayFirmaData(firma) {
-        document.querySelector(".firma-loading").style.display = "none";
-        document.getElementById("firmaDetails").style.display = "block";
+        document.querySelector('.firma-loading').style.display = 'none';
+        document.getElementById('firmaDetails').style.display = 'block';
 
         // Osnovni podaci firme
-        document.getElementById("firmaNaziv").textContent = firma.naziv || "-";
-        document.getElementById("firmaPib").textContent = firma.pib || "-";
-        document.getElementById("firmaPdvBroj").textContent =
-          firma.pdvBroj || "-";
-        document.getElementById("firmaAdresa").textContent =
-          firma.adresa || "-";
-        document.getElementById("firmaGrad").textContent = firma.grad || "-";
-        document.getElementById("firmaTelefon").textContent =
-          firma.telefon || "-";
-        document.getElementById("firmaEmail").textContent = firma.email || "-";
+        document.getElementById('firmaNaziv').textContent = firma.naziv || '-';
+        document.getElementById('firmaPib').textContent = firma.pib || '-';
+        document.getElementById('firmaPdvBroj').textContent =
+          firma.pdvBroj || '-';
+        document.getElementById('firmaAdresa').textContent =
+          firma.adresa || '-';
+        document.getElementById('firmaGrad').textContent = firma.grad || '-';
+        document.getElementById('firmaTelefon').textContent =
+          firma.telefon || '-';
+        document.getElementById('firmaEmail').textContent = firma.email || '-';
 
         // Status badge
-        const statusBadge = document.getElementById("firmaStatus");
-        statusBadge.textContent = firma.status || "nepoznato";
+        const statusBadge = document.getElementById('firmaStatus');
+        statusBadge.textContent = firma.status || 'nepoznato';
         statusBadge.className = `badge ${
-          firma.status === "aktivan" ? "bg-success" : "bg-warning"
+          firma.status === 'aktivan' ? 'bg-success' : 'bg-warning'
         }`;
 
         // Podaci o direktoru
-        document.getElementById("direktorImePrezime").textContent =
-          firma.direktor_ime_prezime || "-";
+        document.getElementById('direktorImePrezime').textContent =
+          firma.direktor_ime_prezime || '-';
       }
 
       // Funkcija za učitavanje obaveštenja
       async function loadNotifications() {
         try {
-          const response = await fetch("/api/notifications", {
-            credentials: "include",
+          const response = await fetch('/api/notifications', {
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
             updateNotificationsSection(data.notifications);
           } else {
-            console.error("Greška pri učitavanju obaveštenja");
+            console.error('Greška pri učitavanju obaveštenja');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa serverom:", error);
+          console.error('Greška pri povezivanju sa serverom:', error);
         }
       }
 
       // Funkcija za ažuriranje sekcije sa obaveštenjima
       function updateNotificationsSection(notifications) {
         const container = document
-          .querySelector(".quick-action-card h5 i.fa-exclamation-triangle")
-          .closest(".quick-action-card");
+          .querySelector('.quick-action-card h5 i.fa-exclamation-triangle')
+          .closest('.quick-action-card');
 
         // Sakrij loader
-        const loader = container.querySelector(".notifications-loading");
+        const loader = container.querySelector('.notifications-loading');
         if (loader) {
-          loader.style.display = "none";
+          loader.style.display = 'none';
         }
 
         if (notifications.length === 0) {
-          const noNotifications = document.createElement("div");
-          noNotifications.className = "text-center py-3 text-muted";
+          const noNotifications = document.createElement('div');
+          noNotifications.className = 'text-center py-3 text-muted';
           noNotifications.innerHTML = `
             <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
             <div>Nema hitnih obaveštenja</div>
@@ -616,7 +616,7 @@
         }
 
         // Dodaj obaveštenja
-        notifications.forEach((notification) => {
+        notifications.forEach(notification => {
           const notificationElement = createNotificationElement(notification);
           container.appendChild(notificationElement);
         });
@@ -624,20 +624,20 @@
 
       // Kreiranje HTML elementa za obaveštenje
       function createNotificationElement(notification) {
-        const div = document.createElement("div");
+        const div = document.createElement('div');
 
-        let badgeClass = "bg-info";
-        let cardClass = "info";
+        let badgeClass = 'bg-info';
+        let cardClass = 'info';
 
-        if (notification.type === "urgent") {
-          badgeClass = "bg-danger";
-          cardClass = "danger";
-        } else if (notification.type === "warning") {
-          badgeClass = "bg-warning";
-          cardClass = "warning";
+        if (notification.type === 'urgent') {
+          badgeClass = 'bg-danger';
+          cardClass = 'danger';
+        } else if (notification.type === 'warning') {
+          badgeClass = 'bg-warning';
+          cardClass = 'warning';
         }
 
-        let actionUrl = "";
+        let actionUrl = '';
         if (currentFirma && notification.action) {
           actionUrl = notification.action.replace(
             /id=\d+/,
@@ -661,7 +661,7 @@
                   ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
                 <i class="fas fa-eye"></i>
               </a>`
-                  : ""
+                  : ''
               }
             </div>
           </div>
@@ -673,50 +673,50 @@
       // Funkcija za učitavanje pozajmica
       async function loadPozajmice() {
         try {
-          const response = await fetch("/api/pozajmice", {
-            credentials: "include",
+          const response = await fetch('/api/pozajmnice', {
+            credentials: 'include',
           });
 
           if (response.ok) {
             const data = await response.json();
             updatePozajmiceSection(data.pozajmice);
           } else {
-            console.error("Greška pri učitavanju pozajmica");
+            console.error('Greška pri učitavanju pozajmica');
           }
         } catch (error) {
-          console.error("Greška pri povezivanju sa pozajmice API:", error);
+          console.error('Greška pri povezivanju sa pozajmice API:', error);
         }
       }
 
       // Funkcija za ažuriranje sekcije sa pozajmicama
       function updatePozajmiceSection(pozajmice) {
         const container = document
-          .querySelector(".quick-action-card h5 i.fa-coins")
-          .closest(".quick-action-card");
+          .querySelector('.quick-action-card h5 i.fa-coins')
+          .closest('.quick-action-card');
 
         // Sakrij loader
-        const loader = container.querySelector(".pozajmice-loading");
+        const loader = container.querySelector('.pozajmice-loading');
         if (loader) {
-          loader.style.display = "none";
+          loader.style.display = 'none';
         }
 
         // Filtruj aktivne pozajmice
         const aktivnePozajmice = pozajmice.filter(
-          (p) =>
-            p.status === "aktivna" &&
+          p =>
+            p.status === 'aktivna' &&
             (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
         );
 
         if (aktivnePozajmice.length === 0) {
-          const noPozajmice = document.createElement("div");
-          noPozajmice.className = "text-center py-3 text-muted mb-3";
+          const noPozajmice = document.createElement('div');
+          noPozajmice.className = 'text-center py-3 text-muted mb-3';
           noPozajmice.innerHTML = `
             <i class="fas fa-piggy-bank fa-2x mb-2 text-warning"></i>
             <div>Nema aktivnih pozajmica</div>
           `;
           container.insertBefore(
             noPozajmice,
-            container.querySelector(".d-grid")
+            container.querySelector('.d-grid')
           );
           return;
         }
@@ -724,22 +724,22 @@
         // Prikaži samo prvih 3 pozajmice
         const pozajmiceZaPrikaz = aktivnePozajmice.slice(0, 3);
 
-        pozajmiceZaPrikaz.forEach((pozajmica) => {
+        pozajmiceZaPrikaz.forEach(pozajmica => {
           const pozajmicaElement = createPozajmicaElement(pozajmica);
           container.insertBefore(
             pozajmicaElement,
-            container.querySelector(".d-grid")
+            container.querySelector('.d-grid')
           );
         });
       }
 
       // Kreiranje HTML elementa za pozajmicu
       function createPozajmicaElement(pozajmica) {
-        const div = document.createElement("div");
+        const div = document.createElement('div');
 
         const datumOdobrenja = new Date(
           pozajmica.datum_izdavanja
-        ).toLocaleDateString("sr-Latn-RS");
+        ).toLocaleDateString('sr-Latn-RS');
 
         const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;
         const preostaloIznos =
@@ -749,21 +749,21 @@
         const vraćenoIznos =
           pozajmica.ukupno_vraceno || ukupanIznos - preostaloIznos;
 
-        let borderClass = "border-primary";
-        let statusClass = "text-success";
-        let statusText = "Aktivna";
+        let borderClass = 'border-primary';
+        let statusClass = 'text-success';
+        let statusText = 'Aktivna';
 
         if (preostaloIznos > 0 && vraćenoIznos > 0) {
           const vraćeniProcenat = (vraćenoIznos / ukupanIznos) * 100;
 
           if (vraćeniProcenat > 50) {
-            borderClass = "border-info";
-            statusClass = "text-info";
-            statusText = "U toku vraćanja";
+            borderClass = 'border-info';
+            statusClass = 'text-info';
+            statusText = 'U toku vraćanja';
           } else if (vraćeniProcenat < 20) {
-            borderClass = "border-warning";
-            statusClass = "text-warning";
-            statusText = "Početak vraćanja";
+            borderClass = 'border-warning';
+            statusClass = 'text-warning';
+            statusText = 'Početak vraćanja';
           }
         }
 
@@ -784,7 +784,7 @@
           ${
             vraćenoIznos > 0 && ukupanIznos !== preostaloIznos
               ? `<br><small class="text-info">Vraćeno: ${vraćenoIznos}€ od ${ukupanIznos}€</small>`
-              : ""
+              : ''
           }
         `;
 
@@ -793,14 +793,14 @@
 
       // PDV Kalkulator funkcije (kopirane iz postojećeg dashboard-a)
       function initPdvCalculator() {
-        const amountInput = document.getElementById("pdv-amount");
-        const rateSelect = document.getElementById("pdv-rate");
+        const amountInput = document.getElementById('pdv-amount');
+        const rateSelect = document.getElementById('pdv-rate');
         const modeRadios = document.querySelectorAll('input[name="pdv-mode"]');
 
-        amountInput.addEventListener("input", calculatePdv);
-        rateSelect.addEventListener("change", calculatePdv);
-        modeRadios.forEach((radio) => {
-          radio.addEventListener("change", function () {
+        amountInput.addEventListener('input', calculatePdv);
+        rateSelect.addEventListener('change', calculatePdv);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
             updateLabels();
             calculatePdv();
           });
@@ -814,33 +814,33 @@
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
-        const amountLabel = document.getElementById("amount-label");
-        const resultLabel1 = document.getElementById("result-label-1");
-        const resultLabel2 = document.getElementById("result-label-2");
+        const amountLabel = document.getElementById('amount-label');
+        const resultLabel1 = document.getElementById('result-label-1');
+        const resultLabel2 = document.getElementById('result-label-2');
 
-        if (mode === "add") {
-          amountLabel.textContent = "Iznos bez PDV-a";
-          resultLabel1.textContent = "PDV iznos";
-          resultLabel2.textContent = "Ukupno sa PDV";
+        if (mode === 'add') {
+          amountLabel.textContent = 'Iznos bez PDV-a';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Ukupno sa PDV';
         } else {
-          amountLabel.textContent = "Iznos sa PDV-om";
-          resultLabel1.textContent = "PDV iznos";
-          resultLabel2.textContent = "Iznos bez PDV";
+          amountLabel.textContent = 'Iznos sa PDV-om';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Iznos bez PDV';
         }
       }
 
       function calculatePdv() {
         const amount =
-          parseFloat(document.getElementById("pdv-amount").value) || 0;
+          parseFloat(document.getElementById('pdv-amount').value) || 0;
         const rate =
-          parseFloat(document.getElementById("pdv-rate").value) || 21;
+          parseFloat(document.getElementById('pdv-rate').value) || 21;
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
 
         let pdvAmount, totalAmount;
 
-        if (mode === "add") {
+        if (mode === 'add') {
           pdvAmount = amount * (rate / 100);
           totalAmount = amount + pdvAmount;
         } else {
@@ -849,15 +849,15 @@
           totalAmount = baseAmount;
         }
 
-        document.getElementById("pdv-tax-amount").textContent =
-          pdvAmount.toFixed(2) + " €";
-        document.getElementById("pdv-total-amount").textContent =
-          totalAmount.toFixed(2) + " €";
+        document.getElementById('pdv-tax-amount').textContent =
+          pdvAmount.toFixed(2) + ' €';
+        document.getElementById('pdv-total-amount').textContent =
+          totalAmount.toFixed(2) + ' €';
       }
 
       function clearPdvCalculator() {
-        document.getElementById("pdv-amount").value = "";
-        document.getElementById("pdv-rate").value = "21";
+        document.getElementById('pdv-amount').value = '';
+        document.getElementById('pdv-rate').value = '21';
         document.querySelector(
           'input[name="pdv-mode"][value="add"]'
         ).checked = true;
@@ -869,14 +869,14 @@
         const mode = document.querySelector(
           'input[name="pdv-mode"]:checked'
         ).value;
-        const amount = document.getElementById("pdv-amount").value;
-        const rate = document.getElementById("pdv-rate").value;
-        const pdvAmount = document.getElementById("pdv-tax-amount").textContent;
+        const amount = document.getElementById('pdv-amount').value;
+        const rate = document.getElementById('pdv-rate').value;
+        const pdvAmount = document.getElementById('pdv-tax-amount').textContent;
         const totalAmount =
-          document.getElementById("pdv-total-amount").textContent;
+          document.getElementById('pdv-total-amount').textContent;
 
         let textToCopy;
-        if (mode === "add") {
+        if (mode === 'add') {
           textToCopy = `PDV Kalkulacija (+${rate}%):
 Iznos bez PDV: ${amount} €
 PDV iznos: ${pdvAmount}
@@ -891,9 +891,9 @@ Iznos bez PDV: ${totalAmount}`;
         navigator.clipboard
           .writeText(textToCopy)
           .then(() => {
-            const toast = document.createElement("div");
-            toast.className = "position-fixed top-0 end-0 p-3";
-            toast.style.zIndex = "1056";
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
             toast.innerHTML = `
             <div class="toast show" role="alert">
               <div class="toast-header">
@@ -912,24 +912,24 @@ Iznos bez PDV: ${totalAmount}`;
               document.body.removeChild(toast);
             }, 3000);
           })
-          .catch((err) => {
-            console.error("Greška pri kopiranju:", err);
-            alert("Greška pri kopiranju u clipboard");
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
           });
       }
 
       // Obračun zakupa funkcije (kopirane iz postojećeg dashboard-a)
       function initZakupCalculator() {
-        const amountInput = document.getElementById("zakup-amount");
-        const gradSelect = document.getElementById("zakup-grad");
+        const amountInput = document.getElementById('zakup-amount');
+        const gradSelect = document.getElementById('zakup-grad');
         const modeRadios = document.querySelectorAll(
           'input[name="zakup-mode"]'
         );
 
-        amountInput.addEventListener("input", calculateZakup);
-        gradSelect.addEventListener("change", calculateZakup);
-        modeRadios.forEach((radio) => {
-          radio.addEventListener("change", function () {
+        amountInput.addEventListener('input', calculateZakup);
+        gradSelect.addEventListener('change', calculateZakup);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
             updateZakupLabels();
             calculateZakup();
           });
@@ -943,31 +943,31 @@ Iznos bez PDV: ${totalAmount}`;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
-        const amountLabel = document.getElementById("zakup-amount-label");
-        const resultLabel1 = document.getElementById("zakup-result-label-1");
-        const resultLabel2 = document.getElementById("zakup-result-label-2");
+        const amountLabel = document.getElementById('zakup-amount-label');
+        const resultLabel1 = document.getElementById('zakup-result-label-1');
+        const resultLabel2 = document.getElementById('zakup-result-label-2');
 
-        if (mode === "neto") {
-          amountLabel.textContent = "Neto iznos";
-          resultLabel1.textContent = "Porez";
-          resultLabel2.textContent = "Prirez";
+        if (mode === 'neto') {
+          amountLabel.textContent = 'Neto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
         } else {
-          amountLabel.textContent = "Bruto iznos";
-          resultLabel1.textContent = "Porez";
-          resultLabel2.textContent = "Prirez";
+          amountLabel.textContent = 'Bruto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
         }
       }
 
       function calculateZakup() {
         const amount =
-          parseFloat(document.getElementById("zakup-amount").value) || 0;
-        const grad = document.getElementById("zakup-grad").value;
+          parseFloat(document.getElementById('zakup-amount').value) || 0;
+        const grad = document.getElementById('zakup-grad').value;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
 
         const prirezStope = {
-          "podgorica-cetinje": 15,
+          'podgorica-cetinje': 15,
           budva: 10,
           ostali: 13,
         };
@@ -975,10 +975,10 @@ Iznos bez PDV: ${totalAmount}`;
         const NETO_KOEFICIJENT = 0.117318;
         const BRUTO_KOEFICIJENT = 0.105;
 
-        const prirezStopa = prirezStope[grad] || prirezStope["ostali"];
+        const prirezStopa = prirezStope[grad] || prirezStope['ostali'];
         let porezIznos, prirezIznos, netoIznos;
 
-        if (mode === "neto") {
+        if (mode === 'neto') {
           netoIznos = amount;
           porezIznos = netoIznos * NETO_KOEFICIJENT;
           prirezIznos = porezIznos * (prirezStopa / 100);
@@ -988,15 +988,15 @@ Iznos bez PDV: ${totalAmount}`;
           prirezIznos = porezIznos * (prirezStopa / 100);
         }
 
-        document.getElementById("zakup-porez-amount").textContent =
-          porezIznos.toFixed(2) + " €";
-        document.getElementById("zakup-prirez-amount").textContent =
-          prirezIznos.toFixed(2) + " €";
+        document.getElementById('zakup-porez-amount').textContent =
+          porezIznos.toFixed(2) + ' €';
+        document.getElementById('zakup-prirez-amount').textContent =
+          prirezIznos.toFixed(2) + ' €';
       }
 
       function clearZakupCalculator() {
-        document.getElementById("zakup-amount").value = "";
-        document.getElementById("zakup-grad").value = "podgorica-cetinje";
+        document.getElementById('zakup-amount').value = '';
+        document.getElementById('zakup-grad').value = 'podgorica-cetinje';
         document.querySelector(
           'input[name="zakup-mode"][value="neto"]'
         ).checked = true;
@@ -1008,20 +1008,20 @@ Iznos bez PDV: ${totalAmount}`;
         const mode = document.querySelector(
           'input[name="zakup-mode"]:checked'
         ).value;
-        const amount = document.getElementById("zakup-amount").value;
-        const grad = document.getElementById("zakup-grad").value;
+        const amount = document.getElementById('zakup-amount').value;
+        const grad = document.getElementById('zakup-grad').value;
         const gradNaziv =
-          document.getElementById("zakup-grad").options[
-            document.getElementById("zakup-grad").selectedIndex
+          document.getElementById('zakup-grad').options[
+            document.getElementById('zakup-grad').selectedIndex
           ].text;
         const porezAmount =
-          document.getElementById("zakup-porez-amount").textContent;
+          document.getElementById('zakup-porez-amount').textContent;
         const prirezAmount = document.getElementById(
-          "zakup-prirez-amount"
+          'zakup-prirez-amount'
         ).textContent;
 
         let textToCopy;
-        if (mode === "neto") {
+        if (mode === 'neto') {
           textToCopy = `Obračun zakupa (Neto → Bruto):
 Grad: ${gradNaziv}
 Neto iznos: ${amount} €
@@ -1029,8 +1029,8 @@ Porez: ${porezAmount}
 Prirez: ${prirezAmount}
 Ukupno bruto: ${(
             parseFloat(amount) +
-            parseFloat(porezAmount.replace(" €", "")) +
-            parseFloat(prirezAmount.replace(" €", ""))
+            parseFloat(porezAmount.replace(' €', '')) +
+            parseFloat(prirezAmount.replace(' €', ''))
           ).toFixed(2)} €`;
         } else {
           textToCopy = `Obračun zakupa (Bruto → Neto):
@@ -1040,17 +1040,17 @@ Porez: ${porezAmount}
 Prirez: ${prirezAmount}
 Neto iznos: ${(
             parseFloat(amount) -
-            parseFloat(porezAmount.replace(" €", "")) -
-            parseFloat(prirezAmount.replace(" €", ""))
+            parseFloat(porezAmount.replace(' €', '')) -
+            parseFloat(prirezAmount.replace(' €', ''))
           ).toFixed(2)} €`;
         }
 
         navigator.clipboard
           .writeText(textToCopy)
           .then(() => {
-            const toast = document.createElement("div");
-            toast.className = "position-fixed top-0 end-0 p-3";
-            toast.style.zIndex = "1056";
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
             toast.innerHTML = `
             <div class="toast show" role="alert">
               <div class="toast-header">
@@ -1069,9 +1069,9 @@ Neto iznos: ${(
               document.body.removeChild(toast);
             }, 3000);
           })
-          .catch((err) => {
-            console.error("Greška pri kopiranju:", err);
-            alert("Greška pri kopiranju u clipboard");
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
           });
       }
     </script>
