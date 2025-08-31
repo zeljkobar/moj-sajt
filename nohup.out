@@ -1,57 +1,15 @@
 ⚠️  Using MemoryStore for sessions
    Sessions will be lost on server restart.
-[32minfo[39m: Server started {"environment":"development","port":"3000","service":"summa-summarum","timestamp":"2025-08-23T02:07:30.717Z"}
+[32minfo[39m: Server started {"environment":"development","port":"3000","service":"summa-summarum","timestamp":"2025-08-31T15:27:57.543Z"}
 🚀 Server radi na http://0.0.0.0:3000
-=== DEBUG POZAJMICA/ZAJMODAVAC ===
-Pozajmica: {
-  id: 32,
-  firma_id: 33,
-  pozajmilac_tip: 'zajmodavac',
-  radnik_id: null,
-  zajmodavac_id: 1,
-  broj_ugovora: '007'
-}
-Zajmodavac: {
-  id: 1,
-  ime: 'Marko',
-  prezime: 'Kaluđerović',
-  jmbg: '0205001220552',
-  ziro_racun: '',
-  firma_id: 33
-}
-Firma: { id: 33, naziv: 'CNS COMPANY' }
-JOIN result: {
-  id: 32,
-  firma_id: 33,
-  radnik_id: null,
-  iznos: '9000.00',
-  svrha: 'obaveze_dobavljaci',
-  broj_ugovora: '007',
-  datum_izdavanja: 2025-08-21T00:00:00.000Z,
-  'datum_dospeća': null,
-  status: 'aktivna',
-  ukupno_vraceno: '0.00',
-  preostalo_dugovanje: '9000.00',
-  napomene: null,
-  created_at: 2025-08-23T01:41:44.000Z,
-  updated_at: 2025-08-23T01:41:44.000Z,
-  pozajmilac_tip: 'zajmodavac',
-  zajmodavac_id: 1,
-  zajmodavac_ime: 'Marko',
-  zajmodavac_prezime: 'Kaluđerović'
-}
-[32minfo[39m: HTTP 200 - GET /api/test/debug/32 {"duration":"366ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:07:37.711Z","url":"/api/test/debug/32","userAgent":"curl/8.7.1","userId":null}
-[32minfo[39m: HTTP 200 - GET /32 {"duration":"3ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:07:58.407Z","url":"/32","userAgent":"curl/8.7.1","userId":null}
-[32minfo[39m: HTTP 200 - GET /32 {"duration":"1ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:08:04.110Z","url":"/32","userAgent":"curl/8.7.1","userId":null}
-[32minfo[39m: HTTP 200 - GET /prijava.html?id=1d50eb6e-4c36-4262-ad3b-f66b243a1579&vscodeBrowserReqId=1755914904653 {"duration":"0ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:08:24.656Z","url":"/prijava.html?id=1d50eb6e-4c36-4262-ad3b-f66b243a1579&vscodeBrowserReqId=1755914904653","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 304 - GET /style.css {"duration":"2ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":304,"timestamp":"2025-08-23T02:08:24.686Z","url":"/style.css","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 304 - GET /script.js {"duration":"0ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":304,"timestamp":"2025-08-23T02:08:24.686Z","url":"/script.js","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 304 - GET /check-auth {"duration":"0ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":304,"timestamp":"2025-08-23T02:08:24.703Z","url":"/check-auth","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 200 - GET /ugovor-o-zajmu-novca.html?pozajmnicaId=32&firmaId=33&id=1d50eb6e-4c36-4262-ad3b-f66b243a1579&vscodeBrowserReqId=1755914914872 {"duration":"1ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:08:34.875Z","url":"/ugovor-o-zajmu-novca.html?pozajmnicaId=32&firmaId=33&id=1d50eb6e-4c36-4262-ad3b-f66b243a1579&vscodeBrowserReqId=1755914914872","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 304 - GET /components/export-utils.js {"duration":"0ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":304,"timestamp":"2025-08-23T02:08:34.879Z","url":"/components/export-utils.js","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: HTTP 200 - GET /32 {"duration":"1ms","ip":"127.0.0.1","method":"GET","service":"summa-summarum","statusCode":200,"timestamp":"2025-08-23T02:08:35.077Z","url":"/32","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.103.1 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36","userId":null}
-[32minfo[39m: SIGTERM received. Shutting down gracefully {"service":"summa-summarum","timestamp":"2025-08-23T02:08:54.407Z"}
-SIGTERM received, shutting down gracefully
-
-⚠️  Shutting down gracefully...
-[32minfo[39m: Process terminated {"service":"summa-summarum","timestamp":"2025-08-23T02:08:54.408Z"}
+[32minfo[39m: Login request received {"method":"POST","service":"summa-summarum","timestamp":"2025-08-31T15:28:08.531Z","url":"/api/login"}
+[32minfo[39m: Login request received {"method":"POST","service":"summa-summarum","timestamp":"2025-08-31T15:29:11.235Z","url":"/api/login"}
+[32minfo[39m: Login request received {"method":"POST","service":"summa-summarum","timestamp":"2025-08-31T15:30:39.664Z","url":"/api/login"}
+[DEBUG] User: undefined, DB Status: trial, Calculated Status: trial
+[31merror[39m: Global error handler {"error":{"message":"Can't find /api/pozajmice on this server!","name":"Error","stack":"Error: Can't find /api/pozajmice on this server!\n    at handleNotFound (/Users/summasummarum/Desktop/sajt/moj-sajt/src/middleware/errorHandler.js:164:15)\n    at Layer.handleRequest (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/lib/layer.js:152:17)\n    at trimPrefix (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:342:13)\n    at /Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:297:9\n    at processParams (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:582:12)\n    at next (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:291:5)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/serve-static/index.js:120:7)\n    at SendStream.emit (node:events:507:28)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:168:17)\n    at SendStream.onStatError (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:315:12)"},"ip":"127.0.0.1","method":"GET","service":"summa-summarum","timestamp":"2025-08-31T15:30:39.933Z","url":"/api/pozajmice","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","userId":null}
+[DEBUG] User: undefined, DB Status: trial, Calculated Status: trial
+[31merror[39m: Global error handler {"error":{"message":"Can't find /api/pozajmice on this server!","name":"Error","stack":"Error: Can't find /api/pozajmice on this server!\n    at handleNotFound (/Users/summasummarum/Desktop/sajt/moj-sajt/src/middleware/errorHandler.js:164:15)\n    at Layer.handleRequest (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/lib/layer.js:152:17)\n    at trimPrefix (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:342:13)\n    at /Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:297:9\n    at processParams (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:582:12)\n    at next (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:291:5)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/serve-static/index.js:120:7)\n    at SendStream.emit (node:events:507:28)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:168:17)\n    at SendStream.onStatError (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:315:12)"},"ip":"127.0.0.1","method":"GET","service":"summa-summarum","timestamp":"2025-08-31T15:31:21.215Z","url":"/api/pozajmice","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","userId":null}
+[DEBUG] User: undefined, DB Status: trial, Calculated Status: trial
+[31merror[39m: Global error handler {"error":{"message":"Can't find /api/pozajmice on this server!","name":"Error","stack":"Error: Can't find /api/pozajmice on this server!\n    at handleNotFound (/Users/summasummarum/Desktop/sajt/moj-sajt/src/middleware/errorHandler.js:164:15)\n    at Layer.handleRequest (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/lib/layer.js:152:17)\n    at trimPrefix (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:342:13)\n    at /Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:297:9\n    at processParams (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:582:12)\n    at next (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:291:5)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/serve-static/index.js:120:7)\n    at SendStream.emit (node:events:507:28)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:168:17)\n    at SendStream.onStatError (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:315:12)"},"ip":"127.0.0.1","method":"GET","service":"summa-summarum","timestamp":"2025-08-31T15:31:37.514Z","url":"/api/pozajmice","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","userId":null}
+[DEBUG] User: undefined, DB Status: trial, Calculated Status: trial
+[31merror[39m: Global error handler {"error":{"message":"Can't find /api/pozajmice on this server!","name":"Error","stack":"Error: Can't find /api/pozajmice on this server!\n    at handleNotFound (/Users/summasummarum/Desktop/sajt/moj-sajt/src/middleware/errorHandler.js:164:15)\n    at Layer.handleRequest (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/lib/layer.js:152:17)\n    at trimPrefix (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:342:13)\n    at /Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:297:9\n    at processParams (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:582:12)\n    at next (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/router/index.js:291:5)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/serve-static/index.js:120:7)\n    at SendStream.emit (node:events:507:28)\n    at SendStream.error (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:168:17)\n    at SendStream.onStatError (/Users/summasummarum/Desktop/sajt/moj-sajt/node_modules/send/index.js:315:12)"},"ip":"127.0.0.1","method":"GET","service":"summa-summarum","timestamp":"2025-08-31T15:31:45.353Z","url":"/api/pozajmice","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36","userId":null}

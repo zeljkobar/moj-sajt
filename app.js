@@ -23,6 +23,10 @@ const emailRoutes = require('./src/routes/emailRoutes');
 const godisnjiomdoriRoutes = require('./src/routes/godisnjiomdori');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
+const {
+  subscriptionMiddleware,
+  subscriptionCheckMiddleware,
+} = require('./src/middleware/subscription');
 const InventoryService = require('./src/services/inventoryService');
 const cors = require('cors');
 const session = require('express-session');
@@ -82,11 +86,10 @@ const allowedOrigins = [
   'https://185.102.78.178',
 ];
 
-// Primeni osnovni rate limiting na sve zahteve
-app.use(smartRateLimiter);
+// app.use(smartRateLimiter); // Privremeno onemogućeno
 
 // HTTP request logging
-app.use(httpLogger);
+// app.use(httpLogger); // Privremeno onemogućeno
 
 app.use(
   cors({
@@ -215,9 +218,14 @@ app.get(
 );
 
 // Zaštićena ruta za dashboard
-app.get('/dashboard.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/dashboard.html');
-});
+app.get(
+  '/dashboard.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/dashboard.html');
+  }
+);
 
 // Zaštićena ruta za pregled firmi
 app.get('/firme.html', authMiddleware, (req, res) => {
@@ -258,6 +266,62 @@ app.get('/edit-profil.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/edit-profil.html');
 });
 
+// Zaštićena ruta za pretplatu
+app.get('/pretplata.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/pretplata.html');
+});
+
+// Ruta za pretplatu bez .html ekstenzije (za redirecte iz subscription middleware)
+// Ruta za pretplatu koja automatski redirect-uje na osnovu korisničke role
+app.get('/pretplata', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    if (!userId) {
+      return res.redirect('/prijava.html');
+    }
+
+    // Pronađi korisnika u bazi
+    const users = await executeQuery('SELECT role FROM users WHERE id = ?', [
+      userId,
+    ]);
+
+    if (!users || users.length === 0) {
+      return res.redirect('/prijava.html');
+    }
+
+    const userRole = users[0].role;
+
+    // Redirect na odgovarajuću pretplata stranicu
+    if (userRole === 'firma') {
+      return res.redirect('/pretplata-firma');
+    } else if (userRole === 'agencija') {
+      return res.redirect('/pretplata-agencija');
+    } else {
+      // Default za admin ili nepoznate role
+      return res.redirect('/pretplata-firma');
+    }
+  } catch (error) {
+    console.error('Error determining subscription page:', error);
+    // Fallback na firma stranicu
+    return res.redirect('/pretplata-firma');
+  }
+});
+
+// Rute za pretplatu specifične po tipovima korisnika
+app.get('/pretplata-firma', (req, res) => {
+  res.sendFile(__dirname + '/public/pretplata-firma.html');
+});
+
+app.get('/pretplata-agencija', (req, res) => {
+  res.sendFile(__dirname + '/public/pretplata-agencija.html');
+});
+
+// Ruta za account-suspended (za redirecte iz subscription middleware)
+// NAPOMENA: Bez authMiddleware da se izbegnu loopovi kada korisnik nema valjan session
+app.get('/account-suspended', (req, res) => {
+  res.sendFile(__dirname + '/public/account-suspended.html');
+});
+
 // Zaštićena ruta za firma-detalji (nova stranica sa tabovima)
 app.get('/firma-detalji.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/firma-detalji.html');
@@ -279,43 +343,49 @@ app.get(
 );
 
 // API ruta za pretragu
-app.get('/api/search', authMiddleware, async (req, res) => {
-  try {
-    const { q } = req.query;
-    const userId = req.session.user.id;
-    const { executeQuery } = require('./src/config/database');
+app.get(
+  '/api/search',
+  authMiddleware,
+  subscriptionMiddleware,
+  async (req, res) => {
+    try {
+      const { q } = req.query;
+      const userId = req.session.user.id;
+      const { executeQuery } = require('./src/config/database');
 
-    if (!q || q.length < 2) {
-      return res.json({ results: [] });
-    }
+      if (!q || q.length < 2) {
+        return res.json({ results: [] });
+      }
 
-    const searchTerm = `%${q}%`;
-    const results = [];
+      const searchTerm = `%${q}%`;
+      const results = [];
 
-    // Pretraži firme
-    const firme = await executeQuery(
-      `
+      // Pretraži firme
+      const firme = await executeQuery(
+        `
       SELECT id, naziv, pdvBroj, pib 
       FROM firme 
       WHERE user_id = ? AND (naziv LIKE ? OR pdvBroj LIKE ? OR pib LIKE ?)
       LIMIT 5
     `,
-      [userId, searchTerm, searchTerm, searchTerm]
-    );
+        [userId, searchTerm, searchTerm, searchTerm]
+      );
 
-    firme.forEach(firma => {
-      results.push({
-        type: 'firma',
-        id: firma.id,
-        category: 'Firma',
-        title: firma.naziv,
-        subtitle: `PDV: ${firma.pdvBroj || 'N/A'} | PIB: ${firma.pib || 'N/A'}`,
+      firme.forEach(firma => {
+        results.push({
+          type: 'firma',
+          id: firma.id,
+          category: 'Firma',
+          title: firma.naziv,
+          subtitle: `PDV: ${firma.pdvBroj || 'N/A'} | PIB: ${
+            firma.pib || 'N/A'
+          }`,
+        });
       });
-    });
 
-    // Pretraži radnike
-    const radnici = await executeQuery(
-      `
+      // Pretraži radnike
+      const radnici = await executeQuery(
+        `
       SELECT r.id, r.ime, r.prezime, r.firma_id, f.naziv as firma_naziv, p.naziv as pozicija_naziv
       FROM radnici r
       JOIN firme f ON r.firma_id = f.id
@@ -323,64 +393,70 @@ app.get('/api/search', authMiddleware, async (req, res) => {
       WHERE f.user_id = ? AND (r.ime LIKE ? OR r.prezime LIKE ? OR CONCAT(r.ime, ' ', r.prezime) LIKE ?)
       LIMIT 5
     `,
-      [userId, searchTerm, searchTerm, searchTerm]
-    );
+        [userId, searchTerm, searchTerm, searchTerm]
+      );
 
-    radnici.forEach(radnik => {
-      results.push({
-        type: 'radnik',
-        id: radnik.id,
-        firmaId: radnik.firma_id,
-        category: 'Radnik',
-        title: `${radnik.ime} ${radnik.prezime}`,
-        subtitle: `${radnik.firma_naziv} - ${
-          radnik.pozicija_naziv || 'Nespecifikovano'
-        }`,
+      radnici.forEach(radnik => {
+        results.push({
+          type: 'radnik',
+          id: radnik.id,
+          firmaId: radnik.firma_id,
+          category: 'Radnik',
+          title: `${radnik.ime} ${radnik.prezime}`,
+          subtitle: `${radnik.firma_naziv} - ${
+            radnik.pozicija_naziv || 'Nespecifikovano'
+          }`,
+        });
       });
-    });
 
-    res.json({ results });
-  } catch (error) {
-    console.error('Greška pri pretrazi:', error);
-    res.status(500).json({ results: [] });
+      res.json({ results });
+    } catch (error) {
+      console.error('Greška pri pretrazi:', error);
+      res.status(500).json({ results: [] });
+    }
   }
-});
+);
 
 // Specifični search endpoint-i
-app.get('/api/firme/search', authMiddleware, async (req, res) => {
-  try {
-    const { q } = req.query;
-    const userId = req.session.user.id;
+app.get(
+  '/api/firme/search',
+  authMiddleware,
+  subscriptionMiddleware,
+  async (req, res) => {
+    try {
+      const { q } = req.query;
+      const userId = req.session.user.id;
 
-    if (!q || q.length < 2) {
-      return res.json([]);
-    }
+      if (!q || q.length < 2) {
+        return res.json([]);
+      }
 
-    const searchTerm = `%${q}%`;
-    const firme = await executeQuery(
-      `
+      const searchTerm = `%${q}%`;
+      const firme = await executeQuery(
+        `
       SELECT id, naziv, grad, pib, status
       FROM firme 
       WHERE user_id = ? AND (naziv LIKE ? OR grad LIKE ? OR pib LIKE ?)
       ORDER BY naziv
       LIMIT 10
     `,
-      [userId, searchTerm, searchTerm, searchTerm]
-    );
+        [userId, searchTerm, searchTerm, searchTerm]
+      );
 
-    const results = firme.map(firma => ({
-      id: firma.id,
-      naziv: firma.naziv,
-      grad: firma.grad,
-      aktivna: firma.status === 'aktivan',
-    }));
+      const results = firme.map(firma => ({
+        id: firma.id,
+        naziv: firma.naziv,
+        grad: firma.grad,
+        aktivna: firma.status === 'aktivan',
+      }));
 
-    res.json(results);
-  } catch (error) {
-    console.error('Greška pri pretrazi firmi:', error);
-    res.status(500).json([]);
+      res.json(results);
+    } catch (error) {
+      console.error('Greška pri pretrazi firmi:', error);
+      res.status(500).json([]);
+    }
   }
-});
+);
 
 app.get('/api/radnici/search', authMiddleware, async (req, res) => {
   try {
@@ -770,6 +846,14 @@ const authController = require('./src/controllers/authController');
 const userController = require('./src/controllers/userController');
 app.get('/check-auth', authController.checkAuth);
 app.get('/current', authMiddleware, userController.getCurrentUser);
+
+// GET logout ruta za front-end linkove
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/prijava.html');
+  });
+});
+
 app.use('/api/firme', firmeRoutes);
 app.use('/api', contractRoutes);
 app.use('/api/radnici', radnikRoutes);
@@ -861,6 +945,15 @@ app.get(
   requireRole([ROLES.ADMIN]),
   (req, res) => {
     res.sendFile(__dirname + '/public/admin-users.html');
+  }
+);
+
+app.get(
+  '/admin-pretplate.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/admin-pretplate.html');
   }
 );
 

@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upravljanje Pretplatama - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="/style.css" rel="stylesheet" />
+    <style>
+      .subscription-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .status-active {
+        background-color: #28a745;
+      }
+      .status-trial {
+        background-color: #ffc107;
+        color: #000;
+      }
+      .status-expired {
+        background-color: #dc3545;
+      }
+      .status-suspended {
+        background-color: #6c757d;
+      }
+      .status-gratis {
+        background-color: #17a2b8;
+      }
+
+      .expires-soon {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+      }
+      .expires-today {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
+      }
+
+      .subscription-stats {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+      }
+
+      .filter-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/dashboard.html">
+          <i class="bi bi-speedometer2"></i> Admin Panel
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="/admin-users.html">
+            <i class="bi bi-people"></i> Korisnici
+          </a>
+          <a class="nav-link active" href="/admin-pretplate.html">
+            <i class="bi bi-credit-card"></i> Pretplate
+          </a>
+          <a class="nav-link" href="/admin-database.html">
+            <i class="bi bi-database"></i> Baza
+          </a>
+          <a class="nav-link" href="#" onclick="logout()">
+            <i class="bi bi-box-arrow-right"></i> Odjava
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+      <div class="row">
+        <div class="col-12">
+          <h2><i class="bi bi-credit-card"></i> Upravljanje Pretplatama</h2>
+          <p class="text-muted">
+            Pregled i upravljanje pretplatama svih korisnika
+          </p>
+        </div>
+      </div>
+
+      <!-- Statistike -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card subscription-stats h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-people-fill display-4"></i>
+              <h4 class="mt-2" id="totalUsers">-</h4>
+              <p class="mb-0">Ukupno korisnika</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-check-circle-fill display-4"></i>
+              <h4 class="mt-2" id="activeSubscriptions">-</h4>
+              <p class="mb-0">Aktivne pretplate</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-dark h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-clock-fill display-4"></i>
+              <h4 class="mt-2" id="trialUsers">-</h4>
+              <p class="mb-0">Trial korisnici</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-danger text-white h-100">
+            <div class="card-body text-center">
+              <i class="bi bi-exclamation-triangle-fill display-4"></i>
+              <h4 class="mt-2" id="expiredUsers">-</h4>
+              <p class="mb-0">Istekle pretplate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filteri -->
+      <div class="filter-section">
+        <div class="row align-items-end">
+          <div class="col-md-3">
+            <label class="form-label">Status pretplate</label>
+            <select class="form-select" id="statusFilter">
+              <option value="">Svi statusi</option>
+              <option value="active">Aktivne</option>
+              <option value="trial">Trial</option>
+              <option value="expired">Istekle</option>
+              <option value="suspended">Suspendovane</option>
+              <option value="gratis">Gratis</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Ističe u narednih</label>
+            <select class="form-select" id="expiryFilter">
+              <option value="">Svi</option>
+              <option value="7">7 dana</option>
+              <option value="14">14 dana</option>
+              <option value="30">30 dana</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Pretraga korisnika</label>
+            <input
+              type="text"
+              class="form-control"
+              id="searchUser"
+              placeholder="Ime, email ili username..."
+            />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="loadSubscriptions()">
+              <i class="bi bi-search"></i> Filtriraj
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert za brza obaveštenja -->
+      <div id="alertContainer"></div>
+
+      <!-- Tabela pretplata -->
+      <div class="card">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0">Pretplate korisnika</h5>
+          <div>
+            <button
+              class="btn btn-outline-warning btn-sm"
+              onclick="cleanupExpiredSubscriptions()"
+              title="Ažuriraj statuse isteklih pretplata"
+            >
+              <i class="bi bi-arrow-clockwise"></i> Ažuriraj istekle
+            </button>
+            <button
+              class="btn btn-outline-success btn-sm"
+              onclick="exportSubscriptions()"
+            >
+              <i class="bi bi-download"></i> Izvoz
+            </button>
+            <button
+              class="btn btn-outline-info btn-sm"
+              onclick="sendExpiryNotifications()"
+            >
+              <i class="bi bi-envelope"></i> Pošalji obaveštenja
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th>Korisnik</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Rola</th>
+                  <th>Period</th>
+                  <th>Poslednja uplata</th>
+                  <th class="text-center">Akcije</th>
+                </tr>
+              </thead>
+              <tbody id="subscriptionsTable">
+                <tr>
+                  <td colspan="7" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za uređivanje pretplate -->
+    <div class="modal fade" id="editSubscriptionModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Uredi Pretplatu</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="subscriptionForm">
+              <input type="hidden" id="editUserId" />
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Korisnik</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="editUserInfo"
+                    readonly
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Trenutni status</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="currentStatus"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Novi status</label>
+                  <select class="form-select" id="newStatus" required>
+                    <option value="active">Aktivna</option>
+                    <option value="trial">Trial</option>
+                    <option value="expired">Istekla</option>
+                    <option value="suspended">Suspendovana</option>
+                    <option value="gratis">Gratis</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Produženje (dana)</label>
+                  <select class="form-select" id="extensionDays">
+                    <option value="30">30 dana</option>
+                    <option value="90">3 meseca</option>
+                    <option value="180">6 meseci</option>
+                    <option value="365">1 godina</option>
+                    <option value="custom">Prilagođeno</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row mb-3" id="customDateRow" style="display: none">
+                <div class="col-md-6">
+                  <label class="form-label">Datum isteka trial-a</label>
+                  <input type="date" class="form-control" id="customTrialEnd" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Datum isteka pretplate</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="customSubscriptionEnd"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Razlog promijene</label>
+                <textarea
+                  class="form-control"
+                  id="changeReason"
+                  rows="3"
+                  placeholder="Unesite razlog promijene..."
+                ></textarea>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="sendNotificationEmail"
+                  />
+                  <label class="form-check-label" for="sendNotificationEmail">
+                    Pošalji email obaveštenje korisniku
+                  </label>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="saveSubscriptionChanges()"
+            >
+              <i class="bi bi-check-lg"></i> Sačuvaj promijene
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za istoriju pretplate -->
+    <div class="modal fade" id="subscriptionHistoryModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Istorija Pretplate</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="historyContent">
+              <!-- Dinamički sadržaj -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za dodavanje uplate -->
+    <div class="modal fade" id="addPaymentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Evidentiraj Uplatu</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Zatvori"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="paymentForm">
+              <input type="hidden" id="paymentUserId" />
+
+              <div class="mb-3">
+                <label class="form-label">Korisnik:</label>
+                <div
+                  id="paymentUserInfo"
+                  class="form-control-plaintext bg-light p-2 rounded"
+                >
+                  <!-- Dinamički sadržaj -->
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="mb-3">
+                    <label for="paymentAmount" class="form-label"
+                      >Iznos *</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="paymentAmount"
+                      step="0.01"
+                      min="0"
+                      required
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="paymentCurrency" class="form-label"
+                      >Valuta</label
+                    >
+                    <select class="form-select" id="paymentCurrency">
+                      <option value="RSD">RSD</option>
+                      <option value="EUR" selected>EUR</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="paymentMethod" class="form-label"
+                  >Način plaćanja</label
+                >
+                <select class="form-select" id="paymentMethod">
+                  <option value="bank_transfer">Bankarski transfer</option>
+                  <option value="card">Platna kartica</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="cash">Gotovina</option>
+                  <option value="other">Ostalo</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="paymentReference" class="form-label"
+                  >Referenca/Napomena</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="paymentReference"
+                  placeholder="Broj računa, ID transakcije, napomena..."
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="paymentDate" class="form-label">Datum uplate</label>
+                <input type="date" class="form-control" id="paymentDate" />
+              </div>
+
+              <div class="form-check mb-3">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="extendSubscription"
+                  checked
+                />
+                <label class="form-check-label" for="extendSubscription">
+                  Automatski produlji pretplatu za 30 dana
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="savePayment()"
+            >
+              <i class="bi bi-check-lg"></i> Evidentiraj
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let allSubscriptions = [];
+
+      // Inicijalizacija stranice
+      document.addEventListener('DOMContentLoaded', function () {
+        // Fix aria-hidden accessibility issues with Bootstrap modals
+        const editModal = document.getElementById('editSubscriptionModal');
+        editModal.addEventListener('shown.bs.modal', function () {
+          this.removeAttribute('aria-hidden');
+        });
+        editModal.addEventListener('hidden.bs.modal', function () {
+          this.setAttribute('aria-hidden', 'true');
+        });
+
+        const historyModal = document.getElementById(
+          'subscriptionHistoryModal'
+        );
+        historyModal.addEventListener('shown.bs.modal', function () {
+          this.removeAttribute('aria-hidden');
+        });
+        historyModal.addEventListener('hidden.bs.modal', function () {
+          this.setAttribute('aria-hidden', 'true');
+        });
+
+        loadSubscriptions();
+        loadStats();
+
+        // Fix aria-hidden accessibility issues for modals
+        const addPaymentModal = document.getElementById('addPaymentModal');
+        addPaymentModal.addEventListener('shown.bs.modal', function () {
+          addPaymentModal.setAttribute('aria-hidden', 'false');
+        });
+        addPaymentModal.addEventListener('hidden.bs.modal', function () {
+          addPaymentModal.setAttribute('aria-hidden', 'true');
+        });
+
+        const editSubscriptionModal = document.getElementById(
+          'editSubscriptionModal'
+        );
+        editSubscriptionModal.addEventListener('shown.bs.modal', function () {
+          editSubscriptionModal.setAttribute('aria-hidden', 'false');
+        });
+        editSubscriptionModal.addEventListener('hidden.bs.modal', function () {
+          editSubscriptionModal.setAttribute('aria-hidden', 'true');
+        });
+
+        // Event listeneri za filtere
+        document
+          .getElementById('extensionDays')
+          .addEventListener('change', function () {
+            const customRow = document.getElementById('customDateRow');
+            const days = parseInt(this.value);
+
+            if (this.value === 'custom') {
+              customRow.style.display = 'block';
+            } else {
+              customRow.style.display = 'none';
+
+              // Automatski izračunaj krajnje datume
+              if (!isNaN(days)) {
+                const now = new Date();
+                const endDate = new Date(now);
+                endDate.setDate(now.getDate() + days);
+
+                const formattedDate = endDate.toISOString().split('T')[0];
+
+                // Postavi datum na osnovu trenutnog statusa
+                const currentStatus =
+                  document.getElementById('currentStatus').value;
+                if (currentStatus === 'trial') {
+                  document.getElementById('customTrialEnd').value =
+                    formattedDate;
+                } else {
+                  document.getElementById('customSubscriptionEnd').value =
+                    formattedDate;
+                }
+              }
+            }
+          });
+
+        // Event listener za novi status - automatski prilagodi polja
+        document
+          .getElementById('newStatus')
+          .addEventListener('change', function () {
+            const status = this.value;
+            const extensionDays = document.getElementById('extensionDays');
+            const days = parseInt(extensionDays.value);
+
+            if (!isNaN(days) && days > 0) {
+              const now = new Date();
+              const endDate = new Date(now);
+              endDate.setDate(now.getDate() + days);
+              const formattedDate = endDate.toISOString().split('T')[0];
+
+              // Obriši oba polja prvo
+              document.getElementById('customTrialEnd').value = '';
+              document.getElementById('customSubscriptionEnd').value = '';
+
+              // Postavi odgovarajuće polje
+              if (status === 'trial') {
+                document.getElementById('customTrialEnd').value = formattedDate;
+              } else if (status === 'active') {
+                document.getElementById('customSubscriptionEnd').value =
+                  formattedDate;
+              }
+            }
+          });
+      });
+
+      // Učitaj statistike
+      async function loadStats() {
+        try {
+          const response = await fetch('/api/admin/subscription/stats');
+          const data = await response.json();
+
+          document.getElementById('totalUsers').textContent =
+            data.total_users || 0;
+          document.getElementById('activeSubscriptions').textContent =
+            data.active_subscriptions || 0;
+          document.getElementById('trialUsers').textContent =
+            data.trial_users || 0;
+          document.getElementById('expiredUsers').textContent =
+            data.expired_users || 0;
+        } catch (error) {
+          console.error('Greška pri učitavanju statistika:', error);
+        }
+      }
+
+      // Učitaj pretplate
+      async function loadSubscriptions() {
+        try {
+          const statusFilter = document.getElementById('statusFilter').value;
+          const expiryFilter = document.getElementById('expiryFilter').value;
+          const searchUser = document.getElementById('searchUser').value;
+
+          let url = '/api/admin/subscription/users?';
+          if (statusFilter) url += `status=${statusFilter}&`;
+          if (expiryFilter) url += `expiry=${expiryFilter}&`;
+          if (searchUser) url += `search=${encodeURIComponent(searchUser)}&`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+
+          allSubscriptions = data;
+          renderSubscriptionsTable(data);
+        } catch (error) {
+          console.error('Greška pri učitavanju pretplata:', error);
+          showAlert('Greška pri učitavanju pretplata', 'danger');
+        }
+      }
+
+      // Renderuj tabelu pretplata
+      function renderSubscriptionsTable(subscriptions) {
+        const tbody = document.getElementById('subscriptionsTable');
+
+        if (subscriptions.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <p class="text-muted mt-2">Nema pretplata koje odgovaraju filterima</p>
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        tbody.innerHTML = subscriptions
+          .map(subscription => {
+            const statusBadge = getStatusBadge(
+              subscription.subscription_status
+            );
+            const trialInfo = formatDateInfo(
+              subscription.trial_start_date,
+              subscription.trial_end_date
+            );
+
+            // Period info based on status
+            let periodInfo = '';
+            if (subscription.subscription_status === 'trial') {
+              periodInfo = trialInfo;
+            } else if (subscription.subscription_status === 'active') {
+              if (subscription.subscription_end_date) {
+                const endDate = new Date(subscription.subscription_end_date);
+                const today = new Date();
+                const daysLeft = Math.ceil(
+                  (endDate - today) / (1000 * 60 * 60 * 24)
+                );
+
+                if (daysLeft > 0) {
+                  periodInfo = `<span class="text-success">Ističe ${endDate.toLocaleDateString(
+                    'sr-RS'
+                  )}</span><br><small class="text-muted">Još ${daysLeft} dana</small>`;
+                } else {
+                  periodInfo = `<span class="text-danger">Istekla ${endDate.toLocaleDateString(
+                    'sr-RS'
+                  )}</span>`;
+                }
+              } else {
+                periodInfo = '<span class="text-muted">Nije postavljen</span>';
+              }
+            } else if (subscription.subscription_status === 'gratis') {
+              periodInfo = '<span class="text-success">Neograničeno</span>';
+            } else {
+              periodInfo = '<span class="text-muted">-</span>';
+            }
+
+            const lastPayment = subscription.last_payment_date
+              ? new Date(subscription.last_payment_date).toLocaleDateString(
+                  'sr-RS'
+                )
+              : 'Nema';
+
+            const rowClass = getRowClass(subscription);
+
+            return `
+                    <tr class="${rowClass}">
+                        <td>
+                            <div>
+                                <strong>${subscription.ime} ${
+              subscription.prezime
+            }</strong>
+                                <br>
+                                <small class="text-muted">@${
+                                  subscription.username
+                                }</small>
+                            </div>
+                        </td>
+                        <td>${subscription.email}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <span class="badge ${
+                              subscription.role === 'firma'
+                                ? 'bg-primary'
+                                : 'bg-info'
+                            }">${
+              subscription.role === 'firma' ? 'Firma' : 'Agencija'
+            }</span>
+                        </td>
+                        <td>
+                            <small>${periodInfo}</small>
+                        </td>
+                        <td>
+                            <small>${lastPayment}</small>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success" onclick="addPayment(${
+                                  subscription.id
+                                })" title="Evidentiraj uplatu">
+                                    <i class="bi bi-cash-coin"></i>
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="editSubscription(${
+                                  subscription.id
+                                })" title="Uredi pretplatu">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewHistory(${
+                                  subscription.id
+                                })" title="Istorija">
+                                    <i class="bi bi-clock-history"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="sendReminder(${
+                                  subscription.id
+                                })" title="Pošalji podsetnik">
+                                    <i class="bi bi-envelope"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+          })
+          .join('');
+      }
+
+      // Pomoćne funkcije za formatiranje
+      function getStatusBadge(status) {
+        const badges = {
+          active:
+            '<span class="badge subscription-badge status-active">Aktivna</span>',
+          trial:
+            '<span class="badge subscription-badge status-trial">Trial</span>',
+          expired:
+            '<span class="badge subscription-badge status-expired">Istekla</span>',
+          suspended:
+            '<span class="badge subscription-badge status-suspended">Suspendovana</span>',
+          gratis:
+            '<span class="badge subscription-badge status-gratis">Gratis</span>',
+        };
+        return (
+          badges[status] ||
+          '<span class="badge subscription-badge bg-secondary">Nepoznato</span>'
+        );
+      }
+
+      function formatDateInfo(startDate, endDate) {
+        if (!startDate || !endDate) return 'Nije postavljen';
+
+        const start = new Date(startDate).toLocaleDateString('sr-RS');
+        const end = new Date(endDate).toLocaleDateString('sr-RS');
+        const daysLeft = Math.ceil(
+          (new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24)
+        );
+
+        if (daysLeft < 0) {
+          return `${start} - ${end}<br><span class="text-danger">Istekao pre ${Math.abs(
+            daysLeft
+          )} dana</span>`;
+        } else if (daysLeft === 0) {
+          return `${start} - ${end}<br><span class="text-warning">Ističe danas</span>`;
+        } else if (daysLeft <= 7) {
+          return `${start} - ${end}<br><span class="text-warning">Ističe za ${daysLeft} dana</span>`;
+        } else {
+          return `${start} - ${end}<br><span class="text-success">Još ${daysLeft} dana</span>`;
+        }
+      }
+
+      function getRowClass(subscription) {
+        if (!subscription.trial_end_date && !subscription.subscription_end_date)
+          return '';
+
+        const endDate =
+          subscription.subscription_end_date || subscription.trial_end_date;
+        const daysLeft = Math.ceil(
+          (new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24)
+        );
+
+        if (daysLeft === 0) return 'expires-today';
+        if (daysLeft > 0 && daysLeft <= 7) return 'expires-soon';
+        return '';
+      }
+
+      // Uredi pretplatu
+      function editSubscription(userId) {
+        const subscription = allSubscriptions.find(s => s.id === userId);
+        if (!subscription) return;
+
+        document.getElementById('editUserId').value = userId;
+        document.getElementById(
+          'editUserInfo'
+        ).value = `${subscription.ime} ${subscription.prezime} (${subscription.email})`;
+        document.getElementById('currentStatus').value =
+          subscription.subscription_status || 'Nema';
+        document.getElementById('newStatus').value =
+          subscription.subscription_status || 'active';
+
+        // Popuni trenutne datume ako postoje
+        if (subscription.trial_end_date) {
+          const trialDate = new Date(subscription.trial_end_date)
+            .toISOString()
+            .split('T')[0];
+          document.getElementById('customTrialEnd').value = trialDate;
+        } else {
+          document.getElementById('customTrialEnd').value = '';
+        }
+
+        if (subscription.subscription_end_date) {
+          const subDate = new Date(subscription.subscription_end_date)
+            .toISOString()
+            .split('T')[0];
+          document.getElementById('customSubscriptionEnd').value = subDate;
+        } else {
+          document.getElementById('customSubscriptionEnd').value = '';
+        }
+
+        // Resetuj ostala polja
+        document.getElementById('extensionDays').value = '30';
+        document.getElementById('changeReason').value = '';
+        document.getElementById('sendNotificationEmail').checked = false;
+        document.getElementById('customDateRow').style.display = 'block'; // Uvek prikaži datume
+
+        const modal = new bootstrap.Modal(
+          document.getElementById('editSubscriptionModal')
+        );
+
+        modal.show();
+      }
+
+      // Sačuvaj promijene pretplate
+      async function saveSubscriptionChanges() {
+        try {
+          const userId = document.getElementById('editUserId').value;
+          const formData = {
+            subscription_status: document.getElementById('newStatus').value,
+            trial_end_date:
+              document.getElementById('customTrialEnd').value || null,
+            subscription_end_date:
+              document.getElementById('customSubscriptionEnd').value || null,
+            notes: document.getElementById('changeReason').value,
+          };
+
+          const response = await fetch(
+            `/api/admin/subscription/users/${userId}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData),
+            }
+          );
+
+          const result = await response.json();
+
+          if (response.ok) {
+            showAlert('Pretplata je uspešno ažurirana', 'success');
+
+            // Properly hide modal to fix aria-hidden issue
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById('editSubscriptionModal')
+            );
+            if (modal) {
+              modal.hide();
+            }
+
+            // Send notification email if requested
+            const sendNotification = document.getElementById(
+              'sendNotificationEmail'
+            ).checked;
+            if (sendNotification) {
+              try {
+                await fetch(`/api/admin/subscription/notify/${userId}`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    type: 'subscription_update',
+                    message:
+                      'Vaša pretplata je ažurirana od strane administratora.',
+                  }),
+                });
+                showAlert('Email obaveštenje je poslato', 'info');
+              } catch (emailError) {
+                console.error('Greška pri slanju email-a:', emailError);
+                showAlert(
+                  'Pretplata je ažurirana, ali email nije poslat',
+                  'warning'
+                );
+              }
+            }
+
+            loadSubscriptions();
+            loadStats();
+          } else {
+            showAlert(
+              result.error || 'Greška pri ažuriranju pretplate',
+              'danger'
+            );
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          showAlert('Greška pri ažuriranju pretplate', 'danger');
+        }
+      }
+
+      // Prikaži istoriju pretplate
+      async function viewHistory(userId) {
+        try {
+          const response = await fetch(
+            `/api/admin/subscription/history/${userId}`
+          );
+          const history = await response.json();
+
+          const content = document.getElementById('historyContent');
+          content.innerHTML = `
+                    <div class="timeline">
+                        ${history
+                          .map(
+                            entry => `
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-primary"></div>
+                                <div class="timeline-content">
+                                    <h6>${entry.action}</h6>
+                                    <p class="text-muted mb-1">${
+                                      entry.details
+                                    }</p>
+                                    <small class="text-muted">
+                                        ${new Date(
+                                          entry.created_at
+                                        ).toLocaleString('sr-RS')} 
+                                        ${
+                                          entry.admin_username
+                                            ? `- ${entry.admin_username}`
+                                            : ''
+                                        }
+                                    </small>
+                                </div>
+                            </div>
+                        `
+                          )
+                          .join('')}
+                    </div>
+                `;
+
+          const modal = new bootstrap.Modal(
+            document.getElementById('subscriptionHistoryModal')
+          );
+          modal.show();
+        } catch (error) {
+          console.error('Greška pri učitavanju istorije:', error);
+          showAlert('Greška pri učitavanju istorije', 'danger');
+        }
+      }
+
+      // Dodaj uplatu
+      function addPayment(userId) {
+        const subscription = allSubscriptions.find(sub => sub.id === userId);
+        if (!subscription) {
+          showAlert('Korisnik nije pronađen', 'danger');
+          return;
+        }
+
+        // Popuni korisničke informacije
+        document.getElementById('paymentUserId').value = userId;
+        document.getElementById('paymentUserInfo').innerHTML = `
+          <strong>${subscription.ime} ${subscription.prezime}</strong><br>
+          <small class="text-muted">${subscription.email} (@${
+          subscription.username
+        })</small><br>
+          <small><span class="badge bg-${getStatusClass(
+            subscription.subscription_status
+          )}">${getStatusText(subscription.subscription_status)}</span></small>
+        `;
+
+        // Postavi trenutni datum
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('paymentDate').value = today;
+
+        // Resetuj formu
+        document.getElementById('paymentForm').reset();
+        document.getElementById('paymentUserId').value = userId;
+        document.getElementById('paymentDate').value = today;
+        document.getElementById('paymentCurrency').value = 'EUR';
+        document.getElementById('extendSubscription').checked = true;
+
+        // Prikaži modal
+        const modal = new bootstrap.Modal(
+          document.getElementById('addPaymentModal')
+        );
+
+        modal.show();
+      }
+
+      // Sačuvaj uplatu
+      async function savePayment() {
+        const userId = document.getElementById('paymentUserId').value;
+        const amount = document.getElementById('paymentAmount').value;
+        const currency = document.getElementById('paymentCurrency').value;
+        const method = document.getElementById('paymentMethod').value;
+        const reference = document.getElementById('paymentReference').value;
+        const date = document.getElementById('paymentDate').value;
+        const extendSubscription =
+          document.getElementById('extendSubscription').checked;
+
+        // Validacija
+        if (!amount || parseFloat(amount) <= 0) {
+          showAlert('Molimo unesite ispravan iznos', 'warning');
+          return;
+        }
+
+        if (!date) {
+          showAlert('Molimo unesite datum uplate', 'warning');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/admin/subscription/payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_id: userId,
+              amount: parseFloat(amount),
+              currency: currency,
+              payment_method: method,
+              reference: reference,
+              payment_date: date,
+              extend_subscription: extendSubscription,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            showAlert('Uplata je uspešno evidentirana', 'success');
+
+            // Zatvori modal
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById('addPaymentModal')
+            );
+            modal.hide();
+
+            // Osvezi podatke
+            loadSubscriptions();
+          } else {
+            showAlert(
+              result.error || 'Greška pri evidentiranju uplate',
+              'danger'
+            );
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          showAlert('Greška pri evidentiranju uplate', 'danger');
+        }
+      }
+
+      // Pomoćne funkcije za status
+      function getStatusClass(status) {
+        const classes = {
+          trial: 'info',
+          active: 'success',
+          expired: 'danger',
+          suspended: 'warning',
+          gratis: 'secondary',
+        };
+        return classes[status] || 'secondary';
+      }
+
+      function getStatusText(status) {
+        const texts = {
+          trial: 'Probni',
+          active: 'Aktivna',
+          expired: 'Istekla',
+          suspended: 'Suspendovana',
+          gratis: 'Gratis',
+        };
+        return texts[status] || status;
+      }
+
+      // Pošalji podsetnik
+      async function sendReminder(userId) {
+        try {
+          const response = await fetch(
+            `/api/admin/subscription/notify/${userId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'subscription_reminder',
+                message: 'Podsećamo vas na status vaše pretplate.',
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (response.ok) {
+            showAlert('Podsetnik je uspešno poslat', 'success');
+          } else {
+            showAlert(result.error || 'Greška pri slanju podsetnika', 'danger');
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          showAlert('Greška pri slanju podsetnika', 'danger');
+        }
+      }
+
+      // Pošalji obaveštenja o isteku - funkcionalnost se implementira po potrebi
+      async function sendExpiryNotifications() {
+        showAlert(
+          'Ova funkcionalnost će biti implementirana u budućoj verziji',
+          'info'
+        );
+      }
+
+      // Ažuriraj istekle pretplate
+      async function cleanupExpiredSubscriptions() {
+        if (
+          !confirm(
+            'Da li ste sigurni da želite da ažurirate sve istekle pretplate?'
+          )
+        ) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/admin/subscription/cleanup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            showAlert(
+              `Uspešno ažurirano ${result.updated_count} isteklih pretplata`,
+              'success'
+            );
+            // Reload the data to show updated statuses
+            loadStats();
+            loadSubscriptions();
+          } else {
+            showAlert(
+              result.error || 'Greška pri ažuriranju pretplata',
+              'danger'
+            );
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          showAlert('Greška pri ažuriranju pretplata', 'danger');
+        }
+      }
+
+      // Izvoz pretplata
+      function exportSubscriptions() {
+        const csvData = allSubscriptions.map(sub => ({
+          Ime: sub.ime,
+          Prezime: sub.prezime,
+          Username: sub.username,
+          Email: sub.email,
+          Status: sub.subscription_status,
+          'Trial Start': sub.trial_start_date,
+          'Trial End': sub.trial_end_date,
+          'Subscription Start': sub.subscription_start_date,
+          'Subscription End': sub.subscription_end_date,
+          'Last Payment': sub.last_payment,
+        }));
+
+        const csv = convertToCSV(csvData);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pretplate_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+
+      function convertToCSV(objArray) {
+        const array = [Object.keys(objArray[0])].concat(objArray);
+        return array
+          .map(row => {
+            return Object.values(row)
+              .map(value => {
+                return typeof value === 'string' ? `"${value}"` : value;
+              })
+              .join(',');
+          })
+          .join('\n');
+      }
+
+      // Prikaži alert
+      function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alertId = 'alert-' + Date.now();
+
+        alertContainer.innerHTML = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+        setTimeout(() => {
+          const alert = document.getElementById(alertId);
+          if (alert) {
+            alert.remove();
+          }
+        }, 5000);
+      }
+
+      // Logout funkcija
+      async function logout() {
+        try {
+          await fetch('/api/logout', { method: 'POST' });
+          window.location.href = '/';
+        } catch (error) {
+          console.error('Greška pri odjavi:', error);
+        }
+      }
+    </script>
+
+    <style>
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .timeline-marker {
+        position: absolute;
+        left: -23px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+      }
+
+      .timeline-content {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 3px solid #007bff;
+      }
+    </style>
+  </body>
+</html>

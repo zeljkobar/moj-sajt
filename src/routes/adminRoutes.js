@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const mysqldump = require('mysqldump');
 const { authMiddleware } = require('../middleware/auth');
-const { pool } = require('../config/database');
+const { pool, executeQuery } = require('../config/database');
 
 // Middleware za proveru admin pristupa
 const adminMiddleware = (req, res, next) => {
@@ -479,6 +479,678 @@ router.delete('/users/:id', async (req, res) => {
     });
   } finally {
     connection.release();
+  }
+});
+
+// GET /api/admin/subscription/stats - Subscription statistics
+router.get('/subscription/stats', async (req, res) => {
+  try {
+    const stats = await executeQuery(`
+      SELECT 
+        COUNT(*) as total_users,
+        COUNT(CASE WHEN subscription_status = 'active' THEN 1 END) as active_subscriptions,
+        COUNT(CASE WHEN subscription_status = 'trial' THEN 1 END) as trial_users,
+        COUNT(CASE WHEN subscription_status = 'gratis' THEN 1 END) as gratis_users,
+        COUNT(CASE WHEN subscription_status = 'suspended' THEN 1 END) as suspended_users,
+        COUNT(CASE WHEN subscription_status = 'expired' THEN 1 END) as expired_users,
+        COUNT(CASE WHEN trial_end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY) THEN 1 END) as trials_expiring_soon
+      FROM users 
+      WHERE role != 'admin'
+    `);
+
+    const revenueStats = await executeQuery(`
+      SELECT 
+        COALESCE(SUM(CASE WHEN action LIKE '%payment%' AND created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) THEN 1 END), 0) as monthly_payments,
+        COALESCE(SUM(CASE WHEN action LIKE '%payment%' AND created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR) THEN 1 END), 0) as yearly_payments
+      FROM subscription_history
+    `);
+
+    res.json({
+      ...stats[0],
+      ...revenueStats[0],
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju subscription statistika:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju statistika' });
+  }
+});
+
+// GET /api/admin/subscription/users - List users with subscription info
+router.get('/subscription/users', async (req, res) => {
+  try {
+    const { status, search, expiring_days } = req.query;
+
+    let whereConditions = ["role != 'admin'"];
+    let queryParams = [];
+
+    // Filter po statusu
+    if (status && status !== 'all') {
+      if (status === 'expiring_trial') {
+        whereConditions.push(
+          'trial_end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)'
+        );
+      } else {
+        whereConditions.push('subscription_status = ?');
+        queryParams.push(status);
+      }
+    }
+
+    // Filter za uskoro ističuće pretplate
+    if (expiring_days) {
+      const days = parseInt(expiring_days);
+      whereConditions.push(`(
+        (u.trial_end_date IS NOT NULL AND u.trial_end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? DAY)) OR
+        (u.subscription_end_date IS NOT NULL AND u.subscription_end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ? DAY))
+      )`);
+      queryParams.push(days, days);
+    }
+
+    // Filter po pretrazi
+    if (search) {
+      whereConditions.push(
+        '(u.ime LIKE ? OR u.prezime LIKE ? OR u.email LIKE ? OR u.username LIKE ?)'
+      );
+      const searchPattern = `%${search}%`;
+      queryParams.push(
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern
+      );
+    }
+
+    const query = `
+      SELECT 
+        u.id,
+        u.username,
+        u.email,
+        u.ime,
+        u.prezime,
+        u.role,
+        u.subscription_status,
+        u.trial_start_date,
+        u.trial_end_date,
+        u.subscription_end_date,
+        u.last_payment_date,
+        u.created_by_admin,
+        u.created_at
+      FROM users u
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY 
+        CASE 
+          WHEN u.subscription_status = 'gratis' THEN 1
+          WHEN u.subscription_status = 'active' THEN 2
+          WHEN u.subscription_status = 'trial' OR (u.subscription_status IS NULL AND u.trial_end_date > NOW()) THEN 3
+          WHEN u.subscription_status = 'expired' THEN 4
+          WHEN u.subscription_status = 'suspended' THEN 5
+          ELSE 6
+        END,
+        u.created_at DESC
+      LIMIT 1000`;
+
+    const users = await executeQuery(query, queryParams);
+    res.json(users);
+  } catch (error) {
+    console.error('Greška pri dobijanju korisnika:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju korisnika' });
+  }
+});
+
+// PUT /api/admin/subscription/users/:userId - Update user subscription
+router.put('/subscription/users/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const {
+      subscription_status,
+      trial_end_date,
+      subscription_end_date,
+      notes,
+    } = req.body;
+    const adminUser = req.user;
+
+    // Get current user data for history
+    const currentUser = await executeQuery('SELECT * FROM users WHERE id = ?', [
+      userId,
+    ]);
+    if (!currentUser.length) {
+      return res.status(404).json({ error: 'Korisnik nije pronađen' });
+    }
+
+    // Prepare update query
+    let updateFields = [];
+    let updateParams = [];
+
+    if (subscription_status !== undefined) {
+      updateFields.push('subscription_status = ?');
+      updateParams.push(subscription_status);
+    }
+
+    if (trial_end_date !== undefined) {
+      updateFields.push('trial_end_date = ?');
+      updateParams.push(trial_end_date || null);
+    }
+
+    if (subscription_end_date !== undefined) {
+      updateFields.push('subscription_end_date = ?');
+      updateParams.push(subscription_end_date || null);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'Nema podataka za ažuriranje' });
+    }
+
+    // Update user
+    updateParams.push(userId);
+    await executeQuery(
+      `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateParams
+    );
+
+    // Log to subscription history
+    await executeQuery(
+      `
+      INSERT INTO subscription_history (
+        user_id, admin_id, admin_username, action, details, created_at
+      ) VALUES (?, ?, ?, ?, ?, NOW())
+    `,
+      [
+        userId,
+        adminUser.id,
+        adminUser.username,
+        'subscription_updated',
+        JSON.stringify({
+          old_status: currentUser[0].subscription_status,
+          new_status: subscription_status,
+          old_trial_end: currentUser[0].trial_end_date,
+          new_trial_end: trial_end_date,
+          old_subscription_end: currentUser[0].subscription_end_date,
+          new_subscription_end: subscription_end_date,
+          notes: notes,
+        }),
+      ]
+    );
+
+    res.json({ success: true, message: 'Pretplata je uspešno ažurirana' });
+  } catch (error) {
+    console.error('Greška pri ažuriranju pretplate:', error);
+    res.status(500).json({ error: 'Greška pri ažuriranju pretplate' });
+  }
+});
+
+// GET /api/admin/subscription/history/:userId - Get user subscription history
+router.get('/subscription/history/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const history = await executeQuery(
+      `
+      SELECT 
+        sh.*,
+        u.username as user_username,
+        u.email as user_email
+      FROM subscription_history sh
+      LEFT JOIN users u ON sh.user_id = u.id
+      WHERE sh.user_id = ?
+      ORDER BY sh.created_at DESC
+      LIMIT 100
+    `,
+      [userId]
+    );
+
+    res.json(history);
+  } catch (error) {
+    console.error('Greška pri dobijanju istorije pretplate:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju istorije' });
+  }
+});
+
+// POST /api/admin/subscription/notify/:userId - Send notification to user
+router.post('/subscription/notify/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { type, message } = req.body;
+    const adminUser = req.user;
+
+    // Get user data
+    const user = await executeQuery('SELECT * FROM users WHERE id = ?', [
+      userId,
+    ]);
+    if (!user.length) {
+      return res.status(404).json({ error: 'Korisnik nije pronađen' });
+    }
+
+    const userData = user[0];
+    const emailService = require('../services/emailService');
+
+    let emailSent = false;
+    let emailError = null;
+
+    try {
+      switch (type) {
+        case 'subscription_update':
+          await emailService.sendSubscriptionUpdateNotification(
+            userData.email,
+            userData,
+            message
+          );
+          break;
+        case 'subscription_reminder':
+          // Map database fields to what emailService expects
+          const reminderData = {
+            name:
+              `${userData.ime || ''} ${userData.prezime || ''}`.trim() ||
+              'korisniče',
+            status: userData.subscription_status,
+            trialEndDate: userData.trial_end_date,
+            subscriptionEndDate: userData.subscription_end_date,
+          };
+          await emailService.sendSubscriptionReminder(
+            userData.email,
+            reminderData
+          );
+          break;
+        case 'subscription_expiry':
+          // Map database fields to what emailService expects
+          const expiryData = {
+            name:
+              `${userData.ime || ''} ${userData.prezime || ''}`.trim() ||
+              'korisniče',
+            status: userData.subscription_status,
+            trialEndDate: userData.trial_end_date,
+            subscriptionEndDate: userData.subscription_end_date,
+          };
+          await emailService.sendSubscriptionExpiryNotification(
+            userData.email,
+            expiryData
+          );
+          break;
+        default:
+          return res.status(400).json({ error: 'Nepoznat tip notifikacije' });
+      }
+      emailSent = true;
+    } catch (error) {
+      console.error('Greška pri slanju email-a:', error);
+      emailError = error.message;
+    }
+
+    // Log notification attempt
+    await executeQuery(
+      `
+      INSERT INTO subscription_history (
+        user_id, admin_id, admin_username, action, details, created_at
+      ) VALUES (?, ?, ?, ?, ?, NOW())
+    `,
+      [
+        userId,
+        adminUser.id,
+        adminUser.username,
+        'notification_sent',
+        JSON.stringify({
+          type: type,
+          message: message,
+          email_sent: emailSent,
+          email_error: emailError,
+        }),
+      ]
+    );
+
+    if (emailSent) {
+      res.json({ success: true, message: 'Notifikacija je uspešno poslata' });
+    } else {
+      res.status(500).json({
+        error: 'Greška pri slanju notifikacije',
+        details: emailError,
+      });
+    }
+  } catch (error) {
+    console.error('Greška pri slanju notifikacije:', error);
+    res.status(500).json({ error: 'Greška pri slanju notifikacije' });
+  }
+});
+
+// POST /api/admin/subscription/cleanup - Update expired trial statuses
+router.post('/subscription/cleanup', async (req, res) => {
+  try {
+    const adminUser = req.user;
+
+    // Find expired trials
+    const expiredTrials = await executeQuery(`
+      SELECT id, username, email, trial_end_date 
+      FROM users 
+      WHERE subscription_status = 'trial' 
+      AND trial_end_date < NOW()
+      AND role != 'admin'
+    `);
+
+    let updatedCount = 0;
+
+    // Update each expired trial to 'expired' status
+    for (const user of expiredTrials) {
+      await executeQuery(
+        'UPDATE users SET subscription_status = ? WHERE id = ?',
+        ['expired', user.id]
+      );
+
+      // Log the change
+      await executeQuery(
+        `
+        INSERT INTO subscription_history (
+          user_id, admin_id, admin_username, action, details, created_at
+        ) VALUES (?, ?, ?, ?, ?, NOW())
+      `,
+        [
+          user.id,
+          adminUser.id,
+          adminUser.username,
+          'auto_expired',
+          JSON.stringify({
+            old_status: 'trial',
+            new_status: 'expired',
+            trial_end_date: user.trial_end_date,
+            reason: 'automatic_cleanup',
+          }),
+        ]
+      );
+
+      updatedCount++;
+    }
+
+    // Also check for expired active subscriptions
+    const expiredSubscriptions = await executeQuery(`
+      SELECT id, username, email, subscription_end_date 
+      FROM users 
+      WHERE subscription_status = 'active' 
+      AND subscription_end_date < NOW()
+      AND role != 'admin'
+    `);
+
+    for (const user of expiredSubscriptions) {
+      await executeQuery(
+        'UPDATE users SET subscription_status = ? WHERE id = ?',
+        ['expired', user.id]
+      );
+
+      // Log the change
+      await executeQuery(
+        `
+        INSERT INTO subscription_history (
+          user_id, admin_id, admin_username, action, details, created_at
+        ) VALUES (?, ?, ?, ?, ?, NOW())
+      `,
+        [
+          user.id,
+          adminUser.id,
+          adminUser.username,
+          'auto_expired',
+          JSON.stringify({
+            old_status: 'active',
+            new_status: 'expired',
+            subscription_end_date: user.subscription_end_date,
+            reason: 'automatic_cleanup',
+          }),
+        ]
+      );
+
+      updatedCount++;
+    }
+
+    res.json({
+      success: true,
+      message: `Ažurirano ${updatedCount} isteklih pretplata`,
+      updated_count: updatedCount,
+      expired_trials: expiredTrials.length,
+      expired_subscriptions: expiredSubscriptions.length,
+    });
+  } catch (error) {
+    console.error('Greška pri cleanup-u pretplata:', error);
+    res.status(500).json({ error: 'Greška pri ažuriranju isteklih pretplata' });
+  }
+});
+
+// POST /api/admin/subscription/payment - Record payment for user
+router.post('/subscription/payment', async (req, res) => {
+  try {
+    const adminUser = req.user;
+    const {
+      user_id,
+      amount,
+      currency = 'RSD',
+      payment_method,
+      reference,
+      payment_date,
+      extend_subscription = true,
+    } = req.body;
+
+    // Validation
+    if (!user_id || !amount || amount <= 0) {
+      return res
+        .status(400)
+        .json({ error: 'User ID i ispravan iznos su obavezni' });
+    }
+
+    if (!payment_date) {
+      return res.status(400).json({ error: 'Datum uplate je obavezan' });
+    }
+
+    // Get user data
+    const users = await executeQuery(
+      'SELECT * FROM users WHERE id = ? AND role != ?',
+      [user_id, 'admin']
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'Korisnik nije pronađen' });
+    }
+
+    const user = users[0];
+
+    // Calculate period dates (1 month period)
+    const periodStart = new Date(payment_date);
+    const periodEnd = new Date(periodStart);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    // Insert payment record
+    const paymentResult = await executeQuery(
+      `
+      INSERT INTO payments (
+        user_id, amount, currency, payment_method, payment_reference, 
+        payment_date, period_start_date, period_end_date, admin_id, admin_username, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `,
+      [
+        user_id,
+        amount,
+        currency,
+        payment_method,
+        reference,
+        payment_date,
+        periodStart.toISOString().split('T')[0],
+        periodEnd.toISOString().split('T')[0],
+        adminUser.id,
+        adminUser.username,
+      ]
+    );
+
+    const paymentId = paymentResult.insertId;
+
+    // Log payment in subscription history
+    await executeQuery(
+      `
+      INSERT INTO subscription_history (
+        user_id, admin_id, admin_username, action, details, 
+        payment_id, payment_amount, payment_reference, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `,
+      [
+        user_id,
+        adminUser.id,
+        adminUser.username,
+        'payment_recorded',
+        JSON.stringify({
+          amount: amount,
+          currency: currency,
+          payment_method: payment_method,
+          payment_date: payment_date,
+          reference: reference,
+          extend_subscription: extend_subscription,
+        }),
+        paymentId,
+        amount,
+        reference,
+      ]
+    );
+
+    // Update subscription if requested
+    if (extend_subscription) {
+      let newEndDate;
+      let newStatus = 'active';
+
+      // Calculate new end date based on current status
+      if (user.subscription_status === 'active' && user.subscription_end_date) {
+        // Extend from current end date
+        const currentEndDate = new Date(user.subscription_end_date);
+        newEndDate = new Date(currentEndDate);
+        newEndDate.setDate(currentEndDate.getDate() + 30);
+      } else {
+        // Start from today
+        newEndDate = new Date();
+        newEndDate.setDate(newEndDate.getDate() + 30);
+      }
+
+      // Update user subscription
+      await executeQuery(
+        `
+        UPDATE users 
+        SET subscription_status = ?, subscription_end_date = ?, last_payment_date = ?
+        WHERE id = ?
+      `,
+        [
+          newStatus,
+          newEndDate.toISOString().split('T')[0],
+          payment_date,
+          user_id,
+        ]
+      );
+
+      // Log subscription extension
+      await executeQuery(
+        `
+        INSERT INTO subscription_history (
+          user_id, admin_id, admin_username, action, details, 
+          payment_id, payment_amount, payment_reference, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      `,
+        [
+          user_id,
+          adminUser.id,
+          adminUser.username,
+          'subscription_extended',
+          JSON.stringify({
+            old_status: user.subscription_status,
+            new_status: newStatus,
+            old_end_date: user.subscription_end_date,
+            new_end_date: newEndDate.toISOString().split('T')[0],
+            days_extended: 30,
+            triggered_by_payment: paymentId,
+          }),
+          paymentId,
+          amount,
+          reference,
+        ]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Uplata je uspešno evidentirana',
+      payment_id: paymentId,
+      extended_subscription: extend_subscription,
+    });
+  } catch (error) {
+    console.error('Greška pri evidentiranju uplate:', error);
+    res.status(500).json({ error: 'Greška pri evidentiranju uplate' });
+  }
+});
+
+// GET /api/admin/subscription/info/:userId - Get detailed subscription info
+router.get('/subscription/info/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [users] = await executeQuery(
+      `SELECT 
+        u.id, u.username, u.email, u.ime, u.prezime,
+        u.subscription_status, u.trial_end_date, u.subscription_end_date, u.last_payment,
+        u.created_by_admin, u.created_at
+      FROM users u
+      WHERE u.id = ? AND u.role != 'admin'`,
+      [userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'Korisnik nije pronađen' });
+    }
+
+    const user = users[0];
+
+    // Get payment history
+    const payments = await executeQuery(
+      `SELECT * FROM payments 
+       WHERE user_id = ? 
+       ORDER BY payment_date DESC, created_at DESC
+       LIMIT 10`,
+      [userId]
+    );
+
+    // Get recent subscription history
+    const history = await executeQuery(
+      `SELECT * FROM subscription_history 
+       WHERE user_id = ? 
+       ORDER BY created_at DESC
+       LIMIT 5`,
+      [userId]
+    );
+
+    // Calculate status info
+    const now = new Date();
+    let statusInfo = { days_remaining: null, expired: false };
+
+    if (user.subscription_status === 'trial' && user.trial_end_date) {
+      const trialEnd = new Date(user.trial_end_date);
+      const daysRemaining = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+      statusInfo = {
+        days_remaining: Math.max(0, daysRemaining),
+        expired: daysRemaining <= 0,
+        end_date: user.trial_end_date,
+      };
+    } else if (
+      user.subscription_status === 'active' &&
+      user.subscription_end_date
+    ) {
+      const subscriptionEnd = new Date(user.subscription_end_date);
+      const daysRemaining = Math.ceil(
+        (subscriptionEnd - now) / (1000 * 60 * 60 * 24)
+      );
+      statusInfo = {
+        days_remaining: Math.max(0, daysRemaining),
+        expired: daysRemaining <= 0,
+        end_date: user.subscription_end_date,
+      };
+    }
+
+    res.json({
+      user: {
+        ...user,
+        ...statusInfo,
+      },
+      payments: payments,
+      recent_history: history,
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju subscription info:', error);
+    res
+      .status(500)
+      .json({ error: 'Greška pri dobijanju informacija o pretplati' });
   }
 });
 

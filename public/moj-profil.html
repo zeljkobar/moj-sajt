@@ -105,13 +105,74 @@
         border-radius: 10px;
         margin-top: 1rem;
       }
+
+      .subscription-status {
+        border-left: 4px solid #28a745;
+        padding-left: 1rem;
+      }
+
+      .subscription-status.trial {
+        border-left-color: #ffc107;
+      }
+
+      .subscription-status.expired {
+        border-left-color: #dc3545;
+      }
+
+      .subscription-status.active {
+        border-left-color: #28a745;
+      }
+
+      .subscription-status.gratis {
+        border-left-color: #17a2b8;
+      }
+
+      .days-remaining {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .days-remaining.warning {
+        color: #ffc107;
+      }
+
+      .days-remaining.danger {
+        color: #dc3545;
+      }
+
+      .days-remaining.success {
+        color: #28a745;
+      }
+
+      .subscription-progress {
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+      }
+
+      .subscription-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .subscription-progress-bar.warning {
+        background: linear-gradient(90deg, #ffc107, #fd7e14);
+      }
+
+      .subscription-progress-bar.danger {
+        background: linear-gradient(90deg, #dc3545, #e74c3c);
+      }
     </style>
   </head>
   <body class="bg-light">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
       <div class="container">
-        <a class="navbar-brand fw-bold" href="dashboard.html">
+        <a class="navbar-brand fw-bold" href="/firme">
           <i class="fas fa-calculator me-2"></i>SummaSum
         </a>
         <button
@@ -124,11 +185,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="dashboard.html">
-                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-              </a>
-            </li>
             <li class="nav-item">
               <a class="nav-link" href="firme.html">
                 <i class="fas fa-building me-1"></i>Firme
@@ -296,6 +352,33 @@
         </div>
       </div>
 
+      <!-- Subscription Status Section -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <h4 class="mb-4">
+            <i class="fas fa-crown me-2 text-primary"></i>Status pretplate
+          </h4>
+        </div>
+        <div class="col-md-12">
+          <div class="card shadow-sm" id="subscriptionCard">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <div id="subscriptionStatus">
+                    <!-- Dynamic content will be inserted here -->
+                  </div>
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="/pretplata" class="btn btn-primary">
+                    <i class="fas fa-crown me-2"></i>Upravljaj pretplatom
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Actions -->
       <div class="row mb-4">
         <div class="col-md-12">
@@ -337,16 +420,14 @@
         <div class="col-lg-3 col-md-6 mb-3">
           <div
             class="card action-card h-100 shadow-sm"
-            onclick="window.location.href='dashboard.html'"
+            onclick="window.location.href='/pretplata'"
           >
             <div class="card-body text-center">
               <div class="action-icon bg-info text-white">
-                <i class="fas fa-tachometer-alt"></i>
+                <i class="fas fa-crown"></i>
               </div>
-              <h6 class="card-title">Dashboard</h6>
-              <p class="card-text text-muted small">
-                Vrati se na glavnu stranicu
-              </p>
+              <h6 class="card-title">Pretplata</h6>
+              <p class="card-text text-muted small">Upravljaj pretplatom</p>
             </div>
           </div>
         </div>
@@ -381,7 +462,7 @@
                     <i class="fas fa-envelope me-2"></i>
                     <strong>Email:</strong>
                   </p>
-                  <p>zeljkodj@t-com.me</p>
+                  <p>podrska@summasummarum.me</p>
                 </div>
                 <div class="col-md-4">
                   <p class="mb-1">
@@ -422,20 +503,38 @@
 
       async function loadProfileData() {
         try {
-          const response = await fetch('/api/profile/stats', {
+          // Load profile stats
+          const profileResponse = await fetch('/api/profile/stats', {
             credentials: 'include',
           });
 
-          if (!response.ok) {
-            if (response.status === 401) {
+          if (!profileResponse.ok) {
+            if (profileResponse.status === 401) {
               window.location.href = 'prijava.html';
               return;
             }
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(
+              `HTTP ${profileResponse.status}: ${profileResponse.statusText}`
+            );
           }
 
-          const data = await response.json();
-          populateProfileData(data);
+          const profileData = await profileResponse.json();
+          populateProfileData(profileData);
+
+          // Load subscription status
+          const subscriptionResponse = await fetch(
+            '/api/users/subscription-status',
+            {
+              credentials: 'include',
+            }
+          );
+
+          if (subscriptionResponse.ok) {
+            const subscriptionData = await subscriptionResponse.json();
+            if (subscriptionData.success) {
+              populateSubscriptionData(subscriptionData.user);
+            }
+          }
         } catch (error) {
           console.error('Error loading profile data:', error);
           showAlert(
@@ -495,6 +594,164 @@
         if (navUsername) {
           navUsername.textContent = user.username;
         }
+      }
+
+      function populateSubscriptionData(user) {
+        const subscriptionElement =
+          document.getElementById('subscriptionStatus');
+        let statusHtml = '';
+        let statusClass = '';
+
+        switch (user.subscription_status) {
+          case 'trial':
+            const daysLeft = calculateDaysLeft(user.trial_end_date);
+            const progress = calculateTrialProgress(
+              user.trial_start_date,
+              user.trial_end_date
+            );
+            statusClass = 'trial';
+            statusHtml = `
+              <div class="subscription-status ${statusClass}">
+                <h5 class="mb-2">
+                  <i class="fas fa-clock me-2 text-warning"></i>Probni period
+                </h5>
+                <p class="mb-2">
+                  Preostalo vam je još <span class="days-remaining ${
+                    daysLeft <= 3
+                      ? 'danger'
+                      : daysLeft <= 7
+                      ? 'warning'
+                      : 'success'
+                  }">${daysLeft} dana</span> probnog perioda.
+                </p>
+                <div class="subscription-progress">
+                  <div class="subscription-progress-bar ${
+                    daysLeft <= 7 ? 'warning' : ''
+                  }" style="width: ${progress}%"></div>
+                </div>
+                <small class="text-muted">
+                  Probni period ističe: <strong>${formatDate(
+                    user.trial_end_date
+                  )}</strong>
+                </small>
+              </div>
+            `;
+            break;
+
+          case 'active':
+            const activeDaysLeft = calculateDaysLeft(
+              user.subscription_end_date
+            );
+            statusClass = 'active';
+            statusHtml = `
+              <div class="subscription-status ${statusClass}">
+                <h5 class="mb-2">
+                  <i class="fas fa-check-circle me-2 text-success"></i>Pretplata aktivna
+                </h5>
+                <p class="mb-2">
+                  Vaša pretplata ističe za <span class="days-remaining ${
+                    activeDaysLeft <= 7
+                      ? 'warning'
+                      : activeDaysLeft <= 3
+                      ? 'danger'
+                      : 'success'
+                  }">${activeDaysLeft} dana</span>.
+                </p>
+                <small class="text-muted">
+                  Datum isteka: <strong>${formatDate(
+                    user.subscription_end_date
+                  )}</strong>
+                </small>
+              </div>
+            `;
+            break;
+
+          case 'expired':
+            statusClass = 'expired';
+            statusHtml = `
+              <div class="subscription-status ${statusClass}">
+                <h5 class="mb-2">
+                  <i class="fas fa-exclamation-triangle me-2 text-danger"></i>Pretplata istekla
+                </h5>
+                <p class="mb-2">
+                  Vaša pretplata je istekla. Obnovite je da biste nastavili sa korišćenjem svih funkcionalnosti.
+                </p>
+                <small class="text-muted">
+                  Istekla: <strong>${
+                    user.subscription_end_date
+                      ? formatDate(user.subscription_end_date)
+                      : 'N/A'
+                  }</strong>
+                </small>
+              </div>
+            `;
+            break;
+
+          case 'gratis':
+            statusClass = 'gratis';
+            statusHtml = `
+              <div class="subscription-status ${statusClass}">
+                <h5 class="mb-2">
+                  <i class="fas fa-gift me-2 text-info"></i>Besplatna pretplata
+                </h5>
+                <p class="mb-2">
+                  Uživajte u neograničenom pristupu svim funkcionalnostima!
+                </p>
+                <small class="text-muted">
+                  Status: <strong>Aktivna</strong>
+                </small>
+              </div>
+            `;
+            break;
+
+          default:
+            statusClass = 'expired';
+            statusHtml = `
+              <div class="subscription-status ${statusClass}">
+                <h5 class="mb-2">
+                  <i class="fas fa-question-circle me-2 text-warning"></i>Nepoznat status
+                </h5>
+                <p class="mb-2">
+                  Kontaktirajte podršku za pomoć sa vašim nalogom.
+                </p>
+              </div>
+            `;
+        }
+
+        subscriptionElement.innerHTML = statusHtml;
+      }
+
+      function calculateDaysLeft(endDate) {
+        if (!endDate) return 0;
+        const end = new Date(endDate);
+        const now = new Date();
+        const diffTime = end - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, diffDays);
+      }
+
+      function calculateTrialProgress(startDate, endDate) {
+        if (!startDate || !endDate) return 0;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const now = new Date();
+
+        if (now <= start) return 0;
+        if (now >= end) return 100;
+
+        const total = end - start;
+        const elapsed = now - start;
+        return Math.min(100, Math.max(0, (elapsed / total) * 100));
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('sr-RS', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
       }
 
       function getRoleClass(role) {

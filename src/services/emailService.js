@@ -243,6 +243,241 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // ============================================================================
+  // SUBSCRIPTION EMAIL METHODS
+  // ============================================================================
+
+  // Obaveštenje o ažuriranju pretplate
+  async sendSubscriptionUpdateNotification(email, data) {
+    try {
+      const { name, oldStatus, newStatus, reason } = data;
+
+      const statusNames = {
+        active: 'Aktivna',
+        trial: 'Probni period',
+        expired: 'Istekla',
+        suspended: 'Suspendovana',
+        gratis: 'Gratis',
+      };
+
+      const content = `
+        <p>Poštovani/a ${name},</p>
+        
+        <p>Obaveštavamo Vas da je status Vaše pretplate ažuriran od strane administratora.</p>
+        
+        <p><strong>Detalji promene:</strong></p>
+        <ul>
+          <li>Prethodni status: <span style="color: #dc3545;">${
+            statusNames[oldStatus] || oldStatus || 'Nepoznat'
+          }</span></li>
+          <li>Novi status: <span style="color: #28a745;">${
+            statusNames[newStatus] || newStatus
+          }</span></li>
+          <li>Razlog: ${reason}</li>
+        </ul>
+        
+        <p>Ukoliko imate pitanja u vezi sa ovom promenom, možete nas kontaktirati na email adresu podrška@summasummarum.me</p>
+      `;
+
+      const additionalInfo =
+        newStatus === 'active'
+          ? '<p style="color: #28a745; font-weight: bold;">✅ Vaša pretplata je sada aktivna i možete koristiti sve funkcionalnosti sistema.</p>'
+          : newStatus === 'expired'
+          ? '<p style="color: #dc3545; font-weight: bold;">⚠️ Vaša pretplata je istekla. Za nastavak korišćenja molimo obnovite pretplatu.</p>'
+          : newStatus === 'suspended'
+          ? '<p style="color: #ffc107; font-weight: bold;">⏸️ Vaš nalog je privremeno suspendovan. Kontaktirajte podršku za više informacija.</p>'
+          : '';
+
+      const htmlContent = this.createEmailTemplate(
+        'Ažurirana pretplata',
+        content,
+        additionalInfo
+      );
+
+      const result = await this.transporter.sendMail({
+        from: `"SummaSummarum Admin" <${this.getEmailAddress('admin')}>`,
+        to: email,
+        subject: '📋 Ažurirana pretplata - SummaSummarum',
+        html: htmlContent,
+      });
+
+      console.log('✅ Email o ažuriranju pretplate poslat:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error(
+        '❌ Greška pri slanju email-a o ažuriranju pretplate:',
+        error
+      );
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Podsetnik o pretplati
+  async sendSubscriptionReminder(email, data) {
+    try {
+      const { name, status, trialEndDate, subscriptionEndDate } = data;
+
+      const endDate = subscriptionEndDate || trialEndDate;
+      const formattedEndDate = endDate
+        ? new Date(endDate).toLocaleDateString('sr-RS')
+        : 'Nepoznat';
+      const daysLeft = endDate
+        ? Math.ceil((new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24))
+        : 0;
+
+      let content, additionalInfo;
+
+      if (status === 'trial' || (trialEndDate && !subscriptionEndDate)) {
+        content = `
+          <p>Poštovani/a ${name},</p>
+          
+          <p>Ovo je podsetnik da Vam se probni period približava kraju.</p>
+          
+          <p><strong>Detalji Vašeg probnog perioda:</strong></p>
+          <ul>
+            <li>Datum isteka: <strong>${formattedEndDate}</strong></li>
+            <li>Preostalo dana: <strong>${
+              daysLeft > 0 ? daysLeft : 'Istekao'
+            }</strong></li>
+          </ul>
+          
+          <p>Da biste nastavili korišćenje svih funkcionalnosti, molimo vas da aktivirate pretplatu pre isteka probnog perioda.</p>
+        `;
+
+        additionalInfo =
+          daysLeft <= 3
+            ? '<p style="color: #dc3545; font-weight: bold;">⚠️ HITNO: Vaš probni period ističe za manje od 3 dana!</p>'
+            : '<p style="color: #ffc107; font-weight: bold;">⏰ Probni period uskoro ističe. Aktivirajte pretplatu na vreme.</p>';
+      } else {
+        content = `
+          <p>Poštovani/a ${name},</p>
+          
+          <p>Ovo je podsetnik u vezi sa Vašom pretplatom.</p>
+          
+          <p><strong>Detalji Vaše pretplate:</strong></p>
+          <ul>
+            <li>Status: <strong>${status}</strong></li>
+            <li>Datum isteka: <strong>${formattedEndDate}</strong></li>
+            <li>Preostalo dana: <strong>${
+              daysLeft > 0 ? daysLeft : 'Istekla'
+            }</strong></li>
+          </ul>
+          
+          <p>Ukoliko imate pitanja, slobodno nas kontaktirajte.</p>
+        `;
+
+        additionalInfo =
+          daysLeft <= 0
+            ? '<p style="color: #dc3545; font-weight: bold;">🚫 Vaša pretplata je istekla. Molimo obnovite je za nastavak korišćenja.</p>'
+            : daysLeft <= 7
+            ? '<p style="color: #ffc107; font-weight: bold;">⚠️ Vaša pretplata ističe za manje od 7 dana!</p>'
+            : '<p style="color: #17a2b8; font-weight: bold;">ℹ️ Ovo je podsetnik o statusu Vaše pretplate.</p>';
+      }
+
+      const htmlContent = this.createEmailTemplate(
+        'Podsetnik o pretplati',
+        content,
+        additionalInfo
+      );
+
+      const result = await this.transporter.sendMail({
+        from: `"SummaSummarum Podrška" <${this.getEmailAddress('support')}>`,
+        to: email,
+        subject: '⏰ Podsetnik o pretplati - SummaSummarum',
+        html: htmlContent,
+      });
+
+      console.log('✅ Email podsetnik o pretplati poslat:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ Greška pri slanju email podsetnika:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Obaveštenje o isteku pretplate
+  async sendSubscriptionExpiryNotification(email, data) {
+    try {
+      const { name, status, trialEndDate, subscriptionEndDate } = data;
+
+      const endDate = subscriptionEndDate || trialEndDate;
+      const formattedEndDate = endDate
+        ? new Date(endDate).toLocaleDateString('sr-RS')
+        : 'Nepoznat';
+      const daysLeft = endDate
+        ? Math.ceil((new Date(endDate) - new Date()) / (1000 * 60 * 60 * 24))
+        : 0;
+
+      const isTrialExpiring = trialEndDate && !subscriptionEndDate;
+
+      const content = `
+        <p>Poštovani/a ${name},</p>
+        
+        <p>Obaveštavamo Vas da ${
+          isTrialExpiring ? 'Vaš probni period' : 'Vaša pretplata'
+        } ${
+        daysLeft === 0
+          ? 'ističe danas'
+          : `ističe za ${daysLeft} ${daysLeft === 1 ? 'dan' : 'dana'}`
+      }.</p>
+        
+        <p><strong>Detalji:</strong></p>
+        <ul>
+          <li>Tip: <strong>${
+            isTrialExpiring ? 'Probni period' : 'Pretplata'
+          }</strong></li>
+          <li>Datum isteka: <strong>${formattedEndDate}</strong></li>
+          <li>Status: <strong>${
+            daysLeft <= 0 ? 'Istekao' : `Ističe za ${daysLeft} dana`
+          }</strong></li>
+        </ul>
+        
+        ${
+          isTrialExpiring
+            ? '<p>Da biste nastavili korišćenje sistema, molimo aktivirajte pretplatu klikom na dugme ispod:</p>'
+            : '<p>Da biste nastavili korišćenje sistema, molimo obnovite pretplatu:</p>'
+        }
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${
+            process.env.FRONTEND_URL || 'http://localhost:3000'
+          }/pretplata" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            ${isTrialExpiring ? 'Aktiviraj pretplatu' : 'Obnovi pretplatu'}
+          </a>
+        </div>
+      `;
+
+      const additionalInfo =
+        daysLeft <= 0
+          ? '<p style="color: #dc3545; font-weight: bold;">🚫 HITNO: Pristup sistemu je blokiran do obnove pretplate!</p>'
+          : daysLeft === 1
+          ? '<p style="color: #dc3545; font-weight: bold;">⚠️ HITNO: Ostao je samo 1 dan!</p>'
+          : '<p style="color: #ffc107; font-weight: bold;">⏰ Molimo obnovite na vreme da izbegnete prekid usluge.</p>';
+
+      const htmlContent = this.createEmailTemplate(
+        `${isTrialExpiring ? 'Probni period ističe' : 'Pretplata ističe'}`,
+        content,
+        additionalInfo
+      );
+
+      const result = await this.transporter.sendMail({
+        from: `"SummaSummarum Sistem" <${this.getEmailAddress('support')}>`,
+        to: email,
+        subject: `🔔 ${
+          isTrialExpiring ? 'Probni period ističe' : 'Pretplata ističe'
+        } - SummaSummarum`,
+        html: htmlContent,
+      });
+
+      console.log('✅ Email o isteku pretplate poslat:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ Greška pri slanju email-a o isteku:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService();
