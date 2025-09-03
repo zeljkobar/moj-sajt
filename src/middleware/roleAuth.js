@@ -1,24 +1,29 @@
 // src/middleware/roleAuth.js
-const requireRole = (allowedRoles) => {
+const requireRole = allowedRoles => {
   return (req, res, next) => {
     // Check if user is authenticated
     if (!req.session || !req.session.user) {
-      if (req.path.startsWith("/api/")) {
-        return res.status(401).json({ msg: "Korisnik nije autentifikovan" });
+      if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ msg: 'Korisnik nije autentifikovan' });
       } else {
         // Redirect to access denied page for HTML requests
-        return res.redirect("/access-denied-dynamic.html");
+        return res.redirect('/access-denied-dynamic.html');
       }
     }
 
-    const userRole = req.session.user.role || "firma"; // Default role
+    const userRole = req.session.user.role || 'firma'; // Default role
+
+    // Ensure allowedRoles is an array
+    const rolesArray = Array.isArray(allowedRoles)
+      ? allowedRoles
+      : [allowedRoles];
 
     // Check if user has required role
-    if (!allowedRoles.includes(userRole)) {
-      if (req.path.startsWith("/api/")) {
+    if (!rolesArray.includes(userRole)) {
+      if (req.path.startsWith('/api/')) {
         return res.status(403).json({
-          msg: "Nemate dozvolu za pristup ovoj funkcionalnosti",
-          requiredRole: allowedRoles,
+          msg: 'Nemate dozvolu za pristup ovoj funkcionalnosti',
+          requiredRole: rolesArray,
           userRole: userRole,
         });
       } else {
@@ -26,12 +31,12 @@ const requireRole = (allowedRoles) => {
         return res
           .status(200)
           .sendFile(
-            require("path").join(
+            require('path').join(
               __dirname,
-              "..",
-              "..",
-              "public",
-              "access-denied-dynamic.html"
+              '..',
+              '..',
+              'public',
+              'access-denied-dynamic.html'
             )
           );
       }
@@ -43,85 +48,85 @@ const requireRole = (allowedRoles) => {
 
 // Role definitions and access levels
 const ROLES = {
-  ADMIN: "admin", // Potpun pristup + upravljanje korisnicima
-  FIRMA: "firma", // Može kreirati samo jednu firmu
-  AGENCIJA: "agencija", // Može kreirati neograničeno firmi
+  ADMIN: 'admin', // Potpun pristup + upravljanje korisnicima
+  FIRMA: 'firma', // Može kreirati samo jednu firmu
+  AGENCIJA: 'agencija', // Može kreirati neograničeno firmi
 };
 
 // Helper function to get role permissions
-const getRolePermissions = (role) => {
+const getRolePermissions = role => {
   switch (role) {
     case ROLES.FIRMA:
       return [
-        "dashboard",
-        "firma_create_single", // Može kreirati samo jednu firmu
-        "firma_manage_own", // Upravlja svojom firmom
-        "radnici_manage", // Evidencija radnika
-        "pozicije_manage", // Upravljanje pozicijama
-        "ugovori_create", // Generiranje ugovora o radu
-        "odluke_generate", // Službene odluke (raspored rada, godišnji odmor, itd.)
-        "pozajmnice_system", // Sistem pozajmnica za radnike
-        "osnovni_dokumenti", // Osnovni dokumenti i potvrde
+        'dashboard',
+        'firma_create_single', // Može kreirati samo jednu firmu
+        'firma_manage_own', // Upravlja svojom firmom
+        'radnici_manage', // Evidencija radnika
+        'pozicije_manage', // Upravljanje pozicijama
+        'ugovori_create', // Generiranje ugovora o radu
+        'odluke_generate', // Službene odluke (raspored rada, godišnji odmor, itd.)
+        'pozajmnice_system', // Sistem pozajmnica za radnike
+        'osnovni_dokumenti', // Osnovni dokumenti i potvrde
       ];
     case ROLES.AGENCIJA:
       return [
-        "dashboard",
-        "firma_create_multiple", // Može kreirati neograničeno firmi
-        "firma_manage_all", // Upravlja svim svojim firmama
-        "radnici_manage", // Evidencija radnika
-        "pozicije_manage", // Upravljanje pozicijama
-        "ugovori_create", // Generiranje ugovora o radu
-        "odluke_generate", // Službene odluke
-        "pozajmnice_system", // Sistem pozajmnica
-        "osnovni_dokumenti", // Osnovni dokumenti
-        "pdv_xml_export", // XML izvoz PDV prijava
-        "poreske_prijave_auto", // Automatske poreske prijave
-        "dobit_prijava", // Prijave dobiti
-        "client_management", // Upravljanje klijentima
-        "napredni_izvjestaji", // Napredni izvještaji
-        "bulk_operations", // Grupne operacije
+        'dashboard',
+        'firma_create_multiple', // Može kreirati neograničeno firmi
+        'firma_manage_all', // Upravlja svim svojim firmama
+        'radnici_manage', // Evidencija radnika
+        'pozicije_manage', // Upravljanje pozicijama
+        'ugovori_create', // Generiranje ugovora o radu
+        'odluke_generate', // Službene odluke
+        'pozajmnice_system', // Sistem pozajmnica
+        'osnovni_dokumenti', // Osnovni dokumenti
+        'pdv_xml_export', // XML izvoz PDV prijava
+        'poreske_prijave_auto', // Automatske poreske prijave
+        'dobit_prijava', // Prijave dobiti
+        'client_management', // Upravljanje klijentima
+        'napredni_izvjestaji', // Napredni izvještaji
+        'bulk_operations', // Grupne operacije
       ];
     case ROLES.ADMIN:
       return [
-        "dashboard",
-        "firma_create_multiple",
-        "firma_manage_all",
-        "radnici_manage",
-        "pozicije_manage",
-        "ugovori_create",
-        "odluke_generate",
-        "pozajmnice_system",
-        "osnovni_dokumenti",
-        "pdv_xml_export",
-        "poreske_prijave_auto",
-        "dobit_prijava",
-        "client_management",
-        "napredni_izvjestaji",
-        "bulk_operations",
-        "admin_panel", // Admin panel
-        "user_management", // Upravljanje korisnicima
-        "system_settings", // Sistemska podešavanja
-        "database_management", // Upravljanje bazom
+        'dashboard',
+        'firma_create_multiple',
+        'firma_manage_all',
+        'radnici_manage',
+        'pozicije_manage',
+        'ugovori_create',
+        'odluke_generate',
+        'pozajmnice_system',
+        'osnovni_dokumenti',
+        'pdv_xml_export',
+        'poreske_prijave_auto',
+        'dobit_prijava',
+        'client_management',
+        'napredni_izvjestaji',
+        'bulk_operations',
+        'admin_panel', // Admin panel
+        'user_management', // Upravljanje korisnicima
+        'system_settings', // Sistemska podešavanja
+        'database_management', // Upravljanje bazom
       ];
     default:
-      return ["dashboard"]; // Default minimal access
+      return ['dashboard']; // Default minimal access
   }
 };
 
 // Helper functions for common role checks
-const canCreateMultipleFirms = (role) => {
+const canCreateMultipleFirms = role => {
   return role === ROLES.AGENCIJA || role === ROLES.ADMIN;
 };
 
-const canManageAllFirms = (role) => {
+const canManageAllFirms = role => {
   return role === ROLES.AGENCIJA || role === ROLES.ADMIN;
 };
 
-const isAdmin = (role) => {
+const isAdmin = role => {
   return role === ROLES.ADMIN;
 };
 
-const canAccessAdminPanel = (role) => {
+const canAccessAdminPanel = role => {
   return role === ROLES.ADMIN;
 };
 
@@ -149,7 +154,7 @@ const checkFirmCreationLimit = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(500).json({ error: "Greška pri proveri dozvola" });
+    res.status(500).json({ error: 'Greška pri proveri dozvola' });
   }
 };
 

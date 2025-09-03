@@ -891,6 +891,220 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
+// Marketing Email API endpoints (samo za administratore)
+const MarketingEmailService = require('./marketing-email');
+const multer = require('multer');
+const upload = multer({ dest: 'email-lists/' });
+
+// Test marketing email
+app.post(
+  '/api/marketing/test',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { email, firstName, companyName } = req.body;
+
+      if (!email) {
+        return res
+          .status(400)
+          .json({ success: false, error: 'Email je obavezan' });
+      }
+
+      const service = new MarketingEmailService();
+      const result = await service.sendMarketingEmail(email, {
+        firstName,
+        companyName,
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error('Marketing test email error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Upload i pokreni marketing kampanju
+app.post(
+  '/api/marketing/campaign',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  upload.single('csvFile'),
+  async (req, res) => {
+    try {
+      const { testMode, campaignName } = req.body;
+
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, error: 'CSV fajl je obavezan' });
+      }
+
+      const EmailCampaignManager = require('./email-campaign');
+      const manager = new EmailCampaignManager();
+
+      // Učitaj CSV fajl
+      const recipients = manager.loadEmailListFromCSV(req.file.path);
+
+      if (testMode === 'true') {
+        // Test mod - šalje samo prvi email
+        const service = new MarketingEmailService();
+        const testRecipient = recipients[0];
+        const result = await service.sendMarketingEmail(
+          testRecipient.email,
+          testRecipient
+        );
+
+        // Obriši privremeni fajl
+        fs.unlinkSync(req.file.path);
+
+        return res.json({
+          success: true,
+          testMode: true,
+          recipient: testRecipient.email,
+          result,
+        });
+      }
+
+      // Kompletna kampanja sa tracking-om
+      const service = new MarketingEmailService();
+      const campaignTitle =
+        campaignName || `Kampanja ${new Date().toISOString().split('T')[0]}`;
+      const results = await service.sendBulkMarketingEmails(
+        recipients,
+        2000,
+        campaignTitle,
+        req.user.id
+      );
+
+      // Obriši privremeni fajl
+      fs.unlinkSync(req.file.path);
+
+      res.json({
+        success: true,
+        campaign: {
+          id: results.campaignId,
+          name: campaignTitle,
+          total: results.total,
+          successful: results.successful,
+          failed: results.failed,
+          recipients: recipients.length,
+        },
+      });
+    } catch (error) {
+      console.error('Marketing campaign error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Dobij dostupne email liste
+app.get(
+  '/api/marketing/lists',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  (req, res) => {
+    try {
+      const EmailCampaignManager = require('./email-campaign');
+      const manager = new EmailCampaignManager();
+      const lists = manager.listAvailableLists();
+      res.json({ success: true, lists });
+    } catch (error) {
+      console.error('Marketing lists error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Dobij marketing statistike (javno dostupno za sada)
+app.get('/api/marketing/stats', async (req, res) => {
+  try {
+    const MarketingEmailService = require('./marketing-email');
+    const service = new MarketingEmailService();
+    const stats = await service.getStats();
+
+    res.json({
+      totalSent: stats.total_emails_sent || 0,
+      successRate: `${stats.overall_success_rate || 0}%`,
+      totalCampaigns: stats.total_campaigns || 0,
+      lastUpdated: stats.last_updated,
+    });
+  } catch (error) {
+    console.error('Marketing stats error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Dobij listu svih kampanja
+app.get(
+  '/api/marketing/campaigns',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { executeQuery } = require('./src/config/database');
+      const query = `
+        SELECT 
+          id, campaign_name, subject, total_recipients, emails_sent, 
+          emails_failed, success_rate, created_at, completed_at, status
+        FROM marketing_campaigns 
+        ORDER BY created_at DESC 
+        LIMIT 50
+      `;
+      const campaigns = await executeQuery(query);
+      res.json({ success: true, campaigns });
+    } catch (error) {
+      console.error('Campaigns list error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Dobij detalje kampanje
+app.get(
+  '/api/marketing/campaigns/:id',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { executeQuery } = require('./src/config/database');
+      const campaignId = req.params.id;
+
+      // Osnovni podaci kampanje
+      const campaignQuery = `
+        SELECT * FROM marketing_campaigns WHERE id = ?
+      `;
+      const campaign = await executeQuery(campaignQuery, [campaignId]);
+
+      if (campaign.length === 0) {
+        return res
+          .status(404)
+          .json({ success: false, error: 'Kampanja nije pronađena' });
+      }
+
+      // Email lista kampanje
+      const emailsQuery = `
+        SELECT email_address, recipient_name, company_name, status, 
+               error_message, sent_at, created_at
+        FROM marketing_emails 
+        WHERE campaign_id = ? 
+        ORDER BY created_at DESC
+      `;
+      const emails = await executeQuery(emailsQuery, [campaignId]);
+
+      res.json({
+        success: true,
+        campaign: campaign[0],
+        emails,
+      });
+    } catch (error) {
+      console.error('Campaign details error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // Profile API endpoint
 const profileController = require('./src/controllers/profileController');
 app.get(

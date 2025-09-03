@@ -65,6 +65,8 @@ class Navigation {
                   <li><a class="dropdown-item" href="admin-pretplate.html"><i class="fas fa-credit-card me-2"></i>Pretplate</a></li>
                   <li><a class="dropdown-item" href="admin-database.html"><i class="fas fa-database me-2"></i>Baza podataka</a></li>
                   <li><a class="dropdown-item" href="email-admin.html"><i class="fas fa-envelope-open-text me-2"></i>Email Admin</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="email-marketing.html"><i class="fas fa-bullhorn me-2"></i>Marketing Email</a></li>
                   <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line me-2"></i>Sistemski izveštaji</a></li>
                 </ul>
               </li>

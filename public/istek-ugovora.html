@@ -687,8 +687,13 @@
         console.log('=== Debug openJPRForIstek ===');
 
         // Provjeri cookie consent prije otvaranja
-        if (typeof cookieConsent !== 'undefined' && !cookieConsent.canOpenJPR()) {
-          alert('Molimo prvo prihvatite kolačiće i pop-up dozvole za otvaranje JPR dokumenata.');
+        if (
+          typeof cookieConsent !== 'undefined' &&
+          !cookieConsent.canOpenJPR()
+        ) {
+          alert(
+            'Molimo prvo prihvatite kolačiće i pop-up dozvole za otvaranje JPR dokumenata.'
+          );
           return;
         }
 
