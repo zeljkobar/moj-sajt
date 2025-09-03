@@ -564,7 +564,8 @@
                 <th>Primaoci</th>
                 <th>Poslano</th>
                 <th>Neuspešno</th>
-                <th>Success Rate</th>
+                <th>Delivery Rate</th>
+                <th>Open Rate</th>
                 <th>Status</th>
                 <th>Akcije</th>
               </tr>
@@ -955,6 +956,12 @@
 
             const statusBadge = getStatusBadge(campaign.status);
             const successRate = campaign.success_rate || 0;
+            const openRate =
+              campaign.emails_sent > 0
+                ? Math.round(
+                    (campaign.emails_opened / campaign.emails_sent) * 100
+                  )
+                : 0;
 
             return `
             <tr>
@@ -989,6 +996,19 @@
                     : 'bg-danger'
                 }">
                   ${successRate}%
+                </span>
+              </td>
+              <td>
+                <span class="badge ${
+                  openRate >= 25
+                    ? 'bg-success'
+                    : openRate >= 15
+                    ? 'bg-warning'
+                    : 'bg-danger'
+                }" title="${campaign.emails_opened} od ${
+              campaign.emails_sent
+            } otvoreno">
+                  ${openRate}%
                 </span>
               </td>
               <td>${statusBadge}</td>
@@ -1114,8 +1134,26 @@
                 <div class="label">Neuspešno</div>
               </div>
               <div class="stat-mini">
+                <div class="number">${
+                  emails.filter(e => e.opened_at).length
+                }</div>
+                <div class="label">Otvoreno</div>
+              </div>
+              <div class="stat-mini">
                 <div class="number">${campaign.success_rate || 0}%</div>
-                <div class="label">Success Rate</div>
+                <div class="label">Delivery Rate</div>
+              </div>
+              <div class="stat-mini">
+                <div class="number">${
+                  campaign.emails_sent > 0
+                    ? Math.round(
+                        (emails.filter(e => e.opened_at).length /
+                          campaign.emails_sent) *
+                          100
+                      )
+                    : 0
+                }%</div>
+                <div class="label">Open Rate</div>
               </div>
             </div>
           </div>
@@ -1124,7 +1162,7 @@
             <h6><i class="fas fa-list"></i> Email lista (${
               emails.length
             } adresa)</h6>
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
               <table class="table table-sm">
                 <thead class="table-light">
                   <tr>
@@ -1133,6 +1171,8 @@
                     <th>Firma</th>
                     <th>Status</th>
                     <th>Poslano</th>
+                    <th>Otvoreno</th>
+                    <th>Broj otvaranja</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1147,6 +1187,18 @@
                           })
                         : '-';
 
+                      const openedDate = email.opened_at
+                        ? new Date(email.opened_at).toLocaleDateString(
+                            'sr-RS',
+                            {
+                              day: '2-digit',
+                              month: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )
+                        : '-';
+
                       const statusBadge =
                         email.status === 'sent'
                           ? '<span class="badge bg-success">Poslato</span>'
@@ -1154,13 +1206,29 @@
                           ? '<span class="badge bg-danger">Neuspešno</span>'
                           : '<span class="badge bg-warning">Pending</span>';
 
+                      const openedBadge = email.opened_at
+                        ? `<span class="badge bg-info" title="Otvoren: ${openedDate}">${openedDate}</span>`
+                        : '<span class="badge bg-secondary">Nije otvoreno</span>';
+
+                      const openCount = email.open_count || 0;
+                      const openCountBadge =
+                        openCount > 0
+                          ? `<span class="badge bg-primary">${openCount}x</span>`
+                          : '<span class="badge bg-light text-dark">0x</span>';
+
                       return `
-                      <tr>
+                      <tr ${
+                        email.opened_at
+                          ? 'style="background-color: #f8fff4;"'
+                          : ''
+                      }>
                         <td>${email.email_address}</td>
                         <td>${email.recipient_name || '-'}</td>
                         <td>${email.company_name || '-'}</td>
                         <td>${statusBadge}</td>
                         <td>${sentDate}</td>
+                        <td>${openedBadge}</td>
+                        <td>${openCountBadge}</td>
                       </tr>
                     `;
                     })

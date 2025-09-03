@@ -28,6 +28,7 @@ const {
   subscriptionCheckMiddleware,
 } = require('./src/middleware/subscription');
 const InventoryService = require('./src/services/inventoryService');
+const MarketingEmailService = require('./marketing-email');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
@@ -892,7 +893,6 @@ app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
 // Marketing Email API endpoints (samo za administratore)
-const MarketingEmailService = require('./marketing-email');
 const multer = require('multer');
 const upload = multer({ dest: 'email-lists/' });
 
@@ -932,21 +932,26 @@ app.post(
   requireRole(ROLES.ADMIN),
   upload.single('csvFile'),
   async (req, res) => {
+    console.log('🚀 Marketing campaign endpoint pozvan');
+    console.log('📁 req.file:', req.file ? 'Postoji' : 'Ne postoji');
+    console.log('📋 req.body:', req.body);
+    console.log('👤 req.user:', req.user ? req.user.username : 'Nije ulogovan');
+    
     try {
       const { testMode, campaignName } = req.body;
 
       if (!req.file) {
+        console.log('❌ Nema CSV fajla');
         return res
           .status(400)
           .json({ success: false, error: 'CSV fajl je obavezan' });
       }
 
-      const EmailCampaignManager = require('./email-campaign');
-      const manager = new EmailCampaignManager();
+      const MarketingEmailService = require('./marketing-email');
+      const manager = new MarketingEmailService();
 
       // Učitaj CSV fajl
       const recipients = manager.loadEmailListFromCSV(req.file.path);
-
       if (testMode === 'true') {
         // Test mod - šalje samo prvi email
         const service = new MarketingEmailService();
@@ -1006,8 +1011,8 @@ app.get(
   requireRole(ROLES.ADMIN),
   (req, res) => {
     try {
-      const EmailCampaignManager = require('./email-campaign');
-      const manager = new EmailCampaignManager();
+      const MarketingEmailService = require('./marketing-email');
+      const manager = new MarketingEmailService();
       const lists = manager.listAvailableLists();
       res.json({ success: true, lists });
     } catch (error) {
@@ -1020,7 +1025,6 @@ app.get(
 // Dobij marketing statistike (javno dostupno za sada)
 app.get('/api/marketing/stats', async (req, res) => {
   try {
-    const MarketingEmailService = require('./marketing-email');
     const service = new MarketingEmailService();
     const stats = await service.getStats();
 
@@ -1046,10 +1050,13 @@ app.get(
       const { executeQuery } = require('./src/config/database');
       const query = `
         SELECT 
-          id, campaign_name, subject, total_recipients, emails_sent, 
-          emails_failed, success_rate, created_at, completed_at, status
-        FROM marketing_campaigns 
-        ORDER BY created_at DESC 
+          c.id, c.campaign_name, c.subject, c.total_recipients, c.emails_sent, 
+          c.emails_failed, c.success_rate, c.created_at, c.completed_at, c.status,
+          COUNT(e.opened_at) as emails_opened
+        FROM marketing_campaigns c
+        LEFT JOIN marketing_emails e ON c.id = e.campaign_id AND e.opened_at IS NOT NULL
+        GROUP BY c.id
+        ORDER BY c.created_at DESC 
         LIMIT 50
       `;
       const campaigns = await executeQuery(query);
@@ -1085,8 +1092,9 @@ app.get(
 
       // Email lista kampanje
       const emailsQuery = `
-        SELECT email_address, recipient_name, company_name, status, 
-               error_message, sent_at, created_at
+        SELECT id, email_address, recipient_name, company_name, status, 
+               error_message, sent_at, created_at,
+               opened_at, open_count, user_agent, ip_address
         FROM marketing_emails 
         WHERE campaign_id = ? 
         ORDER BY created_at DESC
@@ -1104,6 +1112,68 @@ app.get(
     }
   }
 );
+
+// Email tracking endpoint - tracking pixel
+app.get('/api/marketing/track/open/:emailId', async (req, res) => {
+  try {
+    const emailId = req.params.emailId;
+    const userAgent = req.get('User-Agent') || '';
+    const ipAddress = req.ip || req.connection.remoteAddress || '';
+
+    // Ažuriraj email kao otvoren
+    const updateQuery = `
+      UPDATE marketing_emails 
+      SET 
+        opened_at = COALESCE(opened_at, NOW()), 
+        open_count = open_count + 1,
+        user_agent = ?,
+        ip_address = ?
+      WHERE id = ?
+    `;
+    await executeQuery(updateQuery, [userAgent, ipAddress, emailId]);
+
+    // Ažuriraj statistike kampanje
+    const campaignQuery = `
+      SELECT campaign_id FROM marketing_emails WHERE id = ?
+    `;
+    const campaignResult = await executeQuery(campaignQuery, [emailId]);
+
+    if (campaignResult.length > 0) {
+      const marketingService = new MarketingEmailService();
+      await marketingService.updateCampaignStats(campaignResult[0].campaign_id);
+    }
+
+    // Vrati 1x1 transparent pixel
+    const pixel = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      'base64'
+    );
+
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Length': pixel.length,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+    });
+
+    res.end(pixel);
+
+    console.log(`📖 Email ${emailId} otvoren - IP: ${ipAddress}`);
+  } catch (error) {
+    console.error('Email tracking error:', error);
+    // I u slučaju greške vrati pixel da ne pokvarimo email
+    const pixel = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      'base64'
+    );
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Length': pixel.length,
+    });
+    res.end(pixel);
+  }
+});
 
 // Profile API endpoint
 const profileController = require('./src/controllers/profileController');

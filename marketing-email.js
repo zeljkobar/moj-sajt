@@ -26,7 +26,7 @@ class MarketingEmailService {
   }
 
   // Personalizuj template za korisnika
-  personalizeTemplate(template, userData = {}) {
+  personalizeTemplate(template, userData = {}, emailId = null) {
     let personalizedTemplate = template;
 
     // Zamijeni placeholder-e ako postoje
@@ -44,14 +44,59 @@ class MarketingEmailService {
       );
     }
 
+    // Dodaj tracking pixel URL ako imamo emailId
+    if (emailId) {
+      const trackingUrl = `${
+        process.env.BASE_URL || 'http://localhost:3000'
+      }/api/marketing/track/open/${emailId}`;
+      console.log(`🔍 Dodajem tracking pixel URL: ${trackingUrl}`);
+      personalizedTemplate = personalizedTemplate.replace(
+        '{{TRACKING_PIXEL_URL}}',
+        trackingUrl
+      );
+    } else {
+      console.log('⚠️ EmailId nije prosleđen - tracking pixel se neće dodati');
+      // Ukloni placeholder ako nema emailId
+      personalizedTemplate = personalizedTemplate.replace(
+        '{{TRACKING_PIXEL_URL}}',
+        ''
+      );
+    }
+
     return personalizedTemplate;
   }
 
   // Pošalji marketing email jednom primaocu
   async sendMarketingEmail(recipientEmail, userData = {}, campaignId = null) {
     try {
+      // Prvo dobijemo emailId iz baze ako je deo kampanje
+      let emailId = null;
+      console.log(`🔍 sendMarketingEmail pozvan za: ${recipientEmail}, campaignId: ${campaignId}`);
+      
+      if (campaignId) {
+        const emailQuery = `SELECT id FROM marketing_emails WHERE campaign_id = ? AND email_address = ?`;
+        console.log(`🔍 Tražim emailId u bazi: campaignId=${campaignId}, email=${recipientEmail}`);
+        const emailResult = await executeQuery(emailQuery, [
+          campaignId,
+          recipientEmail,
+        ]);
+        console.log(`🔍 Rezultat pretrage emailId:`, emailResult);
+        if (emailResult.length > 0) {
+          emailId = emailResult[0].id;
+          console.log(`✅ Pronašao emailId: ${emailId}`);
+        } else {
+          console.log(`❌ EmailId NIJE pronađen u bazi!`);
+        }
+      } else {
+        console.log(`⚠️ CampaignId nije prosleđen`);
+      }
+
       const template = this.loadTemplate();
-      const personalizedTemplate = this.personalizeTemplate(template, userData);
+      const personalizedTemplate = this.personalizeTemplate(
+        template,
+        userData,
+        emailId
+      );
 
       const mailOptions = {
         from: `"SummaSummarum Team" <${process.env.EMAIL_USER}>`,
@@ -429,6 +474,49 @@ SummaSummarum Team
     };
 
     return await this.sendMarketingEmail(testEmail, testData);
+  }
+
+  // Učitaj email listu iz CSV fajla
+  loadEmailListFromCSV(csvFilePath) {
+    try {
+      const csvContent = fs.readFileSync(csvFilePath, 'utf8');
+      const lines = csvContent.split('\n').filter(line => line.trim());
+
+      // Preskoči header liniju
+      const dataLines = lines.slice(1);
+
+      const recipients = dataLines
+        .map(line => {
+          const [email, firstName, lastName, companyName, position] = line
+            .split(',')
+            .map(field => field.trim().replace(/"/g, ''));
+          return {
+            email,
+            firstName,
+            lastName,
+            companyName,
+            position,
+          };
+        })
+        .filter(recipient => recipient.email && recipient.email.includes('@'));
+
+      return recipients;
+    } catch (error) {
+      console.error('Greška pri čitanju CSV fajla:', error);
+      throw new Error('CSV fajl nije moguće učitati');
+    }
+  }
+
+  // Lista dostupnih email listi (za sada vraća samo osnovne info)
+  listAvailableLists() {
+    return [
+      {
+        id: 'csv_upload',
+        name: 'CSV Upload',
+        description: 'Učitavanje email liste iz CSV fajla',
+        format: 'email,firstName,lastName,companyName,position',
+      },
+    ];
   }
 }
 
