@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Upravljanje uplatama | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="components/theme-preloader.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link href="/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="global-components.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+
+  <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
+
+    <!-- Admin Header -->
+    <div class="admin-header">
+      <div class="container">
+        <a
+          href="dashboard.html"
+          class="global-back-btn mb-3"
+          style="color: white"
+          >← Nazad na dashboard</a
+        >
+        <h1>
+          <i class="fas fa-credit-card"></i> Admin Panel - Upravljanje uplatama
+        </h1>
+        <p class="mb-0">Pregled svih uplata i finansijskih statistika</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Ukupno uplate</h6>
+                  <h3 id="totalPayments">0.00€</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-euro-sign fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Ovaj mesec</h6>
+                  <h3 id="monthlyPayments">0.00€</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-calendar-month fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Broj uplata</h6>
+                  <h3 id="paymentCount">0</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-list-ol fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h6 class="card-title">Pending uplate</h6>
+                  <h3 id="pendingPayments">0</h3>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-clock fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5><i class="fas fa-filter"></i> Filteri</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <label for="statusFilter" class="form-label">Status</label>
+                  <select class="form-select" id="statusFilter">
+                    <option value="">Svi statusi</option>
+                    <option value="completed">Završeno</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Neuspešno</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="dateFromFilter" class="form-label"
+                    >Od datuma</label
+                  >
+                  <input type="date" class="form-control" id="dateFromFilter" />
+                </div>
+                <div class="col-md-3">
+                  <label for="dateToFilter" class="form-label">Do datuma</label>
+                  <input type="date" class="form-control" id="dateToFilter" />
+                </div>
+                <div class="col-md-3">
+                  <label for="userSearchFilter" class="form-label"
+                    >Korisnik</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="userSearchFilter"
+                    placeholder="Pretraži po imenu..."
+                  />
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-search"></i> Primeni filtere
+                  </button>
+                  <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-times"></i> Resetuj
+                  </button>
+                  <button class="btn btn-success" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payments Table -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
+              <h5><i class="fas fa-table"></i> Lista uplata</h5>
+              <div>
+                <span class="badge bg-secondary" id="totalRecords"
+                  >0 rezultata</span
+                >
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Korisnik</th>
+                      <th>Email</th>
+                      <th>Iznos</th>
+                      <th>Status</th>
+                      <th>Način plaćanja</th>
+                      <th>Datum</th>
+                      <th>PayPal ID</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paymentsTableBody">
+                    <tr>
+                      <td colspan="9" class="text-center">
+                        <div class="spinner-border" role="status">
+                          <span class="visually-hidden">Učitavanje...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="row mt-3">
+        <div class="col-12">
+          <nav aria-label="Paginacija uplata">
+            <ul class="pagination justify-content-center" id="pagination">
+              <!-- Pagination će biti generisana dinamički -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div class="modal fade" id="paymentDetailsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Detalji uplate</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="paymentDetailsContent">
+            <!-- Detalji će biti učitani dinamički -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Zatvori
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="successToast" class="toast" role="alert">
+        <div class="toast-header bg-success text-white">
+          <i class="fas fa-check-circle me-2"></i>
+          <strong class="me-auto">Uspeh</strong>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+        <div class="toast-body" id="successToastBody">
+          <!-- Poruka će biti dodana dinamički -->
+        </div>
+      </div>
+
+      <div id="errorToast" class="toast" role="alert">
+        <div class="toast-header bg-danger text-white">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          <strong class="me-auto">Greška</strong>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="toast"
+          ></button>
+        </div>
+        <div class="toast-body" id="errorToastBody">
+          <!-- Poruka će biti dodana dinamički -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./components/navigation.js"></script>
+    <script>
+      // Inicijalizuj admin uplate stranicu
+      document.addEventListener('DOMContentLoaded', function () {
+        // Navigation se inicijalizuje automatski iz navigation.js
+        loadPayments();
+        loadStatistics();
+      });
+    </script>
+    <script src="admin-uplate.js"></script>
+  </body>
+</html>

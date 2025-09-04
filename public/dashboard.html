@@ -257,6 +257,9 @@
         </div>
       </div>
 
+      <!-- Admin Widget za Uplate (samo za admin) -->
+      <!-- Premešten ispod pozajmica na zahtev korisnika -->
+
       <div class="row">
         <!-- Leva kolona -->
         <div class="col-lg-8">
@@ -610,6 +613,96 @@
               </button>
             </div>
           </div>
+
+          <!-- Admin Widget za Uplate (samo za admin) - Sada collapsible -->
+          <div
+            class="quick-action-card"
+            id="adminPaymentsWidget"
+            style="display: none"
+          >
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-crown text-warning me-2"></i>
+                Admin Panel
+              </h5>
+              <button
+                class="btn btn-sm btn-outline-warning"
+                id="toggleAdminWidget"
+                onclick="toggleAdminWidget()"
+                data-collapsed="true"
+              >
+                <i class="fas fa-eye"></i>
+                <span class="ms-1">Prikaži</span>
+              </button>
+            </div>
+
+            <!-- Admin sadržaj - skriveno po default-u -->
+            <div id="adminPaymentsContent" style="display: none">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                    <h6 class="text-primary mb-1" id="adminTotalPayments">
+                      <div
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Učitavanje...</span>
+                      </div>
+                    </h6>
+                    <small class="text-muted">Ukupno uplate</small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                    <h6 class="text-success mb-1" id="adminMonthlyPayments">
+                      <div
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Učitavanje...</span>
+                      </div>
+                    </h6>
+                    <small class="text-muted">Ovaj mesec</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                    <h6 class="text-info mb-1" id="adminPaymentCount">
+                      <div
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Učitavanje...</span>
+                      </div>
+                    </h6>
+                    <small class="text-muted">Broj uplata</small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                    <h6 class="text-warning mb-1" id="adminPendingPayments">
+                      <div
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      >
+                        <span class="visually-hidden">Učitavanje...</span>
+                      </div>
+                    </h6>
+                    <small class="text-muted">Pending uplate</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <a href="admin-uplate.html" class="btn btn-warning">
+                  <i class="fas fa-external-link-alt me-2"></i>Detaljno
+                  upravljanje
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -645,6 +738,9 @@
 
         // Inicijalizuj Obračun zakupa kalkulator
         initZakupCalculator();
+
+        // Učitaj admin widget ako je korisnik admin
+        loadAdminPaymentsWidget();
       });
 
       // Funkcije za učitavanje podataka
@@ -1708,6 +1804,75 @@ Neto iznos: ${(
             console.error('Greška pri kopiranju:', err);
             alert('Greška pri kopiranju u clipboard');
           });
+      }
+
+      // Admin Payments Widget
+      async function loadAdminPaymentsWidget() {
+        try {
+          // Proverava da li je korisnik admin
+          const userResponse = await fetch('/api/users/current', {
+            credentials: 'include',
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            if (userData.role === 'admin' || userData.username === 'admin') {
+              // Prikaži widget
+              document.getElementById('adminPaymentsWidget').style.display =
+                'block';
+
+              // Učitaj statistike
+              const statsResponse = await fetch(
+                '/api/admin/payments/statistics',
+                {
+                  credentials: 'include',
+                }
+              );
+
+              if (statsResponse.ok) {
+                const statsData = await statsResponse.json();
+                if (statsData.success) {
+                  const stats = statsData.statistics;
+                  document.getElementById(
+                    'adminTotalPayments'
+                  ).textContent = `${stats.totalAmount}€`;
+                  document.getElementById(
+                    'adminMonthlyPayments'
+                  ).textContent = `${stats.monthlyAmount}€`;
+                  document.getElementById('adminPaymentCount').textContent =
+                    stats.totalCount;
+                  document.getElementById('adminPendingPayments').textContent =
+                    stats.pendingCount;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Greška pri učitavanju admin widget-a:', error);
+        }
+      }
+
+      // Toggle Admin Widget funkcija
+      function toggleAdminWidget() {
+        const content = document.getElementById('adminPaymentsContent');
+        const button = document.getElementById('toggleAdminWidget');
+        const icon = button.querySelector('i');
+        const text = button.querySelector('span');
+        const isCollapsed = button.getAttribute('data-collapsed') === 'true';
+
+        if (isCollapsed) {
+          // Prikaži sadržaj
+          content.style.display = 'block';
+          icon.className = 'fas fa-eye-slash';
+          text.textContent = 'Sakrij';
+          button.setAttribute('data-collapsed', 'false');
+        } else {
+          // Sakrij sadržaj
+          content.style.display = 'none';
+          icon.className = 'fas fa-eye';
+          text.textContent = 'Prikaži';
+          button.setAttribute('data-collapsed', 'true');
+        }
       }
     </script>
     <script src="cookie-consent.js"></script>

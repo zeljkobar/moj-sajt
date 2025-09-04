@@ -1154,4 +1154,316 @@ router.get('/subscription/info/:userId', async (req, res) => {
   }
 });
 
+// =============================================================================
+// ADMIN UPLATE RUTE
+// =============================================================================
+
+// GET /api/admin/payments/statistics - Statistike uplata
+router.get('/payments/statistics', async (req, res) => {
+  try {
+    const { dateFrom, dateTo, status } = req.query;
+
+    let whereConditions = [];
+    let queryParams = [];
+
+    if (dateFrom) {
+      whereConditions.push('created_at >= ?');
+      queryParams.push(dateFrom);
+    }
+
+    if (dateTo) {
+      whereConditions.push('created_at <= ?');
+      queryParams.push(dateTo + ' 23:59:59');
+    }
+
+    if (status) {
+      whereConditions.push('status = ?');
+      queryParams.push(status);
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? 'WHERE ' + whereConditions.join(' AND ')
+        : '';
+
+    // Ukupne statistike
+    const totalStats = await executeQuery(
+      `
+      SELECT 
+        COUNT(*) as totalCount,
+        COALESCE(SUM(CASE WHEN status = 'confirmed' THEN amount ELSE 0 END), 0) as totalAmount,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pendingCount
+      FROM payments 
+      ${whereClause}
+    `,
+      queryParams
+    );
+
+    // Mesečne statistike (trenutni mesec)
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+    const monthlyStats = await executeQuery(
+      `
+      SELECT 
+        COALESCE(SUM(CASE WHEN status = 'confirmed' THEN amount ELSE 0 END), 0) as monthlyAmount
+      FROM payments 
+      WHERE DATE_FORMAT(created_at, '%Y-%m') = ? AND status = 'confirmed'
+    `,
+      [currentMonth]
+    );
+
+    res.json({
+      success: true,
+      statistics: {
+        totalCount: totalStats[0].totalCount,
+        totalAmount: parseFloat(totalStats[0].totalAmount).toFixed(2),
+        pendingCount: totalStats[0].pendingCount,
+        monthlyAmount: parseFloat(monthlyStats[0].monthlyAmount).toFixed(2),
+      },
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju statistika uplata:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Greška pri dobijanju statistika' });
+  }
+});
+
+// GET /api/admin/payments - Lista uplata sa paginacijom i filterima
+router.get('/payments', async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      dateFrom,
+      dateTo,
+      userSearch,
+    } = req.query;
+
+    let whereConditions = [];
+    let queryParams = [];
+
+    if (status) {
+      whereConditions.push('p.status = ?');
+      queryParams.push(status);
+    }
+
+    if (dateFrom) {
+      whereConditions.push('p.created_at >= ?');
+      queryParams.push(dateFrom);
+    }
+
+    if (dateTo) {
+      whereConditions.push('p.created_at <= ?');
+      queryParams.push(dateTo + ' 23:59:59');
+    }
+
+    if (userSearch) {
+      whereConditions.push(
+        '(u.ime LIKE ? OR u.prezime LIKE ? OR u.email LIKE ?)'
+      );
+      const searchTerm = `%${userSearch}%`;
+      queryParams.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? 'WHERE ' + whereConditions.join(' AND ')
+        : '';
+
+    // Prebroj ukupne rezultate
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM payments p 
+      LEFT JOIN users u ON p.user_id = u.id 
+      ${whereClause}
+    `;
+    const countResult = await executeQuery(countQuery, queryParams);
+    const total = countResult[0].total;
+
+    // Izračunaj paginaciju
+    const offset = (page - 1) * limit;
+    const totalPages = Math.ceil(total / limit);
+
+    // Dobij uplate sa korisničkim podacima
+    const paymentsQuery = `
+      SELECT 
+        p.*,
+        u.ime as user_name,
+        u.prezime as user_surname,
+        u.email as user_email,
+        CONCAT_WS(' ', u.ime, u.prezime) as user_full_name
+      FROM payments p 
+      LEFT JOIN users u ON p.user_id = u.id 
+      ${whereClause}
+      ORDER BY p.created_at DESC 
+      LIMIT ? OFFSET ?
+    `;
+
+    const payments = await executeQuery(paymentsQuery, [
+      ...queryParams,
+      parseInt(limit),
+      parseInt(offset),
+    ]);
+
+    // Formatuj rezultate
+    const formattedPayments = payments.map(payment => ({
+      ...payment,
+      user_name: payment.user_full_name || 'Nepoznat korisnik',
+    }));
+
+    res.json({
+      success: true,
+      payments: formattedPayments,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: total,
+        pages: totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju uplata:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Greška pri dobijanju uplata' });
+  }
+});
+
+// GET /api/admin/payments/:id - Detalji određene uplate
+router.get('/payments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const paymentQuery = `
+      SELECT 
+        p.*,
+        u.ime as user_name,
+        u.prezime as user_surname,
+        u.email as user_email,
+        CONCAT_WS(' ', u.ime, u.prezime) as user_full_name
+      FROM payments p 
+      LEFT JOIN users u ON p.user_id = u.id 
+      WHERE p.id = ?
+    `;
+
+    const payments = await executeQuery(paymentQuery, [id]);
+
+    if (payments.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Uplata nije pronađena' });
+    }
+
+    const payment = payments[0];
+    payment.user_name = payment.user_full_name || 'Nepoznat korisnik';
+
+    res.json({
+      success: true,
+      payment: payment,
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju detalja uplate:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Greška pri dobijanju detalja uplate' });
+  }
+});
+
+// GET /api/admin/payments/export - Export uplata u CSV format
+router.get('/payments/export', async (req, res) => {
+  try {
+    const { status, dateFrom, dateTo, userSearch } = req.query;
+
+    let whereConditions = [];
+    let queryParams = [];
+
+    if (status) {
+      whereConditions.push('p.status = ?');
+      queryParams.push(status);
+    }
+
+    if (dateFrom) {
+      whereConditions.push('p.created_at >= ?');
+      queryParams.push(dateFrom);
+    }
+
+    if (dateTo) {
+      whereConditions.push('p.created_at <= ?');
+      queryParams.push(dateTo + ' 23:59:59');
+    }
+
+    if (userSearch) {
+      whereConditions.push(
+        '(u.ime LIKE ? OR u.prezime LIKE ? OR u.email LIKE ?)'
+      );
+      const searchTerm = `%${userSearch}%`;
+      queryParams.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? 'WHERE ' + whereConditions.join(' AND ')
+        : '';
+
+    const paymentsQuery = `
+      SELECT 
+        p.id,
+        CONCAT_WS(' ', u.ime, u.prezime) as korisnik,
+        u.email,
+        p.amount as iznos,
+        p.status,
+        p.payment_method as nacin_placanja,
+        p.paypal_payment_id,
+        p.description as opis,
+        DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s') as datum_kreiranja,
+        DATE_FORMAT(p.updated_at, '%Y-%m-%d %H:%i:%s') as datum_azuriranja
+      FROM payments p 
+      LEFT JOIN users u ON p.user_id = u.id 
+      ${whereClause}
+      ORDER BY p.created_at DESC
+    `;
+
+    const payments = await executeQuery(paymentsQuery, queryParams);
+
+    // Kreiraj CSV sadržaj
+    const csvHeader =
+      'ID,Korisnik,Email,Iznos,Status,Način plaćanja,PayPal ID,Opis,Datum kreiranja,Datum ažuriranja\n';
+    const csvRows = payments
+      .map(payment => {
+        return [
+          payment.id,
+          `"${payment.korisnik || ''}"`,
+          `"${payment.email || ''}"`,
+          payment.iznos,
+          `"${payment.status || ''}"`,
+          `"${payment.nacin_placanja || ''}"`,
+          `"${payment.paypal_payment_id || ''}"`,
+          `"${payment.opis || ''}"`,
+          `"${payment.datum_kreiranja || ''}"`,
+          `"${payment.datum_azuriranja || ''}"`,
+        ].join(',');
+      })
+      .join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="uplate_${
+        new Date().toISOString().split('T')[0]
+      }.csv"`
+    );
+    res.send('\ufeff' + csvContent); // BOM za UTF-8
+  } catch (error) {
+    console.error('Greška pri exportu uplata:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Greška pri exportu uplata' });
+  }
+});
+
 module.exports = router;
