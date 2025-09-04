@@ -245,7 +245,9 @@ class CookieConsent {
     }
 
     try {
-      const newWindow = window.open(url, target, features);
+      // Use originalWindowOpen to avoid infinite recursion
+      const originalWindowOpen = window.originalWindowOpen || window.open;
+      const newWindow = originalWindowOpen.call(window, url, target, features);
       if (!newWindow) {
         this.showNotification(
           '❌ Browser je blokirao pop-up. Molimo omogućite pop-ups za ovaj sajt.',
@@ -303,6 +305,9 @@ window.openJPRForIstek = function () {
 
 // Override default window.open for better control
 const originalWindowOpen = window.open;
+// Store reference for internal use
+window.originalWindowOpen = originalWindowOpen;
+
 window.open = function (url, target, features) {
   // Allow internal navigation and same-origin opens
   if (
