@@ -334,6 +334,16 @@ const radniciController = {
           .json({ message: 'Sva obavezna polja moraju biti popunjena' });
       }
 
+      // Konvertuj datume u MySQL format
+      const formatDate = (date) => {
+        if (!date) return null;
+        if (typeof date === 'string' && date.includes('T')) {
+          // ISO format - uzmi samo datum deo
+          return date.split('T')[0];
+        }
+        return date;
+      };
+
       // Ažuriraj radnika
       await executeQuery(
         `UPDATE radnici SET 
@@ -349,11 +359,11 @@ const radniciController = {
           adresa || null,
           pozicija_id,
           firma_id,
-          datum_zaposlenja,
+          formatDate(datum_zaposlenja),
           visina_zarade,
           tip_radnog_vremena || 'puno_8h',
           tip_ugovora || 'na_neodredjeno',
-          datum_prestanka || null,
+          formatDate(datum_prestanka),
           napomene || null,
           subota !== undefined ? (subota ? 1 : 0) : 1, // Konvertuj boolean u 1/0 za MySQL
           id,
@@ -370,7 +380,8 @@ const radniciController = {
 
       res.json({ success: true, message: 'Radnik je uspešno ažuriran' });
     } catch (error) {
-      res.status(500).json({ message: 'Greška na serveru' });
+      console.error('Error updating radnik:', error);
+      res.status(500).json({ message: 'Greška na serveru', error: error.message });
     }
   },
 
