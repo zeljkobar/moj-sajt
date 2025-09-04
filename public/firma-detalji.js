@@ -2033,7 +2033,7 @@ function loadPozajmiceStatistike(firmaId) {
       0
     );
     const ukupnoVraceno = allPozajmice.reduce(
-      (sum, p) => sum + (parseFloat(p.vraceno_iznos) || 0),
+      (sum, p) => sum + (parseFloat(p.ukupno_vraceno) || 0),
       0
     );
     const ukupnoPreostalo = ukupnoPozajmljeno - ukupnoVraceno;

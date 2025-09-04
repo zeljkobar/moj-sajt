@@ -213,12 +213,16 @@ exports.getPozajmiceByFirma = async (req, res) => {
               f.naziv as firma_naziv,
               r.ime as radnik_ime, r.prezime as radnik_prezime,
               z.ime as zajmodavac_ime, z.prezime as zajmodavac_prezime,
-              z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun
+              z.jmbg as zajmodavac_jmbg, z.ziro_racun as zajmodavac_ziro_racun,
+              COALESCE(SUM(pp.iznos), 0) as ukupno_vraceno,
+              (p.iznos - COALESCE(SUM(pp.iznos), 0)) as preostalo_dugovanje
        FROM pozajmnice p
        LEFT JOIN firme f ON p.firma_id = f.id
        LEFT JOIN radnici r ON p.radnik_id = r.id  
        LEFT JOIN zajmodavci z ON p.zajmodavac_id = z.id
+       LEFT JOIN pozajmica_povracaji pp ON p.id = pp.pozajmica_id
        WHERE p.firma_id = ?
+       GROUP BY p.id
        ORDER BY p.datum_izdavanja DESC`,
       [firmaId]
     );
