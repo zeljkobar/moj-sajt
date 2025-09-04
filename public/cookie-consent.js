@@ -296,12 +296,7 @@ window.openJPRForSporazumni = function () {
   );
 };
 
-window.openJPRForIstek = function () {
-  return openJPRWithConsent(
-    'jpr-korica.html?context=istek',
-    'jpr-dodatak-b.html?context=odjava'
-  );
-};
+// Removed openJPRForIstek - using custom function in istek-ugovora.html instead
 
 // Override default window.open for better control
 const originalWindowOpen = window.open;

@@ -682,20 +682,9 @@
         }
       }
 
-      // JPR funkcija za istek ugovora
+      // JPR funkcija za istek ugovora - originalna verzija koja je radila
       function openJPRForIstek() {
         console.log('=== Debug openJPRForIstek ===');
-
-        // Provjeri cookie consent prije otvaranja
-        if (
-          typeof cookieConsent !== 'undefined' &&
-          !cookieConsent.canOpenJPR()
-        ) {
-          alert(
-            'Molimo prvo prihvatite kolačiće i pop-up dozvole za otvaranje JPR dokumenata.'
-          );
-          return;
-        }
 
         // Čitaj URL parametre direktno
         const urlParams = new URLSearchParams(window.location.search);
@@ -714,6 +703,16 @@
         const imeRadnikaElement = document.getElementById('imeRadnika');
         const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
 
+        console.log('DOM elementi:', { imeRadnikaElement, jmbgRadnikaElement });
+        console.log(
+          'imeRadnikaElement textContent:',
+          imeRadnikaElement?.textContent
+        );
+        console.log(
+          'jmbgRadnikaElement textContent:',
+          jmbgRadnikaElement?.textContent
+        );
+
         const radnikImePrezime = imeRadnikaElement
           ? imeRadnikaElement.textContent.trim()
           : '';
@@ -725,8 +724,20 @@
         console.log('Radnik JMBG:', radnikJmbg);
 
         if (!radnikImePrezime || !radnikJmbg) {
-          alert('Greška: ime ili JMBG radnika nije pronađeno u dokumentu');
-          return;
+          console.warn(
+            'Podaci nisu dostupni u DOM-u, pokušavam fallback sa API pozivom...'
+          );
+
+          // Fallback - pozovi API da dobijem podatke
+          if (urlRadnikId) {
+            fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+            return;
+          } else {
+            alert(
+              'Greška: ime ili JMBG radnika nije pronađeno u dokumentu i nema radnikId u URL-u'
+            );
+            return;
+          }
         }
 
         // Razdeli ime i prezime
@@ -736,7 +747,7 @@
 
         console.log('Podeljeno - Ime:', radnikIme, 'Prezime:', radnikPrezime);
 
-        // Generiši JPR URL-ove za odjavu (kao u firma-detalji.js)
+        // Generiši JPR URL-ove za odjavu (kao u originalnoj verziji)
         const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
           radnikIme
         )}&radnikPrezime=${encodeURIComponent(
@@ -752,21 +763,59 @@
         console.log('JPR Korica URL:', koricaUrl);
         console.log('JPR Dodatak B URL:', dodatakUrl);
 
-        // Koristi cookie consent openWindow metodu
-        if (typeof cookieConsent !== 'undefined') {
-          const korica = cookieConsent.openWindow(koricaUrl, '_blank');
-          setTimeout(() => {
-            const dodatak = cookieConsent.openWindow(dodatakUrl, '_blank');
-            if (korica && dodatak) {
-              console.log('JPR dokumenti uspješno otvoreni');
-            }
-          }, 500);
-        } else {
-          // Fallback za slučaj da cookie consent nije učitan
+        // Otvori JPR korica u novom tabu (direktno window.open kao ranije)
+        window.open(koricaUrl, '_blank');
+
+        // Otvori JPR dodatak B nakon kratke pauze
+        setTimeout(() => {
+          window.open(dodatakUrl, '_blank');
+        }, 500);
+      }
+
+      // Fallback funkcija za API poziv ako DOM nije popunjen
+      async function fetchRadnikDataForJPR(radnikId, firmaId) {
+        try {
+          console.log('API Fallback - učitavam podatke za radnikId:', radnikId);
+
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnikData = await radnikResponse.json();
+
+          console.log('API Fallback - dobio podatke:', radnikData);
+
+          if (
+            !radnikData ||
+            !radnikData.ime ||
+            !radnikData.prezime ||
+            !radnikData.jmbg
+          ) {
+            alert('Greška: nepotpuni podaci o radniku iz API-ja');
+            return;
+          }
+
+          // Generiši JPR URL-ove sa API podacima
+          const koricaUrl = `jpr-korica.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
+          const dodatakUrl = `jpr-dodatak-b.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
+          console.log('API Fallback - JPR Korica URL:', koricaUrl);
+          console.log('API Fallback - JPR Dodatak B URL:', dodatakUrl);
+
+          // Otvori JPR stranice
           window.open(koricaUrl, '_blank');
           setTimeout(() => {
             window.open(dodatakUrl, '_blank');
           }, 500);
+        } catch (error) {
+          console.error('API Fallback - Greška:', error);
+          alert('Greška pri učitavanju podataka iz API-ja');
         }
       }
 
