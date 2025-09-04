@@ -56,10 +56,10 @@ exports.createPozajmica = async (req, res) => {
       });
     }
 
-    // Proveri da li broj ugovora već postoji
+    // Proveri da li broj ugovora već postoji u toj firmi
     const existingContract = await executeQuery(
-      'SELECT id FROM pozajmnice WHERE broj_ugovora = ?',
-      [broj_ugovora]
+      'SELECT id FROM pozajmnice WHERE broj_ugovora = ? AND firma_id = ?',
+      [broj_ugovora, firma_id]
     );
 
     if (existingContract.length > 0) {
