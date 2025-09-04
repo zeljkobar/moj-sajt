@@ -332,7 +332,7 @@ exports.getNextBrojUgovora = async (req, res) => {
       console.log('Firma not found or no permission');
       return res.status(403).json({
         success: false,
-        message: 'Nemate dozvolu za pristup ovoj firmi'
+        message: 'Nemate dozvolu za pristup ovoj firmi',
       });
     }
 
@@ -348,7 +348,9 @@ exports.getNextBrojUgovora = async (req, res) => {
 
     const maxNumber = result[0]?.maxNumber || 0;
     const nextNumber = maxNumber + 1;
-    const nextBrojUgovora = `${nextNumber.toString().padStart(3, '0')}/${currentYear}`;
+    const nextBrojUgovora = `${nextNumber
+      .toString()
+      .padStart(3, '0')}/${currentYear}`;
 
     console.log('Next broj ugovora:', nextBrojUgovora);
 
