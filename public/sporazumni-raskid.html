@@ -116,7 +116,7 @@
       <button class="btn btn-success word-btn" onclick="downloadWordCompact()">
         📝 Word
       </button>
-      <button class="btn btn-warning jpr-btn" onclick="openJPRForSporazumni()">
+      <button class="btn btn-warning jpr-btn" onclick="openJPRSimple()">
         📋 Otvori JPR
       </button>
     </div>
@@ -241,94 +241,67 @@
     </div>
 
     <script>
-      // Dobijanje podataka iz URL parametara
+      // Globalne promenljive za podatke
+      window.globalRadnik = null;
+      window.globalFirma = null;
+      window.globalJmbg = null;
+      window.globalIme = null;
+      window.globalPrezime = null;
+      window.globalJprReady = false;
+
+      // Dobijanje podataka iz URL parametara (globalno, odmah posle globalnih promenljivih)
       const urlParams = new URLSearchParams(window.location.search);
       const radnikId = urlParams.get('radnikId');
       const firmaId = urlParams.get('firmaId');
       const otkazId = urlParams.get('otkazId');
+      // Eksplicitno postavi na window za globalni scope
+      window.firmaId = firmaId;
+      window.radnikId = radnikId;
+      window.otkazId = otkazId;
 
       // Funkcija za učitavanje podataka i popunjavanje dokumenta
       async function loadAndPopulateDocument() {
         try {
-          console.log(
-            'Učitavam podatke za radnikId:',
-            radnikId,
-            'firmaId:',
-            firmaId,
-            'otkazId:',
-            otkazId
-          );
-
-          // Proveri da li je otkazId validan
-          if (!otkazId) {
-            alert(
-              'GREŠKA: Dokument se mora otvoriti sa validnim otkaz ID-jem. Molimo vas da kliknete na dugme "Otkaz" iz liste radnika.'
-            );
-            window.close();
-            return;
-          }
-
           // Učitaj podatke o radniku
           const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
           const radnik = await radnikResponse.json();
-          console.log('Radnik podatci:', radnik);
-
+          window.globalRadnik = radnik;
+          window.globalJmbg = radnik.jmbg || '';
+          window.globalIme = radnik.ime || '';
+          window.globalPrezime = radnik.prezime || '';
           // Učitaj podatke o firmi
           const firmaResponse = await fetch(`/api/firme/id/${firmaId}`);
           const firma = await firmaResponse.json();
-          console.log('Firma podatci:', firma);
-
+          window.globalFirma = firma;
           // Učitaj pozicije
           const pozicijeResponse = await fetch('/api/pozicije');
           let pozicije = [];
           let pozicija = null;
-
           if (pozicijeResponse.ok) {
             pozicije = await pozicijeResponse.json();
-            console.log('Pozicije response:', pozicije);
-            console.log('Pozicije type:', typeof pozicije);
-            console.log('Is pozicije array:', Array.isArray(pozicije));
-
-            // Proveri da li je pozicije array pre poziva .find()
             if (Array.isArray(pozicije)) {
               pozicija = pozicije.find(p => p.id == radnik.pozicija_id);
-            } else {
-              console.error('Pozicije is not an array:', pozicije);
             }
-          } else {
-            const errorData = await pozicijeResponse.json();
-            console.error(
-              'Error loading pozicije:',
-              pozicijeResponse.status,
-              errorData
-            );
           }
-          console.log('Pozicija:', pozicija);
-
           // Učitaj podatke o otkazu ako je otkazId prosleđen
           let otkaz = null;
           if (otkazId) {
             try {
               const otkazResponse = await fetch(`/api/otkazi/${otkazId}`);
               const otkazData = await otkazResponse.json();
-
               if (otkazResponse.ok && otkazData.success) {
-                otkaz = otkazData.otkaz; // API vraća podatke u 'otkaz' property
-                console.log('Otkaz podatci:', otkaz);
-                console.log('Datum otkaza iz API-ja:', otkaz.datum_otkaza);
-              } else {
-                console.warn(
-                  'Greška pri učitavanju otkaza:',
-                  otkazData.message
-                );
+                otkaz = otkazData.otkaz;
               }
             } catch (otkazError) {
               console.warn('Greška pri učitavanju otkaza:', otkazError);
             }
           }
-
           // Popuni dokument
           populateDocument(radnik, firma, pozicija, otkaz);
+          // Omogući JPR dugme
+          window.globalJprReady = true;
+          const jprBtn = document.querySelector('.jpr-btn');
+          if (jprBtn) jprBtn.disabled = false;
         } catch (error) {
           console.error('Greška pri učitavanju podataka:', error);
           alert('Greška pri učitavanju podataka: ' + error.message);
@@ -345,13 +318,6 @@
           otkaz && otkaz.datum_otkaza
             ? new Date(otkaz.datum_otkaza).toLocaleDateString('sr-Latn-RS')
             : new Date().toLocaleDateString('sr-Latn-RS');
-
-        console.log('populateDocument - otkaz:', otkaz);
-        console.log(
-          'populateDocument - datum_otkaza iz otkaza:',
-          otkaz?.datum_otkaza
-        );
-        console.log('populateDocument - formatiran datumOtkaza:', datumOtkaza);
 
         // Koristiti razlog otkaza ako postoji
         const razlogOtkaza =
@@ -401,91 +367,163 @@
       // Učitaj podatke kada se stranica učita
       document.addEventListener('DOMContentLoaded', loadAndPopulateDocument);
 
-      // JPR funkcija za sporazumni raskid - otvara i koricu i dodatak B
-      function openJPRForSporazumni() {
-        console.log('=== Debug openJPRForSporazumni ===');
-
-        // Provjeri cookie consent prije otvaranja
-        if (
-          typeof cookieConsent !== 'undefined' &&
-          !cookieConsent.canOpenJPR()
-        ) {
-          alert(
-            'Molimo prvo prihvatite kolačiće i pop-up dozvole za otvaranje JPR dokumenata.'
-          );
-          return;
-        }
-
+      // NOVA JEDNOSTAVNA JPR FUNKCIJA
+      function openJPRSimple() {
         // Čitaj URL parametre direktno
         const urlParams = new URLSearchParams(window.location.search);
         const urlRadnikId = urlParams.get('radnikId');
         const urlFirmaId = urlParams.get('firmaId');
 
-        console.log('URL radnikId:', urlRadnikId);
-        console.log('URL firmaId:', urlFirmaId);
-
         if (!urlFirmaId) {
-          alert('Greška: nedostaju potrebni parametri za JPR (firmaId)');
+          alert('Greška: nedostaje firmaId');
           return;
         }
 
-        // Uzmi ime i JMBG radnika iz dokumenta
-        const imeRadnikaElement = document.getElementById('imeRadnika');
-        const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
+        // Pozovi API fallback direktno
+        fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+      }
 
-        const radnikImePrezime = imeRadnikaElement
-          ? imeRadnikaElement.textContent.trim()
-          : '';
-        const radnikJmbg = jmbgRadnikaElement
-          ? jmbgRadnikaElement.textContent.trim()
-          : '';
+      // Onemogući dugme dok se ne učita
+      window.addEventListener('DOMContentLoaded', function () {
+        const jprBtn = document.querySelector('.jpr-btn');
+        if (jprBtn) jprBtn.disabled = true;
+      });
 
-        console.log('Radnik ime i prezime:', radnikImePrezime);
-        console.log('Radnik JMBG:', radnikJmbg);
+      // JPR funkcija za sporazumni raskid - otvara i koricu i dodatak B
+      function openJPRForSporazumni() {
+        try {
+          console.log('🚨 FUNKCIJA POZVANA: openJPRForSporazumni');
+          console.log('=== Debug openJPRForSporazumni ===');
 
-        if (!radnikImePrezime || !radnikJmbg) {
-          alert('Greška: ime ili JMBG radnika nije pronađeno u dokumentu');
-          return;
-        }
+          // Čitaj URL parametre direktno
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlRadnikId = urlParams.get('radnikId');
+          const urlFirmaId = urlParams.get('firmaId');
 
-        // Razdeli ime i prezime
-        const imePrezimeParts = radnikImePrezime.split(' ');
-        const radnikIme = imePrezimeParts[0] || '';
-        const radnikPrezime = imePrezimeParts.slice(1).join(' ') || '';
+          console.log('URL radnikId:', urlRadnikId);
+          console.log('URL firmaId:', urlFirmaId);
 
-        console.log('Podeljeno - Ime:', radnikIme, 'Prezime:', radnikPrezime);
+          if (!urlFirmaId) {
+            alert('Greška: nedostaju potrebni parametri za JPR (firmaId)');
+            return;
+          }
 
-        // Generiši JPR URL-ove za odjavu (kao u firma-detalji.js)
-        const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
-          radnikIme
-        )}&radnikPrezime=${encodeURIComponent(
-          radnikPrezime
-        )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+          // Uzmi ime i JMBG radnika iz dokumenta
+          const imeRadnikaElement = document.getElementById('imeRadnika');
+          const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
 
-        const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
-          radnikIme
-        )}&radnikPrezime=${encodeURIComponent(
-          radnikPrezime
-        )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+          console.log('DOM elementi:', { imeRadnikaElement, jmbgRadnikaElement });
+          console.log(
+            'imeRadnikaElement textContent:',
+            imeRadnikaElement?.textContent
+          );
+          console.log(
+            'jmbgRadnikaElement textContent:',
+            jmbgRadnikaElement?.textContent
+          );
 
-        console.log('JPR Korica URL:', koricaUrl);
-        console.log('JPR Dodatak B URL:', dodatakUrl);
+          const radnikImePrezime = imeRadnikaElement
+            ? imeRadnikaElement.textContent.trim()
+            : '';
+          const radnikJmbg = jmbgRadnikaElement
+            ? jmbgRadnikaElement.textContent.trim()
+            : '';
 
-        // Koristi cookie consent openWindow metodu
-        if (typeof cookieConsent !== 'undefined') {
-          const korica = cookieConsent.openWindow(koricaUrl, '_blank');
-          setTimeout(() => {
-            const dodatak = cookieConsent.openWindow(dodatakUrl, '_blank');
-            if (korica && dodatak) {
-              console.log('JPR dokumenti uspješno otvoreni');
+          console.log('Radnik ime i prezime:', radnikImePrezime);
+          console.log('Radnik JMBG:', radnikJmbg);
+
+          // DODATNA PROVJERA: Da li su DOM elementi prazni?
+          if (radnikImePrezime === '__________________' || radnikJmbg === '__________________' || 
+              !radnikImePrezime || !radnikJmbg || 
+              radnikImePrezime.includes('__') || radnikJmbg.includes('__')) {
+            console.warn(
+              'DOM podaci nisu učitani ili su prazni, koristim API fallback...'
+            );
+
+            // Fallback - pozovi API da dobijem podatke
+            if (urlRadnikId) {
+              fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+              return;
+            } else {
+              alert(
+                'Greška: ime ili JMBG radnika nije pronađeno u dokumentu i nema radnikId u URL-u'
+              );
+              return;
             }
+          }
+
+          // Razdeli ime i prezime
+          const imePrezimeParts = radnikImePrezime.split(' ');
+          const radnikIme = imePrezimeParts[0] || '';
+          const radnikPrezime = imePrezimeParts.slice(1).join(' ') || '';
+
+          console.log('Podeljeno - Ime:', radnikIme, 'Prezime:', radnikPrezime);
+
+          // Generiši JPR URL-ove za odjavu (kao u originalnoj verziji)
+          const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          console.log('JPR Korica URL:', koricaUrl);
+          console.log('JPR Dodatak B URL:', dodatakUrl);
+
+          // Otvori JPR korica u novom tabu (direktno window.open kao ranije)
+          window.open(koricaUrl, '_blank');
+
+          // Otvori JPR dodatak B nakon kratke pauze
+          setTimeout(() => {
+            window.open(dodatakUrl, '_blank');
           }, 500);
-        } else {
-          // Fallback za slučaj da cookie consent nije učitan
+        } catch (error) {
+          console.error('🚨 GREŠKA U FUNKCIJI openJPRForSporazumni:', error);
+          alert('Greška u JPR funkciji: ' + error.message);
+        }
+      }
+
+      // Fallback funkcija za API poziv ako DOM nije popunjen
+      async function fetchRadnikDataForJPR(radnikId, firmaId) {
+        try {
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnikData = await radnikResponse.json();
+
+          if (
+            !radnikData ||
+            !radnikData.ime ||
+            !radnikData.prezime ||
+            !radnikData.jmbg
+          ) {
+            alert('Greška: nepotpuni podaci o radniku iz API-ja');
+            return;
+          }
+
+          // Generiši JPR URL-ove sa API podacima
+          const koricaUrl = `jpr-korica.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
+          const dodatakUrl = `jpr-dodatak-b.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
           window.open(koricaUrl, '_blank');
           setTimeout(() => {
             window.open(dodatakUrl, '_blank');
           }, 500);
+        } catch (error) {
+          console.error('Greška pri učitavanju podataka iz API-ja');
+          alert('Greška pri učitavanju podataka iz API-ja');
         }
       }
 
