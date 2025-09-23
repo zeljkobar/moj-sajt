@@ -329,6 +329,44 @@ async function deleteFirm(pib, naziv) {
 function initAddFirmPage() {
   setupStatusSelection();
   setupFormSubmit();
+  
+  // Automatski selektuj status iz URL-a ili podrazumevani "aktivan"
+  const urlParams = new URLSearchParams(window.location.search);
+  const statusParam = urlParams.get('status');
+  
+  if (statusParam) {
+    // Ako je status u URL-u, selektuj ga
+    selectStatus(statusParam);
+  } else {
+    // Default status je "aktivan"
+    selectStatus("aktivan");
+  }
+}
+
+// Funkcija za selektovanje statusa firme
+function selectStatus(status) {
+  const statusCards = document.querySelectorAll('.status-card');
+  const statusInput = document.getElementById('status');
+  
+  if (!statusCards.length || !statusInput) return;
+  
+  // Ukloni selected klasu sa svih kartica
+  statusCards.forEach(card => card.classList.remove('selected'));
+  
+  // Pronađi karticu sa odgovarajućim statusom
+  const targetCard = Array.from(statusCards).find(card => card.dataset.status === status);
+  
+  // Ako je pronađena kartica, selektuj je
+  if (targetCard) {
+    targetCard.classList.add('selected');
+    statusInput.value = status;
+    console.log(`Status firme postavljen na: ${status}`);
+  } else {
+    // Ako nije pronađena kartica, selektuj prvu (aktivan)
+    statusCards[0].classList.add('selected');
+    statusInput.value = statusCards[0].dataset.status;
+    console.log(`Status firme postavljen na default: ${statusCards[0].dataset.status}`);
+  }
 }
 
 function setupStatusSelection() {
@@ -347,8 +385,46 @@ function setupStatusSelection() {
 
       // Set hidden input value
       statusInput.value = this.dataset.status;
+      console.log(`Status firme promenjen na: ${this.dataset.status}`);
     });
   });
+  
+  // Automatski postavi "aktivan" status ako nijedan nije izabran
+  if (!statusInput.value) {
+    const aktivanCard = Array.from(statusCards).find(card => card.dataset.status === 'aktivan');
+    if (aktivanCard) {
+      aktivanCard.classList.add('selected');
+      statusInput.value = 'aktivan';
+      console.log('Status firme automatski postavljen na: aktivan');
+    }
+  }
+}
+
+// Pomoćna funkcija za selektovanje statusa firme
+function selectStatus(status) {
+  const statusCards = document.querySelectorAll('.status-card');
+  const statusInput = document.getElementById('status');
+  
+  if (!statusCards.length || !statusInput) return;
+  
+  // Resetuj sve selekcije
+  statusCards.forEach(card => card.classList.remove('selected'));
+  
+  // Nađi karticu sa traženim statusom
+  const targetCard = Array.from(statusCards).find(card => card.dataset.status === status);
+  
+  if (targetCard) {
+    // Selektuj odgovarajuću karticu
+    targetCard.classList.add('selected');
+    // Postavi hidden input value
+    statusInput.value = status;
+    console.log(`Status firme postavljen na: ${status}`);
+  } else {
+    // Ako nije pronađen traženi status, podrazumevano uzmi prvi
+    statusCards[0].classList.add('selected');
+    statusInput.value = statusCards[0].dataset.status;
+    console.log(`Status firme postavljen na default: ${statusCards[0].dataset.status}`);
+  }
 }
 
 function setupFormSubmit() {
@@ -403,14 +479,25 @@ function setupFormSubmit() {
 
         // Redirect to firms list after 2 seconds
         setTimeout(() => {
-          window.location.href = '/shared/firme.html';
+          // Detekcija domena za ispravni redirect
+          const host = window.location.hostname;
+          const urlParams = new URLSearchParams(window.location.search);
+          const domain = urlParams.get('domain');
+          const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+          
+          if (isMojradnik) {
+            window.location.href = '/mojradnik/dashboard.html';
+          } else {
+            window.location.href = '/shared/firme.html';
+          }
         }, 2000);
       } else {
-        showError(result.message || 'Greška pri dodavanju firme');
+        console.error('Server error:', result);
+        showError(result.message || `Greška pri dodavanju firme (${response.status}): ${JSON.stringify(result)}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      showError('Greška pri komunikaciji sa serverom');
+      showError(`Greška pri komunikaciji sa serverom: ${error.message}`);
     }
   });
 }
