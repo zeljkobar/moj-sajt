@@ -413,6 +413,16 @@ app.get('/shared/pdv-pregled.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/shared/pdv-pregled.html');
 });
 
+// Zaštićena ruta za mobing
+app.get('/mobing.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/mobing.html');
+});
+
+// Zaštićena ruta za sedmični odmor
+app.get('/sedmicni-odmor.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/sedmicni-odmor.html');
+});
+
 // Ruta za pretplatu bez .html ekstenzije (za redirecte iz subscription middleware)
 // Ruta za pretplatu koja automatski redirect-uje na osnovu korisničke role
 app.get('/pretplata', authMiddleware, async (req, res) => {
