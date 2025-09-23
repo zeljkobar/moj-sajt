@@ -34,7 +34,7 @@ class Navigation {
       ? '/mojradnik/dashboard.html'
       : '/shared/dashboard.html';
     const firmePath = isMojradnik
-      ? '/mojradnik/dashboard.html'
+      ? 'javascript:void(0)' // JavaScript funkcija za mojradnik
       : '/shared/firme.html';
     const pdvPath = isMojradnik
       ? '/mojradnik/dashboard.html'
@@ -76,10 +76,10 @@ class Navigation {
                 </a>
               </li>
 
-              <!-- Firme -->
+              <!-- Firme/Firma -->
               <li class="nav-item">
-                <a class="nav-link" href="${firmePath}">
-                  <i class="fas fa-building me-1"></i>Firme
+                <a class="nav-link" href="${firmePath}" ${isMojradnik ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''}>
+                  <i class="fas fa-building me-1"></i>${isMojradnik ? 'Firma' : 'Firme'}
                 </a>
               </li>
 
@@ -897,6 +897,33 @@ window.showAllNavbarResults = function (query) {
     window.location.href = `/shared/firme.html?search=${encodeURIComponent(
       query
     )}`;
+  }
+};
+
+// Globalna funkcija za navigaciju na firma detalji (mojradnik)
+window.navigateToFirmaDetalji = async function () {
+  try {
+    // Pozovi API da dobije trenutnu firmu korisnika
+    const response = await fetch('/api/firme', {
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.firme && data.firme.length > 0) {
+        const currentFirma = data.firme[0]; // Prva firma je trenutna
+        window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}`;
+      } else {
+        console.error('Nema firme za korisnika');
+        alert('Nema registrovane firme. Registruj firmu prvo.');
+      }
+    } else {
+      console.error('Greška pri učitavanju firme');
+      alert('Greška pri učitavanju podataka o firmi.');
+    }
+  } catch (error) {
+    console.error('Greška:', error);
+    alert('Greška pri komunikaciji sa serverom.');
   }
 };
 
