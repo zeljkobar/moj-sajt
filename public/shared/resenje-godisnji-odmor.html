@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rešenje o korišćenju godišnjeg odmora - Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <script src="/shared/components/export-utils.js"></script>
+    <style>
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        .navbar {
+          display: none !important;
+        }
+        body {
+          background: white !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .container {
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .document-container {
+          padding: 20mm 25mm !important;
+          margin: 0 !important;
+          max-width: none !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        @page {
+          margin: 0;
+          size: A4;
+        }
+        .content {
+          text-align: justify !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+        }
+        .header-info,
+        .title,
+        .reason-section {
+          page-break-inside: avoid !important;
+        }
+      }
+
+      .document-container {
+        background: white;
+        min-height: 297mm;
+        font-family: 'Times New Roman', serif;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #000;
+        padding: 20mm 25mm;
+        margin: 0 auto;
+        max-width: 210mm;
+        box-sizing: border-box;
+      }
+
+      .header-info {
+        text-align: left;
+        margin-bottom: 30px;
+        line-height: 1.4;
+      }
+
+      .title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        margin: 35px 0 25px 0;
+        text-transform: uppercase;
+        line-height: 1.4;
+      }
+
+      .content {
+        text-align: justify;
+        margin-bottom: 25px;
+        word-wrap: break-word;
+        hyphens: auto;
+      }
+
+      .content p {
+        margin-bottom: 18px;
+      }
+
+      .reason-section {
+        margin: 25px 0;
+        page-break-inside: avoid;
+      }
+
+      .reason-section h4 {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 16px;
+      }
+
+      .signature-section {
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        page-break-inside: avoid;
+      }
+
+      .signature-left {
+        text-align: left;
+        flex: 1;
+      }
+
+      .signature-right {
+        text-align: right;
+        flex: 1;
+      }
+
+      .signature-line {
+        border-bottom: 1px solid #000;
+        width: 180px;
+        margin-top: 15px;
+        display: inline-block;
+      }
+
+      .date-line {
+        font-weight: bold;
+        margin: 0 5px;
+      }
+
+      .underlined-text {
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation (hidden in print) -->
+    <nav class="navbar navbar-expand-lg navbar-dark no-print">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img
+            src="./images/summasummarum_logo.svg"
+            alt="Logo"
+            width="40"
+            height="40"
+          />
+          Summa Summarum
+        </a>
+        <div class="navbar-nav ms-auto">
+          <div class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="fas fa-user-circle me-1"></i>
+              <span id="currentUser">admin</span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="/edit-profil.html">Profil</a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" href="#" onclick="logout()">Odjava</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Toolbar (hidden in print) -->
+    <div class="container-fluid mt-3 no-print">
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>
+              <i class="fas fa-file-alt me-2"></i>Rešenje o korišćenju godišnjeg
+              odmora
+            </h4>
+            <div>
+              <button
+                class="btn btn-outline-secondary me-2"
+                onclick="window.close()"
+              >
+                <i class="fas fa-times me-1"></i>Zatvori
+              </button>
+              <button class="btn btn-primary me-2" onclick="window.print()">
+                <i class="fas fa-print me-1"></i>Štampaj
+              </button>
+              <button
+                class="btn btn-success"
+                onclick="exportToPDF('resenje-godisnji-odmor')"
+              >
+                <i class="fas fa-file-pdf me-1"></i>Izvezi PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Content -->
+    <div class="container-fluid">
+      <div class="document-container">
+        <!-- Header -->
+        <div class="header-info">
+          <div>
+            <strong><span id="firmaNaziv">DOO "FIRMA"</span></strong>
+          </div>
+          <div>Broj: <span id="rešenjeBroj"></span></div>
+          <div>
+            <span id="firmaMesto">Bar</span>,
+            <span id="datumRešenja"></span> godine
+          </div>
+        </div>
+
+        <div style="margin: 40px 0">
+          <p>
+            Na osnovu člana 79, 81 i 85 Zakona o radu (Sl.list CG, br.74/19,
+            8/21), izvršni direktor
+            <strong><span id="firmaNazivPuni">D.O.O. „FIRMA" Bar</span></strong
+            >, donosi
+          </p>
+        </div>
+
+        <!-- Title -->
+        <div class="title">
+          RJEŠENJE<br />
+          - O korišćenju godišnjeg odmora-
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+          <p>
+            Zaposleni
+            <strong><span id="radnikImePrezime">Spalević Ljubo</span></strong
+            >, utvrđuje se pravo na godišnji odmor za
+            <span id="godinaOdmora">2025</span>. godinu, u trajanju od
+            <span id="ukupnoDanaText">24 radna dana</span>.<br />
+            Imenovani će pravo na godišnji odmor od stava 1 koristiti:
+          </p>
+
+          <div style="margin-left: 20px" id="odmorOptions">
+            <!-- Opcija A - ceo godišnji odmor odjednom -->
+            <p id="opcijaA" style="display: none">
+              u jednom dijelu i to od
+              <span class="date-line" id="datumOdText"></span> do
+              <span class="date-line" id="datumDoText"></span>, s tim da se
+              ima<br />
+              javiti na posao dana
+              <span class="date-line" id="datumPovratka"></span>.
+            </p>
+
+            <!-- Opcija B - deo godišnjeg odmora -->
+            <p id="opcijaB" style="display: none">
+              U dva dijela s tim što će:<br />
+              - prvi dio godišnjeg odmora u trajanju od
+              <span id="brojDanaOvajDeo"></span> dana koristiti od
+              <span class="date-line" id="datumOdText2"></span><br />
+              do <span class="date-line" id="datumDoText2"></span> s tim da se
+              ima javiti na posao dana
+              <span class="date-line" id="datumPovratka2"></span><br />
+              - drugi dio godišnjeg odmora u trajanju od
+              <span id="preostaliDani"></span> dana će biti korišćen naknadno<br />
+              u dogovoru sa poslodavcem.
+            </p>
+          </div>
+
+          <p>
+            Za vrijeme korišćenja godišnjeg odmora zaposlenom pripada naknada
+            zarade u visini 100% kao da je na radu, shodno odredbama OKU.
+          </p>
+        </div>
+
+        <!-- Reason Section -->
+        <div class="reason-section">
+          <h4>Obrazloženje</h4>
+          <p>
+            U zavisnosti od potrebe procesa i organizacije rada, a uz saglasnost
+            zaposlenog, odlučeno je da
+            <strong
+              ><span id="radnikImePrezimeObrazlozenje"
+                >Spalević Ljubo</span
+              ></strong
+            >
+            koristi godišnji odmor za
+            <span id="godinaOdmoraObrazlozenje">2025</span>.godinu, kao u
+            dispozitivu ovog rješenja.
+          </p>
+
+          <p>
+            Dužina godišnjeg odmora određena je shodno odredbama člana 81 Zakona
+            o radu (Sl.list CG, br.74/19, 8/21) i odredbama opšteg kolektivnog
+            ugovora.
+          </p>
+
+          <p>Shodno iznijetom, riješeno je kao u dispozitivu rješenja.</p>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+          <div class="signature-left">
+            <div>Dostavljeno:</div>
+            <div>- Zaposlenom <span class="signature-line"></span></div>
+            <div>- a/a</div>
+          </div>
+          <div class="signature-right">
+            <div><strong>IZVRŠNI DIREKTOR</strong></div>
+            <div class="signature-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script src="/shared/script.js"></script>
+
+    <script>
+      let odmorData = null;
+
+      // Load data when page loads
+      document.addEventListener('DOMContentLoaded', async function () {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const odmorId = urlParams.get('odmorId');
+
+          if (!odmorId) {
+            alert('ID odmora nije specificiran');
+            return;
+          }
+
+          // Fetch odmor data
+          const response = await fetch(`/api/odmori/${odmorId}`);
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju podataka o odmoru');
+          }
+
+          odmorData = await response.json();
+
+          // Fill in the document
+          fillDocument();
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri učitavanju podataka: ' + error.message);
+        }
+      });
+
+      function fillDocument() {
+        if (!odmorData) return;
+
+        const today = new Date();
+        const currentYear = today.getFullYear();
+
+        // Generate document number (can be customized)
+        const docNumber = `GO-${odmorData.id}/${currentYear}`;
+
+        // Calculate dates
+        const datumOd = new Date(odmorData.datum_od);
+        const datumDo = new Date(odmorData.datum_do);
+        const datumPovratka = new Date(datumDo);
+        datumPovratka.setDate(datumPovratka.getDate() + 1);
+
+        // Skip weekends for return date (but consider if employee works on Saturday)
+        const radiSubotom = odmorData.subota;
+        while (
+          datumPovratka.getDay() === 0 || // Always skip Sunday
+          (!radiSubotom && datumPovratka.getDay() === 6) // Skip Saturday only if employee doesn't work on Saturday
+        ) {
+          datumPovratka.setDate(datumPovratka.getDate() + 1);
+        }
+
+        // Fill in basic info
+        document.getElementById('firmaNaziv').textContent =
+          odmorData.firma_naziv || 'DOO "FIRMA"';
+        document.getElementById('firmaNazivPuni').textContent =
+          odmorData.firma_naziv || 'D.O.O. „FIRMA"';
+        document.getElementById('firmaMesto').textContent =
+          odmorData.firma_grad || 'Bar';
+        document.getElementById('rešenjeBroj').textContent = docNumber;
+        document.getElementById('datumRešenja').textContent =
+          datumOd.toLocaleDateString('sr-RS');
+
+        // Fill in employee info
+        const imePrezime = `${odmorData.ime} ${odmorData.prezime}`;
+        document.getElementById('radnikImePrezime').textContent = imePrezime;
+        document.getElementById('radnikImePrezimeObrazlozenje').textContent =
+          imePrezime;
+
+        // Fill in year
+        document.getElementById('godinaOdmora').textContent = currentYear;
+        document.getElementById('godinaOdmoraObrazlozenje').textContent =
+          currentYear;
+
+        // Fill in dates
+        document.getElementById('datumOdText').textContent =
+          datumOd.toLocaleDateString('sr-RS');
+        document.getElementById('datumDoText').textContent =
+          datumDo.toLocaleDateString('sr-RS');
+        document.getElementById('datumPovratka').textContent =
+          datumPovratka.toLocaleDateString('sr-RS');
+
+        // Fill in total days - use ukupno_dana from database or calculate based on subota
+        const ukupnoDanaZaGodinu =
+          odmorData.ukupno_dana || (odmorData.subota ? 24 : 20);
+        document.getElementById(
+          'ukupnoDanaText'
+        ).textContent = `${ukupnoDanaZaGodinu} radna dana`;
+
+        // Determine which option to show based on total used days vs total days
+        const ukupnoIskorisceno = odmorData.ukupno_iskorisceno || 0;
+
+        if (ukupnoIskorisceno >= ukupnoDanaZaGodinu) {
+          // Show option A - using entire annual leave at once (all days used up)
+          document.getElementById('opcijaA').style.display = 'block';
+          document.getElementById('opcijaB').style.display = 'none';
+        } else {
+          // Show option B - using partial annual leave
+          document.getElementById('opcijaA').style.display = 'none';
+          document.getElementById('opcijaB').style.display = 'block';
+
+          // Fill in option B specific data
+          const brojDanaZahteva = parseInt(odmorData.broj_dana);
+          document.getElementById('brojDanaOvajDeo').textContent =
+            brojDanaZahteva;
+          document.getElementById('preostaliDani').textContent =
+            ukupnoDanaZaGodinu - ukupnoIskorisceno;
+
+          // Copy dates for option B
+          document.getElementById('datumOdText2').textContent =
+            datumOd.toLocaleDateString('sr-RS');
+          document.getElementById('datumDoText2').textContent =
+            datumDo.toLocaleDateString('sr-RS');
+          document.getElementById('datumPovratka2').textContent =
+            datumPovratka.toLocaleDateString('sr-RS');
+        }
+
+        // Update page title
+        document.title = `Rešenje o godišnjem odmoru - ${imePrezime} - ${docNumber}`;
+      }
+    </script>
+  </body>
+</html>

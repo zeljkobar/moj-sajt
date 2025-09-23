@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'G-DGZCVVHKXW');
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registracija | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="../shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="../shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="../shared/site.webmanifest" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../shared/style.css" />
+    <style>
+      /* Registration page specific styles */
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .registration-container {
+        padding: 4rem 0 2rem 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .registration-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .registration-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .registration-body {
+        padding: 2rem;
+      }
+
+      .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+
+      .btn-register {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+      }
+
+      .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(67, 233, 123, 0.4);
+        color: white;
+      }
+
+      .btn-back {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+        color: white;
+      }
+
+      .form-control.is-invalid {
+        border-color: #dc3545;
+      }
+
+      .registration-logo {
+        max-height: 60px;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="registration-container">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 col-xl-6">
+            <div class="registration-card">
+              <!-- Header -->
+              <div class="registration-header">
+                <img
+                  src="../shared/images/summasummarum_logo.svg"
+                  alt="Summa Summarum logo"
+                  class="registration-logo"
+                />
+                <h2 class="mb-2">
+                  <i class="fas fa-user-plus me-2"></i>Registracija
+                </h2>
+                <p class="mb-0">Kreirajte svoj nalog za pristup platformi</p>
+              </div>
+
+              <!-- Body -->
+              <div class="registration-body">
+                <!-- Success message -->
+                <div class="alert alert-success d-none" id="successMessage">
+                  <i class="fas fa-check-circle me-2"></i>
+                  <span id="successText">Uspešno ste se registrovali!</span>
+                </div>
+
+                <!-- Error message -->
+                <div class="alert alert-danger d-none" id="errorMessage">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <span id="errorText">Greška pri registraciji!</span>
+                </div>
+
+                <form id="registrationForm">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="regUsername" class="form-label"
+                        >Korisničko ime *</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regUsername"
+                        name="username"
+                        required
+                        minlength="3"
+                        maxlength="20"
+                      />
+                      <div class="form-text">
+                        3-20 karaktera, samo slova, brojevi i _
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="regEmail" class="form-label"
+                        >Email adresa *</label
+                      >
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="regEmail"
+                        name="email"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="regPassword" class="form-label"
+                        >Lozinka *</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="regPassword"
+                        name="password"
+                        required
+                        minlength="6"
+                      />
+                      <div class="form-text">Minimum 6 karaktera</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="regPasswordConfirm" class="form-label"
+                        >Potvrdi lozinku *</label
+                      >
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="regPasswordConfirm"
+                        name="passwordConfirm"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="regPhone" class="form-label"
+                        >Broj telefona</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="regPhone"
+                        name="phone"
+                        placeholder="+382 67 123 456"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="regAddress" class="form-label">Adresa</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regAddress"
+                        name="address"
+                        placeholder="Ulica i broj"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Nova polja za ime, prezime i JMBG -->
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="regIme" class="form-label">Ime *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regIme"
+                        name="ime"
+                        required
+                        minlength="2"
+                        maxlength="50"
+                        placeholder="Unesite vaše ime"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="regPrezime" class="form-label"
+                        >Prezime *</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regPrezime"
+                        name="prezime"
+                        required
+                        minlength="2"
+                        maxlength="50"
+                        placeholder="Unesite vaše prezime"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Hidden field for user type - automatically set to agencija for summasummarum -->
+                  <input type="hidden" name="userType" value="agencija" />
+
+                  <div class="row">
+                    <div class="col-md-12 mb-3">
+                      <label for="regJmbg" class="form-label">JMBG *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="regJmbg"
+                        name="jmbg"
+                        required
+                        pattern="[0-9]{13}"
+                        maxlength="13"
+                        placeholder="Unesite JMBG (13 cifara)"
+                      />
+                      <div class="form-text">
+                        Potrebno za potpisivanje XML obrazaca (13 cifara)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-12 mb-4">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="termsCheck"
+                          required
+                        />
+                        <label class="form-check-label" for="termsCheck">
+                          Slažem se sa
+                          <a
+                            href="../shared/uslovi-koriscenja.html"
+                            target="_blank"
+                            class="text-primary"
+                            >uslovima korišćenja</a
+                          >
+                          i
+                          <a
+                            href="../shared/politika-privatnosti.html"
+                            target="_blank"
+                            class="text-primary"
+                            >politikom privatnosti</a
+                          >
+                          *
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <a href="/" class="btn btn-back btn-lg w-100">
+                        <i class="fas fa-arrow-left me-2"></i>Nazad
+                      </a>
+                    </div>
+                    <div class="col-md-6">
+                      <button
+                        type="submit"
+                        class="btn btn-register btn-lg w-100"
+                      >
+                        <i class="fas fa-user-plus me-2"></i>Registruj se
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Registracija forma
+        const registrationForm = document.getElementById('registrationForm');
+        if (registrationForm) {
+          registrationForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(registrationForm);
+            const data = {
+              username: formData.get('username'),
+              email: formData.get('email'),
+              password: formData.get('password'),
+              passwordConfirm: formData.get('passwordConfirm'),
+              phone: formData.get('phone'),
+              address: formData.get('address'),
+              ime: formData.get('ime'),
+              prezime: formData.get('prezime'),
+              jmbg: formData.get('jmbg'),
+              userType: formData.get('userType'),
+            };
+
+            // Client-side validacija
+            if (data.password !== data.passwordConfirm) {
+              showRegistrationError('Lozinke se ne poklapaju!');
+              return;
+            }
+
+            if (data.password.length < 6) {
+              showRegistrationError('Lozinka mora imati najmanje 6 karaktera!');
+              return;
+            }
+
+            // Username validacija
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+            if (!usernameRegex.test(data.username)) {
+              showRegistrationError(
+                'Korisničko ime može sadržavati samo slova, brojeve i _ (3-20 karaktera)!'
+              );
+              return;
+            }
+
+            // JMBG validacija
+            if (
+              !data.jmbg ||
+              data.jmbg.length !== 13 ||
+              !/^[0-9]{13}$/.test(data.jmbg)
+            ) {
+              showRegistrationError('JMBG mora imati tačno 13 cifara!');
+              return;
+            }
+
+            // Ime/prezime validacija
+            if (!data.ime || data.ime.trim().length < 2) {
+              showRegistrationError('Ime mora imati najmanje 2 karaktera!');
+              return;
+            }
+
+            if (!data.prezime || data.prezime.trim().length < 2) {
+              showRegistrationError('Prezime mora imati najmanje 2 karaktera!');
+              return;
+            }
+
+            try {
+              const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                credentials: 'include',
+              });
+
+              const result = await response.json();
+
+              if (response.ok) {
+                showRegistrationSuccess(
+                  'Uspešno ste se registrovali! Možete se prijaviti na početnoj strani.'
+                );
+                registrationForm.reset();
+                // Redirect to home page after 3 seconds
+                setTimeout(() => {
+                  window.location.href = '/';
+                }, 3000);
+              } else {
+                showRegistrationError(
+                  result.message || 'Greška pri registraciji!'
+                );
+              }
+            } catch (error) {
+              console.error('Registration error:', error);
+              showRegistrationError('Greška pri komunikaciji sa serverom!');
+            }
+          });
+
+          // Real-time password validation
+          const passwordInput = document.getElementById('regPassword');
+          const passwordConfirmInput =
+            document.getElementById('regPasswordConfirm');
+
+          if (passwordConfirmInput) {
+            passwordConfirmInput.addEventListener('input', function () {
+              const password = passwordInput.value;
+              const passwordConfirm = passwordConfirmInput.value;
+
+              if (passwordConfirm && password !== passwordConfirm) {
+                passwordConfirmInput.setCustomValidity(
+                  'Lozinke se ne poklapaju'
+                );
+                passwordConfirmInput.classList.add('is-invalid');
+              } else {
+                passwordConfirmInput.setCustomValidity('');
+                passwordConfirmInput.classList.remove('is-invalid');
+              }
+            });
+          }
+        }
+
+        // Helper funkcije za registraciju
+        function showRegistrationSuccess(message) {
+          const successDiv = document.getElementById('successMessage');
+          const successText = document.getElementById('successText');
+          const errorDiv = document.getElementById('errorMessage');
+
+          if (errorDiv) errorDiv.classList.add('d-none');
+          if (successText) successText.textContent = message;
+          if (successDiv) {
+            successDiv.classList.remove('d-none');
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+
+        function showRegistrationError(message) {
+          const errorDiv = document.getElementById('errorMessage');
+          const errorText = document.getElementById('errorText');
+          const successDiv = document.getElementById('successMessage');
+
+          if (successDiv) successDiv.classList.add('d-none');
+          if (errorText) errorText.textContent = message;
+          if (errorDiv) {
+            errorDiv.classList.remove('d-none');
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

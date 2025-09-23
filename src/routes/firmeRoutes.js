@@ -1,39 +1,49 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const firmeController = require("../controllers/firmeController");
-const { authMiddleware } = require("../middleware/auth");
-const { validateFirma, validateId } = require("../middleware/validation");
-const rateLimiter = require("../middleware/rateLimiting");
+const firmeController = require('../controllers/firmeController');
+const { authMiddleware } = require('../middleware/auth');
+const { subscriptionMiddleware } = require('../middleware/subscription');
+const { validateFirma, validateId } = require('../middleware/validation');
+const rateLimiter = require('../middleware/rateLimiting');
 
 // GET rute
-router.get("/", authMiddleware, rateLimiter.api, firmeController.getAllFirme);
 router.get(
-  "/search",
+  '/',
   authMiddleware,
+  subscriptionMiddleware,
+  rateLimiter.api,
+  firmeController.getAllFirme
+);
+router.get(
+  '/search',
+  authMiddleware,
+  subscriptionMiddleware,
   rateLimiter.api,
   firmeController.searchFirme
 );
 router.get(
-  "/aktivne",
+  '/aktivne',
   authMiddleware,
+  subscriptionMiddleware,
   rateLimiter.api,
   firmeController.getAktivneFirme
 );
 router.get(
-  "/nula",
+  '/nula',
   authMiddleware,
+  subscriptionMiddleware,
   rateLimiter.api,
   firmeController.getFirmeNaNuli
 );
 router.get(
-  "/my-company",
+  '/my-company',
   authMiddleware,
   rateLimiter.api,
   firmeController.getMyCompany
 );
-router.get("/id/:id", validateId, firmeController.getFirmaById);
+router.get('/id/:id', validateId, firmeController.getFirmaById);
 router.get(
-  "/:pib",
+  '/:pib',
   authMiddleware,
   rateLimiter.api,
   firmeController.getFirmaByPib
@@ -41,7 +51,7 @@ router.get(
 
 // POST rute
 router.post(
-  "/",
+  '/',
   authMiddleware,
   rateLimiter.api,
   validateFirma,
@@ -50,7 +60,7 @@ router.post(
 
 // PUT rute
 router.put(
-  "/:pib",
+  '/:pib',
   authMiddleware,
   rateLimiter.api,
   validateFirma,
@@ -59,7 +69,7 @@ router.put(
 
 // DELETE rute
 router.delete(
-  "/:pib",
+  '/:pib',
   authMiddleware,
   rateLimiter.api,
   firmeController.deleteFirma
@@ -67,7 +77,7 @@ router.delete(
 
 // Fallback za hosting provajdere koji ne podržavaju DELETE
 router.post(
-  "/:pib/delete",
+  '/:pib/delete',
   authMiddleware,
   rateLimiter.api,
   firmeController.deleteFirma
@@ -75,7 +85,7 @@ router.post(
 
 // Fallback za hosting provajdere koji ne podržavaju PUT
 router.post(
-  "/:pib/edit",
+  '/:pib/edit',
   authMiddleware,
   rateLimiter.api,
   validateFirma,

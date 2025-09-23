@@ -23,6 +23,8 @@ router.post(
 );
 router.post('/logout', authController.logout);
 router.post('/register', validateRegistration, authController.register);
+router.post('/registracija-agencije', authController.registerAgencija);
+router.post('/registracija-kompanije', authController.registerKompanija);
 
 // Password reset routes
 router.post('/request-password-reset', authController.requestPasswordReset);

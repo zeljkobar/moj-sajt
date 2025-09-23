@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-DGZCVVHKXW");
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PDV Pregled - Summa Summarum" />
+    <meta name="author" content="Summa Summarum" />
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="/shared/components/theme-preloader.js"></script>
+
+    <title>PDV Pregled - Summa Summarum</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
+
+    <div class="container mt-4">
+      <div class="page-header">
+        <h1><i class="fas fa-file-invoice"></i> PDV Pregled</h1>
+        <p>Upravljanje PDV firmama i prijave</p>
+      </div>
+
+      <!-- PDV Status Info -->
+      <div class="pdv-status-card" id="pdvStatusCard">
+        <div class="status-info">
+          <h3 id="mjesecNaziv">Loading...</h3>
+          <div class="rok-info">
+            <span id="rokInfo" class="rok-text">Loading...</span>
+          </div>
+        </div>
+        <div class="status-actions">
+          <button class="btn btn-secondary" onclick="showHistory()">
+            <i class="fas fa-history"></i> Istorija
+          </button>
+          <button class="btn btn-primary" onclick="createNewMonth()">
+            <i class="fas fa-plus"></i> Novi mjesec
+          </button>
+        </div>
+      </div>
+
+      <!-- Aktivne PDV Firme -->
+      <div class="pdv-content">
+        <div class="section-header">
+          <h2><i class="fas fa-building"></i> Aktivne PDV Firme</h2>
+          <div class="filter-controls">
+            <select id="statusFilter" onchange="filterFirme()">
+              <option value="all">Sve aktivne</option>
+              <option value="predano">Predano</option>
+              <option value="kasni">Kasni</option>
+              <option value="uskoro">Uskoro</option>
+              <option value="na_vremenu">Na vrijeme</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="pdvFirmeContainer" class="pdv-firme-container">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i> Učitavam PDV firme...
+          </div>
+        </div>
+
+        <!-- Statistike za aktivne firme -->
+        <div class="pdv-stats" id="pdvStats" style="display: none">
+          <h4><i class="fas fa-chart-bar"></i> Statistike - Aktivne firme</h4>
+          <div class="stats-grid" id="statsGrid">
+            <!-- Dinamički sadržaj -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Neaktivne Firme (na 0) -->
+      <div class="pdv-content-inactive">
+        <div class="section-header">
+          <h2><i class="fas fa-pause-circle"></i> Firme na 0 (paušal)</h2>
+          <div class="filter-controls">
+            <select id="statusFilterInactive" onchange="filterInactiveFirme()">
+              <option value="all">Sve na 0</option>
+              <option value="predano">Predano</option>
+              <option value="kasni">Kasni</option>
+              <option value="uskoro">Uskoro</option>
+              <option value="na_vremenu">Na vrijeme</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="neaktivneFirmeContainer" class="pdv-firme-container">
+          <!-- Dinamički sadržaj za neaktivne firme -->
+        </div>
+
+        <!-- Statistike za firme na 0 -->
+        <div class="pdv-stats" id="inactiveStats" style="display: none">
+          <h4><i class="fas fa-chart-bar"></i> Statistike - Firme na 0</h4>
+          <div class="stats-grid" id="inactiveStatsGrid">
+            <!-- Dinamički sadržaj -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za historiju -->
+    <div id="historyModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-history"></i> Istorija PDV prijava</h3>
+          <span class="close" onclick="closeHistoryModal()">&times;</span>
+        </div>
+        <div class="modal-body" id="historyContent">
+          <!-- Dinamički sadržaj -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za novi mjesec -->
+    <div id="newMonthModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-plus"></i> Kreiraj novi mjesec</h3>
+          <span class="close" onclick="closeNewMonthModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="newMonthForm" onsubmit="submitNewMonth(event)">
+            <div class="form-group">
+              <label for="newMjesec">Odaberi mjesec:</label>
+              <input type="month" id="newMjesec" name="mjesec" required />
+            </div>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeNewMonthModal()"
+              >
+                Odustani
+              </button>
+              <button type="submit" class="btn btn-primary">Kreiraj</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="/shared/notifications.js"></script>
+    <script src="/shared/script.js"></script>
+    <script>
+      // PDV Pregled funkcionalnost
+      let allFirme = [];
+      let aktivneFirme = [];
+      let neaktivneFirme = [];
+      let currentFilter = "all";
+      let currentInactiveFilter = "all";
+
+      // Učitaj PDV pregled podatke
+      async function loadPDVPregled() {
+        // Show loading spinner
+        const container = document.getElementById("pdvFirmeContainer");
+        container.innerHTML = `
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i> Učitavam PDV firme...
+          </div>
+        `;
+
+        try {
+          const response = await fetch("/api/pdv");
+          const data = await response.json();
+
+          if (data.success) {
+            allFirme = data.firme;
+
+            // Podijeli firme na aktivne i neaktivne
+            aktivneFirme = allFirme.filter((firma) => !firma.neaktivna);
+            neaktivneFirme = allFirme.filter((firma) => firma.neaktivna);
+
+            updateStatusCard(data.rok_info);
+            renderFirme(aktivneFirme);
+            renderNeaktivneFirme();
+            loadStatistics();
+            loadInactiveStatistics();
+          } else {
+            showNotification("Greška pri učitavanju PDV podataka", "error");
+            container.innerHTML =
+              '<div class="no-data">Greška pri učitavanju podataka</div>';
+          }
+        } catch (error) {
+          showNotification("Greška pri povezivanju sa serverom", "error");
+          container.innerHTML =
+            '<div class="no-data">Greška pri povezivanju sa serverom</div>';
+        }
+      }
+
+      // Ažuriraj status karticu
+      function updateStatusCard(rokInfo) {
+        document.getElementById(
+          "mjesecNaziv"
+        ).textContent = `PDV Prijave - ${formatMonth(rokInfo.trenutni_mjesec)}`;
+
+        const rokElement = document.getElementById("rokInfo");
+        const dana = rokInfo.dana_do_roka;
+
+        if (dana < 0) {
+          rokElement.innerHTML = `<span class="rok-kasni"><i class="fas fa-exclamation-triangle"></i> Rok je prošao prije ${Math.abs(
+            dana
+          )} dana!</span>`;
+        } else if (dana === 0) {
+          rokElement.innerHTML = `<span class="rok-danas"><i class="fas fa-clock"></i> Rok je DANAS!</span>`;
+        } else if (dana <= 3) {
+          rokElement.innerHTML = `<span class="rok-uskoro"><i class="fas fa-hourglass-half"></i> Ostalo ${dana} dana do roka</span>`;
+        } else {
+          rokElement.innerHTML = `<span class="rok-na-vremenu"><i class="fas fa-calendar-check"></i> Ostalo ${dana} dana do roka</span>`;
+        }
+      }
+
+      // Renderuj firme
+      function renderFirme(firme) {
+        const container = document.getElementById("pdvFirmeContainer");
+
+        if (firme.length === 0) {
+          container.innerHTML = '<div class="no-data">Nema PDV firmi</div>';
+          return;
+        }
+
+        const filteredFirme =
+          currentFilter === "all"
+            ? firme
+            : firme.filter((f) => f.status === currentFilter);
+
+        if (filteredFirme.length === 0) {
+          container.innerHTML =
+            '<div class="no-data">Nema firmi za odabrani filter</div>';
+          return;
+        }
+
+        const html = filteredFirme
+          .map(
+            (firma) => `
+                <div class="pdv-firma-card ${firma.status}" data-firma-id="${
+              firma.id
+            }">
+                    <div class="firma-header">
+                        <div class="firma-info">
+                            <h4>${firma.naziv}</h4>
+                            <div class="firma-details">
+                                <span class="pdv-broj">PDV: ${
+                                  firma.pdvBroj
+                                }</span>
+                                <span class="pib">PIB: ${firma.pib}</span>
+                            </div>
+                        </div>
+                        <div class="firma-status">
+                            ${getStatusBadge(firma)}
+                        </div>
+                    </div>
+                    
+                    <div class="firma-actions">
+                        ${
+                          firma.predano
+                            ? `
+                            <div class="predano-info">
+                                <i class="fas fa-check-circle"></i>
+                                Predano: ${formatDate(firma.datum_predanja)}
+                                ${
+                                  firma.napomena
+                                    ? `<br><small>${firma.napomena}</small>`
+                                    : ""
+                                }
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="unmarkSubmitted(${
+                              firma.id
+                            })">
+                                <i class="fas fa-undo"></i> Ukloni
+                            </button>
+                        `
+                            : `
+                            <button class="btn btn-success" onclick="markAsSubmitted(${firma.id})">
+                                <i class="fas fa-check"></i> Označi kao predano
+                            </button>
+                        `
+                        }
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        container.innerHTML = html;
+      }
+
+      // Dobij status badge
+      function getStatusBadge(firma) {
+        switch (firma.status) {
+          case "predano":
+            return '<span class="status-badge predano"><i class="fas fa-check"></i> Predano</span>';
+          case "kasni":
+            return '<span class="status-badge kasni"><i class="fas fa-exclamation-triangle"></i> Kasni</span>';
+          case "uskoro":
+            return '<span class="status-badge uskoro"><i class="fas fa-hourglass-half"></i> Uskoro</span>';
+          case "na_vremenu":
+            return '<span class="status-badge na-vremenu"><i class="fas fa-clock"></i> Na vrijeme</span>';
+          default:
+            return "";
+        }
+      }
+
+      // Optimizovana funkcija za ažuriranje status firme bez API poziva
+      function updateFirmaStatus(firmaId, predano) {
+        let firmaUpdated = false;
+
+        // Pronađi firmu u aktivnim firmama
+        const aktivnaFirma = aktivneFirme.find((f) => f.id == firmaId);
+        if (aktivnaFirma) {
+          // Ažuriraj lokalne podatke za aktivnu firmu
+          aktivnaFirma.predano = predano ? 1 : 0;
+          aktivnaFirma.status = predano ? "predano" : "nepredano";
+          if (predano) {
+            aktivnaFirma.datum_predanja = new Date().toISOString();
+          } else {
+            aktivnaFirma.datum_predanja = null;
+          }
+
+          // Ponovo renduj aktivne firme sa ažuriranim podacima
+          renderFirme(aktivneFirme);
+
+          // Ažuriraj statistike za aktivne
+          loadStatistics();
+          firmaUpdated = true;
+        }
+
+        // Pronađi firmu u neaktivnim firmama
+        const neaktivnaFirma = neaktivneFirme.find((f) => f.id == firmaId);
+        if (neaktivnaFirma) {
+          // Ažuriraj lokalne podatke za neaktivnu firmu
+          neaktivnaFirma.predano = predano ? 1 : 0;
+          neaktivnaFirma.status = predano ? "predano" : "nepredano";
+          if (predano) {
+            neaktivnaFirma.datum_predanja = new Date().toISOString();
+          } else {
+            neaktivnaFirma.datum_predanja = null;
+          }
+
+          // Ponovo renduj neaktivne firme sa ažuriranim podacima
+          renderNeaktivneFirme();
+
+          // Ažuriraj statistike za neaktivne
+          loadInactiveStatistics();
+          firmaUpdated = true;
+        }
+      }
+
+      // Označi kao predano
+      async function markAsSubmitted(firmaId) {
+        const napomena = prompt("Napomena (opcionalno):");
+
+        // Disable button to prevent double clicks
+        const button = document.querySelector(
+          `[onclick="markAsSubmitted(${firmaId})"]`
+        );
+        if (button) {
+          button.disabled = true;
+          button.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Označavam...';
+        }
+
+        try {
+          const response = await fetch(`/api/pdv/${firmaId}/submit`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ napomena }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Prikaži osnovnu poruku
+            showNotification("PDV prijava je označena kao predana", "success");
+
+            // Prikaži dodatnu poruku ako su sve prijave predane
+            if (data.allSubmitted && data.autoCreatedNextMonth) {
+              setTimeout(() => {
+                showNotification(
+                  "🎉 Sve PDV prijave su predane! Automatski je kreiran novi mjesec.",
+                  "success"
+                );
+              }, 2000);
+            } else if (data.allSubmitted) {
+              setTimeout(() => {
+                showNotification(
+                  "🎉 Sve PDV prijave su predane za ovaj mjesec!",
+                  "success"
+                );
+              }, 2000);
+            }
+
+            // Koristi optimizovanu funkciju umjesto reload-a
+            updateFirmaStatus(firmaId, true);
+          } else {
+            showNotification(data.message || "Greška pri označavanju", "error");
+          }
+        } catch (error) {
+          showNotification("Greška pri povezivanju sa serverom", "error");
+        } finally {
+          // Re-enable button
+          if (button) {
+            button.disabled = false;
+            button.innerHTML =
+              '<i class="fas fa-check"></i> Označi kao predano';
+          }
+        }
+      }
+
+      // Ukloni oznaku predano
+      async function unmarkSubmitted(firmaId) {
+        if (
+          !confirm("Da li ste sigurni da želite da uklonite oznaku predano?")
+        ) {
+          return;
+        }
+
+        // Disable button to prevent double clicks
+        const button = document.querySelector(
+          `[onclick="unmarkSubmitted(${firmaId})"]`
+        );
+        if (button) {
+          button.disabled = true;
+          button.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Uklanjam...';
+        }
+
+        try {
+          const response = await fetch(`/api/pdv/${firmaId}/unsubmit`, {
+            method: "POST",
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            showNotification("Oznaka predano je uklonjena", "success");
+            // Koristi optimizovanu funkciju umjesto reload-a
+            updateFirmaStatus(firmaId, false);
+          } else {
+            showNotification(
+              data.message || "Greška pri uklanjanju oznake",
+              "error"
+            );
+          }
+        } catch (error) {
+          showNotification("Greška pri povezivanju sa serverom", "error");
+        } finally {
+          // Re-enable button
+          if (button) {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-undo"></i> Ukloni';
+          }
+        }
+      }
+
+      // Filtriraj firme
+      function filterFirme() {
+        currentFilter = document.getElementById("statusFilter").value;
+        renderFirme(aktivneFirme);
+      }
+
+      // Filtriraj neaktivne firme
+      function filterInactiveFirme() {
+        currentInactiveFilter = document.getElementById(
+          "statusFilterInactive"
+        ).value;
+        renderNeaktivneFirme();
+      }
+
+      // Renderuj neaktivne firme
+      function renderNeaktivneFirme() {
+        const container = document.getElementById("neaktivneFirmeContainer");
+
+        if (neaktivneFirme.length === 0) {
+          container.innerHTML = '<div class="no-data">Nema firmi na 0</div>';
+          return;
+        }
+
+        const filteredFirme =
+          currentInactiveFilter === "all"
+            ? neaktivneFirme
+            : neaktivneFirme.filter((f) => f.status === currentInactiveFilter);
+
+        if (filteredFirme.length === 0) {
+          container.innerHTML =
+            '<div class="no-data">Nema firmi za odabrani filter</div>';
+          return;
+        }
+
+        const html = filteredFirme
+          .map(
+            (firma) => `
+                <div class="pdv-firma-card ${firma.status}" data-firma-id="${
+              firma.id
+            }">
+                    <div class="firma-header">
+                        <div class="firma-info">
+                            <h4>${firma.naziv}</h4>
+                            <div class="firma-details">
+                                <span class="pdv-broj">PDV: ${
+                                  firma.pdvBroj
+                                }</span>
+                                <span class="pib">PIB: ${firma.pib}</span>
+                            </div>
+                        </div>
+                        <div class="firma-status">
+                            ${getStatusBadge(firma)}
+                        </div>
+                    </div>
+                    
+                    <div class="firma-actions">
+                        ${
+                          firma.predano
+                            ? `
+                            <div class="predano-info">
+                                <i class="fas fa-check-circle"></i>
+                                Predano: ${formatDate(firma.datum_predanja)}
+                                ${
+                                  firma.napomena
+                                    ? `<br><small>${firma.napomena}</small>`
+                                    : ""
+                                }
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="unmarkSubmitted(${
+                              firma.id
+                            })">
+                                <i class="fas fa-undo"></i> Ukloni
+                            </button>
+                        `
+                            : `
+                            <button class="btn btn-success" onclick="markAsSubmitted(${firma.id})">
+                                <i class="fas fa-check"></i> Označi kao predano
+                            </button>
+                        `
+                        }
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        container.innerHTML = html;
+      }
+
+      // Učitaj statistike za aktivne firme (lokalno)
+      function loadStatistics() {
+        // Računaj statistike lokalno za aktivne firme (isto kao za neaktivne)
+        const stats = {
+          ukupno_pdv_firmi: aktivneFirme.length,
+          predane_prijave: aktivneFirme.filter((f) => f.predano).length,
+          procenat_predanih:
+            aktivneFirme.length > 0
+              ? Math.round(
+                  (aktivneFirme.filter((f) => f.predano).length /
+                    aktivneFirme.length) *
+                    100
+                )
+              : 0,
+        };
+
+        renderStatistics(stats);
+      }
+
+      // Učitaj statistike za neaktivne firme
+      async function loadInactiveStatistics() {
+        // Računaj statistike lokalno za neaktivne firme
+        const stats = {
+          ukupno_pdv_firmi: neaktivneFirme.length,
+          predane_prijave: neaktivneFirme.filter((f) => f.predano).length,
+          procenat_predanih:
+            neaktivneFirme.length > 0
+              ? Math.round(
+                  (neaktivneFirme.filter((f) => f.predano).length /
+                    neaktivneFirme.length) *
+                    100
+                )
+              : 0,
+        };
+
+        renderInactiveStatistics(stats);
+      }
+
+      // Prikaži historiju
+      async function showHistory() {
+        try {
+          const response = await fetch("/api/pdv/istorija");
+          const data = await response.json();
+
+          if (data.success) {
+            renderHistory(data.istorija);
+            document.getElementById("historyModal").style.display = "block";
+          } else {
+            showNotification("Greška pri učitavanju historije", "error");
+          }
+        } catch (error) {
+          showNotification("Greška pri povezivanju sa serverom", "error");
+        }
+      }
+
+      // Renderuj historiju
+      function renderHistory(historija) {
+        const container = document.getElementById("historyContent");
+
+        if (historija.length === 0) {
+          container.innerHTML =
+            '<div class="no-data">Nema podataka o historiji</div>';
+          return;
+        }
+
+        const html = historija
+          .map(
+            (mjesec) => `
+                <div class="history-item">
+                    <div class="history-header">
+                        <h4>${formatMonth(mjesec.mjesec)}</h4>
+                        <div class="history-stats">
+                            <span class="stat predano">${
+                              mjesec.predano_firmi
+                            }/${mjesec.ukupno_firmi}</span>
+                        </div>
+                    </div>
+                    ${
+                      mjesec.nepredane_firme
+                        ? `
+                        <div class="nepredane">
+                            <strong>Nepredane:</strong> ${mjesec.nepredane_firme}
+                        </div>
+                    `
+                        : ""
+                    }
+                </div>
+            `
+          )
+          .join("");
+
+        container.innerHTML = html;
+      }
+
+      // Kreiraj novi mjesec
+      function createNewMonth() {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+        const currentDay = today.getDate();
+
+        // Determine target month for PDV based on business logic (same as backend)
+        let targetMonth = currentMonth;
+        let targetYear = currentYear;
+
+        if (currentDay <= 20) {
+          // We're in submission period for PREVIOUS month
+          targetMonth = currentMonth - 1;
+          if (targetMonth < 1) {
+            targetMonth = 12;
+            targetYear--;
+          }
+        }
+        // If day > 20, we show CURRENT month
+
+        // Create month string directly (avoid timezone issues)
+        const monthString = `${targetYear}-${targetMonth
+          .toString()
+          .padStart(2, "0")}`;
+
+        document.getElementById("newMjesec").value = monthString;
+        document.getElementById("newMonthModal").style.display = "block";
+      }
+
+      // Pošalji novi mjesec
+      async function submitNewMonth(event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const mjesec = formData.get("mjesec") + "-01"; // Dodaj dan
+
+        try {
+          const response = await fetch("/api/pdv/novi-mjesec", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ mjesec }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            showNotification(
+              `Kreiran novi mjesec za ${data.firme_count} firmi`,
+              "success"
+            );
+            closeNewMonthModal();
+            loadPDVPregled(); // Osvježi podatke
+          } else {
+            showNotification(
+              data.message || "Greška pri kreiranju novog mjeseca",
+              "error"
+            );
+          }
+        } catch (error) {
+          showNotification("Greška pri povezivanju sa serverom", "error");
+        }
+      }
+
+      // Učitaj statistike za aktivne firme (lokalno - duplikat uklonjen)
+      // Ova funkcija je već definisana gore, ovde je nepotrebna dupla definicija
+
+      function renderStatistics(stats) {
+        const container = document.getElementById("statsGrid");
+        const html = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.ukupno_pdv_firmi}</div>
+                    <div class="stat-label">Aktivne firme</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.predane_prijave}</div>
+                    <div class="stat-label">Predane prijave</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.procenat_predanih}%</div>
+                    <div class="stat-label">Uspješnost</div>
+                </div>
+            `;
+        container.innerHTML = html;
+        document.getElementById("pdvStats").style.display = "block";
+      }
+
+      // Renderuj statistike za neaktivne firme
+      function renderInactiveStatistics(stats) {
+        const container = document.getElementById("inactiveStatsGrid");
+        const html = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.ukupno_pdv_firmi}</div>
+                    <div class="stat-label">Firme na 0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.predane_prijave}</div>
+                    <div class="stat-label">Predane prijave</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.procenat_predanih}%</div>
+                    <div class="stat-label">Uspješnost</div>
+                </div>
+            `;
+        container.innerHTML = html;
+        document.getElementById("inactiveStats").style.display = "block";
+      }
+
+      // Helper funkcije
+      function formatDate(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("sr-Latn-RS", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function formatMonth(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("sr-Latn-RS", {
+          year: "numeric",
+          month: "long",
+        });
+      }
+
+      // Modal funkcije
+      function closeHistoryModal() {
+        document.getElementById("historyModal").style.display = "none";
+      }
+
+      function closeNewMonthModal() {
+        document.getElementById("newMonthModal").style.display = "none";
+      }
+
+      // Zatvori modal kada korisnik klikne van njega
+      window.onclick = function (event) {
+        const historyModal = document.getElementById("historyModal");
+        const newMonthModal = document.getElementById("newMonthModal");
+
+        if (event.target === historyModal) {
+          closeHistoryModal();
+        }
+        if (event.target === newMonthModal) {
+          closeNewMonthModal();
+        }
+      };
+
+      // Učitaj podatke kada se stranica učita
+      document.addEventListener("DOMContentLoaded", function () {
+        loadPDVPregled();
+      });
+    </script>
+
+    <style>
+      .pdv-status-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .status-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+      }
+
+      .rok-text {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .rok-kasni {
+        color: #ff6b6b;
+      }
+      .rok-danas {
+        color: #ffa726;
+      }
+      .rok-uskoro {
+        color: #ffeb3b;
+      }
+      .rok-na-vremenu {
+        color: #4caf50;
+      }
+
+      .status-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .filter-controls select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: white;
+      }
+
+      .pdv-firme-container {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      }
+
+      .pdv-content-inactive {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #eee;
+      }
+
+      .pdv-content-inactive .section-header h2 {
+        color: #666;
+        font-size: 1.3rem;
+      }
+
+      .pdv-firma-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid #ddd;
+      }
+
+      .pdv-firma-card.predano {
+        border-left-color: #4caf50;
+      }
+      .pdv-firma-card.kasni {
+        border-left-color: #f44336;
+      }
+      .pdv-firma-card.uskoro {
+        border-left-color: #ff9800;
+      }
+      .pdv-firma-card.na_vremenu {
+        border-left-color: #2196f3;
+      }
+      .pdv-firma-card.neaktivna {
+        border-left-color: #9e9e9e;
+        background: #fafafa;
+        opacity: 0.8;
+      }
+
+      .firma-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .firma-info h4 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+      }
+
+      .firma-details {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .firma-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .predano-info {
+        flex: 1;
+        color: #4caf50;
+        font-size: 0.9rem;
+      }
+
+      .neaktivna-info {
+        flex: 1;
+        color: #9e9e9e;
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .status-badge.predano {
+        background: #e8f5e8;
+        color: #4caf50;
+      }
+      .status-badge.kasni {
+        background: #ffebee;
+        color: #f44336;
+      }
+      .status-badge.uskoro {
+        background: #fff3e0;
+        color: #ff9800;
+      }
+      .status-badge.na-vremenu {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+      .status-badge.neaktivna {
+        background: #f5f5f5;
+        color: #9e9e9e;
+      }
+
+      .pdv-stats {
+        margin-top: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .stat-card {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.25rem;
+      }
+
+      .history-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .history-stats .stat {
+        background: #4caf50;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+      }
+
+      .nepredane {
+        font-size: 0.9rem;
+        color: #f44336;
+      }
+
+      .loading-spinner {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+      }
+
+      .back-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      @media (max-width: 768px) {
+        .pdv-status-card {
+          flex-direction: column;
+          text-align: center;
+          gap: 1rem;
+        }
+
+        .status-actions {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .pdv-firme-container {
+          grid-template-columns: 1fr;
+        }
+
+        .firma-header {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .firma-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+
+    <!-- Navigation Component -->
+    <script src="/shared/components/navigation.js"></script>
+  </body>
+</html>

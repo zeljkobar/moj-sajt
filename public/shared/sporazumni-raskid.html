@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sporazumni raskid radnog odnosa</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/shared/cookie-consent.css" />
+
+    <!-- ExportUtils dependencies -->
+    <script src="/shared/components/export-utils.js"></script>
+
+    <!-- PDF export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      body {
+        font-family: 'Times New Roman', serif;
+        line-height: 1.6;
+        background-color: #f8f9fa;
+      }
+      .document-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        padding: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .content {
+        text-align: justify;
+      }
+      .signature-section {
+        margin-top: 25px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .signature-box {
+        text-align: center;
+        width: 200px;
+      }
+      .print-btn,
+      .pdf-btn,
+      .word-btn,
+      .jpr-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        margin-left: 10px;
+      }
+      .btn-group-vertical {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+      .btn-group-vertical .btn {
+        margin-bottom: 5px;
+      }
+      @media print {
+        .print-btn,
+        .pdf-btn,
+        .word-btn,
+        .jpr-btn,
+        .btn-group-vertical {
+          display: none;
+        }
+        body {
+          margin: 0;
+          background: white;
+        }
+        .document-container {
+          box-shadow: none;
+          margin: 0;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="btn-group-vertical">
+      <button class="btn btn-primary print-btn" onclick="window.print()">
+        🖨️ Štampaj
+      </button>
+      <button class="btn btn-danger pdf-btn" onclick="exportToPDF()">
+        📄 PDF
+      </button>
+      <button class="btn btn-success word-btn" onclick="downloadWordCompact()">
+        📝 Word
+      </button>
+      <button class="btn btn-warning jpr-btn" onclick="openJPRSimple()">
+        📋 Otvori JPR
+      </button>
+    </div>
+
+    <div class="document-container">
+      <div class="header">
+        <h2><strong>SPORAZUM O RASKIDU RADNOG ODNOSA</strong></h2>
+      </div>
+
+      <div class="content">
+        <p style="margin-bottom: 10px">
+          <strong>Zaključen dana:</strong>
+          <span id="datumSporazuma">__________________</span> &nbsp;&nbsp;&nbsp;
+          <strong>Između:</strong>
+        </p>
+
+        <div style="margin-left: 20px; margin-bottom: 15px">
+          <p style="margin-bottom: 5px">
+            <strong>1. POSLODAVAC:</strong>
+            <span id="nazivFirme">__________________</span>, sa sedištem
+            <span id="adresaFirme">__________________</span>
+          </p>
+          <p style="margin-bottom: 5px">
+            <strong>PIB:</strong> <span id="pibFirme">__________________</span>,
+            <strong>Matični broj:</strong>
+            <span id="maticniBrojFirme">__________________</span>
+          </p>
+          <p style="margin-bottom: 5px">
+            Koga zastupa: <span id="zastupnikFirme">__________________</span> (u
+            daljem tekstu: Poslodavac)
+          </p>
+        </div>
+
+        <p style="text-align: center; margin: 10px 0"><strong>i</strong></p>
+
+        <div style="margin-left: 20px; margin-bottom: 15px">
+          <p style="margin-bottom: 5px">
+            <strong>2. ZAPOSLENI:</strong>
+            <span id="imeRadnika">__________________</span>, JMBG:
+            <span id="jmbgRadnika">__________________</span>
+          </p>
+          <p style="margin-bottom: 5px">
+            Sa prebivalištem: <span id="adresaRadnika">__________________</span>
+          </p>
+          <p style="margin-bottom: 5px">
+            Pozicija: <span id="pozicijaRadnika">__________________</span> (u
+            daljem tekstu: Zaposleni)
+          </p>
+        </div>
+
+        <div style="margin: 20px 0">
+          <p style="margin-bottom: 10px">
+            <strong>SPORAZUMJELI SU SE:</strong>
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 1.</strong> Ugovorni partneri su saglasni da se raskine
+            radni odnos zaposlenoj/om
+            <span id="imeRadnika2">__________________</span>, koji/a je
+            zasnovala/o radni odnos kod poslodavca dana
+            <span id="datumZaposlenja">__________________</span> na poziciji
+            <span id="pozicijaRadnika2">__________________</span>.
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 2.</strong> Radni odnos se raskida sporazumno, na
+            osnovu člana 179. Zakona o radu Republike Crne Gore ("Službeni list
+            RCG", br. 49/08, 26/09, 88/09, 26/10, 59/11, 66/12, 31/14, 53/14 i
+            4/18), dana <span id="datumRaskida">__________________</span>.
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 3.</strong> Razlog raskida radnog odnosa:
+            <span id="razlogRaskida">__________________</span>
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 4.</strong> Zaposleni/a je obavezna da vrati svu
+            dokumentaciju, ključeve, opremu i ostala sredstva rada koja su
+            joj/mu bila poverena.
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 5.</strong> Osnov za prestanak radnog odnosa je
+            sporazumni raskid radnog odnosa.
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 6.</strong> Ovaj sporazum stupa na snagu danom
+            potpisivanja od strane oba ugovorna partnera.
+          </p>
+
+          <p style="margin-bottom: 10px">
+            <strong>Član 7.</strong> Sporazum je sačinjen u dva istovjetna
+            primjerka, od kojih svaka ugovorna strana zadržava po jedan
+            primjerak.
+          </p>
+        </div>
+
+        <div class="signature-section">
+          <div class="signature-box">
+            <p>____________________</p>
+            <p><strong>POSLODAVAC</strong></p>
+            <p><span id="zastupnikFirme2">__________________</span></p>
+          </div>
+          <div class="signature-box">
+            <p>____________________</p>
+            <p><strong>ZAPOSLENI</strong></p>
+            <p><span id="imeRadnika3">__________________</span></p>
+          </div>
+        </div>
+
+        <div style="margin-top: 15px; text-align: center">
+          <p>
+            <strong>Datum:</strong>
+            <span id="datumPotpisa">__________________</span> &nbsp;&nbsp;&nbsp;
+            <strong>Mjesto:</strong>
+            <span id="mestoFirme">__________________</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Globalne promenljive za podatke
+      window.globalRadnik = null;
+      window.globalFirma = null;
+      window.globalJmbg = null;
+      window.globalIme = null;
+      window.globalPrezime = null;
+      window.globalJprReady = false;
+
+      // Dobijanje podataka iz URL parametara (globalno, odmah posle globalnih promenljivih)
+      const urlParams = new URLSearchParams(window.location.search);
+      const radnikId = urlParams.get('radnikId');
+      const firmaId = urlParams.get('firmaId');
+      const otkazId = urlParams.get('otkazId');
+      // Eksplicitno postavi na window za globalni scope
+      window.firmaId = firmaId;
+      window.radnikId = radnikId;
+      window.otkazId = otkazId;
+
+      // Funkcija za učitavanje podataka i popunjavanje dokumenta
+      async function loadAndPopulateDocument() {
+        try {
+          // Učitaj podatke o radniku
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnik = await radnikResponse.json();
+          window.globalRadnik = radnik;
+          window.globalJmbg = radnik.jmbg || '';
+          window.globalIme = radnik.ime || '';
+          window.globalPrezime = radnik.prezime || '';
+          // Učitaj podatke o firmi
+          const firmaResponse = await fetch(`/api/firme/id/${firmaId}`);
+          const firma = await firmaResponse.json();
+          window.globalFirma = firma;
+          // Učitaj pozicije
+          const pozicijeResponse = await fetch('/api/pozicije');
+          let pozicije = [];
+          let pozicija = null;
+          if (pozicijeResponse.ok) {
+            pozicije = await pozicijeResponse.json();
+            if (Array.isArray(pozicije)) {
+              pozicija = pozicije.find(p => p.id == radnik.pozicija_id);
+            }
+          }
+          // Učitaj podatke o otkazu ako je otkazId prosleđen
+          let otkaz = null;
+          if (otkazId) {
+            try {
+              const otkazResponse = await fetch(`/api/otkazi/${otkazId}`);
+              const otkazData = await otkazResponse.json();
+              if (otkazResponse.ok && otkazData.success) {
+                otkaz = otkazData.otkaz;
+              }
+            } catch (otkazError) {
+              console.warn('Greška pri učitavanju otkaza:', otkazError);
+            }
+          }
+          // Popuni dokument
+          populateDocument(radnik, firma, pozicija, otkaz);
+          // Omogući JPR dugme
+          window.globalJprReady = true;
+          const jprBtn = document.querySelector('.jpr-btn');
+          if (jprBtn) jprBtn.disabled = false;
+        } catch (error) {
+          console.error('Greška pri učitavanju podataka:', error);
+          alert('Greška pri učitavanju podataka: ' + error.message);
+        }
+      }
+
+      function populateDocument(radnik, firma, pozicija, otkaz) {
+        const datumZaposlenja = new Date(
+          radnik.datum_zaposlenja
+        ).toLocaleDateString('sr-Latn-RS');
+
+        // Koristiti datum otkaza ako postoji, inače današnji datum
+        const datumOtkaza =
+          otkaz && otkaz.datum_otkaza
+            ? new Date(otkaz.datum_otkaza).toLocaleDateString('sr-Latn-RS')
+            : new Date().toLocaleDateString('sr-Latn-RS');
+
+        // Koristiti razlog otkaza ako postoji
+        const razlogOtkaza =
+          otkaz && otkaz.razlog_otkaza
+            ? otkaz.razlog_otkaza
+            : 'Sporazumni raskid radnog odnosa';
+
+        // Popunjavanje svih polja - koristi datumOtkaza za sve datume u dokumentu
+        document.getElementById('datumSporazuma').textContent = datumOtkaza;
+        document.getElementById('nazivFirme').textContent = firma.naziv || '';
+        document.getElementById('adresaFirme').textContent = firma.adresa || '';
+        document.getElementById('pibFirme').textContent = firma.pib || '';
+        document.getElementById('maticniBrojFirme').textContent =
+          firma.maticni_broj || '';
+        document.getElementById('zastupnikFirme').textContent =
+          firma.direktor || 'Direktor';
+        document.getElementById('zastupnikFirme2').textContent =
+          firma.direktor || 'Direktor';
+
+        document.getElementById(
+          'imeRadnika'
+        ).textContent = `${radnik.ime} ${radnik.prezime}`;
+        document.getElementById(
+          'imeRadnika2'
+        ).textContent = `${radnik.ime} ${radnik.prezime}`;
+        document.getElementById(
+          'imeRadnika3'
+        ).textContent = `${radnik.ime} ${radnik.prezime}`;
+        document.getElementById('jmbgRadnika').textContent = radnik.jmbg || '';
+        document.getElementById('adresaRadnika').textContent =
+          radnik.adresa || '';
+        document.getElementById('pozicijaRadnika').textContent = pozicija
+          ? pozicija.naziv
+          : '';
+        document.getElementById('pozicijaRadnika2').textContent = pozicija
+          ? pozicija.naziv
+          : '';
+
+        document.getElementById('datumZaposlenja').textContent =
+          datumZaposlenja;
+        document.getElementById('datumRaskida').textContent = datumOtkaza;
+        document.getElementById('razlogRaskida').textContent = razlogOtkaza;
+        document.getElementById('datumPotpisa').textContent = datumOtkaza;
+        document.getElementById('mestoFirme').textContent = firma.grad || 'Bar';
+      }
+
+      // Učitaj podatke kada se stranica učita
+      document.addEventListener('DOMContentLoaded', loadAndPopulateDocument);
+
+      // NOVA JEDNOSTAVNA JPR FUNKCIJA
+      function openJPRSimple() {
+        // Čitaj URL parametre direktno
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRadnikId = urlParams.get('radnikId');
+        const urlFirmaId = urlParams.get('firmaId');
+
+        if (!urlFirmaId) {
+          alert('Greška: nedostaje firmaId');
+          return;
+        }
+
+        // Pozovi API fallback direktno
+        fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+      }
+
+      // Onemogući dugme dok se ne učita
+      window.addEventListener('DOMContentLoaded', function () {
+        const jprBtn = document.querySelector('.jpr-btn');
+        if (jprBtn) jprBtn.disabled = true;
+      });
+
+      // JPR funkcija za sporazumni raskid - otvara i koricu i dodatak B
+      function openJPRForSporazumni() {
+        try {
+          console.log('🚨 FUNKCIJA POZVANA: openJPRForSporazumni');
+          console.log('=== Debug openJPRForSporazumni ===');
+
+          // Čitaj URL parametre direktno
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlRadnikId = urlParams.get('radnikId');
+          const urlFirmaId = urlParams.get('firmaId');
+
+          console.log('URL radnikId:', urlRadnikId);
+          console.log('URL firmaId:', urlFirmaId);
+
+          if (!urlFirmaId) {
+            alert('Greška: nedostaju potrebni parametri za JPR (firmaId)');
+            return;
+          }
+
+          // Uzmi ime i JMBG radnika iz dokumenta
+          const imeRadnikaElement = document.getElementById('imeRadnika');
+          const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
+
+          console.log('DOM elementi:', {
+            imeRadnikaElement,
+            jmbgRadnikaElement,
+          });
+          console.log(
+            'imeRadnikaElement textContent:',
+            imeRadnikaElement?.textContent
+          );
+          console.log(
+            'jmbgRadnikaElement textContent:',
+            jmbgRadnikaElement?.textContent
+          );
+
+          const radnikImePrezime = imeRadnikaElement
+            ? imeRadnikaElement.textContent.trim()
+            : '';
+          const radnikJmbg = jmbgRadnikaElement
+            ? jmbgRadnikaElement.textContent.trim()
+            : '';
+
+          console.log('Radnik ime i prezime:', radnikImePrezime);
+          console.log('Radnik JMBG:', radnikJmbg);
+
+          // DODATNA PROVJERA: Da li su DOM elementi prazni?
+          if (
+            radnikImePrezime === '__________________' ||
+            radnikJmbg === '__________________' ||
+            !radnikImePrezime ||
+            !radnikJmbg ||
+            radnikImePrezime.includes('__') ||
+            radnikJmbg.includes('__')
+          ) {
+            console.warn(
+              'DOM podaci nisu učitani ili su prazni, koristim API fallback...'
+            );
+
+            // Fallback - pozovi API da dobijem podatke
+            if (urlRadnikId) {
+              fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+              return;
+            } else {
+              alert(
+                'Greška: ime ili JMBG radnika nije pronađeno u dokumentu i nema radnikId u URL-u'
+              );
+              return;
+            }
+          }
+
+          // Razdeli ime i prezime
+          const imePrezimeParts = radnikImePrezime.split(' ');
+          const radnikIme = imePrezimeParts[0] || '';
+          const radnikPrezime = imePrezimeParts.slice(1).join(' ') || '';
+
+          console.log('Podeljeno - Ime:', radnikIme, 'Prezime:', radnikPrezime);
+
+          // Generiši JPR URL-ove za odjavu (kao u originalnoj verziji)
+          const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          console.log('JPR Korica URL:', koricaUrl);
+          console.log('JPR Dodatak B URL:', dodatakUrl);
+
+          // Otvori JPR korica u novom tabu (direktno window.open kao ranije)
+          window.open(koricaUrl, '_blank');
+
+          // Otvori JPR dodatak B nakon kratke pauze
+          setTimeout(() => {
+            window.open(dodatakUrl, '_blank');
+          }, 500);
+        } catch (error) {
+          console.error('🚨 GREŠKA U FUNKCIJI openJPRForSporazumni:', error);
+          alert('Greška u JPR funkciji: ' + error.message);
+        }
+      }
+
+      // Fallback funkcija za API poziv ako DOM nije popunjen
+      async function fetchRadnikDataForJPR(radnikId, firmaId) {
+        try {
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnikData = await radnikResponse.json();
+
+          if (
+            !radnikData ||
+            !radnikData.ime ||
+            !radnikData.prezime ||
+            !radnikData.jmbg
+          ) {
+            alert('Greška: nepotpuni podaci o radniku iz API-ja');
+            return;
+          }
+
+          // Generiši JPR URL-ove sa API podacima
+          const koricaUrl = `/shared/jpr-korica.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
+          const dodatakUrl = `/shared/jpr-dodatak-b.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikData.ime
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikData.prezime
+          )}&radnikJmbg=${encodeURIComponent(radnikData.jmbg)}`;
+
+          window.open(koricaUrl, '_blank');
+          setTimeout(() => {
+            window.open(dodatakUrl, '_blank');
+          }, 500);
+        } catch (error) {
+          console.error('Greška pri učitavanju podataka iz API-ja');
+          alert('Greška pri učitavanju podataka iz API-ja');
+        }
+      }
+
+      // PDF Export funkcija
+      function exportToPDF() {
+        if (typeof ExportUtils !== 'undefined') {
+          // Primeni print stilove pre eksporta
+          applyPrintStylesForPDF();
+
+          ExportUtils.exportToPDF({
+            containerSelector: '.document-container',
+            filePrefix: 'Sporazumni_raskid',
+            getFileName: () => {
+              const radnikIme =
+                document.getElementById('imeRadnika')?.textContent?.trim() ||
+                'Radnik';
+              const datum = new Date().toISOString().slice(0, 10);
+              return `Sporazumni_raskid_${radnikIme.replace(
+                /\s+/g,
+                '_'
+              )}_${datum}.pdf`;
+            },
+          })
+            .then(() => {
+              // Vrati originalne stilove nakon export-a
+              removePrintStylesForPDF();
+            })
+            .catch(() => {
+              // Vrati originalne stilove i ako je došlo do greške
+              removePrintStylesForPDF();
+            });
+        } else {
+          console.error('ExportUtils not loaded');
+          alert('PDF export utilities are not available');
+        }
+      }
+
+      // Funkcija za primenu print stilova za PDF
+      function applyPrintStylesForPDF() {
+        const style = document.createElement('style');
+        style.id = 'pdf-print-styles';
+        style.innerHTML = `
+          .print-btn, .pdf-btn, .word-btn, .jpr-btn, .btn-group-vertical {
+            display: none !important;
+          }
+          body {
+            margin: 0 !important;
+            background: white !important;
+            font-size: 13pt !important;
+          }
+          .document-container {
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 25px !important;
+            background: white !important;
+            font-size: 13pt !important;
+            line-height: 1.5 !important;
+          }
+          h2 {
+            font-size: 15pt !important;
+            margin: 20px 0 !important;
+          }
+          p {
+            margin: 8px 0 !important;
+          }
+          .signature-section {
+            margin-top: 30px !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // Funkcija za uklanjanje print stilova nakon PDF export-a
+      function removePrintStylesForPDF() {
+        const style = document.getElementById('pdf-print-styles');
+        if (style) {
+          style.remove();
+        }
+      }
+
+      // Word Download funkcija
+      function downloadWordCompact() {
+        try {
+          // Primeni print stilove i za Word
+          applyPrintStylesForPDF();
+
+          const container = document.querySelector('.document-container');
+          if (!container) {
+            throw new Error('Document container not found');
+          }
+
+          let content = container.innerHTML;
+
+          // Ukloni dugmad i skriptove
+          content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+          content = content.replace(/class="[^"]*btn[^"]*"/gi, '');
+
+          // Ukloni problematične inline stilove za flex
+          content = content.replace(
+            /style="[^"]*display:\s*flex[^"]*"/gi,
+            'style=""'
+          );
+          content = content.replace(
+            /style="[^"]*justify-content:[^"]*"/gi,
+            'style=""'
+          );
+
+          // Očisti prazne style atribute
+          content = content.replace(/style=""/gi, '');
+
+          // Generiši ime fajla
+          const radnikIme =
+            document.getElementById('imeRadnika')?.textContent?.trim() ||
+            'Radnik';
+          const datum = new Date().toISOString().slice(0, 10);
+          const fileName = `Sporazumni_raskid_${radnikIme.replace(
+            /\s+/g,
+            '_'
+          )}_${datum}.doc`;
+
+          // Kreiraj pravilno formatiran Word dokument
+          const wordDocument = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+              <meta charset='utf-8'>
+              <title>Sporazumni raskid radnog odnosa</title>
+              <!--[if gte mso 9]>
+              <xml>
+                <w:WordDocument>
+                  <w:View>Print</w:View>
+                  <w:Zoom>90</w:Zoom>
+                  <w:DoNotPromptForConvert/>
+                  <w:DoNotPromptForConvert/>
+                </w:WordDocument>
+              </xml>
+              <![endif]-->
+              <style>
+                @page {
+                  size: A4;
+                  margin: 2cm 1.5cm 2cm 1.5cm;
+                }
+                body { 
+                  font-family: 'Times New Roman', serif; 
+                  font-size: 13pt;
+                  line-height: 1.5;
+                  margin: 0;
+                  padding: 25px;
+                  color: #000;
+                  background: white;
+                }
+                h1, h2, h5 { 
+                  font-size: 15pt; 
+                  font-weight: bold;
+                  margin: 20px 0; 
+                  text-align: center;
+                }
+                p {
+                  margin: 8px 0;
+                  text-align: justify;
+                }
+                .signature-section {
+                  margin-top: 30px;
+                  display: table;
+                  width: 100%;
+                }
+                .signature-box {
+                  display: table-cell;
+                  text-align: center;
+                  width: 50%;
+                  vertical-align: top;
+                }
+              </style>
+            </head>
+            <body>
+              ${content}
+            </body>
+            </html>
+          `;
+
+          // Kreiraj Blob i download link
+          const blob = new Blob([wordDocument], {
+            type: 'application/msword',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          // Vrati originalne stilove
+          removePrintStylesForPDF();
+        } catch (error) {
+          console.error('Error creating Word document:', error);
+          alert('Greška pri kreiranju Word dokumenta: ' + error.message);
+          removePrintStylesForPDF();
+        }
+      }
+    </script>
+    <script src="/shared/cookie-consent.js"></script>
+  </body>
+</html>

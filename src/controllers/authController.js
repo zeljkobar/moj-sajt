@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { executeQuery } = require('../config/database');
 const emailService = require('../services/emailService');
+const { checkSubscriptionStatus } = require('../middleware/subscription');
 
 // Funkcija za kopiranje template pozicija novom korisniku
 async function copyTemplatesToUser(userId) {
@@ -40,7 +41,7 @@ async function copyTemplatesToUser(userId) {
 async function getUserByUsername(username) {
   try {
     const query =
-      'SELECT id, username, password, email, phone, ime, prezime, jmbg, role, created_at FROM users WHERE username = ?';
+      'SELECT id, username, password, email, phone, ime, prezime, jmbg, role, created_at, subscription_status, trial_end_date, subscription_end_date, created_by_admin FROM users WHERE username = ?';
     const users = await executeQuery(query, [username]);
     return users.length > 0 ? users[0] : null;
   } catch (error) {
@@ -78,11 +79,20 @@ async function createUser(userData) {
 const authController = {
   // Login
   login: async (req, res) => {
+    console.log('🔵 LOGIN REQUEST RECEIVED:', {
+      method: req.method,
+      path: req.path,
+      body: req.body,
+      host: req.get('host'),
+      domainType: req.domainType
+    });
+    
     try {
       const { username, password } = req.body;
       const user = await getUserByUsername(username);
 
       if (!user) {
+        console.log('❌ User not found:', username);
         return res
           .status(401)
           .json({ message: 'Pogrešno korisničko ime ili lozinka' });
@@ -99,10 +109,80 @@ const authController = {
       }
 
       if (passwordValid) {
+        // Proveri da li korisnik pokušava da se loguje na odgovarajući domen
+        // Koristi req.domainType postavljen u middleware-u
+        const domainType = req.domainType || 'summasummarum'; // default
+
+        console.log('🔍 LOGIN DEBUG:', {
+          username: username,
+          userRole: user.role,
+          domainType: domainType,
+          host: req.get('host'),
+          query: req.query,
+        });
+
+        // Blokiraj login ako je korisnik na pogrešnom domenu (osim admin-a)
+        if (user.role !== 'admin') {
+          if (user.role === 'agencija' && domainType === 'mojradnik') {
+            console.log('❌ BLOCKING: agencija pokušava login na mojradnik');
+            return res.status(403).json({
+              message:
+                'Korisnici tipa "agencija" se mogu logovati samo na summasummarum.me',
+              action: 'wrong_domain',
+            });
+          }
+
+          if (user.role === 'firma' && domainType === 'summasummarum') {
+            console.log('❌ BLOCKING: firma pokušava login na summasummarum');
+            return res.status(403).json({
+              message:
+                'Korisnici tipa "firma" se mogu logovati samo na mojradnik.me',
+              action: 'wrong_domain',
+            });
+          }
+        }
+
+        // Proveri subscription status pre uspešnog logina
+        const subscriptionStatus = await checkSubscriptionStatus(user);
+
+        // Blokiraj login za expired i suspended korisnike (osim admin-a)
+        if (
+          user.role !== 'admin' &&
+          (subscriptionStatus === 'subscription_expired' ||
+            subscriptionStatus === 'trial_expired' ||
+            subscriptionStatus === 'suspended')
+        ) {
+          let message;
+          let redirect = '/account-suspended';
+
+          if (
+            subscriptionStatus === 'subscription_expired' ||
+            subscriptionStatus === 'trial_expired'
+          ) {
+            message =
+              'Vaša pretplata je istekla. Molimo obnovite pretplatu da biste nastavili korišćenje.';
+            redirect = `/account-suspended?reason=${
+              subscriptionStatus === 'trial_expired'
+                ? 'trial_expired'
+                : 'subscription_expired'
+            }`;
+          } else if (subscriptionStatus === 'suspended') {
+            message =
+              'Vaš račun je suspendovan. Kontaktirajte podršku za više informacija.';
+            redirect = '/account-suspended?reason=suspended';
+          }
+
+          return res.status(403).json({
+            message: message,
+            action: 'subscription_expired',
+            redirect: redirect,
+          });
+        }
+
         // Ukloni password iz user objekta pre čuvanja u sesiju
         const { password: _, ...userForSession } = user;
         req.session.user = userForSession;
-        res.json({ success: true });
+        res.json({ success: true, user: userForSession });
       } else {
         res
           .status(401)
@@ -435,6 +515,139 @@ const authController = {
       console.error('❌ Greška pri reset password:', error);
       res.status(500).json({
         message: 'Greška servera pri resetovanju lozinke',
+      });
+    }
+  },
+
+  // Registracija agencije
+  registerAgencija: async (req, res) => {
+    try {
+      const { ime, prezime, email, telefon, jmbg, password, termsAccepted } =
+        req.body;
+
+      // Validation
+      if (!ime || !prezime || !email || !password || !termsAccepted) {
+        return res.status(400).json({
+          message: 'Sva obavezna polja moraju biti popunjena',
+        });
+      }
+
+      // Check if email already exists
+      const existingUser = await executeQuery(
+        'SELECT id FROM users WHERE email = ?',
+        [email]
+      );
+
+      if (existingUser.length > 0) {
+        return res.status(409).json({
+          message: 'Korisnik sa ovom email adresom već postoji',
+        });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user with agencija role
+      const userResult = await executeQuery(
+        `INSERT INTO users (
+          username, password, email, phone, ime, prezime, jmbg, role
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          email, // username = email
+          hashedPassword,
+          email,
+          telefon,
+          ime,
+          prezime,
+          jmbg,
+          'agencija',
+        ]
+      );
+
+      const userId = userResult.insertId;
+
+      // Copy template positions
+      await copyTemplatesToUser(userId);
+
+      console.log(
+        `✅ Agencija registrirana: ${ime} ${prezime} (ID: ${userId})`
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Agencija je uspješno registrirana!',
+        userId: userId,
+      });
+    } catch (error) {
+      console.error('❌ Greška pri registraciji agencije:', error);
+      res.status(500).json({
+        message: 'Greška servera pri registraciji',
+      });
+    }
+  },
+
+  // Registracija kompanije
+  registerKompanija: async (req, res) => {
+    try {
+      const { ime, prezime, email, telefon, password, termsAccepted } =
+        req.body;
+
+      // Validation
+      if (!ime || !prezime || !email || !password || !termsAccepted) {
+        return res.status(400).json({
+          message: 'Sva obavezna polja moraju biti popunjena',
+        });
+      }
+
+      // Check if email already exists
+      const existingUser = await executeQuery(
+        'SELECT id FROM users WHERE email = ?',
+        [email]
+      );
+
+      if (existingUser.length > 0) {
+        return res.status(409).json({
+          message: 'Korisnik sa ovom email adresom već postoji',
+        });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user with firma role (kompanija će biti firma u ovom sistemu)
+      const userResult = await executeQuery(
+        `INSERT INTO users (
+          username, password, email, phone, ime, prezime, role
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          email, // username = email
+          hashedPassword,
+          email,
+          telefon,
+          ime,
+          prezime,
+          'firma',
+        ]
+      );
+
+      const userId = userResult.insertId;
+
+      // Copy template positions
+      await copyTemplatesToUser(userId);
+
+      console.log(
+        `✅ Kompanija registrirana: ${ime} ${prezime} (ID: ${userId})`
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Kompanija je uspješno registrirana!',
+        userId: userId,
+      });
+    } catch (error) {
+      console.error('❌ Greška pri registraciji kompanije:', error);
+      res.status(500).json({
+        message: 'Greška servera pri registraciji',
       });
     }
   },

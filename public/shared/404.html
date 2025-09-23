@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Stranica nije pronađena | Summa Summarum</title>
+    <meta
+      name="description"
+      content="Stranica koju tražite nije pronađena. Vratite se na početnu stranicu Summa Summarum računovodstvene platforme."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <div
+      class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light"
+    >
+      <div class="text-center">
+        <div class="mb-4">
+          <img
+            src="images/summasummarum_logo.svg"
+            alt="Summa Summarum Logo"
+            class="img-fluid"
+            style="max-height: 150px"
+          />
+        </div>
+
+        <h1 class="display-1 text-primary fw-bold">404</h1>
+        <h2 class="h3 mb-3">Stranica nije pronađena</h2>
+        <p class="lead mb-4">
+          Izvinjavamo se, ali stranica koju tražite ne postoji ili je
+          premeštena.
+        </p>
+
+        <div class="mb-4">
+          <p class="text-muted">Možda ste pokušali da pristupite:</p>
+          <ul class="list-unstyled text-muted">
+            <li>
+              <i class="fas fa-times text-danger me-2"></i>Neispravnom linku
+            </li>
+            <li>
+              <i class="fas fa-times text-danger me-2"></i>Zastareli stranici
+            </li>
+            <li>
+              <i class="fas fa-times text-danger me-2"></i>Stranici koja je
+              premeštena
+            </li>
+          </ul>
+        </div>
+
+        <div
+          class="d-flex flex-column flex-sm-row gap-3 justify-content-center"
+        >
+          <a href="/" class="btn btn-primary btn-lg">
+            <i class="fas fa-home me-2"></i>Početna stranica
+          </a>
+          <a href="/shared/prijava.html" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>Prijava
+          </a>
+          <a href="/kontakt.html" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-envelope me-2"></i>Kontakt
+          </a>
+          <a href="tel:+38267440040" class="btn btn-outline-success btn-lg">
+            <i class="fas fa-phone me-2"></i>Pozovite nas
+          </a>
+        </div>
+
+        <div class="mt-5">
+          <p class="text-muted small">
+            Potrebna vam je pomoć? Kontaktirajte nas:<br />
+            📞
+            <a href="tel:+38267440040" class="text-decoration-none"
+              >+382 67 440 040</a
+            ><br />
+            📧
+            <a
+              href="mailto:podrska@summasummarum.me"
+              class="text-decoration-none"
+              >podrska@summasummarum.me</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Auto redirect nakon 10 sekundi
+      setTimeout(function () {
+        window.location.href = '/';
+      }, 10000);
+
+      // Pošalji 404 event u Google Analytics ako postoji
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+          page_title: '404 Error',
+          page_location: window.location.href,
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+/* MojRadnik Override Styles */
+body {
+  --brand-primary: #2c5282;
+  --brand-secondary: #2a4365;
+}
+
+.navbar-brand {
+  color: var(--brand-primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-secondary) !important;
+  border-color: var(--brand-secondary) !important;
+}
+
+.bg-primary {
+  background-color: var(--brand-primary) !important;
+}
+
+.text-primary {
+  color: var(--brand-primary) !important;
+}
+
+/* MojRadnik specific styling */
+.hero-section {
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary),
+    var(--brand-secondary)
+  );
+}
+
+/* Single company focus - simpler, cleaner design */
+.card {
+  border: none;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}

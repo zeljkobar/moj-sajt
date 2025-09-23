@@ -1,0 +1,28 @@
+/* Summa Summarum Override Styles */
+body {
+  --brand-primary: #28a745;
+  --brand-secondary: #198754;
+}
+
+.navbar-brand {
+  color: var(--brand-primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-secondary) !important;
+  border-color: var(--brand-secondary) !important;
+}
+
+/* Summa specific styling */
+.hero-section {
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary),
+    var(--brand-secondary)
+  );
+}

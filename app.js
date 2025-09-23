@@ -83,6 +83,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://summasummarum.me',
   'http://summasummarum.me',
+  'https://mojradnik.me',
+  'http://mojradnik.me',
   'http://185.102.78.178',
   'https://185.102.78.178',
 ];
@@ -178,8 +180,124 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// Domain-specific middleware for multi-domain setup
+app.use((req, res, next) => {
+  console.log(
+    '🔥 MIDDLEWARE CALLED - Method:',
+    req.method,
+    'Path:',
+    req.path,
+    'Host:',
+    req.get('host')
+  );
+
+  const host = req.get('host');
+  console.log('Domain middleware - host:', host, 'path:', req.path);
+
+  // Get referer to check for domain parameter in POST requests
+  const referer = req.get('referer') || '';
+  const isDomainMojradnik = referer.includes('domain=mojradnik') || req.query.domain === 'mojradnik';
+
+  // Detect domain and set appropriate paths
+  if (
+    host &&
+    (host.includes('mojradnik.me') ||
+      (host.includes('localhost') && isDomainMojradnik))
+  ) {
+    // For mojradnik.me domain
+    req.domainType = 'mojradnik';
+    req.isMultiTenant = false;
+  } else {
+    // For summasummarum.me domain (default)
+    req.domainType = 'summasummarum';
+    req.isMultiTenant = true;
+  }
+
+  console.log('Domain middleware - domainType set to:', req.domainType);
+  next();
+});
+
+// Serve domain-specific index files - MORA BITI PRE static middleware-a
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  try {
+    console.log('GET / request - domainType:', req.domainType);
+    const indexPath = path.join(
+      __dirname,
+      'public',
+      req.domainType,
+      'index.html'
+    );
+
+    console.log('Looking for index at:', indexPath);
+    console.log('File exists:', fs.existsSync(indexPath));
+
+    // Check if domain-specific index exists, fallback to shared
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      // Fallback to shared index
+      const fallbackPath = path.join(
+        __dirname,
+        'public',
+        'shared',
+        'index.html'
+      );
+      console.log('Fallback to:', fallbackPath);
+      res.sendFile(fallbackPath);
+    }
+  } catch (error) {
+    console.error('GET / route error:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// Serve domain-specific registracija files
+app.get('/registracija.html', (req, res) => {
+  try {
+    console.log('GET /registracija.html request - domainType:', req.domainType);
+    const registracijaPath = path.join(
+      __dirname,
+      'public',
+      req.domainType,
+      'registracija.html'
+    );
+
+    console.log('Looking for registracija at:', registracijaPath);
+    console.log('File exists:', fs.existsSync(registracijaPath));
+
+    // Check if domain-specific registracija exists, fallback to shared
+    if (fs.existsSync(registracijaPath)) {
+      res.sendFile(registracijaPath);
+    } else {
+      // Fallback to shared registracija
+      const fallbackPath = path.join(
+        __dirname,
+        'public',
+        'shared',
+        'registracija1.html' // renamed file
+      );
+      console.log('Fallback to:', fallbackPath);
+      if (fs.existsSync(fallbackPath)) {
+        res.sendFile(fallbackPath);
+      } else {
+        res.status(404).send('Registracija page not found');
+      }
+    }
+  } catch (error) {
+    console.error('GET /registracija.html route error:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+// Stari root route - zakomentarisan zbog multi-domain setup-a
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + '/public/index.html');
+// });
+
+// Handle direct requests to /index.html by redirecting to root
+app.get('/index.html', (req, res) => {
+  console.log('GET /index.html - redirecting to /');
+  res.redirect('/');
 });
 
 // zasticene rute za static fajlove
@@ -214,7 +332,7 @@ app.get(
   authMiddleware,
   requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
-    res.sendFile(__dirname + '/public/pdv0.html');
+    res.sendFile(__dirname + '/public/shared/pdv0.html');
   }
 );
 
@@ -224,52 +342,69 @@ app.get(
   authMiddleware,
   subscriptionMiddleware,
   (req, res) => {
-    res.sendFile(__dirname + '/public/dashboard.html');
+    // Domain-specific dashboard routing
+    if (req.domainType === 'mojradnik' && req.session.user.role === 'firma') {
+      res.sendFile(__dirname + '/public/mojradnik/dashboard.html');
+    } else {
+      res.sendFile(__dirname + '/public/shared/dashboard.html');
+    }
   }
 );
 
 // Zaštićena ruta za pregled firmi
-app.get('/firme.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/firme.html');
+app.get('/firme.html', authMiddleware, subscriptionMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/firme.html');
 });
 
 // Zaštićena ruta za dodavanje firmi
-app.get('/dodaj-firmu.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/dodaj-firmu.html');
-});
+app.get(
+  '/dodaj-firmu.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/dodaj-firmu.html');
+  }
+);
 
 // Zaštićena ruta za editovanje firmi
-app.get('/edit-firmu.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/edit-firmu.html');
-});
+app.get(
+  '/edit-firmu.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/edit-firmu.html');
+  }
+);
 
 // Zaštićene rute za UGOVORI funkcionalnost
 app.get(
   '/pozicije.html',
   authMiddleware,
+  subscriptionMiddleware,
   requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
-    res.sendFile(__dirname + '/public/pozicije.html');
+    res.sendFile(__dirname + '/public/shared/pozicije.html');
   }
 );
 
 app.get(
   '/ugovor-o-radu.html',
   authMiddleware,
+  subscriptionMiddleware,
   requireRole([ROLES.FIRMA, ROLES.AGENCIJA, ROLES.ADMIN]),
   (req, res) => {
-    res.sendFile(__dirname + '/public/ugovor-o-radu.html');
+    res.sendFile(__dirname + '/public/shared/ugovor-o-radu.html');
   }
 );
 
 // Zaštićena ruta za editovanje profila
 app.get('/edit-profil.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/edit-profil.html');
+  res.sendFile(__dirname + '/public/shared/edit-profil.html');
 });
 
 // Zaštićena ruta za pretplatu
 app.get('/pretplata.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/pretplata.html');
+  res.sendFile(__dirname + '/public/shared/pretplata.html');
 });
 
 // Ruta za pretplatu bez .html ekstenzije (za redirecte iz subscription middleware)
@@ -310,27 +445,120 @@ app.get('/pretplata', authMiddleware, async (req, res) => {
 
 // Rute za pretplatu specifične po tipovima korisnika
 app.get('/pretplata-firma', (req, res) => {
-  res.sendFile(__dirname + '/public/pretplata-firma.html');
+  res.sendFile(__dirname + '/public/mojradnik/pretplata-firma.html');
 });
 
 app.get('/pretplata-agencija', (req, res) => {
-  res.sendFile(__dirname + '/public/pretplata-agencija.html');
+  res.sendFile(__dirname + '/public/summasummarum/pretplata-agencija.html');
 });
 
 // Ruta za account-suspended (za redirecte iz subscription middleware)
 // NAPOMENA: Bez authMiddleware da se izbegnu loopovi kada korisnik nema valjan session
 app.get('/account-suspended', (req, res) => {
-  res.sendFile(__dirname + '/public/account-suspended.html');
+  res.sendFile(__dirname + '/public/shared/account-suspended.html');
 });
 
 // Zaštićena ruta za firma-detalji (nova stranica sa tabovima)
-app.get('/firma-detalji.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/firma-detalji.html');
-});
+app.get(
+  '/firma-detalji.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/firma-detalji.html');
+  }
+);
 
 // Zaštićena ruta za obračun zaliha
-app.get('/obracun-zaliha.html', authMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/obracun-zaliha.html');
+app.get(
+  '/obracun-zaliha.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/obracun-zaliha.html');
+  }
+);
+
+// Zaštićena ruta za godišnje odmori
+app.get(
+  '/godisnji-odmori.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/godisnji-odmori.html');
+  }
+);
+
+// Zaštićena ruta za plan godišnjeg odmora
+app.get(
+  '/plan-godisnjeg-odmora.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/plan-godisnjeg-odmora.html');
+  }
+);
+
+// Zaštićena ruta za otkaze
+app.get('/otkazi.html', authMiddleware, subscriptionMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/otkazi.html');
+});
+
+// Zaštićena ruta za istek ugovora
+app.get(
+  '/istek-ugovora.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/istek-ugovora.html');
+  }
+);
+
+// Zaštićene rute za različite dokumente
+app.get('/aneks-promena-radnog-vremena.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/aneks-promena-radnog-vremena.html');
+});
+
+app.get('/aneks-zastita-na-radu.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/aneks-zastita-na-radu.html');
+});
+
+// Zaštićene rute za različite dokumente i šablone
+app.get('/potvrda-zaposlenja.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/potvrda-zaposlenja.html');
+});
+
+app.get('/resenje-godisnji-odmor.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/resenje-godisnji-odmor.html');
+});
+
+app.get('/ugovor-o-djelu.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/ugovor-o-djelu.html');
+});
+
+app.get('/ugovor-o-dopunskom-radu.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/ugovor-o-dopunskom-radu.html');
+});
+
+app.get('/sporazumni-raskid.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/sporazumni-raskid.html');
+});
+
+// Javne rute za prijavu i registraciju (bez authMiddleware!)
+app.get('/prijava.html', (req, res) => {
+  if (req.domainType === 'mojradnik') {
+    res.sendFile(__dirname + '/public/mojradnik/prijava.html');
+  } else {
+    res.sendFile(__dirname + '/public/shared/prijava.html');
+  }
+});
+
+// Rute za zaboravljenu lozinku
+app.get('/forgot-password.html', (req, res) => {
+  res.sendFile(__dirname + '/public/shared/forgot-password.html');
+});
+
+app.get('/reset-password.html', (req, res) => {
+  res.sendFile(__dirname + '/public/shared/reset-password.html');
 });
 
 // Zaštićena ruta za email admin panel - SAMO ADMIN
@@ -339,7 +567,47 @@ app.get(
   authMiddleware,
   requireRole([ROLES.ADMIN]),
   (req, res) => {
-    res.sendFile(__dirname + '/public/email-admin.html');
+    res.sendFile(__dirname + '/public/shared/email-admin.html');
+  }
+);
+
+// Zaštićena ruta za admin database panel - SAMO ADMIN
+app.get(
+  '/admin-database.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/admin-database.html');
+  }
+);
+
+// Zaštićena ruta za admin users panel - SAMO ADMIN
+app.get(
+  '/admin-users.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/admin-users.html');
+  }
+);
+
+// Zaštićena ruta za admin uplate panel - SAMO ADMIN
+app.get(
+  '/admin-uplate.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/admin-uplate.html');
+  }
+);
+
+// Zaštićena ruta za admin pretplate panel - SAMO ADMIN
+app.get(
+  '/admin-pretplate.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(__dirname + '/public/shared/admin-pretplate.html');
   }
 );
 
@@ -936,7 +1204,7 @@ app.post(
     console.log('📁 req.file:', req.file ? 'Postoji' : 'Ne postoji');
     console.log('📋 req.body:', req.body);
     console.log('👤 req.user:', req.user ? req.user.username : 'Nije ulogovan');
-    
+
     try {
       const { testMode, campaignName } = req.body;
 
@@ -1290,8 +1558,21 @@ app.put(
   }
 );
 
+// Serve shared files with proper paths
+app.use('/shared', express.static(path.join(__dirname, 'public', 'shared')));
+
+// Serve domain-specific assets directly
+app.use(
+  '/summasummarum',
+  express.static(path.join(__dirname, 'public', 'summasummarum'))
+);
+app.use(
+  '/mojradnik',
+  express.static(path.join(__dirname, 'public', 'mojradnik'))
+);
+
 // Statički fajlovi - zadnji da zaštićene rute imaju prioritet
-app.use(express.static('public'));
+// app.use(express.static('public')); // Zakomentarisano - koristimo specifične rute umesto
 
 // Middleware za nepostojece rute (mora biti nakon svih validnih ruta)
 app.use(handleNotFound);

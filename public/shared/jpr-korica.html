@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JPR Korica - Jedinstvena prijava za registraciju</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <link rel="stylesheet" href="/shared/jpr-styles.css" />
+    <style>
+      .form-container {
+        position: relative;
+        width: 794px; /* A4 širina */
+        margin: 0 auto;
+        background-image: url('images/korica.png');
+        background-repeat: no-repeat;
+        background-size: 100% 100%; /* Rastegni na punu veličinu */
+        height: 1123px; /* A4 visina */
+        background-color: #f9f9f9; /* Fallback */
+        -webkit-print-color-adjust: exact; /* Za Chrome/Safari */
+        print-color-adjust: exact; /* Standardno */
+      }
+
+      /* Print stilovi */
+      @media print {
+        .form-container {
+          background-image: url('images/korica.png') !important;
+          background-repeat: no-repeat !important;
+          background-size: 100% 100% !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          page-break-after: avoid !important;
+          page-break-inside: avoid !important;
+        }
+
+        /* Uklanjanje margina stranice pri štampanju */
+        @page {
+          margin: 15mm 15mm 15mm 10mm; /* gore, desno, dole, levo */
+          size: A4;
+        }
+
+        body {
+          margin: 0;
+          page-break-after: avoid !important;
+        }
+
+        html,
+        body {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+
+        /* Sprečava dodatne stranice */
+        * {
+          page-break-after: avoid !important;
+          page-break-before: avoid !important;
+          page-break-inside: avoid !important;
+        }
+      }
+
+      .form-field {
+        position: absolute;
+        border: none;
+        background: transparent;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 2px;
+        outline: none;
+      }
+
+      .form-field:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+
+      /* Uklanjanje browser autocomplete stilova */
+      .form-field:-webkit-autofill,
+      .form-field:-webkit-autofill:hover,
+      .form-field:-webkit-autofill:focus,
+      .form-field:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+        -webkit-text-fill-color: black !important;
+        background: transparent !important;
+      }
+
+      /* Checkbox stil */
+      .checkbox-field {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+
+      .checkbox-field:checked::after {
+        content: 'X';
+        position: absolute;
+        left: 3px;
+        top: 1px;
+        font-size: 10px;
+        color: black;
+        font-weight: bold;
+      }
+
+      /* JMBG polja - 13 cifara */
+      .jmbg-container {
+        position: absolute;
+        top: 951px;
+        left: 83px;
+        display: flex;
+        gap: 0px;
+      }
+
+      .jmbg-digit {
+        width: 13px;
+        height: 22px;
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      .jmbg-digit:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+
+      /* PIB polja - 13 cifara */
+      .pib-container {
+        position: absolute;
+        top: 337px;
+        left: 205px;
+        display: flex;
+        gap: 0px;
+      }
+
+      .pib-digit {
+        width: 11.65px;
+        height: 18px;
+        border: 1px solid transparent;
+        background: transparent;
+        text-align: center;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        outline: none;
+      }
+
+      .pib-digit:focus {
+        background: transparent;
+        outline: 1px solid #4caf50;
+      }
+
+      /* Dugme za štampanje i zatvaranje */
+      .print-close-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s;
+      }
+
+      .print-close-btn:hover {
+        background: #0056b3;
+      }
+
+      /* Sakrij dugme pri štampanju */
+      @media print {
+        .print-close-btn {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Dugme za štampanje i zatvaranje -->
+    <button class="print-close-btn" onclick="printAndClose()">
+      🖨️ Štampaj i zatvori
+    </button>
+
+    <div class="form-container">
+      <!-- Tip dokumenta checkboxes -->
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 184px; left: 439px"
+        id="registracija"
+        tabindex="1"
+      />
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 206px; left: 439px"
+        id="promjena"
+        tabindex="2"
+        checked
+      />
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 226px; left: 439px"
+        id="prestanak"
+        tabindex="3"
+      />
+
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 302px; left: 206px"
+        id="pravno_lice"
+        tabindex="4"
+      />
+
+      <input
+        type="checkbox"
+        class="checkbox-field"
+        style="top: 302px; left: 414px"
+        id="fizicko_lice"
+        tabindex="5"
+      />
+      <!-- Osnovni podaci o podnosiocu -->
+      <!-- Naziv/Ime i prezime -->
+      <input
+        type="text"
+        class="form-field"
+        id="nazivFirme"
+        tabindex="19"
+        style="top: 371px; left: 207px; width: 512px"
+        placeholder="Naziv firme / Ime i prezime"
+      />
+      <!-- Jedinstveni matični broj - 13 cifara -->
+      <div class="jmbg-container">
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg1"
+          tabindex="28"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg2"
+          tabindex="29"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg3"
+          tabindex="30"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg4"
+          tabindex="31"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg5"
+          tabindex="32"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg6"
+          tabindex="33"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg7"
+          tabindex="34"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg8"
+          tabindex="35"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg9"
+          tabindex="36"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg10"
+          tabindex="37"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg11"
+          tabindex="38"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg12"
+          tabindex="39"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="jmbg-digit"
+          id="jmbg13"
+          tabindex="40"
+          maxlength="1"
+        />
+      </div>
+
+      <!-- PIB - 13 cifara -->
+      <div class="pib-container">
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib1"
+          tabindex="6"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib2"
+          tabindex="7"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib3"
+          tabindex="8"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib4"
+          tabindex="9"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib5"
+          tabindex="10"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib6"
+          tabindex="11"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib7"
+          tabindex="12"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib8"
+          tabindex="13"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib9"
+          tabindex="14"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib10"
+          tabindex="15"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib11"
+          tabindex="16"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib12"
+          tabindex="17"
+          maxlength="1"
+        />
+        <input
+          type="text"
+          class="pib-digit"
+          id="pib13"
+          tabindex="18"
+          maxlength="1"
+        />
+      </div>
+
+      <!-- Adresa -->
+      <input
+        type="text"
+        class="form-field"
+        id="adresa"
+        tabindex="24"
+        style="top: 560px; left: 190px; width: 400px"
+        placeholder="Adresa"
+      />
+
+      <!-- Mesto -->
+      <input
+        type="text"
+        class="form-field"
+        id="mesto"
+        tabindex="23"
+        style="top: 540px; left: 190px; width: 200px"
+        placeholder="Mesto"
+      />
+
+      <!-- Poštanski broj -->
+      <input
+        type="text"
+        class="form-field"
+        id="skraceniNaziv"
+        tabindex="20"
+        style="top: 434px; left: 207px; width: 512px"
+        placeholder="Skraceni naziv"
+      />
+      <!-- Telefon -->
+      <input
+        type="text"
+        class="form-field"
+        id="telefon"
+        tabindex="25"
+        style="top: 582px; left: 190px; width: 150px"
+        placeholder="Telefon"
+      />
+
+      <!-- Email -->
+      <input
+        type="text"
+        class="form-field"
+        id="email"
+        tabindex="26"
+        style="top: 601px; left: 190px; width: 400px"
+        placeholder="Email"
+      />
+
+      <!-- Kontakt osoba -->
+
+      <!-- Napomena -->
+      <textarea
+        class="form-field"
+        id="napomena"
+        tabindex="27"
+        style="
+          top: 828px;
+          left: 14px;
+          width: 704px;
+          height: 76px;
+          resize: none;
+          font-size: 16px;
+        "
+        placeholder="Napomena"
+      ></textarea>
+      <!-- Datum - Dan, Mesec, Godina -->
+      <input
+        type="text"
+        class="form-field"
+        id="dan"
+        tabindex="41"
+        maxlength="2"
+        style="top: 980px; left: 564px; width: 30px"
+        placeholder="DD"
+      />
+      <input
+        type="text"
+        class="form-field"
+        id="mesec"
+        tabindex="42"
+        maxlength="2"
+        style="top: 980px; left: 600px; width: 30px"
+        placeholder="MM"
+      />
+      <input
+        type="text"
+        class="form-field"
+        id="godina"
+        tabindex="43"
+        maxlength="4"
+        style="top: 980px; left: 640px; width: 50px"
+        placeholder="YYYY"
+      />
+      <!-- Drzava -->
+      <input
+        type="text"
+        class="form-field"
+        id="drzava"
+        tabindex="21"
+        style="top: 496px; left: 190px; width: 200px"
+        placeholder="Država"
+      />
+
+      <!-- Mesto -->
+      <input
+        type="text"
+        class="form-field"
+        id="opstina"
+        tabindex="22"
+        style="top: 519px; left: 190px; width: 200px"
+        placeholder="Opstina"
+      />
+
+      <!-- Potpis -->
+    </div>
+
+    <!-- Uključi shared script -->
+    <script src="/shared/jpr-shared-script.js"></script>
+
+    <script>
+      // Funkcija za štampanje i zatvaranje taba
+      function printAndClose() {
+        // Pokreni štampanje
+        window.print();
+
+        // Zatvori tab posle kratke pauze (da se završi štampanje)
+        setTimeout(() => {
+          window.close();
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>

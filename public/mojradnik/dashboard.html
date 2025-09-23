@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <!-- Google tag (gtag.js) - Ads Conversion Tracking -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-17519789176"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'AW-17519789176');
+    </script>
+
+    <!-- Google tag (gtag.js) - Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'G-DGZCVVHKXW');
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Moj Radnik</title>
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
+    <script src="/shared/components/theme-preloader.js"></script>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+  </head>
+  <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
+    <div id="navigation-placeholder"></div>
+
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+      <div class="container">
+        <div class="welcome-section">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="mb-2">
+                Dobrodošli nazad, <span id="userName">Korisnice</span>!
+              </h1>
+              <p class="mb-0 lead">Upravljajte svojom firmom i radnicima</p>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="d-flex flex-column align-items-end">
+                <h5 class="mb-1">Danas je</h5>
+                <h3 class="mb-0" id="currentDate">2. Avgust 2025</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-4">
+      <!-- Informacije o firmi -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div
+              class="card-header d-flex justify-content-between align-items-center py-2"
+            >
+              <h6 class="mb-0">
+                <i class="fas fa-building text-primary me-2"></i>
+                Moja firma
+              </h6>
+              <button class="btn btn-primary btn-sm" id="viewFirmaDetails">
+                <i class="fas fa-eye me-1"></i>Detalji
+              </button>
+            </div>
+            <div class="card-body py-3">
+              <!-- Loading placeholder -->
+              <div class="firma-loading text-center py-3">
+                <div
+                  class="spinner-border spinner-border-sm text-primary"
+                  role="status"
+                >
+                  <span class="visually-hidden">Učitavanje...</span>
+                </div>
+                <div class="mt-2 text-muted">Učitavanje podataka firme...</div>
+              </div>
+
+              <!-- Podaci o firmi će se učitati ovde -->
+              <div id="firmaDetails" style="display: none">
+                <!-- Kompaktni prikaz u 2 reda -->
+                <div class="row g-2">
+                  <!-- Prvi red - osnovi podaci -->
+                  <div class="col-md-3">
+                    <h6 class="text-muted mb-1 small">Naziv</h6>
+                    <p class="mb-2 fw-bold small" id="firmaNaziv">-</p>
+                  </div>
+                  <div class="col-md-2">
+                    <h6 class="text-muted mb-1 small">PIB</h6>
+                    <p class="mb-2 small" id="firmaPib">-</p>
+                  </div>
+                  <div class="col-md-2">
+                    <h6 class="text-muted mb-1 small">PDV Broj</h6>
+                    <p class="mb-2 small" id="firmaPdvBroj">-</p>
+                  </div>
+                  <div class="col-md-2">
+                    <h6 class="text-muted mb-1 small">Status</h6>
+                    <span class="badge badge-sm" id="firmaStatus">-</span>
+                  </div>
+                  <div class="col-md-3">
+                    <h6 class="text-muted mb-1 small">Direktor</h6>
+                    <p class="mb-2 fw-bold small" id="direktorImePrezime">-</p>
+                  </div>
+                </div>
+
+                <!-- Drugi red - kontakt i lokacija -->
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <h6 class="text-muted mb-1 small">Adresa</h6>
+                    <p class="mb-2 small" id="firmaAdresa">-</p>
+                  </div>
+                  <div class="col-md-2">
+                    <h6 class="text-muted mb-1 small">Grad</h6>
+                    <p class="mb-2 small" id="firmaGrad">-</p>
+                  </div>
+                  <div class="col-md-3">
+                    <h6 class="text-muted mb-1 small">Telefon</h6>
+                    <p class="mb-2 small" id="firmaTelefon">-</p>
+                  </div>
+                  <div class="col-md-3">
+                    <h6 class="text-muted mb-1 small">Email</h6>
+                    <p class="mb-2 small" id="firmaEmail">-</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Leva kolona -->
+        <div class="col-lg-8">
+          <!-- Obaveštenja o radnicima -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+              Obaveštenja
+            </h5>
+
+            <!-- Loading placeholder -->
+            <div class="notifications-loading text-center py-3">
+              <div
+                class="spinner-border spinner-border-sm text-primary"
+                role="status"
+              >
+                <span class="visually-hidden">Učitavanje...</span>
+              </div>
+              <div class="mt-2 text-muted">Učitavanje obaveštenja...</div>
+            </div>
+
+            <!-- Obaveštenja će se učitati ovde dinamički -->
+          </div>
+
+          <!-- Aktivne pozajmice -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-coins text-warning me-2"></i>
+              Aktivne pozajmice
+            </h5>
+
+            <!-- Loading placeholder -->
+            <div class="pozajmice-loading text-center py-3">
+              <div
+                class="spinner-border spinner-border-sm text-warning"
+                role="status"
+              >
+                <span class="visually-hidden">Učitavanje...</span>
+              </div>
+              <div class="mt-2 text-muted">Učitavanje pozajmica...</div>
+            </div>
+
+            <!-- Pozajmice će se učitati ovde dinamički -->
+
+            <div class="d-grid">
+              <button class="btn btn-outline-warning" id="viewAllPozajmice">
+                <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desna kolona -->
+        <div class="col-lg-4">
+          <!-- Brze akcije -->
+          <div class="quick-action-card">
+            <h5 class="mb-3">
+              <i class="fas fa-bolt text-primary me-2"></i>
+              Brze akcije
+            </h5>
+
+            <button
+              onclick="openRadnikModal({ 
+                onSuccess: function(result) { 
+                  console.log('Radnik uspešno dodan:', result); 
+                } 
+              })"
+              class="btn btn-success quick-action-btn"
+            >
+              <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
+            </button>
+
+            <button class="btn btn-info quick-action-btn" id="createPozajmica">
+              <i class="fas fa-money-bill-wave me-2"></i>Kreiraj pozajmicu
+            </button>
+
+            <a
+              href="/shared/obracun-zaliha.html"
+              class="btn btn-primary quick-action-btn"
+            >
+              <i class="fas fa-calculator me-2"></i>Obračun zaliha
+            </a>
+          </div>
+
+          <!-- PDV Kalkulator -->
+          <div class="quick-action-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-calculator text-success me-2"></i>
+                PDV Kalkulator
+              </h5>
+              <div class="btn-group btn-group-sm" role="group">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pdv-mode"
+                  id="add-pdv"
+                  value="add"
+                  checked
+                />
+                <label class="btn btn-outline-success" for="add-pdv"
+                  >+ PDV</label
+                >
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="pdv-mode"
+                  id="remove-pdv"
+                  value="remove"
+                />
+                <label class="btn btn-outline-warning" for="remove-pdv"
+                  >- PDV</label
+                >
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-8">
+                <label class="form-label small text-muted" id="amount-label"
+                  >Iznos bez PDV-a</label
+                >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="pdv-amount"
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">PDV</label>
+                <select class="form-select form-select-sm" id="pdv-rate">
+                  <option value="21">21%</option>
+                  <option value="15">15%</option>
+                  <option value="7">7%</option>
+                  <option value="0">0%</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-6">
+                <div class="bg-light p-2 rounded text-center">
+                  <div class="small text-muted" id="result-label-1">
+                    PDV iznos
+                  </div>
+                  <div class="h6 text-success mb-0" id="pdv-tax-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="bg-primary bg-opacity-10 p-2 rounded text-center">
+                  <div class="small text-muted" id="result-label-2">
+                    Ukupno sa PDV
+                  </div>
+                  <div class="h6 text-primary mb-0" id="pdv-total-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary btn-sm flex-fill"
+                onclick="clearPdvCalculator()"
+              >
+                <i class="fas fa-eraser me-1"></i>Obriši
+              </button>
+              <button
+                class="btn btn-primary btn-sm flex-fill"
+                onclick="copyPdvResult()"
+              >
+                <i class="fas fa-copy me-1"></i>Kopiraj
+              </button>
+            </div>
+          </div>
+
+          <!-- Obračun zakupa -->
+          <div class="quick-action-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">
+                <i class="fas fa-home text-info me-2"></i>
+                Obračun zakupa
+              </h5>
+              <div class="btn-group btn-group-sm" role="group">
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="zakup-mode"
+                  id="neto-zakup"
+                  value="neto"
+                  checked
+                />
+                <label class="btn btn-outline-info" for="neto-zakup"
+                  >Neto</label
+                >
+
+                <input
+                  type="radio"
+                  class="btn-check"
+                  name="zakup-mode"
+                  id="bruto-zakup"
+                  value="bruto"
+                />
+                <label class="btn btn-outline-warning" for="bruto-zakup"
+                  >Bruto</label
+                >
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-8">
+                <label
+                  class="form-label small text-muted"
+                  id="zakup-amount-label"
+                  >Neto iznos</label
+                >
+                <div class="input-group input-group-sm">
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="zakup-amount"
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                  <span class="input-group-text">€</span>
+                </div>
+              </div>
+              <div class="col-4">
+                <label class="form-label small text-muted">Grad</label>
+                <select class="form-select form-select-sm" id="zakup-grad">
+                  <option value="podgorica-cetinje">Podgorica/Cetinje</option>
+                  <option value="budva">Budva</option>
+                  <option value="ostali">Ostali gradovi</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-2">
+              <div class="col-6">
+                <div class="bg-light p-2 rounded text-center">
+                  <div class="small text-muted" id="zakup-result-label-1">
+                    Porez
+                  </div>
+                  <div class="h6 text-info mb-0" id="zakup-porez-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="bg-info bg-opacity-10 p-2 rounded text-center">
+                  <div class="small text-muted" id="zakup-result-label-2">
+                    Prirez
+                  </div>
+                  <div class="h6 text-primary mb-0" id="zakup-prirez-amount">
+                    0.00 €
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary btn-sm flex-fill"
+                onclick="clearZakupCalculator()"
+              >
+                <i class="fas fa-eraser me-1"></i>Obriši
+              </button>
+              <button
+                class="btn btn-info btn-sm flex-fill"
+                onclick="copyZakupResult()"
+              >
+                <i class="fas fa-copy me-1"></i>Kopiraj
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script src="/shared/script.js"></script>
+    <script src="/shared/radnik-modal.js"></script>
+    <script>
+      let currentFirma = null;
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Postavi trenutni datum
+        const today = new Date();
+        const options = {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        };
+        document.getElementById('currentDate').textContent =
+          today.toLocaleDateString('sr-Latn-RS', options);
+
+        // Učitavanje podataka
+        loadUserData();
+        loadMyFirma();
+        loadNotifications();
+        loadPozajmice();
+
+        // Inicijalizuj kalkulatore
+        initPdvCalculator();
+        initZakupCalculator();
+
+        // Event listeneri
+        document
+          .getElementById('viewFirmaDetails')
+          .addEventListener('click', function () {
+            if (currentFirma) {
+              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}`;
+            }
+          });
+
+        document
+          .getElementById('createPozajmica')
+          .addEventListener('click', function () {
+            if (currentFirma) {
+              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}#pozajmice`;
+            }
+          });
+
+        document
+          .getElementById('viewAllPozajmice')
+          .addEventListener('click', function () {
+            if (currentFirma) {
+              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}#pozajmice`;
+            }
+          });
+
+        console.log('Dashboard firme učitan');
+      });
+
+      // Funkcija za učitavanje korisničkih podataka
+      async function loadUserData() {
+        try {
+          const response = await fetch('/api/users/current', {
+            method: 'GET',
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            document.getElementById('userName').textContent =
+              userData.ime + ' ' + userData.prezime;
+          } else {
+            console.error('Greška pri učitavanju korisničkih podataka');
+            document.getElementById('userName').textContent = 'Korisnice';
+          }
+        } catch (error) {
+          console.error('Greška pri povezivanju sa API:', error);
+          document.getElementById('userName').textContent = 'Korisnice';
+        }
+      }
+
+      // Funkcija za učitavanje podataka firme
+      async function loadMyFirma() {
+        try {
+          const response = await fetch('/api/firme/my-company', {
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const firma = await response.json();
+            currentFirma = firma;
+            displayFirmaData(firma);
+          } else {
+            console.error('Greška pri učitavanju podataka firme');
+          }
+        } catch (error) {
+          console.error('Greška pri povezivanju sa API:', error);
+        }
+      }
+
+      // Funkcija za prikaz podataka firme
+      function displayFirmaData(firma) {
+        document.querySelector('.firma-loading').style.display = 'none';
+        document.getElementById('firmaDetails').style.display = 'block';
+
+        // Osnovni podaci firme
+        document.getElementById('firmaNaziv').textContent = firma.naziv || '-';
+        document.getElementById('firmaPib').textContent = firma.pib || '-';
+        document.getElementById('firmaPdvBroj').textContent =
+          firma.pdvBroj || '-';
+        document.getElementById('firmaAdresa').textContent =
+          firma.adresa || '-';
+        document.getElementById('firmaGrad').textContent = firma.grad || '-';
+        document.getElementById('firmaTelefon').textContent =
+          firma.telefon || '-';
+        document.getElementById('firmaEmail').textContent = firma.email || '-';
+
+        // Status badge
+        const statusBadge = document.getElementById('firmaStatus');
+        statusBadge.textContent = firma.status || 'nepoznato';
+        statusBadge.className = `badge ${
+          firma.status === 'aktivan' ? 'bg-success' : 'bg-warning'
+        }`;
+
+        // Podaci o direktoru
+        document.getElementById('direktorImePrezime').textContent =
+          firma.direktor_ime_prezime || '-';
+      }
+
+      // Funkcija za učitavanje obaveštenja
+      async function loadNotifications() {
+        try {
+          const response = await fetch('/api/notifications', {
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            updateNotificationsSection(data.notifications);
+          } else {
+            console.error('Greška pri učitavanju obaveštenja');
+          }
+        } catch (error) {
+          console.error('Greška pri povezivanju sa serverom:', error);
+        }
+      }
+
+      // Funkcija za ažuriranje sekcije sa obaveštenjima
+      function updateNotificationsSection(notifications) {
+        const container = document
+          .querySelector('.quick-action-card h5 i.fa-exclamation-triangle')
+          .closest('.quick-action-card');
+
+        // Sakrij loader
+        const loader = container.querySelector('.notifications-loading');
+        if (loader) {
+          loader.style.display = 'none';
+        }
+
+        if (notifications.length === 0) {
+          const noNotifications = document.createElement('div');
+          noNotifications.className = 'text-center py-3 text-muted';
+          noNotifications.innerHTML = `
+            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+            <div>Nema hitnih obaveštenja</div>
+          `;
+          container.appendChild(noNotifications);
+          return;
+        }
+
+        // Dodaj obaveštenja
+        notifications.forEach(notification => {
+          const notificationElement = createNotificationElement(notification);
+          container.appendChild(notificationElement);
+        });
+      }
+
+      // Kreiranje HTML elementa za obaveštenje
+      function createNotificationElement(notification) {
+        const div = document.createElement('div');
+
+        let badgeClass = 'bg-info';
+        let cardClass = 'info';
+
+        if (notification.type === 'urgent') {
+          badgeClass = 'bg-danger';
+          cardClass = 'danger';
+        } else if (notification.type === 'warning') {
+          badgeClass = 'bg-warning';
+          cardClass = 'warning';
+        }
+
+        let actionUrl = '';
+        if (currentFirma && notification.action) {
+          actionUrl = notification.action.replace(
+            /id=\d+/,
+            `id=${currentFirma.id}`
+          );
+        }
+
+        div.className = `firma-card ${cardClass} mb-3`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">${notification.title}</h6>
+              <small class="text-muted">${notification.description}</small>
+            </div>
+            <div>
+              <span class="badge ${badgeClass}">${
+          notification.icon || notification.type
+        }</span>
+              ${
+                actionUrl
+                  ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
+                <i class="fas fa-eye"></i>
+              </a>`
+                  : ''
+              }
+            </div>
+          </div>
+        `;
+
+        return div;
+      }
+
+      // Funkcija za učitavanje pozajmica
+      async function loadPozajmice() {
+        try {
+          const response = await fetch('/api/pozajmnice', {
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            updatePozajmiceSection(data.pozajmice);
+          } else {
+            console.error('Greška pri učitavanju pozajmica');
+          }
+        } catch (error) {
+          console.error('Greška pri povezivanju sa pozajmice API:', error);
+        }
+      }
+
+      // Funkcija za ažuriranje sekcije sa pozajmicama
+      function updatePozajmiceSection(pozajmice) {
+        const container = document
+          .querySelector('.quick-action-card h5 i.fa-coins')
+          .closest('.quick-action-card');
+
+        // Sakrij loader
+        const loader = container.querySelector('.pozajmice-loading');
+        if (loader) {
+          loader.style.display = 'none';
+        }
+
+        // Filtruj aktivne pozajmice
+        const aktivnePozajmice = pozajmice.filter(
+          p =>
+            p.status === 'aktivna' &&
+            (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
+        );
+
+        if (aktivnePozajmice.length === 0) {
+          const noPozajmice = document.createElement('div');
+          noPozajmice.className = 'text-center py-3 text-muted mb-3';
+          noPozajmice.innerHTML = `
+            <i class="fas fa-piggy-bank fa-2x mb-2 text-warning"></i>
+            <div>Nema aktivnih pozajmica</div>
+          `;
+          container.insertBefore(
+            noPozajmice,
+            container.querySelector('.d-grid')
+          );
+          return;
+        }
+
+        // Prikaži samo prvih 3 pozajmice
+        const pozajmiceZaPrikaz = aktivnePozajmice.slice(0, 3);
+
+        pozajmiceZaPrikaz.forEach(pozajmica => {
+          const pozajmicaElement = createPozajmicaElement(pozajmica);
+          container.insertBefore(
+            pozajmicaElement,
+            container.querySelector('.d-grid')
+          );
+        });
+      }
+
+      // Kreiranje HTML elementa za pozajmicu
+      function createPozajmicaElement(pozajmica) {
+        const div = document.createElement('div');
+
+        const datumOdobrenja = new Date(
+          pozajmica.datum_izdavanja
+        ).toLocaleDateString('sr-Latn-RS');
+
+        const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;
+        const preostaloIznos =
+          pozajmica.preostalo_dugovanje !== undefined
+            ? pozajmica.preostalo_dugovanje
+            : ukupanIznos;
+        const vraćenoIznos =
+          pozajmica.ukupno_vraceno || ukupanIznos - preostaloIznos;
+
+        let borderClass = 'border-primary';
+        let statusClass = 'text-success';
+        let statusText = 'Aktivna';
+
+        if (preostaloIznos > 0 && vraćenoIznos > 0) {
+          const vraćeniProcenat = (vraćenoIznos / ukupanIznos) * 100;
+
+          if (vraćeniProcenat > 50) {
+            borderClass = 'border-info';
+            statusClass = 'text-info';
+            statusText = 'U toku vraćanja';
+          } else if (vraćeniProcenat < 20) {
+            borderClass = 'border-warning';
+            statusClass = 'text-warning';
+            statusText = 'Početak vraćanja';
+          }
+        }
+
+        div.className = `mb-3 p-3 border ${borderClass} rounded`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong>${pozajmica.radnik_ime} ${
+          pozajmica.radnik_prezime
+        }</strong>
+            </div>
+            <div class="text-end">
+              <h6 class="text-primary mb-0">${preostaloIznos}€</h6>
+              <small class="${statusClass}">${statusText}</small>
+            </div>
+          </div>
+          <small class="text-muted">Datum odobrenja: ${datumOdobrenja}</small>
+          ${
+            vraćenoIznos > 0 && ukupanIznos !== preostaloIznos
+              ? `<br><small class="text-info">Vraćeno: ${vraćenoIznos}€ od ${ukupanIznos}€</small>`
+              : ''
+          }
+        `;
+
+        return div;
+      }
+
+      // PDV Kalkulator funkcije (kopirane iz postojećeg dashboard-a)
+      function initPdvCalculator() {
+        const amountInput = document.getElementById('pdv-amount');
+        const rateSelect = document.getElementById('pdv-rate');
+        const modeRadios = document.querySelectorAll('input[name="pdv-mode"]');
+
+        amountInput.addEventListener('input', calculatePdv);
+        rateSelect.addEventListener('change', calculatePdv);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
+            updateLabels();
+            calculatePdv();
+          });
+        });
+
+        updateLabels();
+        calculatePdv();
+      }
+
+      function updateLabels() {
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+        const amountLabel = document.getElementById('amount-label');
+        const resultLabel1 = document.getElementById('result-label-1');
+        const resultLabel2 = document.getElementById('result-label-2');
+
+        if (mode === 'add') {
+          amountLabel.textContent = 'Iznos bez PDV-a';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Ukupno sa PDV';
+        } else {
+          amountLabel.textContent = 'Iznos sa PDV-om';
+          resultLabel1.textContent = 'PDV iznos';
+          resultLabel2.textContent = 'Iznos bez PDV';
+        }
+      }
+
+      function calculatePdv() {
+        const amount =
+          parseFloat(document.getElementById('pdv-amount').value) || 0;
+        const rate =
+          parseFloat(document.getElementById('pdv-rate').value) || 21;
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+
+        let pdvAmount, totalAmount;
+
+        if (mode === 'add') {
+          pdvAmount = amount * (rate / 100);
+          totalAmount = amount + pdvAmount;
+        } else {
+          const baseAmount = amount / (1 + rate / 100);
+          pdvAmount = amount - baseAmount;
+          totalAmount = baseAmount;
+        }
+
+        document.getElementById('pdv-tax-amount').textContent =
+          pdvAmount.toFixed(2) + ' €';
+        document.getElementById('pdv-total-amount').textContent =
+          totalAmount.toFixed(2) + ' €';
+      }
+
+      function clearPdvCalculator() {
+        document.getElementById('pdv-amount').value = '';
+        document.getElementById('pdv-rate').value = '21';
+        document.querySelector(
+          'input[name="pdv-mode"][value="add"]'
+        ).checked = true;
+        updateLabels();
+        calculatePdv();
+      }
+
+      function copyPdvResult() {
+        const mode = document.querySelector(
+          'input[name="pdv-mode"]:checked'
+        ).value;
+        const amount = document.getElementById('pdv-amount').value;
+        const rate = document.getElementById('pdv-rate').value;
+        const pdvAmount = document.getElementById('pdv-tax-amount').textContent;
+        const totalAmount =
+          document.getElementById('pdv-total-amount').textContent;
+
+        let textToCopy;
+        if (mode === 'add') {
+          textToCopy = `PDV Kalkulacija (+${rate}%):
+Iznos bez PDV: ${amount} €
+PDV iznos: ${pdvAmount}
+Ukupno sa PDV: ${totalAmount}`;
+        } else {
+          textToCopy = `PDV Kalkulacija (-${rate}%):
+Iznos sa PDV: ${amount} €
+PDV iznos: ${pdvAmount}
+Iznos bez PDV: ${totalAmount}`;
+        }
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
+            toast.innerHTML = `
+            <div class="toast show" role="alert">
+              <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Uspešno</strong>
+              </div>
+              <div class="toast-body">
+                Rezultat je kopiran u clipboard!
+              </div>
+            </div>
+          `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+              document.body.removeChild(toast);
+            }, 3000);
+          })
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
+          });
+      }
+
+      // Obračun zakupa funkcije (kopirane iz postojećeg dashboard-a)
+      function initZakupCalculator() {
+        const amountInput = document.getElementById('zakup-amount');
+        const gradSelect = document.getElementById('zakup-grad');
+        const modeRadios = document.querySelectorAll(
+          'input[name="zakup-mode"]'
+        );
+
+        amountInput.addEventListener('input', calculateZakup);
+        gradSelect.addEventListener('change', calculateZakup);
+        modeRadios.forEach(radio => {
+          radio.addEventListener('change', function () {
+            updateZakupLabels();
+            calculateZakup();
+          });
+        });
+
+        updateZakupLabels();
+        calculateZakup();
+      }
+
+      function updateZakupLabels() {
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+        const amountLabel = document.getElementById('zakup-amount-label');
+        const resultLabel1 = document.getElementById('zakup-result-label-1');
+        const resultLabel2 = document.getElementById('zakup-result-label-2');
+
+        if (mode === 'neto') {
+          amountLabel.textContent = 'Neto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
+        } else {
+          amountLabel.textContent = 'Bruto iznos';
+          resultLabel1.textContent = 'Porez';
+          resultLabel2.textContent = 'Prirez';
+        }
+      }
+
+      function calculateZakup() {
+        const amount =
+          parseFloat(document.getElementById('zakup-amount').value) || 0;
+        const grad = document.getElementById('zakup-grad').value;
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+
+        const prirezStope = {
+          'podgorica-cetinje': 15,
+          budva: 10,
+          ostali: 13,
+        };
+
+        const NETO_KOEFICIJENT = 0.117318;
+        const BRUTO_KOEFICIJENT = 0.105;
+
+        const prirezStopa = prirezStope[grad] || prirezStope['ostali'];
+        let porezIznos, prirezIznos, netoIznos;
+
+        if (mode === 'neto') {
+          netoIznos = amount;
+          porezIznos = netoIznos * NETO_KOEFICIJENT;
+          prirezIznos = porezIznos * (prirezStopa / 100);
+        } else {
+          const brutoIznos = amount;
+          porezIznos = brutoIznos * BRUTO_KOEFICIJENT;
+          prirezIznos = porezIznos * (prirezStopa / 100);
+        }
+
+        document.getElementById('zakup-porez-amount').textContent =
+          porezIznos.toFixed(2) + ' €';
+        document.getElementById('zakup-prirez-amount').textContent =
+          prirezIznos.toFixed(2) + ' €';
+      }
+
+      function clearZakupCalculator() {
+        document.getElementById('zakup-amount').value = '';
+        document.getElementById('zakup-grad').value = 'podgorica-cetinje';
+        document.querySelector(
+          'input[name="zakup-mode"][value="neto"]'
+        ).checked = true;
+        updateZakupLabels();
+        calculateZakup();
+      }
+
+      function copyZakupResult() {
+        const mode = document.querySelector(
+          'input[name="zakup-mode"]:checked'
+        ).value;
+        const amount = document.getElementById('zakup-amount').value;
+        const grad = document.getElementById('zakup-grad').value;
+        const gradNaziv =
+          document.getElementById('zakup-grad').options[
+            document.getElementById('zakup-grad').selectedIndex
+          ].text;
+        const porezAmount =
+          document.getElementById('zakup-porez-amount').textContent;
+        const prirezAmount = document.getElementById(
+          'zakup-prirez-amount'
+        ).textContent;
+
+        let textToCopy;
+        if (mode === 'neto') {
+          textToCopy = `Obračun zakupa (Neto → Bruto):
+Grad: ${gradNaziv}
+Neto iznos: ${amount} €
+Porez: ${porezAmount}
+Prirez: ${prirezAmount}
+Ukupno bruto: ${(
+            parseFloat(amount) +
+            parseFloat(porezAmount.replace(' €', '')) +
+            parseFloat(prirezAmount.replace(' €', ''))
+          ).toFixed(2)} €`;
+        } else {
+          textToCopy = `Obračun zakupa (Bruto → Neto):
+Grad: ${gradNaziv}
+Bruto iznos: ${amount} €
+Porez: ${porezAmount}
+Prirez: ${prirezAmount}
+Neto iznos: ${(
+            parseFloat(amount) -
+            parseFloat(porezAmount.replace(' €', '')) -
+            parseFloat(prirezAmount.replace(' €', ''))
+          ).toFixed(2)} €`;
+        }
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 p-3';
+            toast.style.zIndex = '1056';
+            toast.innerHTML = `
+            <div class="toast show" role="alert">
+              <div class="toast-header">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <strong class="me-auto">Uspešno</strong>
+              </div>
+              <div class="toast-body">
+                Rezultat je kopiran u clipboard!
+              </div>
+            </div>
+          `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+              document.body.removeChild(toast);
+            }, 3000);
+          })
+          .catch(err => {
+            console.error('Greška pri kopiranju:', err);
+            alert('Greška pri kopiranju u clipboard');
+          });
+      }
+    </script>
+  </body>
+</html>
