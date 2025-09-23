@@ -443,6 +443,11 @@ app.get('/jpr-korica.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/shared/jpr-korica.html');
 });
 
+// Zaštićena ruta za ugovor o zajmu novca
+app.get('/ugovor-o-zajmu-novca.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/ugovor-o-zajmu-novca.html');
+});
+
 // Ruta za pretplatu bez .html ekstenzije (za redirecte iz subscription middleware)
 // Ruta za pretplatu koja automatski redirect-uje na osnovu korisničke role
 app.get('/pretplata', authMiddleware, async (req, res) => {
