@@ -196,7 +196,8 @@ app.use((req, res, next) => {
 
   // Get referer to check for domain parameter in POST requests
   const referer = req.get('referer') || '';
-  const isDomainMojradnik = referer.includes('domain=mojradnik') || req.query.domain === 'mojradnik';
+  const isDomainMojradnik =
+    referer.includes('domain=mojradnik') || req.query.domain === 'mojradnik';
 
   // Detect domain and set appropriate paths
   if (

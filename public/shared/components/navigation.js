@@ -15,23 +15,31 @@ class Navigation {
     const urlParams = new URLSearchParams(window.location.search);
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-    
+
     console.log('🔍 NAVIGATION DEBUG:', {
       host: host,
       domain: domain,
       isMojradnik: isMojradnik,
-      currentURL: window.location.href
+      currentURL: window.location.href,
     });
-    
+
     // Domain-specific branding and paths
-    const brandLogo = isMojradnik ? '/mojradnik/logo.png' : '/shared/images/summasummarum_logo.svg';
+    const brandLogo = isMojradnik
+      ? '/mojradnik/logo.png'
+      : '/shared/images/summasummarum_logo.svg';
     const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
-    
+
     // Domain-specific paths
-    const dashboardPath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/dashboard.html';
-    const firmePath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/firme.html';
-    const pdvPath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/pdv-pregled.html';
-    
+    const dashboardPath = isMojradnik
+      ? '/mojradnik/dashboard.html'
+      : '/shared/dashboard.html';
+    const firmePath = isMojradnik
+      ? '/mojradnik/dashboard.html'
+      : '/shared/firme.html';
+    const pdvPath = isMojradnik
+      ? '/mojradnik/dashboard.html'
+      : '/shared/pdv-pregled.html';
+
     // Različita navigacija za različne tipove korisnika i domene
     const pdvCalendarItem =
       !isMojradnik && this.userRole !== 'firma'
@@ -136,8 +144,16 @@ class Navigation {
                   <span id="navbar-username">Korisnik</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="${isMojradnik ? '/mojradnik/dashboard.html' : '/shared/moj-profil.html'}"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
-                  <li><a class="dropdown-item" href="${isMojradnik ? '/mojradnik/dashboard.html' : '/shared/edit-profil.html'}"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
+                  <li><a class="dropdown-item" href="${
+                    isMojradnik
+                      ? '/mojradnik/dashboard.html'
+                      : '/shared/moj-profil.html'
+                  }"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
+                  <li><a class="dropdown-item" href="${
+                    isMojradnik
+                      ? '/mojradnik/dashboard.html'
+                      : '/shared/edit-profil.html'
+                  }"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Odjavi se</a></li>
                 </ul>
@@ -250,8 +266,10 @@ class Navigation {
     const urlParams = new URLSearchParams(window.location.search);
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-    const logoutRedirect = isMojradnik ? '/mojradnik/index.html' : '/index.html';
-    
+    const logoutRedirect = isMojradnik
+      ? '/mojradnik/index.html'
+      : '/index.html';
+
     // Logout funkcionalnost
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -796,7 +814,7 @@ window.navigateToNavbarResult = function (type, id, title = '', firmaId = '') {
   const urlParams = new URLSearchParams(window.location.search);
   const domain = urlParams.get('domain');
   const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-  
+
   const searchResults = document.getElementById('navbarSearchResults');
   if (searchResults) {
     searchResults.style.display = 'none';
@@ -851,7 +869,7 @@ window.showAllNavbarResults = function (query) {
   const urlParams = new URLSearchParams(window.location.search);
   const domain = urlParams.get('domain');
   const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-  
+
   // Hide search results
   const searchResults = document.getElementById('navbarSearchResults');
   if (searchResults) {
