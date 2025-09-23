@@ -184,7 +184,8 @@
         (»Sl.list CG« br.34/14 i 44/18), čl.1. Pravilnika o pitanjima iz zaštite
         na radu koja treba urediti ugovorom o radu (»Sl.list RCG« br.67/05) i
         čl.7 Zakona o zabrani zlostavljanja na radu (»Sl.list CG«, br.30/12 i
-        54/16) dana zaključuje 01.07.2025 se sledeći
+        54/16) dana zaključuje <span id="datum-zavodjenja">01.07.2025</span> se
+        sledeći
       </p>
 
       <h1>
@@ -803,6 +804,8 @@
         const datumZaposlenjaClan2Element = document.getElementById(
           'datum-zaposlenja-clan2'
         );
+        const datumZavodjenjaElement =
+          document.getElementById('datum-zavodjenja');
 
         if (datumPocetkaElement)
           datumPocetkaElement.textContent = formatiraniDatumZaposlenja;
@@ -810,6 +813,8 @@
           datumStupanjaElement.textContent = formatiraniDatumZaposlenja;
         if (datumZaposlenjaClan2Element)
           datumZaposlenjaClan2Element.textContent = formatiraniDatumZaposlenja;
+        if (datumZavodjenjaElement)
+          datumZavodjenjaElement.textContent = formatiraniDatumZaposlenja;
 
         // Prikaži/sakrij datum kraja za određeno/neodređeno vreme
         const datumKrajaWrapper = document.getElementById(
