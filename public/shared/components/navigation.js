@@ -23,17 +23,22 @@ class Navigation {
       currentURL: window.location.href
     });
     
-    // Domain-specific branding
+    // Domain-specific branding and paths
     const brandLogo = isMojradnik ? '/mojradnik/logo.png' : '/shared/images/summasummarum_logo.svg';
     const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
     
-    // Različita navigacija za różne tipove korisnika
+    // Domain-specific paths
+    const dashboardPath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/dashboard.html';
+    const firmePath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/firme.html';
+    const pdvPath = isMojradnik ? '/mojradnik/dashboard.html' : '/shared/pdv-pregled.html';
+    
+    // Različita navigacija za različne tipove korisnika i domene
     const pdvCalendarItem =
-      this.userRole !== 'firma'
+      !isMojradnik && this.userRole !== 'firma'
         ? `
               <!-- PDV Kalendar -->
               <li class="nav-item">
-                <a class="nav-link" href="pdv-pregled.html">
+                <a class="nav-link" href="${pdvPath}">
                   <i class="fas fa-receipt me-1"></i>PDV Kalendar
                 </a>
               </li>`
@@ -43,7 +48,7 @@ class Navigation {
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
         <div class="container-fluid">
           <!-- Brand -->
-          <a class="navbar-brand fw-bold" href="dashboard.html">
+          <a class="navbar-brand fw-bold" href="${dashboardPath}">
             <img src="${brandLogo}" alt="Logo" width="30" height="30" class="me-2">
             ${brandName}
           </a>
@@ -58,14 +63,14 @@ class Navigation {
             <ul class="navbar-nav me-auto">
               <!-- Dashboard -->
               <li class="nav-item">
-                <a class="nav-link" href="dashboard.html" data-page="dashboard">
+                <a class="nav-link" href="${dashboardPath}" data-page="dashboard">
                   <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                 </a>
               </li>
 
               <!-- Firme -->
               <li class="nav-item">
-                <a class="nav-link" href="firme.html">
+                <a class="nav-link" href="${firmePath}">
                   <i class="fas fa-building me-1"></i>Firme
                 </a>
               </li>
@@ -131,8 +136,8 @@ class Navigation {
                   <span id="navbar-username">Korisnik</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><a class="dropdown-item" href="/shared/moj-profil.html"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
-                  <li><a class="dropdown-item" href="edit-profil.html"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
+                  <li><a class="dropdown-item" href="${isMojradnik ? '/mojradnik/dashboard.html' : '/shared/moj-profil.html'}"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
+                  <li><a class="dropdown-item" href="${isMojradnik ? '/mojradnik/dashboard.html' : '/shared/edit-profil.html'}"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Odjavi se</a></li>
                 </ul>
@@ -240,6 +245,13 @@ class Navigation {
 
   // Dodaje event listenere
   attachEventListeners() {
+    // Domain detection za logout
+    const host = window.location.host;
+    const urlParams = new URLSearchParams(window.location.search);
+    const domain = urlParams.get('domain');
+    const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+    const logoutRedirect = isMojradnik ? '/mojradnik/index.html' : '/index.html';
+    
     // Logout funkcionalnost
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -251,11 +263,11 @@ class Navigation {
             credentials: 'include',
           });
           if (response.ok) {
-            window.location.href = '/index.html';
+            window.location.href = logoutRedirect;
           }
         } catch (error) {
           console.error('Greška pri odjavi:', error);
-          window.location.href = '/index.html';
+          window.location.href = logoutRedirect;
         }
       });
     }
@@ -779,6 +791,12 @@ window.loadNavigation = async function () {
 
 // Globalne funkcije za navbar search navigaciju
 window.navigateToNavbarResult = function (type, id, title = '', firmaId = '') {
+  // Domain detection
+  const host = window.location.host;
+  const urlParams = new URLSearchParams(window.location.search);
+  const domain = urlParams.get('domain');
+  const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+  
   const searchResults = document.getElementById('navbarSearchResults');
   if (searchResults) {
     searchResults.style.display = 'none';
@@ -798,18 +816,28 @@ window.navigateToNavbarResult = function (type, id, title = '', firmaId = '') {
 
   switch (type) {
     case 'firma':
-      // Otvori firma detalji stranicu
-      window.location.href = `/shared/firma-detalji.html?id=${id}`;
+      if (isMojradnik) {
+        // Za mojradnik, idi na dashboard
+        window.location.href = `/mojradnik/dashboard.html`;
+      } else {
+        // Za glavni sajt, otvori firma detalji stranicu
+        window.location.href = `/shared/firma-detalji.html?id=${id}`;
+      }
       break;
     case 'radnik':
-      // Za radnika, otvori radnik modal sa podacima
-      if (firmaId && firmaId !== '') {
-        // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
-        window.location.href = `/shared/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
+      if (isMojradnik) {
+        // Za mojradnik, idi na dashboard
+        window.location.href = `/mojradnik/dashboard.html`;
       } else {
-        // Fallback: idi na firme stranicu
-        console.warn('Nema firmaId za radnika, fallback na firme stranicu');
-        window.location.href = `/shared/firme.html`;
+        // Za radnika, otvori radnik modal sa podacima
+        if (firmaId && firmaId !== '') {
+          // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
+          window.location.href = `/shared/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
+        } else {
+          // Fallback: idi na firme stranicu
+          console.warn('Nema firmaId za radnika, fallback na firme stranicu');
+          window.location.href = `/shared/firme.html`;
+        }
       }
       break;
     default:
@@ -818,6 +846,12 @@ window.navigateToNavbarResult = function (type, id, title = '', firmaId = '') {
 };
 
 window.showAllNavbarResults = function (query) {
+  // Domain detection
+  const host = window.location.host;
+  const urlParams = new URLSearchParams(window.location.search);
+  const domain = urlParams.get('domain');
+  const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+  
   // Hide search results
   const searchResults = document.getElementById('navbarSearchResults');
   if (searchResults) {
@@ -836,10 +870,16 @@ window.showAllNavbarResults = function (query) {
     clearButton.style.display = 'none';
   }
 
-  // Navigate to firme page with search
-  window.location.href = `/shared/firme.html?search=${encodeURIComponent(
-    query
-  )}`;
+  // Navigate to appropriate page with search
+  if (isMojradnik) {
+    // Za mojradnik, idi na dashboard
+    window.location.href = `/mojradnik/dashboard.html`;
+  } else {
+    // Navigate to firme page with search
+    window.location.href = `/shared/firme.html?search=${encodeURIComponent(
+      query
+    )}`;
+  }
 };
 
 // Export za module sisteme
