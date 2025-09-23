@@ -423,6 +423,26 @@ app.get('/sedmicni-odmor.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/shared/sedmicni-odmor.html');
 });
 
+// Zaštićena ruta za JPR dodatak B
+app.get('/jpr-dodatak-b.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/jpr-dodatak-b.html');
+});
+
+// Zaštićena ruta za JPR dodatak A
+app.get('/jpr-dodatak-a.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/jpr-dodatak-a.html');
+});
+
+// Zaštićena ruta za JPR dodatak C
+app.get('/jpr-dodatak-c.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/jpr-dodatak-c.html');
+});
+
+// Zaštićena ruta za JPR korica
+app.get('/jpr-korica.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/jpr-korica.html');
+});
+
 // Ruta za pretplatu bez .html ekstenzije (za redirecte iz subscription middleware)
 // Ruta za pretplatu koja automatski redirect-uje na osnovu korisničke role
 app.get('/pretplata', authMiddleware, async (req, res) => {
