@@ -34,6 +34,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard | Summa Summarum</title>
+    
+    <!-- Set dynamic page title based on domain -->
+    <script>
+      (function() {
+        const host = window.location.host;
+        const urlParams = new URLSearchParams(window.location.search);
+        const domain = urlParams.get('domain');
+        const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+        
+        // Set appropriate title based on domain
+        const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
+        document.title = `Dashboard | ${brandName}`;
+      })();
+    </script>
 
     <!-- Favicon -->
     <link
