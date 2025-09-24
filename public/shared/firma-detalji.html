@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detalji Firme - Summa Summarum</title>
-    
+
     <!-- Favicon -->
     <link
       rel="apple-touch-icon"
@@ -43,18 +43,19 @@
   <body>
     <!-- Set dynamic page title based on domain -->
     <script>
-      (function() {
+      (function () {
         const host = window.location.host;
         const urlParams = new URLSearchParams(window.location.search);
         const domain = urlParams.get('domain');
-        const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-        
+        const isMojradnik =
+          host.includes('mojradnik.me') || domain === 'mojradnik';
+
         // Set appropriate title based on domain
         const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
         document.title = `Detalji Firme - ${brandName}`;
       })();
     </script>
-    
+
     <!-- Navigation će biti automatski ubačena ovde -->
 
     <!-- Firma Header -->

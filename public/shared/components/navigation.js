@@ -73,8 +73,12 @@ class Navigation {
 
               <!-- Firme/Firma -->
               <li class="nav-item">
-                <a class="nav-link" href="${firmePath}" ${isMojradnik ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''}>
-                  <i class="fas fa-building me-1"></i>${isMojradnik ? 'Firma' : 'Firme'}
+                <a class="nav-link" href="${firmePath}" ${
+      isMojradnik ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''
+    }>
+                  <i class="fas fa-building me-1"></i>${
+                    isMojradnik ? 'Firma' : 'Firme'
+                  }
                 </a>
               </li>
 
@@ -902,7 +906,7 @@ window.navigateToFirmaDetalji = async function () {
     const response = await fetch('/api/firme', {
       credentials: 'include',
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       if (data.firme && data.firme.length > 0) {

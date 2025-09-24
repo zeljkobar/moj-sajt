@@ -78,7 +78,7 @@ const authController = {
   // Login
   login: async (req, res) => {
     // Login request received
-    
+
     try {
       const { username, password } = req.body;
       const user = await getUserByUsername(username);
