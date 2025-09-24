@@ -182,17 +182,10 @@ if (process.env.NODE_ENV === 'production') {
 
 // Domain-specific middleware for multi-domain setup
 app.use((req, res, next) => {
-  console.log(
-    '🔥 MIDDLEWARE CALLED - Method:',
-    req.method,
-    'Path:',
-    req.path,
-    'Host:',
-    req.get('host')
-  );
+  // Domain middleware called
 
   const host = req.get('host');
-  console.log('Domain middleware - host:', host, 'path:', req.path);
+  // Processing domain middleware
 
   // Get referer to check for domain parameter in POST requests
   const referer = req.get('referer') || '';
@@ -214,14 +207,14 @@ app.use((req, res, next) => {
     req.isMultiTenant = true;
   }
 
-  console.log('Domain middleware - domainType set to:', req.domainType);
+  // Domain type determined
   next();
 });
 
 // Serve domain-specific index files - MORA BITI PRE static middleware-a
 app.get('/', (req, res) => {
   try {
-    console.log('GET / request - domainType:', req.domainType);
+    // Root request handler
     const indexPath = path.join(
       __dirname,
       'public',
@@ -229,8 +222,7 @@ app.get('/', (req, res) => {
       'index.html'
     );
 
-    console.log('Looking for index at:', indexPath);
-    console.log('File exists:', fs.existsSync(indexPath));
+    // Checking for domain-specific index file
 
     // Check if domain-specific index exists, fallback to shared
     if (fs.existsSync(indexPath)) {
@@ -243,7 +235,7 @@ app.get('/', (req, res) => {
         'shared',
         'index.html'
       );
-      console.log('Fallback to:', fallbackPath);
+      // Using fallback index
       res.sendFile(fallbackPath);
     }
   } catch (error) {
@@ -255,7 +247,7 @@ app.get('/', (req, res) => {
 // Serve domain-specific registracija files
 app.get('/registracija.html', (req, res) => {
   try {
-    console.log('GET /registracija.html request - domainType:', req.domainType);
+    // Registration page request
     const registracijaPath = path.join(
       __dirname,
       'public',
@@ -277,7 +269,7 @@ app.get('/registracija.html', (req, res) => {
         'shared',
         'registracija1.html' // renamed file
       );
-      console.log('Fallback to:', fallbackPath);
+      // Using fallback registracija
       if (fs.existsSync(fallbackPath)) {
         res.sendFile(fallbackPath);
       } else {
@@ -297,7 +289,7 @@ app.get('/registracija.html', (req, res) => {
 
 // Handle direct requests to /index.html by redirecting to root
 app.get('/index.html', (req, res) => {
-  console.log('GET /index.html - redirecting to /');
+  // Redirecting index.html to root
   res.redirect('/');
 });
 
@@ -1241,16 +1233,13 @@ app.post(
   requireRole(ROLES.ADMIN),
   upload.single('csvFile'),
   async (req, res) => {
-    console.log('🚀 Marketing campaign endpoint pozvan');
-    console.log('📁 req.file:', req.file ? 'Postoji' : 'Ne postoji');
-    console.log('📋 req.body:', req.body);
-    console.log('👤 req.user:', req.user ? req.user.username : 'Nije ulogovan');
+    // Marketing campaign endpoint called
 
     try {
       const { testMode, campaignName } = req.body;
 
       if (!req.file) {
-        console.log('❌ Nema CSV fajla');
+        // No CSV file provided
         return res
           .status(400)
           .json({ success: false, error: 'CSV fajl je obavezan' });
@@ -1468,7 +1457,7 @@ app.get('/api/marketing/track/open/:emailId', async (req, res) => {
 
     res.end(pixel);
 
-    console.log(`📖 Email ${emailId} otvoren - IP: ${ipAddress}`);
+    // Email tracking recorded
   } catch (error) {
     console.error('Email tracking error:', error);
     // I u slučaju greške vrati pixel da ne pokvarimo email

@@ -13,7 +13,7 @@ async function copyTemplatesToUser(userId) {
     const templates = await executeQuery(templatesQuery);
 
     if (templates.length === 0) {
-      console.log('⚠️ Nema template pozicija za kopiranje');
+      // No template pozicije to copy
       return false;
     }
 
@@ -27,9 +27,7 @@ async function copyTemplatesToUser(userId) {
       await executeQuery(insertQuery, [template.naziv, opisPoslova, userId]);
     }
 
-    console.log(
-      `✅ Uspešno kopirano ${templates.length} template pozicija za korisnika ID: ${userId}`
-    );
+    // Template pozicije kopirane uspešno
     return true;
   } catch (error) {
     console.error('❌ Greška pri kopiranju template pozicija:', error);
@@ -79,20 +77,14 @@ async function createUser(userData) {
 const authController = {
   // Login
   login: async (req, res) => {
-    console.log('🔵 LOGIN REQUEST RECEIVED:', {
-      method: req.method,
-      path: req.path,
-      body: req.body,
-      host: req.get('host'),
-      domainType: req.domainType
-    });
+    // Login request received
     
     try {
       const { username, password } = req.body;
       const user = await getUserByUsername(username);
 
       if (!user) {
-        console.log('❌ User not found:', username);
+        // User not found
         return res
           .status(401)
           .json({ message: 'Pogrešno korisničko ime ili lozinka' });
@@ -113,18 +105,10 @@ const authController = {
         // Koristi req.domainType postavljen u middleware-u
         const domainType = req.domainType || 'summasummarum'; // default
 
-        console.log('🔍 LOGIN DEBUG:', {
-          username: username,
-          userRole: user.role,
-          domainType: domainType,
-          host: req.get('host'),
-          query: req.query,
-        });
-
-        // Blokiraj login ako je korisnik na pogrešnom domenu (osim admin-a)
+        // Login validation passed        // Blokiraj login ako je korisnik na pogrešnom domenu (osim admin-a)
         if (user.role !== 'admin') {
           if (user.role === 'agencija' && domainType === 'mojradnik') {
-            console.log('❌ BLOCKING: agencija pokušava login na mojradnik');
+            // Agencija blocked from mojradnik domain
             return res.status(403).json({
               message:
                 'Korisnici tipa "agencija" se mogu logovati samo na summasummarum.me',
@@ -133,7 +117,7 @@ const authController = {
           }
 
           if (user.role === 'firma' && domainType === 'summasummarum') {
-            console.log('❌ BLOCKING: firma pokušava login na summasummarum');
+            // Firma blocked from summasummarum domain
             return res.status(403).json({
               message:
                 'Korisnici tipa "firma" se mogu logovati samo na mojradnik.me',
@@ -334,7 +318,7 @@ const authController = {
         .sendWelcomeEmail(email, userName, userType || 'firma')
         .then(result => {
           if (result.success) {
-            console.log(`✅ Welcome email poslat za korisnika: ${username}`);
+            // Welcome email sent
           } else {
             console.error(
               `❌ Neuspešno slanje welcome email-a za: ${username}`,
@@ -431,7 +415,7 @@ const authController = {
       );
 
       if (emailResult.success) {
-        console.log(`✅ Password reset email poslat za: ${email}`);
+        // Password reset email sent
       } else {
         console.error(
           `❌ Neuspešno slanje reset email-a za: ${email}`,
@@ -504,7 +488,7 @@ const authController = {
         [token]
       );
 
-      console.log(`✅ Password reset uspešno za korisnika: ${user.username}`);
+      // Password reset successful
 
       res.json({
         success: true,
@@ -569,9 +553,7 @@ const authController = {
       // Copy template positions
       await copyTemplatesToUser(userId);
 
-      console.log(
-        `✅ Agencija registrirana: ${ime} ${prezime} (ID: ${userId})`
-      );
+      // Agencija registered successfully
 
       res.status(201).json({
         success: true,
@@ -635,9 +617,7 @@ const authController = {
       // Copy template positions
       await copyTemplatesToUser(userId);
 
-      console.log(
-        `✅ Kompanija registrirana: ${ime} ${prezime} (ID: ${userId})`
-      );
+      // Kompanija registered successfully
 
       res.status(201).json({
         success: true,
