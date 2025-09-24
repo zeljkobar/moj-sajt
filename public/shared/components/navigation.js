@@ -16,12 +16,7 @@ class Navigation {
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
 
-    console.log('🔍 NAVIGATION DEBUG:', {
-      host: host,
-      domain: domain,
-      isMojradnik: isMojradnik,
-      currentURL: window.location.href,
-    });
+    // Domain detection completed
 
     // Domain-specific branding and paths
     const brandLogo = isMojradnik
@@ -146,12 +141,12 @@ class Navigation {
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><a class="dropdown-item" href="${
                     isMojradnik
-                      ? '/mojradnik/dashboard.html'
+                      ? '/shared/moj-profil.html'
                       : '/shared/moj-profil.html'
                   }"><i class="fas fa-user-circle me-2"></i>Moj profil</a></li>
                   <li><a class="dropdown-item" href="${
                     isMojradnik
-                      ? '/mojradnik/dashboard.html'
+                      ? '/shared/edit-profil.html'
                       : '/shared/edit-profil.html'
                   }"><i class="fas fa-edit me-2"></i>Edituj profil</a></li>
                   <li><hr class="dropdown-divider"></li>
