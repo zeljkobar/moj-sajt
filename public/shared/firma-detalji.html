@@ -1030,6 +1030,13 @@
             </button>
             <button
               type="button"
+              class="btn btn-outline-success"
+              onclick="aneksRadnoMestoModal()"
+            >
+              <i class="fas fa-map-marker-alt me-1"></i>Aneks - Radno mjesto
+            </button>
+            <button
+              type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
             >
@@ -2132,6 +2139,102 @@
               type="button"
               class="btn btn-primary"
               onclick="generisiAneksRadnoVreme()"
+            >
+              <i class="fas fa-file-contract me-1"></i>Generiši aneks
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za aneks radnog mjesta -->
+    <div
+      class="modal fade"
+      id="aneksRadnoMestoModal"
+      tabindex="-1"
+      aria-labelledby="aneksRadnoMestoModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="aneksRadnoMestoModalLabel">
+              <i class="fas fa-map-marker-alt me-2"></i>Aneks ugovora - Promjena
+              radnog mjesta
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <!-- Trenutno radno mjesto -->
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <h6>
+                    <i class="fas fa-info-circle me-1"></i>Trenutno radno
+                    mjesto:
+                  </h6>
+                  <div id="trenutnoRadnoMjesto">
+                    <strong>Učitavanje...</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Datum promjene -->
+              <div class="col-md-6">
+                <label for="datumPromeneRM" class="form-label">
+                  <i class="fas fa-calendar me-1"></i>Datum promjene radnog
+                  mjesta <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="datumPromeneRM"
+                  required
+                />
+              </div>
+
+              <!-- Novo radno mjesto -->
+              <div class="col-md-6">
+                <label for="novoRadnoMjesto" class="form-label">
+                  <i class="fas fa-map-marker-alt me-1"></i>Novo radno mjesto
+                  <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="novoRadnoMjesto" required>
+                  <option value="">Izaberi radno mjesto</option>
+                </select>
+              </div>
+
+              <!-- Razlog promjene -->
+              <div class="col-12">
+                <label for="razlogPromeneRM" class="form-label">
+                  <i class="fas fa-comment me-1"></i>Razlog promjene (opciono)
+                </label>
+                <textarea
+                  class="form-control"
+                  id="razlogPromeneRM"
+                  rows="2"
+                  placeholder="Unesite razlog promjene radnog mjesta..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="generisiAneksRadnoMjesto()"
             >
               <i class="fas fa-file-contract me-1"></i>Generiši aneks
             </button>

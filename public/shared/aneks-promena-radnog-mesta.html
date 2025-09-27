@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aneks ugovora o radu - Promjena radnog mjesta</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <!-- Dynamic Favicon Script -->
+    <script src="/shared/components/dynamic-favicon.js"></script>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <style>
+      @media print {
+        body {
+          margin: 0;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .container {
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .document {
+          font-size: 9pt !important;
+          line-height: 1.2 !important;
+          padding: 15mm !important;
+        }
+        .header {
+          margin-bottom: 15px !important;
+        }
+        .header h2 {
+          font-size: 14pt !important;
+          margin: 5px 0 !important;
+        }
+        .header h3 {
+          font-size: 12pt !important;
+          margin: 3px 0 !important;
+        }
+        .header h4 {
+          font-size: 11pt !important;
+          margin: 5px 0 !important;
+        }
+        .content h4 {
+          font-size: 9pt !important;
+          margin: 8px 0 5px 0 !important;
+        }
+        .company-info h4 {
+          font-size: 9pt !important;
+          margin: 8px 0 5px 0 !important;
+        }
+        .company-info p {
+          margin: 3px 0 !important;
+        }
+        .content p {
+          margin: 5px 0 !important;
+        }
+        .potpis-sekcija {
+          margin-top: 20px !important;
+        }
+        .potpis-sekcija p {
+          margin: 2px 0 !important;
+        }
+        #opis-poslova {
+          margin: 10px 0 !important;
+          padding: 8px !important;
+        }
+        .info-table {
+          margin: 15px 0 !important;
+        }
+      }
+
+      .document {
+        max-width: 210mm;
+        margin: 20px auto;
+        padding: 20mm;
+        background: white;
+        box-shadow: none;
+        font-size: 10pt;
+        line-height: 1.3;
+        color: #000;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+      }
+
+      .header h2 {
+        font-size: 16pt;
+        margin: 8px 0;
+      }
+
+      .header h3 {
+        font-size: 14pt;
+        margin: 5px 0;
+      }
+
+      .header h4 {
+        font-size: 13pt;
+        margin: 8px 0;
+      }
+
+      .content h4 {
+        font-size: 11pt;
+        margin: 10px 0 8px 0;
+      }
+
+      .company-info {
+        margin-bottom: 20px;
+      }
+
+      .company-info h4 {
+        font-size: 11pt;
+        margin: 10px 0 8px 0;
+      }
+
+      .content {
+        line-height: 1.4;
+      }
+
+      .potpis-sekcija p {
+        margin: 2px 0;
+        font-size: 0.9em;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+      }
+
+      .error {
+        color: #dc3545;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .info-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+      }
+
+      .info-table .label {
+        background-color: #f5f5f5;
+        font-weight: bold;
+        width: 40%;
+      }
+
+      /* Modal styles */
+      .modal-content {
+        border-radius: 8px;
+      }
+
+      .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+      }
+
+      .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+      }
+
+      .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="no-print">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+          <a class="navbar-brand" href="/dashboard.html">
+            <i class="fas fa-arrow-left me-2"></i>Povratak na dashboard
+          </a>
+          <div class="navbar-nav ms-auto">
+            <button
+              class="btn btn-outline-light me-2"
+              onclick="openJPRForRadnik()"
+            >
+              <i class="fas fa-file-alt me-1"></i>Otvori JPR
+            </button>
+            <button class="btn btn-outline-light" onclick="window.print()">
+              <i class="fas fa-print me-1"></i>Štampaj
+            </button>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+      <div id="loading" class="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Učitavanje...</span>
+        </div>
+        <p>Učitavam podatke...</p>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="document" class="document" style="display: none">
+        <div class="header">
+          <h2>ANEKS br. <span id="aneks-broj">[BROJ]</span></h2>
+          <h3>UZ UGOVOR O RADU od <span id="datum-ugovora">[DATUM]</span></h3>
+          <h4>ZA PROMJENU RADNOG MJESTA</h4>
+        </div>
+
+        <div class="company-info" id="company-info">
+          <!-- Podaci o firmi će biti ubačeni ovde -->
+        </div>
+
+        <div id="aneks-content">
+          <!-- Sadržaj aneksa će biti ubačen ovde -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za promenu radnog mesta -->
+    <div
+      class="modal fade"
+      id="promenaRadnogMestaModal"
+      tabindex="-1"
+      aria-labelledby="promenaRadnogMestaModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="promenaRadnogMestaModalLabel">
+              <i class="fas fa-map-marker-alt me-2"></i>Promjena radnog mjesta
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="trenutnoRadnoMesto" class="form-label"
+                    >Trenutno radno mjesto:</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="trenutnoRadnoMesto"
+                    readonly
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="novoPozicijaId" class="form-label"
+                    >Novo radno mjesto:</label
+                  >
+                  <select class="form-select" id="novoPozicijaId" required>
+                    <option value="">Izaberite novo radno mjesto</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="datumPromeneRadnogMesta" class="form-label"
+                >Datum promjene:</label
+              >
+              <input
+                type="date"
+                class="form-control"
+                id="datumPromeneRadnogMesta"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="razlogPromeneRadnogMesta" class="form-label"
+                >Razlog promjene (opciono):</label
+              >
+              <textarea
+                class="form-control"
+                id="razlogPromeneRadnogMesta"
+                rows="3"
+                placeholder="Napišite razlog promjene radnog mjesta..."
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="kreirajAneksRadnoMesto()"
+            >
+              <i class="fas fa-file-contract me-1"></i>Kreiraj aneks
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Globalne promenljive
+      let radnikId = null;
+      let firmaId = null;
+      let datumPromene = null;
+      let novoRadnoMesto = null;
+      let staroRadnoMesto = null;
+      let razlogPromene = null;
+      let opisPoslova = null;
+      let currentRadnik = null;
+      let currentFirma = null;
+      let dostupnePozicije = [];
+
+      // Inicijalizacija
+      document.addEventListener('DOMContentLoaded', function () {
+        // Uzmi parametre iz URL-a
+        const urlParams = new URLSearchParams(window.location.search);
+        radnikId = urlParams.get('radnikId');
+        firmaId = urlParams.get('firmaId');
+        datumPromene = urlParams.get('datumPromene');
+        novoRadnoMesto = urlParams.get('novoRadnoMesto');
+        staroRadnoMesto = urlParams.get('staroRadnoMesto');
+        razlogPromene = urlParams.get('razlogPromene') || '';
+        opisPoslova = urlParams.get('opisPoslova') || '';
+
+        if (!radnikId || !firmaId || !datumPromene || !novoRadnoMesto) {
+          showError('Nedostaju potrebni parametri');
+          return;
+        }
+
+        loadData();
+      });
+
+      // Učitavanje podataka
+      async function loadData() {
+        try {
+          // Učitaj podatke o radniku i firmi paralelno
+          const [radnikResponse, firmaResponse] = await Promise.all([
+            fetch(`/api/radnici/id/${radnikId}`),
+            fetch(`/api/firme/id/${firmaId}`),
+          ]);
+
+          if (!radnikResponse.ok || !firmaResponse.ok) {
+            throw new Error('Greška pri učitavanju podataka');
+          }
+
+          currentRadnik = await radnikResponse.json();
+          currentFirma = await firmaResponse.json();
+
+          // Ako nema opisa poslova u URL parametrima, učitaj iz baze
+          if (!opisPoslova && novoRadnoMesto) {
+            try {
+              const pozicijeResponse = await fetch('/api/pozicije');
+              if (pozicijeResponse.ok) {
+                const pozicije = await pozicijeResponse.json();
+                // Pronađi poziciju po nazivu
+                const pozicija = pozicije.find(p => p.naziv === novoRadnoMesto);
+                if (pozicija && pozicija.opis_poslova) {
+                  opisPoslova = pozicija.opis_poslova;
+                }
+              }
+            } catch (error) {
+              console.error('Greška pri učitavanju opisa poslova:', error);
+            }
+          }
+
+          // Generiši dokument
+          generateDocument();
+
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('document').style.display = 'block';
+        } catch (error) {
+          console.error('Greška:', error);
+          showError('Greška pri učitavanju podataka: ' + error.message);
+        }
+      }
+
+      // Učitavanje pozicija za modal
+      async function loadPozicije() {
+        try {
+          const response = await fetch('/api/pozicije');
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju pozicija');
+          }
+
+          dostupnePozicije = await response.json();
+
+          // Popuni select
+          const select = document.getElementById('novoPozicijaId');
+          select.innerHTML =
+            '<option value="">Izaberite novo radno mesto</option>';
+
+          dostupnePozicije.forEach(pozicija => {
+            const option = document.createElement('option');
+            option.value = pozicija.id;
+            option.textContent = pozicija.naziv;
+
+            // Ne prikazuj trenutnu poziciju kao opciju
+            if (pozicija.id !== currentRadnik.pozicija_id) {
+              select.appendChild(option);
+            }
+          });
+        } catch (error) {
+          console.error('Greška pri učitavanju pozicija:', error);
+          alert('Greška pri učitavanju pozicija: ' + error.message);
+        }
+      }
+
+      // Prikaz modala za promjenu radnog mjesta
+      async function showPromenaRadnogMestaModal() {
+        if (!currentRadnik) {
+          alert('Podaci o radniku nisu učitani');
+          return;
+        }
+
+        // Učitaj pozicije ako nisu učitane
+        if (dostupnePozicije.length === 0) {
+          await loadPozicije();
+        }
+
+        // Popuni trenutno radno mjesto
+        const trenutnoPozicijaNaziv =
+          currentRadnik.pozicija_naziv || 'Nespecifikovano';
+        document.getElementById('trenutnoRadnoMesto').value =
+          trenutnoPozicijaNaziv;
+
+        // Postavi današnji datum kao default
+        const danas = new Date().toISOString().split('T')[0];
+        document.getElementById('datumPromeneRadnogMesta').value = danas;
+
+        // Prikaži modal
+        const modal = new bootstrap.Modal(
+          document.getElementById('promenaRadnogMestaModal')
+        );
+        modal.show();
+      }
+
+      // Kreiranje aneksa za radno mjesto
+      function kreirajAneksRadnoMesto() {
+        const novoPozicijaId = document.getElementById('novoPozicijaId').value;
+        const datumPromeneNovo = document.getElementById(
+          'datumPromeneRadnogMesta'
+        ).value;
+        const razlogPromeneNovo = document.getElementById(
+          'razlogPromeneRadnogMesta'
+        ).value;
+
+        if (!novoPozicijaId || !datumPromeneNovo) {
+          alert('Molimo popunite sva obavezna polja');
+          return;
+        }
+
+        // Nađi naziv nove pozicije
+        const novaPozicija = dostupnePozicije.find(
+          p => p.id === novoPozicijaId
+        );
+        if (!novaPozicija) {
+          alert('Greška: Nije moguće pronaći izabranu poziciju');
+          return;
+        }
+
+        // Ažuriraj radnika u bazi
+        updateRadnikPozicija(
+          novoPozicijaId,
+          datumPromeneNovo,
+          razlogPromeneNovo,
+          novaPozicija.naziv,
+          novaPozicija.opis_poslova
+        );
+      }
+
+      // Ažuriranje pozicije radnika
+      async function updateRadnikPozicija(
+        novoPozicijaId,
+        datumPromeneNovo,
+        razlogPromeneNovo,
+        novaPozicijaNaziv,
+        noviOpisPoslova
+      ) {
+        try {
+          const response = await fetch(`/api/radnici/${radnikId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ...currentRadnik,
+              pozicija_id: novoPozicijaId,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Greška pri ažuriranju radnika');
+          }
+
+          // Sakrij modal
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById('promenaRadnogMestaModal')
+          );
+          modal.hide();
+
+          // Preusmeri na aneks sa novim podacima
+          const params = new URLSearchParams({
+            radnikId: radnikId,
+            firmaId: firmaId,
+            datumPromene: datumPromeneNovo,
+            novoRadnoMesto: novaPozicijaNaziv,
+            staroRadnoMesto: currentRadnik.pozicija_naziv || 'Nespecifikovano',
+            razlogPromene: razlogPromeneNovo || '',
+            opisPoslova: noviOpisPoslova || '',
+          });
+
+          window.location.href = `/shared/aneks-promena-radnog-mesta.html?${params.toString()}`;
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri ažuriranju radnika: ' + error.message);
+        }
+      }
+
+      // Generiranje dokumenta
+      function generateDocument() {
+        // Generiši broj aneksa (trenutni datum + vreme)
+        const sada = new Date();
+        const aneksBroj = `${sada.getFullYear()}${(sada.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}${sada.getDate().toString().padStart(2, '0')}-${sada
+          .getHours()
+          .toString()
+          .padStart(2, '0')}${sada.getMinutes().toString().padStart(2, '0')}`;
+
+        document.getElementById('aneks-broj').textContent = aneksBroj;
+        document.getElementById('datum-ugovora').textContent =
+          currentRadnik.datum_zaposlenja
+            ? formatDate(currentRadnik.datum_zaposlenja)
+            : '[DATUM]';
+
+        // Podaci o firmi
+        const companyInfo = document.getElementById('company-info');
+        companyInfo.innerHTML = `
+          <h4>UGOVORNI PARTNERI:</h4>
+          <p><strong>1. POSLODAVAC:</strong> ${currentFirma.naziv}</p>
+          <p>PIB: ${currentFirma.pib || 'N/A'}</p>
+          <p>Sjedište: ${currentFirma.adresa}, ${currentFirma.grad}</p>
+          <p>koga zastupa direktor ${
+            currentFirma.direktor_ime_prezime || '___________'
+          }</p>
+          
+          <p><strong>2. ZAPOSLENI:</strong> ${currentRadnik.ime} ${
+          currentRadnik.prezime
+        }</p>
+          <p>JMBG: ${currentRadnik.jmbg}</p>
+          <p>Prebivalište: ${currentRadnik.adresa}, ${currentRadnik.grad}</p>
+        `;
+
+        // Sadržaj aneksa
+        const staroRadnoMestoText =
+          staroRadnoMesto || currentRadnik.pozicija_naziv || 'Nespecifikovano';
+
+        const aneksContent = document.getElementById('aneks-content');
+        aneksContent.innerHTML = `
+          <div class="content">
+            <h4>PREDMET ANEKSA</h4>
+            
+            <p><strong>Član 1.</strong></p>
+            <p>Ugovorni partneri su saglasni da izmjene osnovni ugovor o radu zaključen dana ${
+              currentRadnik.datum_zaposlenja
+                ? formatDate(currentRadnik.datum_zaposlenja)
+                : '[DATUM]'
+            } godine.</p>
+            
+            <p><strong>Član 2.</strong></p>
+            <p>Ovim aneksom se mijenja član ugovora o radu koji se odnosi na radno mjesto zaposlenog.</p>
+            
+            <p><strong>Član 3.</strong></p>
+            <p>Mijenja se radno mjesto zaposlenog i to:</p>
+            
+            <table class="info-table">
+              <tr>
+                <td class="label">DOSADAŠNJE RADNO MJESTO:</td>
+                <td><strong>${staroRadnoMestoText}</strong></td>
+              </tr>
+              <tr>
+                <td class="label">NOVO RADNO MJESTO:</td>
+                <td><strong>${novoRadnoMesto}</strong></td>
+              </tr>
+            </table>
+            
+            ${
+              razlogPromene
+                ? `
+            <p><strong>Član 4.</strong></p>
+            <p>Razlog promjene radnog mjesta: ${razlogPromene}</p>
+            `
+                : ''
+            }
+            
+            <p><strong>Član ${razlogPromene ? '5' : '4'}.</strong></p>
+            <p>Promjena radnog mjesta iz člana 3. ovog aneksa stupila je na snagu dana <strong>${formatDate(
+              datumPromene
+            )}.</strong> godine.</p>
+            
+            <p><strong>Član ${razlogPromene ? '6' : '5'}.</strong></p>
+            <p>U skladu sa promjenom radnog mjesta, zaposleni će obavljati poslove koji odgovaraju novom radnom mjestu prema sljedećem opisu poslova:</p>
+            
+            <div style="margin: 10px 0; padding: 8px; border: 1px solid #000; background-color: #f9f9f9;">
+              <h5 style="margin: 0 0 10px 0; font-size: 10pt; text-align: center;"><strong>OPIS POSLOVA ZA POZICIJU: ${novoRadnoMesto.toUpperCase()}</strong></h5>
+              <div id="opis-poslova" style="font-size: 9pt; line-height: 1.3;">
+                ${
+                  opisPoslova
+                    ? `<div style="white-space: pre-line;">${opisPoslova}</div>`
+                    : `<p><strong>Osnovni poslovi i zadaci:</strong></p>
+                <ul>
+                  <li>Izvršavanje radnih zadataka u skladu sa propisima i procedurama kompanije</li>
+                  <li>Poštovanje radne discipline i bezbednosnih mera na radu</li>
+                  <li>Odgovorno izvršavanje dodeljenih zadataka</li>
+                  <li>Saradnja sa kolegama i nadležnim licima</li>
+                  <li>Obaveštavanje nadležnih o svim problemima u radu</li>
+                </ul>
+                <p><strong>Dodatne obaveze:</strong></p>
+                <ul>
+                  <li>Pridržavanje interno propisanih procedura i pravila</li>
+                  <li>Održavanje radnog mesta u urednom stanju</li>
+                  <li>Kontinuirano stručno usavršavanje prema potrebama posla</li>
+                </ul>`
+                }
+              </div>
+            </div>
+            
+            <p><strong>Član ${razlogPromene ? '7' : '6'}.</strong></p>
+            <p>Ostale odredbe osnovnog ugovora o radu ostaju nepromenjene.</p>
+            
+            <p><strong>Član ${razlogPromene ? '8' : '7'}.</strong></p>
+            <p>Aneks je sačinjen u 2 (dva) istovremena primerka, od kojih svaki ugovorni partner zadržava po jedan primerak.</p>
+            
+            <div style="margin-top: 25px;" class="potpis-sekcija">
+              <div style="display: flex; justify-content: space-between;">
+                <div style="text-align: center;">
+                  <p style="margin: 5px 0; font-weight: bold;">POSLODAVAC</p>
+                  <p style="margin: 15px 0 5px 0;">_________________________</p>
+                  <p style="margin: 2px 0;">${
+                    currentFirma.direktor_ime_prezime || '___________'
+                  }</p>
+                </div>
+                <div style="text-align: center;">
+                  <p style="margin: 5px 0; font-weight: bold;">ZAPOSLENI</p>
+                  <p style="margin: 15px 0 5px 0;">_________________________</p>
+                  <p style="margin: 2px 0;">${currentRadnik.ime} ${
+          currentRadnik.prezime
+        }</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Otvori JPR za radnika
+      function openJPRForRadnik() {
+        if (!currentRadnik || !currentFirma) {
+          alert('Podaci o radniku nisu učitani');
+          return;
+        }
+
+        window.open(
+          `/shared/jpr-dodatak-b.html?radnikId=${radnikId}&firmaId=${firmaId}`,
+          '_blank'
+        );
+      }
+
+      // Pomoćne funkcije
+      function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('sr-RS', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+      }
+
+      function showError(message) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = message;
+      }
+    </script>
+  </body>
+</html>

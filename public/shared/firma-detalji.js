@@ -1129,6 +1129,166 @@ async function aneksRadnoVremeModal() {
   }
 }
 
+// Funkcija za otvaranje modala za aneks radnog mjesta
+async function aneksRadnoMestoModal() {
+  const radnikId = getCurrentRadnikIdFromModal();
+
+  try {
+    // Učitaj podatke o radniku da dohvatiš trenutno radno mjesto
+    const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+    const radnik = await radnikResponse.json();
+
+    // Prikaži trenutno radno mjesto
+    const trenutnoRadnoMjesto = radnik.pozicija_naziv || 'Nespecifikovano';
+    document.getElementById(
+      'trenutnoRadnoMjesto'
+    ).innerHTML = `<strong>${trenutnoRadnoMjesto}</strong>`;
+
+    // Učitaj sve dostupne pozicije
+    const pozicijeResponse = await fetch('/api/pozicije');
+    const pozicije = await pozicijeResponse.json();
+
+    // Popuni select sa pozicijama (osim trenutne)
+    const select = document.getElementById('novoRadnoMjesto');
+    select.innerHTML = '<option value="">Izaberi radno mjesto</option>';
+
+    pozicije.forEach(pozicija => {
+      if (pozicija.id !== radnik.pozicija_id) {
+        const option = document.createElement('option');
+        option.value = pozicija.id;
+        option.textContent = pozicija.naziv;
+        select.appendChild(option);
+      }
+    });
+
+    // Postavi današnji datum kao default
+    const danas = new Date().toISOString().split('T')[0];
+    document.getElementById('datumPromeneRM').value = danas;
+
+    // Otvori modal
+    const modal = new bootstrap.Modal(
+      document.getElementById('aneksRadnoMestoModal')
+    );
+    modal.show();
+  } catch (error) {
+    console.error('Greška pri učitavanju podataka:', error);
+    alert('Greška pri učitavanju podataka o radniku.');
+  }
+}
+
+function generisiAneksRadnoMjesto() {
+  const datumPromene = document.getElementById('datumPromeneRM').value;
+  const novoPozicijaId = document.getElementById('novoRadnoMjesto').value;
+  const razlogPromene = document.getElementById('razlogPromeneRM').value;
+
+  // Validacija
+  if (!datumPromene) {
+    alert('Molimo unesite datum promjene radnog mjesta.');
+    return;
+  }
+
+  if (!novoPozicijaId) {
+    alert('Molimo izaberite novo radno mjesto.');
+    return;
+  }
+
+  const radnikId = getCurrentRadnikIdFromModal();
+
+  // Sačuvaj trenutno radno mjesto pre ažuriranja
+  const staroRadnoMjesto = document.getElementById(
+    'trenutnoRadnoMjesto'
+  ).textContent;
+
+  // Nađi naziv nove pozicije
+  const selectElement = document.getElementById('novoRadnoMjesto');
+  const novoRadnoMjesto =
+    selectElement.options[selectElement.selectedIndex].text;
+
+  // Prvo ažuriraj podatke radnika u bazi
+  updateRadnikPoziciju(radnikId, novoPozicijaId)
+    .then(() => {
+      // Zatvori modal
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById('aneksRadnoMestoModal')
+      );
+      modal.hide();
+
+      // Otvori aneks dokument sa parametrima
+      const params = new URLSearchParams({
+        radnikId: radnikId,
+        firmaId: currentFirmaId,
+        datumPromene: datumPromene,
+        novoRadnoMesto: novoRadnoMjesto,
+        staroRadnoMesto: staroRadnoMjesto,
+        razlogPromene: razlogPromene,
+      });
+
+      window.open(
+        `/shared/aneks-promena-radnog-mesta.html?${params.toString()}`,
+        '_blank'
+      );
+
+      // Osvježi prikaz radnika u tabeli
+      loadRadnici(currentFirmaId);
+    })
+    .catch(error => {
+      console.error('Greška pri ažuriranju radnika:', error);
+      alert('Greška pri ažuriranju podataka radnika!');
+    });
+}
+
+// Funkcija za ažuriranje pozicije radnika
+async function updateRadnikPoziciju(radnikId, novoPozicijaId) {
+  try {
+    // Prvo dohvati trenutne podatke radnika
+    const response = await fetch(`/api/radnici/id/${radnikId}`);
+    const radnik = await response.json();
+
+    if (!response.ok) {
+      throw new Error('Greška pri dohvatanju podataka radnika');
+    }
+
+    // Pripremi ažurirane podatke - zadržava sve postojeće podatke osim pozicije
+    const radnikData = {
+      ime: radnik.ime,
+      prezime: radnik.prezime,
+      jmbg: radnik.jmbg,
+      adresa: radnik.adresa,
+      grad: radnik.grad,
+      telefon: radnik.telefon,
+      email: radnik.email,
+      datum_zaposlenja: radnik.datum_zaposlenja,
+      pozicija_id: novoPozicijaId, // Nova pozicija
+      tip_radnog_vremena: radnik.tip_radnog_vremena,
+      radno_vrijeme: radnik.radno_vrijeme,
+      tip_ugovora: radnik.tip_ugovora,
+      vazi_do: radnik.vazi_do,
+      visina_zarade: radnik.visina_zarade,
+      napomene: radnik.napomene,
+      firma_id: radnik.firma_id || currentFirmaId, // Dodaj firma_id
+    };
+
+    // Pošalji PUT zahtjev za ažuriranje radnika
+    const updateResponse = await fetch(`/api/radnici/${radnikId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(radnikData),
+    });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(`Greška pri ažuriranju radnika: ${errorText}`);
+    }
+
+    console.log('Radnik uspješno ažuriran sa novom pozicijom');
+  } catch (error) {
+    console.error('Greška pri ažuriranju pozicije radnika:', error);
+    throw error;
+  }
+}
+
 function generisiAneksRadnoVreme() {
   const datumPromene = document.getElementById('datumPromeneRV').value;
   const novoRadnoVreme = document.getElementById('novoRadnoVreme').value;
