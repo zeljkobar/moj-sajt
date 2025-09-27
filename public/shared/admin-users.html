@@ -101,36 +101,153 @@
         </div>
       </div>
 
-      <!-- Users List -->
-      <div class="row">
+      <!-- Statistics Overview -->
+      <div class="row mb-4">
         <div class="col-12">
           <div class="card">
-            <div
-              class="card-header d-flex justify-content-between align-items-center"
-            >
-              <h5>
-                <i class="fas fa-users"></i> Lista korisnika
-                <span
-                  id="newUsersCounter"
-                  class="badge bg-success ms-2"
-                  style="display: none"
-                >
-                  <i class="fas fa-star"></i>
-                  <span id="newUsersCount">0</span> novih
-                </span>
-              </h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5><i class="fas fa-chart-bar"></i> Pregled korisnika</h5>
               <button class="btn btn-success" onclick="loadUsers()">
                 <i class="fas fa-sync-alt"></i> Osvezi
               </button>
             </div>
             <div class="card-body">
-              <div id="usersContainer">
-                <div class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Učitavanje...</span>
+              <div class="row text-center" id="statsContainer">
+                <div class="col-md-3">
+                  <div class="bg-primary text-white p-3 rounded">
+                    <h4 id="firmaCount">0</h4>
+                    <small>mojradnik.me pretplatnici</small>
                   </div>
-                  <p class="mt-2">Učitavam korisnike...</p>
                 </div>
+                <div class="col-md-3">
+                  <div class="bg-info text-white p-3 rounded">
+                    <h4 id="agencijaCount">0</h4>
+                    <small>summasummarum.me pretplatnici</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="bg-success text-white p-3 rounded">
+                    <h4 id="adminCount">0</h4>
+                    <small>Administratori</small>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="bg-warning text-white p-3 rounded">
+                    <h4 id="newUsersCount">0</h4>
+                    <small>Novi (zadnjih 7 dana)</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firma Users - mojradnik.me -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5><i class="fas fa-building"></i> mojradnik.me pretplatnici (FIRMA)</h5>
+              <small>Mogu kreirati jednu firmu</small>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0" id="firmaTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Korisnik</th>
+                      <th>Kontakt</th>
+                      <th>Registracija</th>
+                      <th>Firme</th>
+                      <th>Radnici</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="firmaTableBody">
+                    <tr>
+                      <td colspan="6" class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                          <span class="visually-hidden">Učitavanje...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agencija Users - summasummarum.me -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-info text-white">
+              <h5><i class="fas fa-users-cog"></i> summasummarum.me pretplatnici (AGENCIJA)</h5>
+              <small>Mogu kreirati neograničeno firmi</small>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0" id="agencijaTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Korisnik</th>
+                      <th>Kontakt</th>
+                      <th>Registracija</th>
+                      <th>Firme</th>
+                      <th>Radnici</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="agencijaTableBody">
+                    <tr>
+                      <td colspan="6" class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                          <span class="visually-hidden">Učitavanje...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Users -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-success text-white">
+              <h5><i class="fas fa-user-shield"></i> Administratori (ADMIN)</h5>
+              <small>Potpuni pristup svim funkcionalnostima</small>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0" id="adminTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Korisnik</th>
+                      <th>Kontakt</th>
+                      <th>Registracija</th>
+                      <th>Firme</th>
+                      <th>Radnici</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTableBody">
+                    <tr>
+                      <td colspan="6" class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                          <span class="visually-hidden">Učitavanje...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -191,19 +308,14 @@
       }
 
       function displayUsers(users) {
-        const container = document.getElementById("usersContainer");
-
         if (users.length === 0) {
-          container.innerHTML = `
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle"></i>
-              Nema korisnika za prikaz.
-            </div>
-          `;
+          document.getElementById("firmaTableBody").innerHTML = '<tr><td colspan="6" class="text-center py-3">Nema korisnika</td></tr>';
+          document.getElementById("agencijaTableBody").innerHTML = '<tr><td colspan="6" class="text-center py-3">Nema korisnika</td></tr>';
+          document.getElementById("adminTableBody").innerHTML = '<tr><td colspan="6" class="text-center py-3">Nema korisnika</td></tr>';
           return;
         }
 
-        // Helper function to check if user is new (last 7 days)
+        // Helper functions
         function isNewUser(createdAt) {
           const now = new Date();
           const created = new Date(createdAt);
@@ -212,165 +324,105 @@
           return diffDays <= 7;
         }
 
-        // Helper function to get days since registration
         function getDaysSinceRegistration(createdAt) {
           const now = new Date();
           const created = new Date(createdAt);
           const diffTime = Math.abs(now - created);
-          return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (days === 0) return "danas";
+          if (days === 1) return "juče";
+          return `pre ${days} dana`;
         }
 
-        // Sort users - new users first, then by creation date
-        const sortedUsers = users.sort((a, b) => {
-          const aIsNew = isNewUser(a.created_at);
-          const bIsNew = isNewUser(b.created_at);
-
-          // If one is new and other is not, prioritize new
-          if (aIsNew && !bIsNew) return -1;
-          if (!aIsNew && bIsNew) return 1;
-
-          // If both are new or both are old, sort by created_at descending
-          return new Date(b.created_at) - new Date(a.created_at);
-        });
-
-        // Count new users
-        const newUsersCount = users.filter((user) =>
-          isNewUser(user.created_at)
-        ).length;
-        const totalUsersCount = users.length;
-
-        // Update counter in header
-        const counterElement = document.getElementById("newUsersCounter");
-        const countElement = document.getElementById("newUsersCount");
-        if (newUsersCount > 0) {
-          countElement.textContent = newUsersCount;
-          counterElement.style.display = "inline-block";
-        } else {
-          counterElement.style.display = "none";
+        function formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('sr-RS', {
+            day: '2-digit',
+            month: '2-digit', 
+            year: 'numeric'
+          });
         }
 
-        const usersHtml = sortedUsers
-          .map((user) => {
-            const roleInfo = roleConfig[user.role] || roleConfig["firma"];
-            const isNew = isNewUser(user.created_at);
-            const daysSince = getDaysSinceRegistration(user.created_at);
+        // Separate users by role
+        const firmaUsers = users.filter(user => user.role === 'firma').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const agencijaUsers = users.filter(user => user.role === 'agencija').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const adminUsers = users.filter(user => user.role === 'admin').sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-            return `
-            <div class="col-md-6 col-lg-4 mb-3">
-              <div class="card user-card ${isNew ? "border-success" : ""}">
-                <div class="card-body">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0">
-                      ${user.ime} ${user.prezime}
-                      ${
-                        isNew
-                          ? '<span class="badge bg-success ms-2"><i class="fas fa-star"></i> NOV</span>'
-                          : ""
-                      }
-                    </h6>
-                    <span class="badge ${roleInfo.class} role-badge">${
-              roleInfo.name
-            }</span>
+        // Update statistics
+        const newUsersCount = users.filter(user => isNewUser(user.created_at)).length;
+        document.getElementById('firmaCount').textContent = firmaUsers.length;
+        document.getElementById('agencijaCount').textContent = agencijaUsers.length; 
+        document.getElementById('adminCount').textContent = adminUsers.length;
+        document.getElementById('newUsersCount').textContent = newUsersCount;
+
+        // Generate table row HTML
+        function generateUserRow(user) {
+          const isNew = isNewUser(user.created_at);
+          const canDelete = user.role !== "admin" && user.username !== "admin";
+          
+          return `
+            <tr ${isNew ? 'class="table-success"' : ''}>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div>
+                    <a href="/shared/admin-user-details.html?userId=${user.id}" class="text-decoration-none">
+                      <strong>${user.ime} ${user.prezime}</strong>
+                    </a>
+                    ${isNew ? '<span class="badge bg-success ms-2 small">NOV</span>' : ''}
+                    <br>
+                    <small class="text-muted">@${user.username}</small>
                   </div>
-                  <p class="card-text small text-muted mb-2">
-                    <i class="fas fa-user"></i> ${user.username}<br>
-                    <i class="fas fa-envelope"></i> ${user.email || "N/A"}<br>
-                    <i class="fas fa-calendar-plus"></i> Registrovan ${
-                      daysSince === 0
-                        ? "danas"
-                        : daysSince === 1
-                        ? "juče"
-                        : `pre ${daysSince} dana`
-                    }
-                    ${
-                      isNew
-                        ? '<span class="text-success fw-bold"> (NOVO!)</span>'
-                        : ""
-                    }
-                  </p>
-                  
-                  <!-- Statistike firmi i radnika -->
-                  <div class="mb-2">
-                    <div class="row text-center">
-                      <div class="col-6">
-                        <span class="badge bg-primary">
-                          <i class="fas fa-building"></i> ${user.broj_firmi || 0} ${user.broj_firmi === 1 ? 'firma' : 'firmi'}
-                        </span>
-                      </div>
-                      <div class="col-6">
-                        <span class="badge bg-info">
-                          <i class="fas fa-users"></i> ${user.broj_radnika || 0} ${user.broj_radnika === 1 ? 'radnik' : 'radnika'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <small class="text-muted d-block mb-3">${
-                    roleInfo.description
-                  }</small>
-                  
-                  <div class="btn-group w-100" role="group">
-                    <select class="form-select form-select-sm" onchange="changeUserRole(${
-                      user.id
-                    }, this.value)">
-                      <option value="firma" ${
-                        user.role === "firma" ? "selected" : ""
-                      }>FIRMA</option>
-                      <option value="agencija" ${
-                        user.role === "agencija" ? "selected" : ""
-                      }>AGENCIJA</option>
-                      <option value="admin" ${
-                        user.role === "admin" ? "selected" : ""
-                      }>ADMIN</option>
-                    </select>
-                    ${
-                      user.role !== "admin" && user.username !== "admin"
-                        ? `
+                </div>
+              </td>
+              <td>
+                <div class="small">
+                  <i class="fas fa-envelope text-muted"></i> ${user.email || 'N/A'}<br>
+                  <i class="fas fa-phone text-muted"></i> ${user.phone || 'N/A'}
+                </div>
+              </td>
+              <td>
+                <div class="small">
+                  ${formatDate(user.created_at)}<br>
+                  <span class="text-muted">${getDaysSinceRegistration(user.created_at)}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-primary">${user.broj_firmi || 0}</span>
+              </td>
+              <td>
+                <span class="badge bg-info">${user.broj_radnika || 0}</span>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <select class="form-select form-select-sm" style="width: auto;" onchange="changeUserRole(${user.id}, this.value)">
+                    <option value="firma" ${user.role === "firma" ? "selected" : ""}>FIRMA</option>
+                    <option value="agencija" ${user.role === "agencija" ? "selected" : ""}>AGENCIJA</option>
+                    <option value="admin" ${user.role === "admin" ? "selected" : ""}>ADMIN</option>
+                  </select>
+                  ${canDelete ? `
                     <button class="btn btn-outline-danger btn-sm" onclick="deleteUser(${user.id}, '${user.username}', '${user.ime} ${user.prezime}')" title="Obriši korisnika">
                       <i class="fas fa-trash"></i>
                     </button>
-                    `
-                        : ""
-                    }
-                  </div>
+                  ` : ''}
                 </div>
-              </div>
-            </div>
+              </td>
+            </tr>
           `;
-          })
-          .join("");
+        }
 
-        // Add statistics header if there are new users
-        const statsHeader =
-          newUsersCount > 0
-            ? `
-          <div class="alert alert-success mb-4">
-            <div class="d-flex align-items-center">
-              <i class="fas fa-users fa-2x me-3"></i>
-              <div>
-                <h5 class="mb-1">📊 Statistike novih korisnika</h5>
-                <p class="mb-0">
-                  <strong>${newUsersCount}</strong> ${
-                newUsersCount === 1
-                  ? "novi korisnik"
-                  : newUsersCount < 5
-                  ? "nova korisnika"
-                  : "novih korisnika"
-              } 
-                  u posledjih 7 dana od ukupno <strong>${totalUsersCount}</strong> korisnika.
-                  ${
-                    newUsersCount > 1
-                      ? "Novi korisnici su označeni zelenym badge-om i prikazani prvi."
-                      : "Novi korisnik je označen zelenim badge-om."
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
-        `
-            : "";
+        // Populate tables
+        document.getElementById('firmaTableBody').innerHTML = firmaUsers.length > 0 
+          ? firmaUsers.map(generateUserRow).join('') 
+          : '<tr><td colspan="6" class="text-center py-3 text-muted">Nema pretplatnika na mojradnik.me</td></tr>';
 
-        container.innerHTML = `${statsHeader}<div class="row">${usersHtml}</div>`;
+        document.getElementById('agencijaTableBody').innerHTML = agencijaUsers.length > 0 
+          ? agencijaUsers.map(generateUserRow).join('') 
+          : '<tr><td colspan="6" class="text-center py-3 text-muted">Nema pretplatnika na summasummarum.me</td></tr>';
+
+        document.getElementById('adminTableBody').innerHTML = adminUsers.length > 0 
+          ? adminUsers.map(generateUserRow).join('') 
+          : '<tr><td colspan="6" class="text-center py-3 text-muted">Nema administratora</td></tr>';
       }
 
       async function changeUserRole(userId, newRole) {

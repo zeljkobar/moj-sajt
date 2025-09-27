@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalji korisnika | Admin Panel</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+
+    <!-- Dynamic Favicon Script -->
+    <script src="/shared/components/dynamic-favicon.js"></script>
+
+    <!-- Theme Preloader -->
+    <script src="/shared/components/theme-preloader.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link href="/shared/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      .role-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      .role-firma {
+        background-color: #0d6efd !important;
+      }
+      .role-agencija {
+        background-color: #20c997 !important;
+      }
+      .role-admin {
+        background-color: #dc3545 !important;
+      }
+
+      .user-info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .stats-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .firma-card {
+        border-left: 4px solid #0d6efd;
+      }
+
+      .employee-row:hover {
+        background-color: #f8f9fa;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
+
+    <!-- Loading Screen -->
+    <div
+      id="loadingScreen"
+      class="d-flex justify-content-center align-items-center"
+      style="min-height: 50vh"
+    >
+      <div class="text-center">
+        <div
+          class="spinner-border text-primary mb-3"
+          role="status"
+          style="width: 3rem; height: 3rem"
+        >
+          <span class="visually-hidden">Učitavanje...</span>
+        </div>
+        <p class="text-muted">Učitavam podatke o korisniku...</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="container py-4" style="display: none">
+      <!-- Back Button -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <a href="/shared/admin-users.html" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Nazad na listu korisnika
+          </a>
+        </div>
+      </div>
+
+      <!-- User Info Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card user-info-card">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                      <i class="fas fa-user fa-2x"></i>
+                    </div>
+                    <div>
+                      <h2 class="mb-1" id="userName">Loading...</h2>
+                      <p class="mb-0 opacity-75">
+                        @<span id="userUsername">loading</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <small class="opacity-75">Email:</small>
+                      <p class="mb-2" id="userEmail">loading@example.com</p>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="opacity-75">Telefon:</small>
+                      <p class="mb-2" id="userPhone">+382 XX XXX XXX</p>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="opacity-75">JMBG:</small>
+                      <p class="mb-2" id="userJmbg">XXXXXXXXXXXXX</p>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="opacity-75">Registrovan:</small>
+                      <p class="mb-2" id="userRegistered">XX.XX.XXXX</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                  <span class="badge role-badge fs-6 mb-3" id="userRole"
+                    >LOADING</span
+                  >
+                  <div class="d-flex justify-content-md-end gap-2">
+                    <select
+                      class="form-select"
+                      style="width: auto"
+                      id="roleSelect"
+                      onchange="changeUserRole()"
+                    >
+                      <option value="firma">FIRMA</option>
+                      <option value="agencija">AGENCIJA</option>
+                      <option value="admin">ADMIN</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body text-center">
+              <i class="fas fa-building fa-2x text-primary mb-2"></i>
+              <h4 class="mb-1" id="totalFirme">0</h4>
+              <small class="text-muted">Ukupno firmi</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body text-center">
+              <i class="fas fa-users fa-2x text-info mb-2"></i>
+              <h4 class="mb-1" id="totalRadnici">0</h4>
+              <small class="text-muted">Ukupno radnika</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body text-center">
+              <i class="fas fa-user-check fa-2x text-success mb-2"></i>
+              <h4 class="mb-1" id="aktivniRadnici">0</h4>
+              <small class="text-muted">Aktivni radnici</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card">
+            <div class="card-body text-center">
+              <i class="fas fa-coins fa-2x text-warning mb-2"></i>
+              <h4 class="mb-1" id="ukupnaZarada">0€</h4>
+              <small class="text-muted">Ukupna zarada</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Companies and Employees -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
+              <h5><i class="fas fa-building"></i> Firme i zaposleni</h5>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                onclick="loadUserData()"
+              >
+                <i class="fas fa-sync-alt"></i> Osvezi
+              </button>
+            </div>
+            <div class="card-body" id="companiesContainer">
+              <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Učitavanje...</span>
+                </div>
+                <p class="mt-2">Učitavam firme i zaposlene...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="errorScreen" class="container py-5" style="display: none">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="alert alert-danger text-center">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h4>Greška pri učitavanju</h4>
+            <p id="errorMessage">
+              Došlo je do greške pri učitavanju podataka o korisniku.
+            </p>
+            <a href="/shared/admin-users.html" class="btn btn-primary">
+              <i class="fas fa-arrow-left"></i> Nazad na listu korisnika
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script src="/shared/script.js"></script>
+
+    <script>
+      let currentUserId = null;
+      let currentUser = null;
+
+      // Role configuration
+      const roleConfig = {
+        firma: { name: 'FIRMA', class: 'role-firma' },
+        agencija: { name: 'AGENCIJA', class: 'role-agencija' },
+        admin: { name: 'ADMIN', class: 'role-admin' },
+      };
+
+      // Get user ID from URL
+      document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentUserId = urlParams.get('userId');
+
+        if (!currentUserId) {
+          showError('Nedostaje ID korisnika u URL parametrima');
+          return;
+        }
+
+        loadUserData();
+      });
+
+      async function loadUserData() {
+        try {
+          showLoading();
+
+          console.log('Učitavam korisnika ID:', currentUserId);
+
+          // Load user basic info
+          const userResponse = await fetch(
+            `/api/admin/users/${currentUserId}`,
+            {
+              credentials: 'include',
+            }
+          );
+
+          console.log('User response status:', userResponse.status);
+
+          if (!userResponse.ok) {
+            const errorText = await userResponse.text();
+            console.error('User API error:', errorText);
+            throw new Error(
+              `Korisnik nije pronađen (${userResponse.status}): ${errorText}`
+            );
+          }
+
+          currentUser = await userResponse.json();
+          console.log('User data loaded:', currentUser);
+
+          // Load user's companies and employees
+          const detailsResponse = await fetch(
+            `/api/admin/users/${currentUserId}/details`,
+            {
+              credentials: 'include',
+            }
+          );
+
+          console.log('Details response status:', detailsResponse.status);
+
+          if (!detailsResponse.ok) {
+            const errorText = await detailsResponse.text();
+            console.error('Details API error:', errorText);
+            throw new Error(
+              `Greška pri učitavanju detalja korisnika (${detailsResponse.status}): ${errorText}`
+            );
+          }
+
+          const details = await detailsResponse.json();
+          console.log('Details loaded:', details);
+
+          // Display data
+          console.log('Pozivam displayUserInfo...');
+          displayUserInfo(currentUser);
+          console.log('displayUserInfo završen');
+
+          console.log('Pozivam displayCompaniesAndEmployees...');
+          displayCompaniesAndEmployees(details);
+          console.log('displayCompaniesAndEmployees završen');
+
+          console.log('Pozivam showMain...');
+          showMain();
+          console.log('showMain završen');
+        } catch (error) {
+          console.error('Error loading user data:', error);
+          showError(error.message);
+        }
+      }
+
+      function displayUserInfo(user) {
+        console.log('displayUserInfo started with user:', user);
+        document.getElementById(
+          'userName'
+        ).textContent = `${user.ime} ${user.prezime}`;
+        document.getElementById('userUsername').textContent = user.username;
+        document.getElementById('userEmail').textContent = user.email || 'N/A';
+        document.getElementById('userPhone').textContent = user.phone || 'N/A';
+        document.getElementById('userJmbg').textContent = user.jmbg || 'N/A';
+
+        // Format registration date
+        const regDate = new Date(user.created_at);
+        document.getElementById('userRegistered').textContent =
+          regDate.toLocaleDateString('sr-RS');
+
+        // Set role badge and select
+        const roleInfo = roleConfig[user.role];
+        const roleBadge = document.getElementById('userRole');
+        roleBadge.textContent = roleInfo.name;
+        roleBadge.className = `badge role-badge fs-6 mb-3 ${roleInfo.class}`;
+
+        document.getElementById('roleSelect').value = user.role;
+      }
+
+      function displayCompaniesAndEmployees(details) {
+        console.log(
+          'displayCompaniesAndEmployees started with details:',
+          details
+        );
+        const container = document.getElementById('companiesContainer');
+        console.log('Companies container:', container);
+
+        // Update statistics
+        const stats = details.statistics;
+        console.log('Statistics:', stats);
+
+        const totalFirmeEl = document.getElementById('totalFirme');
+        console.log('totalFirme element:', totalFirmeEl);
+        if (totalFirmeEl) totalFirmeEl.textContent = stats.totalFirme;
+        document.getElementById('totalRadnici').textContent =
+          stats.totalRadnici;
+        document.getElementById('aktivniRadnici').textContent =
+          stats.aktivniRadnici;
+        document.getElementById(
+          'ukupnaZarada'
+        ).textContent = `${stats.ukupnaZarada.toFixed(2)}€`;
+
+        // Display companies
+        if (details.firme.length === 0) {
+          container.innerHTML = `
+            <div class="no-data">
+              <i class="fas fa-building fa-3x mb-3"></i>
+              <h5>Nema firmi</h5>
+              <p>Ovaj korisnik još uvek nije kreirao nijednu firmu.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const companiesHtml = details.firme
+          .map(firma => {
+            const employeesHtml =
+              firma.radnici.length > 0
+                ? `
+            <div class="table-responsive">
+              <table class="table table-sm mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Zaposleni</th>
+                    <th>JMBG</th>
+                    <th>Pozicija</th>
+                    <th>Datum zaposlenja</th>
+                    <th>Tip ugovora</th>
+                    <th class="text-end">Zarada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${firma.radnici
+                    .map(
+                      radnik => `
+                    <tr class="employee-row">
+                      <td>
+                        <strong>${radnik.ime} ${radnik.prezime}</strong>
+                      </td>
+                      <td><small class="text-muted">${radnik.jmbg}</small></td>
+                      <td><span class="badge bg-secondary">${
+                        radnik.pozicija_naziv
+                      }</span></td>
+                      <td><small>${formatDate(
+                        radnik.datum_zaposlenja
+                      )}</small></td>
+                      <td><small class="text-muted">${formatUgovorType(
+                        radnik.tip_ugovora
+                      )}</small></td>
+                      <td class="text-end"><strong>${parseFloat(
+                        radnik.visina_zarade
+                      ).toFixed(2)}€</strong></td>
+                    </tr>
+                  `
+                    )
+                    .join('')}
+                </tbody>
+              </table>
+            </div>
+          `
+                : `
+            <div class="text-center py-3 text-muted">
+              <i class="fas fa-user-slash"></i>
+              Nema zaposlenih u ovoj firmi
+            </div>
+          `;
+
+            return `
+            <div class="card firma-card mb-3">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">
+                      <i class="fas fa-building text-primary"></i>
+                      ${firma.naziv}
+                    </h6>
+                    <small class="text-muted">
+                      PIB: ${firma.pib} | 
+                      ${firma.radnici.length} ${
+              firma.radnici.length === 1 ? 'zaposleni' : 'zaposlenih'
+            }
+                    </small>
+                  </div>
+                  <div class="col-md-4 text-md-end">
+                    <span class="badge bg-primary">
+                      ${firma.radnici
+                        .reduce(
+                          (sum, r) => sum + parseFloat(r.visina_zarade),
+                          0
+                        )
+                        .toFixed(2)}€
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                ${employeesHtml}
+              </div>
+            </div>
+          `;
+          })
+          .join('');
+
+        console.log('Generated companies HTML length:', companiesHtml.length);
+        console.log('Setting container innerHTML...');
+        container.innerHTML = companiesHtml;
+        console.log('Container innerHTML set successfully');
+      }
+
+      async function changeUserRole() {
+        const newRole = document.getElementById('roleSelect').value;
+
+        if (newRole === currentUser.role) {
+          return; // No change needed
+        }
+
+        try {
+          const response = await fetch(
+            `/api/admin/users/${currentUserId}/role`,
+            {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify({ role: newRole }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (response.ok) {
+            currentUser.role = newRole;
+            displayUserInfo(currentUser);
+            showAlert(
+              'success',
+              `Rola korisnika je uspešno promenjena na ${roleConfig[newRole].name}`
+            );
+          } else {
+            throw new Error(
+              result.msg || result.message || 'Greška pri promeni role'
+            );
+          }
+        } catch (error) {
+          console.error('Error changing role:', error);
+          showAlert('danger', 'Greška pri promeni role: ' + error.message);
+          document.getElementById('roleSelect').value = currentUser.role;
+        }
+      }
+
+      // Utility functions
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('sr-RS');
+      }
+
+      function formatUgovorType(type) {
+        switch (type) {
+          case 'na_neodredjeno':
+            return 'Na neodređeno';
+          case 'na_odredjeno':
+            return 'Na određeno';
+          default:
+            return type;
+        }
+      }
+
+      function showLoading() {
+        document.getElementById('loadingScreen').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('errorScreen').style.display = 'none';
+      }
+
+      function showMain() {
+        console.log('showMain: Skrivam loading screen...');
+        const loadingEl = document.getElementById('loadingScreen');
+        console.log('Loading element:', loadingEl);
+        
+        // Remove Bootstrap flex classes that might override display
+        loadingEl.classList.remove('d-flex', 'justify-content-center', 'align-items-center');
+        loadingEl.style.setProperty('display', 'none', 'important');
+        console.log('Loading element display after:', loadingEl.style.display);
+        
+        console.log('showMain: Prikazujem main content...');
+        const mainEl = document.getElementById('mainContent');
+        console.log('Main element:', mainEl);
+        mainEl.style.setProperty('display', 'block', 'important');
+        console.log('Main element display after:', mainEl.style.display);
+        
+        const errorEl = document.getElementById('errorScreen');
+        errorEl.style.setProperty('display', 'none', 'important');
+        console.log('showMain funkcija završena');
+      }      function showError(message) {
+        document.getElementById('errorMessage').textContent = message;
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('errorScreen').style.display = 'block';
+      }
+
+      function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 5000);
+      }
+    </script>
+  </body>
+</html>

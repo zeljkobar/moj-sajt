@@ -482,6 +482,119 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
+// GET /api/admin/users/:id - Dobij osnovne podatke o korisniku
+router.get('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+
+    const [users] = await connection.execute(
+      `
+      SELECT 
+        id, username, email, phone, ime, prezime, jmbg, role, created_at
+      FROM users 
+      WHERE id = ?
+    `,
+      [id]
+    );
+
+    connection.release();
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'Korisnik nije pronađen' });
+    }
+
+    res.json(users[0]);
+  } catch (error) {
+    console.error('Greška pri dobijanju korisnika:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju korisnika' });
+  }
+});
+
+// GET /api/admin/users/:id/details - Detaljan prikaz korisnika sa firmama i radnicima
+router.get('/users/:id/details', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await pool.getConnection();
+
+    // Dobij firme korisnika
+    const [firme] = await connection.execute(
+      `
+      SELECT id, naziv, pib, adresa, grad 
+      FROM firme 
+      WHERE user_id = ?
+      ORDER BY naziv
+    `,
+      [id]
+    );
+
+    // Za svaku firmu dobij radnike
+    const firmeWithRadnici = [];
+    let totalRadnici = 0;
+    let aktivniRadnici = 0;
+    let ukupnaZarada = 0;
+
+    for (let firma of firme) {
+      const [radnici] = await connection.execute(
+        `
+        SELECT 
+          r.id,
+          r.ime,
+          r.prezime,
+          r.jmbg,
+          r.datum_zaposlenja,
+          r.tip_ugovora,
+          r.visina_zarade,
+          r.status,
+          COALESCE(
+              CASE 
+                  WHEN r.pozicija_id LIKE 'template_%' 
+                  THEN pt.naziv 
+                  ELSE p.naziv 
+              END,
+              'Nespecifikovano'
+          ) AS pozicija_naziv
+        FROM radnici r
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        WHERE r.firma_id = ?
+        ORDER BY r.prezime, r.ime
+      `,
+        [firma.id]
+      );
+
+      // Izračunaj statistike
+      totalRadnici += radnici.length;
+      aktivniRadnici += radnici.filter(r => r.status === 'aktivan').length;
+      ukupnaZarada += radnici.reduce(
+        (sum, r) => sum + parseFloat(r.visina_zarade || 0),
+        0
+      );
+
+      firmeWithRadnici.push({
+        ...firma,
+        radnici: radnici,
+      });
+    }
+
+    const result = {
+      firme: firmeWithRadnici,
+      statistics: {
+        totalFirme: firme.length,
+        totalRadnici: totalRadnici,
+        aktivniRadnici: aktivniRadnici,
+        ukupnaZarada: ukupnaZarada,
+      },
+    };
+
+    connection.release();
+    res.json(result);
+  } catch (error) {
+    console.error('Greška pri dobijanju detalja korisnika:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju detalja korisnika' });
+  }
+});
+
 // GET /api/admin/subscription/stats - Subscription statistics
 router.get('/subscription/stats', async (req, res) => {
   try {
