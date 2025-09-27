@@ -298,8 +298,6 @@
         try {
           showLoading();
 
-          console.log('Učitavam korisnika ID:', currentUserId);
-
           // Load user basic info
           const userResponse = await fetch(
             `/api/admin/users/${currentUserId}`,
@@ -307,8 +305,6 @@
               credentials: 'include',
             }
           );
-
-          console.log('User response status:', userResponse.status);
 
           if (!userResponse.ok) {
             const errorText = await userResponse.text();
@@ -319,7 +315,6 @@
           }
 
           currentUser = await userResponse.json();
-          console.log('User data loaded:', currentUser);
 
           // Load user's companies and employees
           const detailsResponse = await fetch(
@@ -328,8 +323,6 @@
               credentials: 'include',
             }
           );
-
-          console.log('Details response status:', detailsResponse.status);
 
           if (!detailsResponse.ok) {
             const errorText = await detailsResponse.text();
@@ -340,20 +333,11 @@
           }
 
           const details = await detailsResponse.json();
-          console.log('Details loaded:', details);
 
           // Display data
-          console.log('Pozivam displayUserInfo...');
           displayUserInfo(currentUser);
-          console.log('displayUserInfo završen');
-
-          console.log('Pozivam displayCompaniesAndEmployees...');
           displayCompaniesAndEmployees(details);
-          console.log('displayCompaniesAndEmployees završen');
-
-          console.log('Pozivam showMain...');
           showMain();
-          console.log('showMain završen');
         } catch (error) {
           console.error('Error loading user data:', error);
           showError(error.message);
@@ -361,7 +345,6 @@
       }
 
       function displayUserInfo(user) {
-        console.log('displayUserInfo started with user:', user);
         document.getElementById(
           'userName'
         ).textContent = `${user.ime} ${user.prezime}`;
@@ -385,19 +368,12 @@
       }
 
       function displayCompaniesAndEmployees(details) {
-        console.log(
-          'displayCompaniesAndEmployees started with details:',
-          details
-        );
         const container = document.getElementById('companiesContainer');
-        console.log('Companies container:', container);
 
         // Update statistics
         const stats = details.statistics;
-        console.log('Statistics:', stats);
 
         const totalFirmeEl = document.getElementById('totalFirme');
-        console.log('totalFirme element:', totalFirmeEl);
         if (totalFirmeEl) totalFirmeEl.textContent = stats.totalFirme;
         document.getElementById('totalRadnici').textContent =
           stats.totalRadnici;
@@ -508,10 +484,7 @@
           })
           .join('');
 
-        console.log('Generated companies HTML length:', companiesHtml.length);
-        console.log('Setting container innerHTML...');
         container.innerHTML = companiesHtml;
-        console.log('Container innerHTML set successfully');
       }
 
       async function changeUserRole() {
@@ -579,25 +552,23 @@
       }
 
       function showMain() {
-        console.log('showMain: Skrivam loading screen...');
         const loadingEl = document.getElementById('loadingScreen');
-        console.log('Loading element:', loadingEl);
-        
+
         // Remove Bootstrap flex classes that might override display
-        loadingEl.classList.remove('d-flex', 'justify-content-center', 'align-items-center');
+        loadingEl.classList.remove(
+          'd-flex',
+          'justify-content-center',
+          'align-items-center'
+        );
         loadingEl.style.setProperty('display', 'none', 'important');
-        console.log('Loading element display after:', loadingEl.style.display);
-        
-        console.log('showMain: Prikazujem main content...');
+
         const mainEl = document.getElementById('mainContent');
-        console.log('Main element:', mainEl);
         mainEl.style.setProperty('display', 'block', 'important');
-        console.log('Main element display after:', mainEl.style.display);
-        
+
         const errorEl = document.getElementById('errorScreen');
         errorEl.style.setProperty('display', 'none', 'important');
-        console.log('showMain funkcija završena');
-      }      function showError(message) {
+      }
+      function showError(message) {
         document.getElementById('errorMessage').textContent = message;
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';

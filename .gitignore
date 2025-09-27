@@ -4,6 +4,21 @@ node_modules/
 .env.production
 database/
 
+# VS Code workspace settings (lokalna podešavanja)
+.vscode/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
+
+# Editor i IDE fajlovi
+*.swp
+*.swo
+*~
+.idea/
+.sublime-project
+.sublime-workspace
+
 # IIS logs and temp files
 iisnode/
 *.log
@@ -11,6 +26,12 @@ logs/
 
 # Cookie test files
 cookies*.txt
+
+# Dokumentacija i markdown fajlovi (lokalni)
+*.md
+README.md
+PROJEKAT-DOKUMENTACIJA.md
+EMAIL-MARKETING-README.md
 
 # SQL scripts and migration files
 *.sql

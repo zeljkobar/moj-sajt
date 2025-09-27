@@ -24,5 +24,10 @@
   },
   "[markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "github.copilot.chat.welcomeMessage": "always",
+  "github.copilot.chat.contextFiles": [
+    "./PROJEKAT-DOKUMENTACIJA.md",
+    "./database/README.md"
+  ]
 }
