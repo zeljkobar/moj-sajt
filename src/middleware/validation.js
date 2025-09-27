@@ -132,8 +132,8 @@ const validateRadnik = [
   body('pozicija_id')
     .notEmpty()
     .withMessage('Pozicija je obavezna')
-    .isInt({ min: 1 })
-    .withMessage('Pozicija mora biti valjan broj'),
+    .matches(/^(template_|custom_)\d+$/)
+    .withMessage('Pozicija mora biti u formatu template_X ili custom_X'),
 
   body('firma_id')
     .notEmpty()
@@ -231,8 +231,8 @@ const validateRadnikEdit = [
   body('pozicija_id')
     .notEmpty()
     .withMessage('Pozicija je obavezna')
-    .isInt({ min: 1 })
-    .withMessage('Pozicija mora biti valjan broj'),
+    .matches(/^(template_|custom_)\d+$/)
+    .withMessage('Pozicija mora biti u formatu template_X ili custom_X'),
 
   body('firma_id')
     .notEmpty()

@@ -372,7 +372,7 @@ const radniciController = {
       }
 
       // Konvertuj datume u MySQL format
-      const formatDate = (date) => {
+      const formatDate = date => {
         if (!date) return null;
         if (typeof date === 'string' && date.includes('T')) {
           // ISO format - uzmi samo datum deo
@@ -418,7 +418,9 @@ const radniciController = {
       res.json({ success: true, message: 'Radnik je uspešno ažuriran' });
     } catch (error) {
       console.error('Error updating radnik:', error);
-      res.status(500).json({ message: 'Greška na serveru', error: error.message });
+      res
+        .status(500)
+        .json({ message: 'Greška na serveru', error: error.message });
     }
   },
 
