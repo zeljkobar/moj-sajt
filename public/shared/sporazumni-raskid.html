@@ -144,12 +144,13 @@
           </p>
           <p style="margin-bottom: 5px">
             <strong>PIB:</strong> <span id="pibFirme">__________________</span>,
-            <strong>Matični broj:</strong>
             <span id="maticniBrojFirme">__________________</span>
           </p>
           <p style="margin-bottom: 5px">
-            Koga zastupa: <span id="zastupnikFirme">__________________</span> (u
-            daljem tekstu: Poslodavac)
+            Koga zastupa: <span id="zastupnikFirme">__________________</span>,
+            matični broj:
+            <span id="maticniBrojDirektora">__________________</span> (u daljem
+            tekstu: Poslodavac)
           </p>
         </div>
 
@@ -336,9 +337,11 @@
         document.getElementById('maticniBrojFirme').textContent =
           firma.maticni_broj || '';
         document.getElementById('zastupnikFirme').textContent =
-          firma.direktor || 'Direktor';
+          firma.direktor_ime_prezime || firma.direktor || 'Direktor';
         document.getElementById('zastupnikFirme2').textContent =
-          firma.direktor || 'Direktor';
+          firma.direktor_ime_prezime || firma.direktor || 'Direktor';
+        document.getElementById('maticniBrojDirektora').textContent =
+          firma.direktor_jmbg || '';
 
         document.getElementById(
           'imeRadnika'
