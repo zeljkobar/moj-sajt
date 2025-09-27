@@ -2,40 +2,40 @@
 let pozicije = [];
 
 // Učitavanje podataka na početku
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   loadPozicije();
 });
 
 // Učitavanje pozicija
 async function loadPozicije() {
   try {
-    const response = await fetch("/api/pozicije");
+    const response = await fetch('/api/pozicije');
     pozicije = await response.json();
     displayPozicije();
   } catch (error) {
-    console.error("Greška pri učitavanju pozicija:", error);
+    console.error('Greška pri učitavanju pozicija:', error);
   }
 }
 
 // Prikaz pozicija
 function displayPozicije() {
-  const tbody = document.querySelector("#pozicijeTable tbody");
-  tbody.innerHTML = "";
+  const tbody = document.querySelector('#pozicijeTable tbody');
+  tbody.innerHTML = '';
 
-  pozicije.forEach((pozicija) => {
-    const row = document.createElement("tr");
+  pozicije.forEach(pozicija => {
+    const row = document.createElement('tr');
     row.innerHTML = `
             <td>${pozicija.naziv}</td>
             <td>${pozicija.opis_poslova.substring(0, 100)}${
-      pozicija.opis_poslova.length > 100 ? "..." : ""
+      pozicija.opis_poslova.length > 100 ? '...' : ''
     }</td>
             <td>
-                <button class="global-btn" onclick="editPozicija(${
+                <button class="global-btn" onclick="editPozicija('${
                   pozicija.id
-                })">Uredi</button>
-                <button class="global-btn global-btn-danger" onclick="deletePozicija(${
+                }')">Uredi</button>
+                <button class="global-btn global-btn-danger" onclick="deletePozicija('${
                   pozicija.id
-                })">Obriši</button>
+                }')">Obriši</button>
             </td>
         `;
     tbody.appendChild(row);
@@ -44,17 +44,17 @@ function displayPozicije() {
 
 // Modal funkcije za pozicije
 function openPozicijaModal() {
-  document.getElementById("pozicijaModal").style.display = "block";
+  document.getElementById('pozicijaModal').style.display = 'block';
 }
 
 function closePozicijaModal() {
-  document.getElementById("pozicijaModal").style.display = "none";
-  document.getElementById("pozicijaForm").reset();
+  document.getElementById('pozicijaModal').style.display = 'none';
+  document.getElementById('pozicijaForm').reset();
 }
 
 // Zatvaranje modala klikom van njega
 window.onclick = function (event) {
-  const pozicijaModal = document.getElementById("pozicijaModal");
+  const pozicijaModal = document.getElementById('pozicijaModal');
   if (event.target === pozicijaModal) {
     closePozicijaModal();
   }
@@ -62,18 +62,18 @@ window.onclick = function (event) {
 
 // Form submit za dodavanje pozicije
 document
-  .getElementById("pozicijaForm")
-  .addEventListener("submit", async function (e) {
+  .getElementById('pozicijaForm')
+  .addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
 
     try {
-      const response = await fetch("/api/pozicije", {
-        method: "POST",
+      const response = await fetch('/api/pozicije', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
@@ -81,46 +81,46 @@ document
       const result = await response.json();
 
       if (result.success) {
-        alert("Pozicija je uspešno dodana!");
+        alert('Pozicija je uspešno dodana!');
         closePozicijaModal();
         loadPozicije();
       } else {
-        alert("Greška: " + result.message);
+        alert('Greška: ' + result.message);
       }
     } catch (error) {
-      console.error("Greška pri dodavanju pozicije:", error);
-      alert("Greška pri dodavanju pozicije");
+      console.error('Greška pri dodavanju pozicije:', error);
+      alert('Greška pri dodavanju pozicije');
     }
   });
 
 // Funkcije za brisanje
 async function deletePozicija(id) {
-  if (confirm("Da li ste sigurni da želite da obrišete ovu poziciju?")) {
+  if (confirm('Da li ste sigurni da želite da obrišete ovu poziciju?')) {
     try {
       // Prvo pokušaj sa DELETE metodom
       let response = await fetch(`/api/pozicije/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
       // Ako DELETE ne radi (405 greška), koristi POST fallback
       if (response.status === 405) {
-        console.log("DELETE metoda nije podržana, koristim POST fallback");
+        console.log('DELETE metoda nije podržana, koristim POST fallback');
         response = await fetch(`/api/pozicije/${id}/delete`, {
-          method: "POST",
+          method: 'POST',
         });
       }
 
       const result = await response.json();
 
       if (result.success) {
-        alert("Pozicija je uspešno obrisana!");
+        alert('Pozicija je uspešno obrisana!');
         loadPozicije();
       } else {
-        alert("Greška: " + result.message);
+        alert('Greška: ' + result.message);
       }
     } catch (error) {
-      console.error("Greška pri brisanju pozicije:", error);
-      alert("Greška pri brisanju pozicije");
+      console.error('Greška pri brisanju pozicije:', error);
+      alert('Greška pri brisanju pozicije');
     }
   }
 }
@@ -134,45 +134,45 @@ async function editPozicija(id) {
 
     if (response.ok && pozicija) {
       // Popunimo edit modal sa postojećim podacima
-      document.getElementById("editPozicijaId").value = pozicija.id;
-      document.getElementById("editNaziv").value = pozicija.naziv;
-      document.getElementById("editOpisPoslova").value = pozicija.opis_poslova;
+      document.getElementById('editPozicijaId').value = pozicija.id;
+      document.getElementById('editNaziv').value = pozicija.naziv;
+      document.getElementById('editOpisPoslova').value = pozicija.opis_poslova;
 
       // Pokažemo edit modal
-      document.getElementById("editPozicijaModal").style.display = "block";
+      document.getElementById('editPozicijaModal').style.display = 'block';
     } else {
       alert(
-        "Greška pri učitavanju podataka: " +
-          (pozicija.message || "Nepoznata greška")
+        'Greška pri učitavanju podataka: ' +
+          (pozicija.message || 'Nepoznata greška')
       );
     }
   } catch (error) {
-    console.error("Greška pri učitavanju pozicije:", error);
-    alert("Greška pri učitavanju pozicije");
+    console.error('Greška pri učitavanju pozicije:', error);
+    alert('Greška pri učitavanju pozicije');
   }
 }
 
 // Funkcija za zatvaranje edit modal-a
 function closeEditPozicijaModal() {
-  document.getElementById("editPozicijaModal").style.display = "none";
+  document.getElementById('editPozicijaModal').style.display = 'none';
 }
 
 // Event listener za edit formu
 document
-  .getElementById("editPozicijaForm")
-  .addEventListener("submit", async function (e) {
+  .getElementById('editPozicijaForm')
+  .addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const id = document.getElementById("editPozicijaId").value;
-    const naziv = document.getElementById("editNaziv").value;
-    const opis_poslova = document.getElementById("editOpisPoslova").value;
+    const id = document.getElementById('editPozicijaId').value;
+    const naziv = document.getElementById('editNaziv').value;
+    const opis_poslova = document.getElementById('editOpisPoslova').value;
 
     try {
       // Prvo pokušaj sa PUT metodom
       let response = await fetch(`/api/pozicije/${id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           naziv: naziv,
@@ -182,11 +182,11 @@ document
 
       // Ako PUT ne radi (405 greška), koristi POST fallback
       if (response.status === 405) {
-        console.log("PUT metoda nije podržana, koristim POST fallback");
+        console.log('PUT metoda nije podržana, koristim POST fallback');
         response = await fetch(`/api/pozicije/${id}/update`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             naziv: naziv,
@@ -198,27 +198,27 @@ document
       const result = await response.json();
 
       if (result.success) {
-        alert("Pozicija je uspešno ažurirana!");
+        alert('Pozicija je uspešno ažurirana!');
         closeEditPozicijaModal();
         loadPozicije(); // Osvežimo listu
       } else {
-        alert("Greška: " + result.message);
+        alert('Greška: ' + result.message);
       }
     } catch (error) {
-      console.error("Greška pri ažuriranju pozicije:", error);
-      alert("Greška pri ažuriranju pozicije");
+      console.error('Greška pri ažuriranju pozicije:', error);
+      alert('Greška pri ažuriranju pozicije');
     }
   });
 
 // Zatvaranje modal-a klikom van njega
 window.onclick = function (event) {
-  const pozicijaModal = document.getElementById("pozicijaModal");
-  const editPozicijaModal = document.getElementById("editPozicijaModal");
+  const pozicijaModal = document.getElementById('pozicijaModal');
+  const editPozicijaModal = document.getElementById('editPozicijaModal');
 
   if (event.target == pozicijaModal) {
-    pozicijaModal.style.display = "none";
+    pozicijaModal.style.display = 'none';
   }
   if (event.target == editPozicijaModal) {
-    editPozicijaModal.style.display = "none";
+    editPozicijaModal.style.display = 'none';
   }
 };
