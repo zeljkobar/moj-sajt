@@ -632,6 +632,27 @@
     <script src="/shared/cookie-consent.js"></script>
 
     <script>
+      // Helper funkcija za API pozive sa timeout-om
+      async function fetchWithTimeout(url, options = {}, timeout = 30000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          if (error.name === 'AbortError') {
+            throw new Error('Request timeout - molimo pokušajte ponovo');
+          }
+          throw error;
+        }
+      }
+
       let selectedFile = null;
 
       // File drag & drop functionality
@@ -736,6 +757,18 @@
             }),
           });
 
+          // Provjeri status kod prije parsiranja JSON-a
+          if (!response.ok) {
+            if (response.status === 504) {
+              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+            } else if (response.status === 500) {
+              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+            } else {
+              const errorText = await response.text();
+              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+            }
+          }
+
           const result = await response.json();
 
           if (result.success) {
@@ -803,6 +836,18 @@
             method: 'POST',
             body: formData,
           });
+
+          // Provjeri status kod prije parsiranja JSON-a
+          if (!response.ok) {
+            if (response.status === 504) {
+              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+            } else if (response.status === 500) {
+              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+            } else {
+              const errorText = await response.text();
+              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+            }
+          }
 
           const result = await response.json();
 
@@ -879,7 +924,18 @@
       function updateStats() {
         // Pozovi API za dohvatanje pravih statistika
         fetch('/api/marketing/stats')
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+              if (response.status === 504) {
+                throw new Error('Server timeout - statistike se ne mogu učitati');
+              } else if (response.status === 500) {
+                throw new Error('Greška na serveru - statistike se ne mogu učitati');
+              } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+            }
+            return response.json();
+          })
           .then(data => {
             document.getElementById('totalSent').textContent =
               data.totalSent || '0';
@@ -917,6 +973,19 @@
       async function loadCampaigns() {
         try {
           const response = await fetch('/api/marketing/campaigns');
+          
+          // Provjeri status kod prije parsiranja JSON-a
+          if (!response.ok) {
+            if (response.status === 504) {
+              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+            } else if (response.status === 500) {
+              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+            } else {
+              const errorText = await response.text();
+              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+            }
+          }
+          
           const result = await response.json();
 
           if (result.success) {

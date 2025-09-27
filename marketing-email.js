@@ -11,6 +11,7 @@ class MarketingEmailService {
     this.templatePath = path.join(
       __dirname,
       'public',
+      'shared',
       'email-marketing-template.html'
     );
   }
