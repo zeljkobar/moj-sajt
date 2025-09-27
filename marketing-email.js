@@ -146,7 +146,7 @@ class MarketingEmailService {
   // Masovno slanje emailova sa tracking-om
   async sendBulkMarketingEmails(
     recipients,
-    delay = 2000,
+    delay = 500,
     campaignName = null,
     userId = null
   ) {
