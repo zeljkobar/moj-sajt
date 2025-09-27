@@ -28,10 +28,18 @@ const radniciController = {
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
                r.status, r.subota,
-               p.naziv as pozicija_naziv, f.naziv as firma_naziv,
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+                   ELSE 'Nespecifikovano'
+                 END
+               ) as pozicija_naziv, 
+               f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 
-        LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
         LEFT JOIN firme f ON r.firma_id = f.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE f.user_id = ?
@@ -56,10 +64,24 @@ const radniciController = {
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
                r.status, r.subota,
-               p.naziv as pozicija_naziv, p.opis_poslova,
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+                   ELSE 'Nespecifikovano'
+                 END
+               ) as pozicija_naziv, 
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.opis_poslova
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.opis_poslova
+                   ELSE ''
+                 END
+               ) as opis_poslova,
                u.vrsta_ugovora
         FROM radnici r 
-        LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
         LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.firma_id = ? 
         ORDER BY r.prezime, r.ime
@@ -100,10 +122,25 @@ const radniciController = {
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
                r.status, r.subota,
-               p.naziv as pozicija_naziv, p.opis_poslova, f.naziv as firma_naziv,
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+                   ELSE 'Nespecifikovano'
+                 END
+               ) as pozicija_naziv, 
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.opis_poslova
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.opis_poslova
+                   ELSE ''
+                 END
+               ) as opis_poslova, 
+               f.naziv as firma_naziv,
                u.vrsta_ugovora
         FROM radnici r 
-        LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
         LEFT JOIN firme f ON r.firma_id = f.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.id = ? AND f.user_id = ?
@@ -501,9 +538,17 @@ const radniciController = {
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
                r.status,
-               p.naziv as pozicija, f.naziv as firma
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+                   ELSE 'Nespecifikovano'
+                 END
+               ) as pozicija, 
+               f.naziv as firma
         FROM radnici r 
-        LEFT JOIN pozicije p ON r.pozicija_id = p.id 
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
         LEFT JOIN firme f ON r.firma_id = f.id 
         WHERE f.user_id = ? AND (
           r.ime LIKE ? OR 
@@ -511,7 +556,13 @@ const radniciController = {
           CONCAT(r.ime, ' ', r.prezime) LIKE ? OR
           r.jmbg LIKE ? OR
           f.naziv LIKE ? OR
-          p.naziv LIKE ?
+          COALESCE(
+            CASE 
+              WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+              WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+              ELSE 'Nespecifikovano'
+            END
+          ) LIKE ?
         )
         ORDER BY r.prezime, r.ime
         LIMIT 10
