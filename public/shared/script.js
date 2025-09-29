@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const password = e.target.password.value;
 
       try {
-        const res = await fetch('https://www.mojradnik.me/api/login', {
+        const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
@@ -72,9 +72,10 @@ document.addEventListener('DOMContentLoaded', function () {
           if (host.includes('mojradnik.me') || domain === 'mojradnik') {
             // Za mojradnik.me - uvek dashboard.html (single tenant)
             // Prenesi domain parametar ako smo na localhost-u
-            const dashboardURL = host.includes('localhost') && domain === 'mojradnik' 
-              ? '/dashboard.html?domain=mojradnik'
-              : '/dashboard.html';
+            const dashboardURL =
+              host.includes('localhost') && domain === 'mojradnik'
+                ? '/dashboard.html?domain=mojradnik'
+                : '/dashboard.html';
             window.location.href = dashboardURL;
           } else {
             // Za summasummarum.me - svi korisnici idu na opšti dashboard
