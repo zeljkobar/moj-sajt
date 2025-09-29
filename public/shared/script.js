@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const password = e.target.password.value;
 
       try {
-        const res = await fetch('/api/login', {
+        const res = await fetch('https://www.mojradnik.me/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password }),
