@@ -403,12 +403,32 @@
         }
 
         // Generiši broj rešenja i datum rešenja
-        const today = new Date();
-        const brojResenja = `${String(today.getMonth() + 1).padStart(
-          2,
-          '0'
-        )}/${today.getFullYear().toString().slice(-2)}`;
-        const datumResenja = today.toLocaleDateString('sr-Latn-RS');
+        // Datum rešenja treba da bude isti kao datum isteka
+        let datumResenja;
+        let brojResenja;
+
+        if (otkaz && otkaz.datum_otkaza) {
+          const datumOtkaza = new Date(otkaz.datum_otkaza);
+          datumResenja = datumOtkaza.toLocaleDateString('sr-Latn-RS');
+          brojResenja = `${String(datumOtkaza.getMonth() + 1).padStart(
+            2,
+            '0'
+          )}/${datumOtkaza.getFullYear().toString().slice(-2)}`;
+        } else if (radnik.datum_prestanka) {
+          const datumPrestanka = new Date(radnik.datum_prestanka);
+          datumResenja = datumPrestanka.toLocaleDateString('sr-Latn-RS');
+          brojResenja = `${String(datumPrestanka.getMonth() + 1).padStart(
+            2,
+            '0'
+          )}/${datumPrestanka.getFullYear().toString().slice(-2)}`;
+        } else {
+          const today = new Date();
+          datumResenja = today.toLocaleDateString('sr-Latn-RS');
+          brojResenja = `${String(today.getMonth() + 1).padStart(
+            2,
+            '0'
+          )}/${today.getFullYear().toString().slice(-2)}`;
+        }
 
         console.log('populateDocument - otkaz:', otkaz);
         console.log('populateDocument - formatiran datumIsteka:', datumIsteka);
