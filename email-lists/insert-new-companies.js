@@ -1,5 +1,7 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs');
+const XLSX = require('xlsx');
+const path = require('path');
 
 // Učitaj .env fajl
 require('dotenv').config({ path: '../.env' });
@@ -55,15 +57,30 @@ function categorizeFirma(brojZaposlenih, prihod) {
 
 async function insertNewCompanies(csvFile) {
   let connection;
+  let inserted = 0;
+  let errors = 0;
+  let newCompanies = [];
 
   try {
     console.log('📥 DODAVANJE NOVIH FIRMI U EMAILS TABELU');
     console.log('==========================================');
 
-    // Učitaj CSV podatke
+    // Učitaj podatke (CSV ili Excel)
     console.log(`📁 Čitam: ${csvFile}`);
-    const csvData = parseCSV(csvFile);
-    console.log(`📊 Učitano: ${csvData.length} zapisa iz CSV-a`);
+    let data;
+    const fileExt = path.extname(csvFile).toLowerCase();
+    
+    if (fileExt === '.xlsx') {
+      console.log('📊 Excel fajl detektovan');
+      const workbook = XLSX.readFile(csvFile);
+      const sheetName = workbook.SheetNames[0];
+      data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+    } else {
+      console.log('📄 CSV fajl detektovan');
+      data = parseCSV(csvFile);
+    }
+    
+    console.log(`📊 Učitano: ${data.length} zapisa iz fajla`);
 
     // Konektuj na bazu
     console.log('🔌 Konektujem na bazu direktno...');
@@ -71,7 +88,10 @@ async function insertNewCompanies(csvFile) {
 
     // Proveravamo koji PIB-ovi već postoje u bazi
     console.log('🔍 Proveravam postojeće PIB-ove u bazi...');
-    const pibList = csvData.map(row => row.pib).filter(pib => pib);
+    const pibList = data.map(row => {
+      // Traži PIB u različitim kolonama
+      return row.pib || row.PIB || row.Pib || row['PIB/Matični broj'] || row['Matični broj'];
+    }).filter(pib => pib);
     const placeholders = pibList.map(() => '?').join(',');
     const [existingPibs] = await connection.execute(
       `SELECT pib FROM emails WHERE pib IN (${placeholders})`,
@@ -82,7 +102,10 @@ async function insertNewCompanies(csvFile) {
     console.log(`✅ Postojeći PIB-ovi u bazi: ${existingPibSet.size}`);
 
     // Filtriraj samo nove PIB-ove
-    const newCompanies = csvData.filter(row => !existingPibSet.has(row.pib));
+    const newCompanies = data.filter(row => {
+      const pib = row.pib || row.PIB || row.Pib || row['PIB/Matični broj'] || row['Matični broj'];
+      return pib && !existingPibSet.has(pib);
+    });
     console.log(`🆕 Novih firmi za dodavanje: ${newCompanies.length}`);
 
     if (newCompanies.length === 0) {
@@ -129,9 +152,6 @@ async function insertNewCompanies(csvFile) {
 
     // Dodaj novi zapise
     console.log('\n🚀 Početak dodavanja novih firmi...');
-
-    let inserted = 0;
-    let errors = 0;
 
     const insertQuery = `
             INSERT INTO emails (
@@ -204,8 +224,17 @@ async function insertNewCompanies(csvFile) {
         100
       ).toFixed(1)}%`
     );
+
+    return {
+      inserted: inserted,
+      errors: errors,
+      total: newCompanies.length,
+      success: ((inserted / (inserted + errors)) * 100).toFixed(1)
+    };
+
   } catch (error) {
     console.error('❌ Glavna greška:', error.message);
+    throw error;
   } finally {
     if (connection) {
       await connection.end();

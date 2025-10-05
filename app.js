@@ -1543,12 +1543,29 @@ app.post(
   '/api/email-admin/insert-companies',
   authMiddleware,
   requireRole(ROLES.ADMIN),
+  upload.single('dataFile'),
   async (req, res) => {
     try {
+      console.log('🔍 DEBUG insert-companies endpoint:');
+      console.log('   req.file:', req.file);
+      console.log('   req.body:', req.body);
+      
+      if (!req.file) {
+        console.log('❌ No file received!');
+        return res
+          .status(400)
+          .json({ success: false, message: 'Fajl je obavezan za dodavanje u bazu' });
+      }
+
+      console.log('✅ File received:', req.file.path);
+      
       const {
         insertNewCompanies,
       } = require('./email-lists/insert-new-companies');
-      const result = await insertNewCompanies();
+      const result = await insertNewCompanies(req.file.path);
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
 
       res.json({
         success: true,

@@ -202,7 +202,7 @@ async function checkNewPibs() {
 
     if (result.success) {
       setStepActive('step1');
-      enableStep('btn2');
+      // enableStep('btn2'); // Dugme je sada uvek aktivno
       updateProgress(100);
       addLogEntry(
         `✅ Provera završena: ${result.stats.newPibs} novih od ${result.stats.totalPibs}`,
@@ -271,7 +271,7 @@ async function joinFiles() {
 
     if (result.success) {
       setStepActive('step2');
-      enableStep('btn3');
+      // enableStep('btn3'); // Dugme je sada uvek aktivno
       updateProgress(100);
       addLogEntry(
         `✅ Spajanje završeno: ${
@@ -317,7 +317,7 @@ async function removeDuplicates() {
 
     if (result.success) {
       setStepActive('step3');
-      enableStep('btn4');
+      // enableStep('btn4'); // Dugme je sada uvek aktivno
       updateProgress(100);
       addLogEntry(
         `✅ Duplikati uklonjeni: ${
@@ -356,13 +356,37 @@ async function removeDuplicates() {
 
 // 💾 Workflow Step 4: Insert Companies
 async function insertCompanies() {
+  // Proveri da li ima fajlova za insert
+  console.log('🔍 DEBUG insertCompanies - uploadedFiles:', uploadedFiles);
+  
+  const suitableFiles = uploadedFiles.filter(f => 
+    f.name.toLowerCase().includes('.csv') || 
+    f.name.toLowerCase().includes('.xlsx')
+  );
+
+  console.log('🔍 DEBUG insertCompanies - suitableFiles:', suitableFiles);
+
+  if (suitableFiles.length === 0) {
+    showAlert('Potreban je CSV ili Excel fajl za dodavanje u bazu. Uploaduj fajl najpre!', 'warning');
+    addLogEntry('❌ Nema fajlova za insert - uploaduj CSV ili Excel fajl', 'error');
+    return;
+  }
+
   try {
     setStepProcessing('step4');
     showProgress('Dodaje firme u bazu...', 50);
     addLogEntry('💾 Pokretanje dodavanja u bazu...', 'info');
+    
+    // Ako ima više fajlova, uzmi prvi koji može da se koristi
+    const fileToUse = suitableFiles[0];
+    addLogEntry(`📁 Koristim fajl: ${fileToUse.name}`, 'info');
+
+    const formData = new FormData();
+    formData.append('dataFile', fileToUse.file);
 
     const response = await fetch('/api/email-admin/insert-companies', {
       method: 'POST',
+      body: formData
     });
 
     const result = await response.json();
@@ -500,9 +524,10 @@ function resetWorkflow() {
     step.className = 'workflow-step';
   });
 
-  ['btn2', 'btn3', 'btn4'].forEach(btnId => {
-    document.getElementById(btnId).disabled = true;
-  });
+  // Dugmad su sada uvek aktivna - korisnik sam bira kada da ih koristi
+  // ['btn2', 'btn3', 'btn4'].forEach(btnId => {
+  //   document.getElementById(btnId).disabled = true;
+  // });
 
   // Clear uploaded files
   uploadedFiles = [];

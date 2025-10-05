@@ -365,6 +365,11 @@
       <!-- Workflow za Nove Firme -->
       <div class="workflow-section">
         <div class="workflow-title">📋 Scenario 1: Dodavanje Novih Firmi</div>
+        <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin: 10px 0; border-left: 4px solid #28a745;">
+          <strong>🎯 NOVO:</strong> Sva dugmad su sada nezavisna! 
+          Možeš da koristebilo koje dugme u bilo kom redosledu, 
+          kada imaš potrebne fajlove uploadovane.
+        </div>
 
         <div class="workflow-steps">
           <div class="workflow-step" id="step1">
@@ -372,6 +377,9 @@
             <div><strong>1. Proveri Nove PIB-ove</strong></div>
             <div style="font-size: 0.9em; color: #6c757d; margin: 10px 0">
               Poredi Excel sa postojećim PIB-ovima u bazi
+            </div>
+            <div style="font-size: 0.8em; color: #28a745; margin: 5px 0; font-weight: bold;">
+              ✨ NEZAVISTAN - radi sa bilo kojim Excel fajlom
             </div>
             <button class="step-button" onclick="checkNewPibs()" id="btn1">
               Pokreni Proveru
@@ -384,11 +392,13 @@
             <div style="font-size: 0.9em; color: #6c757d; margin: 10px 0">
               Kombinuj Excel firme sa CSV email podacima
             </div>
+            <div style="font-size: 0.8em; color: #28a745; margin: 5px 0; font-weight: bold;">
+              ✨ NEZAVISTAN - radi sa Excel + CSV fajlovima
+            </div>
             <button
               class="step-button"
               onclick="joinFiles()"
               id="btn2"
-              disabled
             >
               Spoji Podatke
             </button>
@@ -400,11 +410,13 @@
             <div style="font-size: 0.9em; color: #6c757d; margin: 10px 0">
               Detektuj i ukloni duplirane PIB-ove
             </div>
+            <div style="font-size: 0.8em; color: #28a745; margin: 5px 0; font-weight: bold;">
+              ✨ NEZAVISTAN - radi sa bilo kojim CSV fajlom
+            </div>
             <button
               class="step-button"
               onclick="removeDuplicates()"
               id="btn3"
-              disabled
             >
               Očisti Duplikate
             </button>
@@ -416,11 +428,13 @@
             <div style="font-size: 0.9em; color: #6c757d; margin: 10px 0">
               Importuj nove firme u MySQL bazu
             </div>
+            <div style="font-size: 0.8em; color: #dc3545; margin: 5px 0; font-weight: bold;">
+              🎯 PAMETNO - automatski bira najbolji fajl za insert
+            </div>
             <button
               class="step-button"
               onclick="insertCompanies()"
               id="btn4"
-              disabled
             >
               Dodaj u Bazu
             </button>
