@@ -1195,7 +1195,30 @@ app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 
 // Marketing Email API endpoints (samo za administratore)
 const multer = require('multer');
-const upload = multer({ dest: 'email-lists/' });
+const upload = multer({
+  dest: 'email-lists/uploads/',
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['.xlsx', '.csv'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Dozvoljena su samo .xlsx i .csv fajlovi'));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+// Email Admin API Endpoints
+const checkNewPibsScript = require('./email-lists/check-new-pibs');
+const joinExcelCsvScript = require('./email-lists/join-excel-csv');
+const checkDuplicatesScript = require('./email-lists/check-duplicates');
+const removeDuplicatesScript = require('./email-lists/remove-duplicates');
+const insertNewCompaniesScript = require('./email-lists/insert-new-companies');
+const updateEmailsScript = require('./email-lists/update-emails');
+const readEmailsScript = require('./email-lists/read-emails');
 
 // Test marketing email
 app.post(
@@ -1316,6 +1339,362 @@ app.get(
     } catch (error) {
       console.error('Marketing lists error:', error);
       res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// 📧 EMAIL ADMIN API ENDPOINTS
+// Get email database statistics
+app.get(
+  '/api/email-admin/stats',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const statsQuery = `
+      SELECT 
+        COUNT(*) as totalCompanies,
+        COUNT(CASE WHEN email IS NOT NULL AND email != '' THEN 1 END) as validEmails,
+        COUNT(CASE WHEN opted_in = 1 THEN 1 END) as optedIn,
+        MAX(updated_at) as lastUpdate
+      FROM emails
+    `;
+
+      const [stats] = await executeQuery(statsQuery);
+      const emailCoverage = (
+        (stats.validEmails / stats.totalCompanies) *
+        100
+      ).toFixed(1);
+
+      res.json({
+        success: true,
+        stats: {
+          totalCompanies: stats.totalCompanies,
+          validEmails: stats.validEmails,
+          emailCoverage: emailCoverage + '%',
+          optedIn: stats.optedIn,
+          lastUpdate: stats.lastUpdate
+            ? new Date(stats.lastUpdate).toLocaleDateString('sr-RS')
+            : 'N/A',
+        },
+      });
+    } catch (error) {
+      console.error('Email stats error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Check new PIBs against database
+app.post(
+  '/api/email-admin/check-new-pibs',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  upload.single('excelFile'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Excel fajl je obavezan' });
+      }
+
+      // Require and use the check-new-pibs module function
+      const { checkNewPibs } = require('./email-lists/check-new-pibs');
+      const result = await checkNewPibs(req.file.path);
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      // If there are new PIBs, provide download link for the clean file
+      let downloadUrl = null;
+      
+      console.log('🔍 DEBUG - Result from check-new-pibs:', result);
+      
+      if (result && result.outputFile && fs.existsSync(result.outputFile)) {
+        console.log('✅ Found outputFile:', result.outputFile);
+        const filename = path.basename(result.outputFile);
+        downloadUrl = `/api/email-admin/download-clean-file/${encodeURIComponent(
+          filename
+        )}`;
+        console.log('✅ Generated downloadUrl:', downloadUrl);
+      } else if (result && result.newPibs > 0) {
+        console.log('🔄 Trying fallback method - looking for _NOVI file');
+        // Try to find the file in uploads directory with _NOVI suffix
+        const originalName = path.basename(req.file.path);
+        const noviFileName = `${originalName}_NOVI.xlsx`;
+        const uploadsPath = path.join(__dirname, 'email-lists', 'uploads', noviFileName);
+        
+        console.log('🔍 Looking for file at:', uploadsPath);
+        
+        if (fs.existsSync(uploadsPath)) {
+          console.log('✅ Found file in uploads, moving to email-lists');
+          // Move file to email-lists directory for download
+          const emailListsPath = path.join(__dirname, 'email-lists', noviFileName);
+          fs.renameSync(uploadsPath, emailListsPath);
+          downloadUrl = `/api/email-admin/download-clean-file/${encodeURIComponent(noviFileName)}`;
+          console.log('✅ Generated downloadUrl (fallback):', downloadUrl);
+        } else {
+          console.log('❌ File not found at expected path');
+        }
+      } else {
+        console.log('❌ No new PIBs or no result');
+      }
+
+      res.json({
+        success: true,
+        message: 'PIB provera završena',
+        stats: result,
+        downloadUrl: downloadUrl,
+      });
+    } catch (error) {
+      console.error('Check PIBs error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Join Excel and CSV files
+app.post(
+  '/api/email-admin/join-files',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  upload.fields([{ name: 'excelFile' }, { name: 'csvFile' }]),
+  async (req, res) => {
+    try {
+      if (!req.files || !req.files.excelFile || !req.files.csvFile) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Potrebni su i Excel i CSV fajl' });
+      }
+
+      const { joinExcelCsv } = require('./email-lists/join-excel-csv');
+      const result = await joinExcelCsv(
+        req.files.excelFile[0].path,
+        req.files.csvFile[0].path
+      );
+
+      // Clean up uploaded files
+      fs.unlinkSync(req.files.excelFile[0].path);
+      fs.unlinkSync(req.files.csvFile[0].path);
+
+      // Check if joined file was created and provide download link
+      let downloadUrl = null;
+      const joinedFilePath = path.join(
+        __dirname,
+        'email-lists',
+        'KOMPLETNI_SPOJENI_PODACI.csv'
+      );
+      if (fs.existsSync(joinedFilePath)) {
+        downloadUrl =
+          '/api/email-admin/download-clean-file/KOMPLETNI_SPOJENI_PODACI.csv';
+      }
+
+      res.json({
+        success: true,
+        message: 'Fajlovi spojeni',
+        stats: result,
+        downloadUrl: downloadUrl,
+      });
+    } catch (error) {
+      console.error('Join files error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Remove duplicates from processed data
+app.post(
+  '/api/email-admin/remove-duplicates',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { removeDuplicates } = require('./email-lists/remove-duplicates');
+      const result = await removeDuplicates();
+
+      // Check for clean file
+      let downloadUrl = null;
+      const cleanFilePath = path.join(
+        __dirname,
+        'email-lists',
+        'KOMPLETNI_SPOJENI_PODACI_CLEAN.csv'
+      );
+      if (fs.existsSync(cleanFilePath)) {
+        downloadUrl =
+          '/api/email-admin/download-clean-file/KOMPLETNI_SPOJENI_PODACI_CLEAN.csv';
+      }
+
+      res.json({
+        success: true,
+        message: 'Duplikati uklonjeni',
+        stats: result,
+        downloadUrl: downloadUrl,
+      });
+    } catch (error) {
+      console.error('Remove duplicates error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Insert new companies into database
+app.post(
+  '/api/email-admin/insert-companies',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const {
+        insertNewCompanies,
+      } = require('./email-lists/insert-new-companies');
+      const result = await insertNewCompanies();
+
+      res.json({
+        success: true,
+        message: 'Firme dodane u bazu',
+        stats: result,
+      });
+    } catch (error) {
+      console.error('Insert companies error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Update existing email records
+app.post(
+  '/api/email-admin/update-emails',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  upload.single('csvFile'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'CSV fajl je obavezan' });
+      }
+
+      const { updateEmailData } = require('./email-lists/update-emails');
+      const result = await updateEmailData(req.file.path);
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      res.json({
+        success: true,
+        message: 'Email-ovi ažurirani',
+        stats: result,
+      });
+    } catch (error) {
+      console.error('Update emails error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Download clean Excel file (only new PIBs)
+app.get(
+  '/api/email-admin/download-clean-file/:filename',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  (req, res) => {
+    try {
+      const filename = decodeURIComponent(req.params.filename);
+      
+      // Try email-lists folder first, then uploads folder
+      let filePath = path.join(__dirname, 'email-lists', filename);
+      if (!fs.existsSync(filePath)) {
+        filePath = path.join(__dirname, 'email-lists', 'uploads', filename);
+      }
+
+      // Security check - make sure file is in email-lists directory tree
+      const emailListsDir = path.join(__dirname, 'email-lists');
+      if (!filePath.startsWith(emailListsDir)) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Neispravna putanja fajla' });
+      }
+
+      if (!fs.existsSync(filePath)) {
+        return res
+          .status(404)
+          .json({ success: false, message: 'Fajl nije pronađen' });
+      }
+
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`
+      );
+
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+
+      // Clean up file after download
+      fileStream.on('end', () => {
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(filePath);
+          } catch (err) {
+            console.log('Could not delete temp file:', err.message);
+          }
+        }, 5000); // Delete after 5 seconds
+      });
+    } catch (error) {
+      console.error('Download clean file error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Export email database to CSV
+app.get(
+  '/api/email-admin/export-csv',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const emails = await executeQuery(`
+        SELECT pib, naziv, grad, email, telefon, web, kd, tip_firme, kategorija_prihoda, 
+               opted_in, created_at, updated_at 
+        FROM emails 
+        ORDER BY naziv
+      `);
+
+      // Generate CSV content
+      const csvHeader =
+        'PIB,Naziv,Grad,Email,Telefon,Web,KD,Tip Firme,Kategorija Prihoda,Opted In,Kreiran,Ažuriran\n';
+      const csvContent = emails
+        .map(
+          row =>
+            `"${row.pib}","${row.naziv || ''}","${row.grad || ''}","${
+              row.email || ''
+            }","${row.telefon || ''}","${row.web || ''}","${row.kd || ''}","${
+              row.tip_firme || ''
+            }","${row.kategorija_prihoda || ''}","${row.opted_in}","${
+              row.created_at || ''
+            }","${row.updated_at || ''}"`
+        )
+        .join('\n');
+
+      const csv = csvHeader + csvContent;
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="email_baza_${
+          new Date().toISOString().split('T')[0]
+        }.csv"`
+      );
+      res.send(csv);
+    } catch (error) {
+      console.error('Export CSV error:', error);
+      res.status(500).json({ success: false, message: error.message });
     }
   }
 );
