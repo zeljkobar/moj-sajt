@@ -358,17 +358,24 @@ async function removeDuplicates() {
 async function insertCompanies() {
   // Proveri da li ima fajlova za insert
   console.log('🔍 DEBUG insertCompanies - uploadedFiles:', uploadedFiles);
-  
-  const suitableFiles = uploadedFiles.filter(f => 
-    f.name.toLowerCase().includes('.csv') || 
-    f.name.toLowerCase().includes('.xlsx')
+
+  const suitableFiles = uploadedFiles.filter(
+    f =>
+      f.name.toLowerCase().includes('.csv') ||
+      f.name.toLowerCase().includes('.xlsx')
   );
 
   console.log('🔍 DEBUG insertCompanies - suitableFiles:', suitableFiles);
 
   if (suitableFiles.length === 0) {
-    showAlert('Potreban je CSV ili Excel fajl za dodavanje u bazu. Uploaduj fajl najpre!', 'warning');
-    addLogEntry('❌ Nema fajlova za insert - uploaduj CSV ili Excel fajl', 'error');
+    showAlert(
+      'Potreban je CSV ili Excel fajl za dodavanje u bazu. Uploaduj fajl najpre!',
+      'warning'
+    );
+    addLogEntry(
+      '❌ Nema fajlova za insert - uploaduj CSV ili Excel fajl',
+      'error'
+    );
     return;
   }
 
@@ -376,7 +383,7 @@ async function insertCompanies() {
     setStepProcessing('step4');
     showProgress('Dodaje firme u bazu...', 50);
     addLogEntry('💾 Pokretanje dodavanja u bazu...', 'info');
-    
+
     // Ako ima više fajlova, uzmi prvi koji može da se koristi
     const fileToUse = suitableFiles[0];
     addLogEntry(`📁 Koristim fajl: ${fileToUse.name}`, 'info');
@@ -386,7 +393,7 @@ async function insertCompanies() {
 
     const response = await fetch('/api/email-admin/insert-companies', {
       method: 'POST',
-      body: formData
+      body: formData,
     });
 
     const result = await response.json();

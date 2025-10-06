@@ -1408,9 +1408,9 @@ app.post(
 
       // If there are new PIBs, provide download link for the clean file
       let downloadUrl = null;
-      
+
       console.log('🔍 DEBUG - Result from check-new-pibs:', result);
-      
+
       if (result && result.outputFile && fs.existsSync(result.outputFile)) {
         console.log('✅ Found outputFile:', result.outputFile);
         const filename = path.basename(result.outputFile);
@@ -1423,16 +1423,27 @@ app.post(
         // Try to find the file in uploads directory with _NOVI suffix
         const originalName = path.basename(req.file.path);
         const noviFileName = `${originalName}_NOVI.xlsx`;
-        const uploadsPath = path.join(__dirname, 'email-lists', 'uploads', noviFileName);
-        
+        const uploadsPath = path.join(
+          __dirname,
+          'email-lists',
+          'uploads',
+          noviFileName
+        );
+
         console.log('🔍 Looking for file at:', uploadsPath);
-        
+
         if (fs.existsSync(uploadsPath)) {
           console.log('✅ Found file in uploads, moving to email-lists');
           // Move file to email-lists directory for download
-          const emailListsPath = path.join(__dirname, 'email-lists', noviFileName);
+          const emailListsPath = path.join(
+            __dirname,
+            'email-lists',
+            noviFileName
+          );
           fs.renameSync(uploadsPath, emailListsPath);
-          downloadUrl = `/api/email-admin/download-clean-file/${encodeURIComponent(noviFileName)}`;
+          downloadUrl = `/api/email-admin/download-clean-file/${encodeURIComponent(
+            noviFileName
+          )}`;
           console.log('✅ Generated downloadUrl (fallback):', downloadUrl);
         } else {
           console.log('❌ File not found at expected path');
@@ -1549,16 +1560,19 @@ app.post(
       console.log('🔍 DEBUG insert-companies endpoint:');
       console.log('   req.file:', req.file);
       console.log('   req.body:', req.body);
-      
+
       if (!req.file) {
         console.log('❌ No file received!');
         return res
           .status(400)
-          .json({ success: false, message: 'Fajl je obavezan za dodavanje u bazu' });
+          .json({
+            success: false,
+            message: 'Fajl je obavezan za dodavanje u bazu',
+          });
       }
 
       console.log('✅ File received:', req.file.path);
-      
+
       const {
         insertNewCompanies,
       } = require('./email-lists/insert-new-companies');
@@ -1619,7 +1633,7 @@ app.get(
   (req, res) => {
     try {
       const filename = decodeURIComponent(req.params.filename);
-      
+
       // Try email-lists folder first, then uploads folder
       let filePath = path.join(__dirname, 'email-lists', filename);
       if (!fs.existsSync(filePath)) {

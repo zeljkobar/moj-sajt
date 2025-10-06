@@ -69,7 +69,7 @@ async function insertNewCompanies(csvFile) {
     console.log(`📁 Čitam: ${csvFile}`);
     let data;
     const fileExt = path.extname(csvFile).toLowerCase();
-    
+
     if (fileExt === '.xlsx') {
       console.log('📊 Excel fajl detektovan');
       const workbook = XLSX.readFile(csvFile);
@@ -79,7 +79,7 @@ async function insertNewCompanies(csvFile) {
       console.log('📄 CSV fajl detektovan');
       data = parseCSV(csvFile);
     }
-    
+
     console.log(`📊 Učitano: ${data.length} zapisa iz fajla`);
 
     // Konektuj na bazu
@@ -88,10 +88,18 @@ async function insertNewCompanies(csvFile) {
 
     // Proveravamo koji PIB-ovi već postoje u bazi
     console.log('🔍 Proveravam postojeće PIB-ove u bazi...');
-    const pibList = data.map(row => {
-      // Traži PIB u različitim kolonama
-      return row.pib || row.PIB || row.Pib || row['PIB/Matični broj'] || row['Matični broj'];
-    }).filter(pib => pib);
+    const pibList = data
+      .map(row => {
+        // Traži PIB u različitim kolonama
+        return (
+          row.pib ||
+          row.PIB ||
+          row.Pib ||
+          row['PIB/Matični broj'] ||
+          row['Matični broj']
+        );
+      })
+      .filter(pib => pib);
     const placeholders = pibList.map(() => '?').join(',');
     const [existingPibs] = await connection.execute(
       `SELECT pib FROM emails WHERE pib IN (${placeholders})`,
@@ -103,7 +111,12 @@ async function insertNewCompanies(csvFile) {
 
     // Filtriraj samo nove PIB-ove
     const newCompanies = data.filter(row => {
-      const pib = row.pib || row.PIB || row.Pib || row['PIB/Matični broj'] || row['Matični broj'];
+      const pib =
+        row.pib ||
+        row.PIB ||
+        row.Pib ||
+        row['PIB/Matični broj'] ||
+        row['Matični broj'];
       return pib && !existingPibSet.has(pib);
     });
     console.log(`🆕 Novih firmi za dodavanje: ${newCompanies.length}`);
@@ -229,9 +242,8 @@ async function insertNewCompanies(csvFile) {
       inserted: inserted,
       errors: errors,
       total: newCompanies.length,
-      success: ((inserted / (inserted + errors)) * 100).toFixed(1)
+      success: ((inserted / (inserted + errors)) * 100).toFixed(1),
     };
-
   } catch (error) {
     console.error('❌ Glavna greška:', error.message);
     throw error;
