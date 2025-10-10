@@ -8,12 +8,8 @@ const { executeQuery } = require('./src/config/database');
 class MarketingEmailService {
   constructor() {
     this.transporter = createTransporter();
-    this.templatePath = path.join(
-      __dirname,
-      'public',
-      'shared',
-      'email-marketing-template.html'
-    );
+    this.templatesPath = path.join(__dirname, 'email-templates');
+    this.templatePath = path.join(this.templatesPath, 'marketing-default.html'); // default template
   }
 
   // Učitaj HTML template
@@ -27,7 +23,12 @@ class MarketingEmailService {
   }
 
   // Personalizuj template za korisnika
-  personalizeTemplate(template, userData = {}, emailId = null) {
+  personalizeTemplate(
+    template,
+    userData = {},
+    emailId = null,
+    campaignId = null
+  ) {
     let personalizedTemplate = template;
 
     // Zamijeni placeholder-e ako postoje
@@ -45,38 +46,87 @@ class MarketingEmailService {
       );
     }
 
-    // Dodaj tracking pixel URL ako imamo emailId
-    if (emailId) {
-      const trackingUrl = `${
-        process.env.BASE_URL || 'http://localhost:3000'
-      }/api/marketing/track/open/${emailId}`;
-      console.log(`🔍 Dodajem tracking pixel URL: ${trackingUrl}`);
+    // NOVO: Personalizovani linkovi umesto tracking pixela
+    if (userData.pib && campaignId) {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const personalizedUrl = `${baseUrl}/visit/${userData.pib}/campaign-${campaignId}`;
+
+      console.log(
+        `� Personalizovani URL za PIB ${userData.pib}: ${personalizedUrl}`
+      );
+
+      // Zameni sve instance osnovnih linkova sa personalizovanim
+      personalizedTemplate = personalizedTemplate.replace(
+        /href="https:\/\/www\.summasummarum\.me"/g,
+        `href="${personalizedUrl}"`
+      );
+
+      personalizedTemplate = personalizedTemplate.replace(
+        /href="http:\/\/localhost:3000"/g,
+        `href="${personalizedUrl}"`
+      );
+
+      // Ukloni tracking pixel - više ne treba
       personalizedTemplate = personalizedTemplate.replace(
         '{{TRACKING_PIXEL_URL}}',
-        trackingUrl
+        ''
+      );
+
+      // Ukloni <img> tag tracking pixela
+      personalizedTemplate = personalizedTemplate.replace(
+        /<img[^>]*src="{{TRACKING_PIXEL_URL}}"[^>]*>/g,
+        ''
       );
     } else {
-      console.log('⚠️ EmailId nije prosleđen - tracking pixel se neće dodati');
-      // Ukloni placeholder ako nema emailId
+      console.log(
+        '⚠️ PIB ili campaignId nije prosleđen - koristiću osnovne linkove'
+      );
+
+      // Fallback na osnovne linkove
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       personalizedTemplate = personalizedTemplate.replace(
         '{{TRACKING_PIXEL_URL}}',
         ''
       );
     }
 
+    // Finalna zamena placeholdera
+    personalizedTemplate = personalizedTemplate.replace(
+      /{{PERSONALIZED_URL}}/g,
+      userData.pib && campaignId
+        ? `${process.env.BASE_URL || 'https://www.summasummarum.me'}/visit/${
+            userData.pib
+          }/campaign-${campaignId}`
+        : process.env.BASE_URL || 'https://www.summasummarum.me'
+    );
+
+    personalizedTemplate = personalizedTemplate.replace(
+      /{{TRACKING_PIXEL_URL}}/g,
+      ''
+    );
+
     return personalizedTemplate;
   }
 
   // Pošalji marketing email jednom primaocu
-  async sendMarketingEmail(recipientEmail, userData = {}, campaignId = null) {
+  async sendMarketingEmail(
+    recipientEmail,
+    userData = {},
+    campaignId = null,
+    senderConfig = null
+  ) {
     try {
       // Prvo dobijemo emailId iz baze ako je deo kampanje
       let emailId = null;
-      console.log(`🔍 sendMarketingEmail pozvan za: ${recipientEmail}, campaignId: ${campaignId}`);
-      
+      console.log(
+        `🔍 sendMarketingEmail pozvan za: ${recipientEmail}, campaignId: ${campaignId}`
+      );
+
       if (campaignId) {
         const emailQuery = `SELECT id FROM marketing_emails WHERE campaign_id = ? AND email_address = ?`;
-        console.log(`🔍 Tražim emailId u bazi: campaignId=${campaignId}, email=${recipientEmail}`);
+        console.log(
+          `🔍 Tražim emailId u bazi: campaignId=${campaignId}, email=${recipientEmail}`
+        );
         const emailResult = await executeQuery(emailQuery, [
           campaignId,
           recipientEmail,
@@ -96,13 +146,26 @@ class MarketingEmailService {
       const personalizedTemplate = this.personalizeTemplate(
         template,
         userData,
-        emailId
+        emailId,
+        campaignId
       );
 
+      // Konfiguracija pošaljioca
+      let senderEmail = process.env.EMAIL_USER;
+      let senderName = 'SummaSummarum Team';
+      let subject =
+        '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!';
+
+      if (senderConfig) {
+        senderEmail = senderConfig.email || senderEmail;
+        senderName = senderConfig.name || senderName;
+        subject = senderConfig.subject || subject;
+      }
+
       const mailOptions = {
-        from: `"SummaSummarum Team" <${process.env.EMAIL_USER}>`,
+        from: `"${senderName}" <${senderEmail}>`,
         to: recipientEmail,
-        subject: '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!',
+        subject: subject,
         html: personalizedTemplate,
         // Dodaj text verziju za bolje deliverability
         text: this.createTextVersion(userData),
@@ -148,7 +211,8 @@ class MarketingEmailService {
     recipients,
     delay = 500,
     campaignName = null,
-    userId = null
+    userId = null,
+    senderConfig = null
   ) {
     const results = [];
     let campaignId = null;
@@ -198,7 +262,8 @@ class MarketingEmailService {
         const result = await this.sendMarketingEmail(
           email,
           userData,
-          campaignId
+          campaignId,
+          senderConfig
         );
         results.push(result);
 
@@ -466,7 +531,7 @@ SummaSummarum Team
   }
 
   // Test funkcija
-  async testEmail(testEmail = 'admin@summasummarum.me') {
+  async testEmail(testEmail = 'admin@summasummarum.me', senderConfig = null) {
     console.log(`🧪 Test slanje marketing emaila na: ${testEmail}`);
 
     const testData = {
@@ -474,7 +539,12 @@ SummaSummarum Team
       companyName: 'Test d.o.o.',
     };
 
-    return await this.sendMarketingEmail(testEmail, testData);
+    return await this.sendMarketingEmail(
+      testEmail,
+      testData,
+      null,
+      senderConfig
+    );
   }
 
   // Učitaj email listu iz CSV fajla

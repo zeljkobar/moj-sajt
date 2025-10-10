@@ -315,6 +315,244 @@
         max-height: 60vh;
         overflow-y: auto;
       }
+
+      /* Email Filter Styles */
+      .filter-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 1px solid #e9ecef;
+      }
+
+      .multi-select-wrapper {
+        position: relative;
+      }
+
+      .multi-select-display {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .multi-select-display:hover {
+        border-color: #0055a5;
+      }
+
+      .multi-select-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid #0055a5;
+        border-radius: 8px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .multi-select-search input {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 14px;
+      }
+
+      .multi-select-all {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+      }
+
+      .multi-select-options {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .multi-select-options label {
+        display: block;
+        padding: 8px 15px;
+        margin: 0;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .multi-select-options label:hover {
+        background: #f8f9fa;
+      }
+
+      .multi-select-options input[type='checkbox'] {
+        margin-right: 8px;
+      }
+
+      .range-slider {
+        position: relative;
+        padding: 10px 0;
+      }
+
+      .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #e9ecef;
+        outline: none;
+        -webkit-appearance: none;
+        margin-bottom: 5px;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #0055a5;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .range-display {
+        text-align: center;
+        padding: 5px;
+        background: #e9ecef;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #666;
+        font-weight: 600;
+      }
+
+      .additional-filters {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .checkbox-filter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+
+      .checkbox-filter:hover {
+        background: rgba(0, 85, 165, 0.1);
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .results-section {
+        background: white;
+        border: 2px solid #28a745;
+        border-radius: 12px;
+        padding: 25px;
+        margin-top: 25px;
+      }
+
+      .results-header h5 {
+        color: #28a745;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      .results-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+      }
+
+      .stat-item .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #28a745;
+        margin-bottom: 5px;
+      }
+
+      .stat-item .stat-label {
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+      }
+
+      .sample-preview {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .sample-preview h6 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .sample-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sample-item {
+        background: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        border-left: 3px solid #0055a5;
+        font-size: 14px;
+      }
+
+      .sample-item .company-name {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .sample-item .company-details {
+        color: #666;
+        font-size: 12px;
+        margin-top: 3px;
+      }
+
+      .campaign-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      }
+
+      .btn-success:hover {
+        background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+        transform: translateY(-2px);
+      }
     </style>
   </head>
 
@@ -354,17 +592,238 @@
           </div>
           <div class="col-md-6">
             <h5><i class="fas fa-info-circle"></i> Template Preview</h5>
-            <p>Template sadrži:</p>
-            <ul>
+            <p id="templateDescription">Template sadrži:</p>
+            <ul id="templateFeatures">
               <li>Profesionalni header sa logojem</li>
               <li>Ključne funkcionalnosti platforme</li>
               <li>Video demonstracije</li>
               <li>CTA dugme za registraciju</li>
               <li>Kontakt informacije</li>
             </ul>
-            <button class="btn-custom btn-preview" onclick="previewTemplate()">
-              <i class="fas fa-eye"></i>
-              Pregled template-a
+            <div
+              class="template-actions-row"
+              style="
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                margin-top: 20px;
+              "
+            >
+              <button
+                class="btn-custom btn-preview"
+                onclick="previewTemplate()"
+              >
+                <i class="fas fa-eye"></i>
+                Pregled template-a
+              </button>
+              <button
+                class="btn-custom btn-success"
+                onclick="openTemplateSelector()"
+                style="background: #28a745"
+              >
+                <i class="fas fa-th-large"></i>
+                Selektuj Template
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Selekcija iz Baze -->
+      <div class="campaign-card">
+        <div class="card-header">
+          <h3><i class="fas fa-filter"></i> Email Selekcija iz Baze</h3>
+          <p>
+            Filtriraj i izaberi emailove iz baze (3,788 firmi) na osnovu
+            kriterijuma
+          </p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-section">
+          <div class="row">
+            <!-- Gradovi Multi-Select -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">🏙️ Gradovi:</label>
+              <div class="multi-select-wrapper" id="cityFilter">
+                <div class="multi-select-display">
+                  <span>Izaberi gradove</span>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="multi-select-dropdown" style="display: none">
+                  <div class="multi-select-search">
+                    <input type="text" placeholder="Pretražuj gradove..." />
+                  </div>
+                  <div class="multi-select-all">
+                    <label><input type="checkbox" /> Svi gradovi</label>
+                  </div>
+                  <div class="multi-select-options">
+                    <!-- Dinamički se učitava iz baze -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- KD Šifre Multi-Select -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label">🏢 Šifra Djelatnosti (KD):</label>
+              <div class="multi-select-wrapper" id="businessCodeFilter">
+                <div class="multi-select-display">
+                  <span>Izaberi šifre djelatnosti</span>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="multi-select-dropdown" style="display: none">
+                  <div class="multi-select-search">
+                    <input type="text" placeholder="Pretražuj KD šifre..." />
+                  </div>
+                  <div class="multi-select-all">
+                    <label><input type="checkbox" /> Sve djelatnosti</label>
+                  </div>
+                  <div class="multi-select-options">
+                    <!-- Dinamički se učitava iz baze -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Broj Zaposlenih Slider -->
+            <div class="col-md-4 mb-3">
+              <label class="form-label">👥 Broj Zaposlenih:</label>
+              <div class="range-slider" id="employeeRange">
+                <input
+                  type="range"
+                  class="slider range-min"
+                  min="0"
+                  max="1000"
+                  value="0"
+                />
+                <input
+                  type="range"
+                  class="slider range-max"
+                  min="0"
+                  max="1000"
+                  value="1000"
+                />
+                <div class="range-display">0 - 1000 zaposlenih</div>
+              </div>
+            </div>
+
+            <!-- Prihod Slider -->
+            <div class="col-md-4 mb-3">
+              <label class="form-label">💰 Prihod (€):</label>
+              <div class="range-slider" id="revenueRange">
+                <input
+                  type="range"
+                  class="slider range-min"
+                  min="0"
+                  max="1000000"
+                  step="1000"
+                  value="0"
+                />
+                <input
+                  type="range"
+                  class="slider range-max"
+                  min="0"
+                  max="1000000"
+                  step="1000"
+                  value="1000000"
+                />
+                <div class="range-display">0 - 1,000,000 €</div>
+              </div>
+            </div>
+
+            <!-- Poslato Mailova Slider -->
+            <div class="col-md-4 mb-3">
+              <label class="form-label">📧 Poslato Mailova:</label>
+              <div class="range-slider" id="emailSentRange">
+                <input
+                  type="range"
+                  class="slider range-min"
+                  min="0"
+                  max="20"
+                  value="0"
+                />
+                <input
+                  type="range"
+                  class="slider range-max"
+                  min="0"
+                  max="20"
+                  value="20"
+                />
+                <div class="range-display">0 - 20 mailova</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dodatni Filteri -->
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <div class="additional-filters">
+                <label class="checkbox-filter">
+                  <input type="checkbox" id="onlyWithEmail" checked />
+                  📧 Samo sa email adresom
+                </label>
+                <label class="checkbox-filter">
+                  <input type="checkbox" id="onlyNeverEmailed" />
+                  🆕 Nikad nisu dobili naš email
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="filter-actions">
+            <button class="btn btn-primary" id="applyFilters">
+              <i class="fas fa-search"></i>
+              Primeni Filtere
+            </button>
+            <button class="btn btn-secondary" id="clearFilters">
+              <i class="fas fa-refresh"></i>
+              Resetuj
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Preview -->
+        <div class="results-section" id="filterResults" style="display: none">
+          <div class="results-header">
+            <h5><i class="fas fa-list"></i> Rezultati Pretrage</h5>
+          </div>
+
+          <div class="results-stats">
+            <div class="stat-item">
+              <div class="stat-number" id="filteredCount">0</div>
+              <div class="stat-label">Filtrirano</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="totalEmailsCount">5,156</div>
+              <div class="stat-label">Ukupno</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="percentageFiltered">0%</div>
+              <div class="stat-label">Procenat</div>
+            </div>
+          </div>
+
+          <!-- Sample Preview -->
+          <div class="sample-preview">
+            <h6>📋 Preview (najboljih 5 firmi):</h6>
+            <div class="sample-list" id="sampleEmails">
+              <!-- Dinamički se popunjava -->
+            </div>
+          </div>
+
+          <!-- Campaign Actions -->
+          <div class="campaign-actions">
+            <button
+              class="btn btn-success"
+              id="saveFilteredList"
+              style="display: none"
+            >
+              <i class="fas fa-save"></i>
+              Sačuvaj Listu za Kampanju
             </button>
           </div>
         </div>
@@ -375,6 +834,54 @@
         <div class="card-header">
           <h3><i class="fas fa-flask"></i> Brzi Test Email</h3>
           <p>Pošaljite test email na jednu adresu za provjeru</p>
+        </div>
+
+        <div class="form-section">
+          <h5><i class="fas fa-envelope"></i> Podešavanja Pošaljioca</h5>
+          <div class="row">
+            <div class="col-md-4">
+              <label class="form-label">Pošaljilac Email:</label>
+              <select class="form-control" id="senderEmail">
+                <option value="">
+                  Koristi default (admin@summasummarum.me)
+                </option>
+                <option value="admin@summasummarum.me">
+                  admin@summasummarum.me
+                </option>
+                <option value="podrska@summasummarum.me">
+                  podrska@summasummarum.me
+                </option>
+                <option value="fakture@summasummarum.me">
+                  fakture@summasummarum.me
+                </option>
+                <option value="admin@mojradnik.me">admin@mojradnik.me</option>
+                <option value="podrska@mojradnik.me">
+                  podrska@mojradnik.me
+                </option>
+                <option value="fakture@mojradnik.me">
+                  fakture@mojradnik.me
+                </option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Ime Pošaljioca:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="senderName"
+                placeholder="SummaSummarum Team"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Naslov Emaila:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="emailSubject"
+                placeholder="Ostavi prazno za default naslov"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="form-section">
@@ -443,6 +950,56 @@
         </div>
 
         <div class="form-section">
+          <h5>
+            <i class="fas fa-envelope"></i> Podešavanja Pošaljioca za Kampanju
+          </h5>
+          <div class="row">
+            <div class="col-md-4">
+              <label class="form-label">Pošaljilac Email:</label>
+              <select class="form-control" id="campaignSenderEmail">
+                <option value="">
+                  Koristi default (admin@summasummarum.me)
+                </option>
+                <option value="admin@summasummarum.me">
+                  admin@summasummarum.me
+                </option>
+                <option value="podrska@summasummarum.me">
+                  podrska@summasummarum.me
+                </option>
+                <option value="fakture@summasummarum.me">
+                  fakture@summasummarum.me
+                </option>
+                <option value="admin@mojradnik.me">admin@mojradnik.me</option>
+                <option value="podrska@mojradnik.me">
+                  podrska@mojradnik.me
+                </option>
+                <option value="fakture@mojradnik.me">
+                  fakture@mojradnik.me
+                </option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Ime Pošaljioca:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="campaignSenderName"
+                placeholder="SummaSummarum Team"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Naslov Emaila:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="campaignEmailSubject"
+                placeholder="Ostavi prazno za default naslov"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
           <h5><i class="fas fa-tag"></i> Osnovne informacije kampanje</h5>
           <div class="row">
             <div class="col-md-6">
@@ -472,8 +1029,48 @@
           </div>
         </div>
 
+        <!-- Saved Email List Section -->
+        <div class="form-section" id="savedListSection" style="display: none">
+          <h5><i class="fas fa-list-check"></i> Sačuvana Lista Emailova</h5>
+          <div class="alert alert-success">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h6>
+                  <i class="fas fa-check-circle"></i> Lista je spremna za
+                  slanje!
+                </h6>
+                <p class="mb-1">
+                  <strong id="savedListCount">0</strong> emailova je odabrano
+                  putem filtera
+                </p>
+                <small class="text-muted" id="savedListDetails">
+                  Filtri: Svi gradovi, sve djelatnosti
+                </small>
+              </div>
+              <div class="col-md-4 text-end">
+                <button
+                  class="btn btn-outline-success btn-sm"
+                  onclick="previewSavedList()"
+                >
+                  <i class="fas fa-eye"></i> Pregled Liste
+                </button>
+                <button
+                  class="btn btn-outline-secondary btn-sm ms-2"
+                  onclick="clearSavedList()"
+                >
+                  <i class="fas fa-trash"></i> Obriši
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-section">
           <h5><i class="fas fa-upload"></i> Upload CSV File</h5>
+          <p class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            Možete koristiti sačuvanu listu iznad ili učitati vlastiti CSV file
+          </p>
 
           <div
             class="file-drop-zone"
@@ -524,6 +1121,63 @@
               <i class="fas fa-rocket"></i>
               Pokreni kompletnu kampanju
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saved List Preview Modal -->
+      <div class="modal fade" id="savedListPreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-list"></i> Pregled Sačuvane Email Liste
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info">
+                <strong id="previewCount">0</strong> emailova u listi
+              </div>
+              <div
+                class="table-responsive"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Naziv</th>
+                      <th>Grad</th>
+                      <th>Djelatnost</th>
+                      <th>Zaposleni</th>
+                    </tr>
+                  </thead>
+                  <tbody id="previewTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Zatvori
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                onclick="useSavedListForCampaign()"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-paper-plane"></i> Koristi ovu Listu za Kampanju
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -636,11 +1290,11 @@
       async function fetchWithTimeout(url, options = {}, timeout = 30000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
+
         try {
           const response = await fetch(url, {
             ...options,
-            signal: controller.signal
+            signal: controller.signal,
           });
           clearTimeout(timeoutId);
           return response;
@@ -654,6 +1308,89 @@
       }
 
       let selectedFile = null;
+      let selectedTemplate =
+        localStorage.getItem('selectedTemplate') || 'marketing-default.html';
+
+      // Template management functions
+      function openTemplateSelector() {
+        window.open(
+          '/shared/template-selector.html',
+          '_blank',
+          'width=1200,height=800'
+        );
+      }
+
+      function updateTemplatePreviewFromStorage() {
+        const templateName =
+          localStorage.getItem('selectedTemplate') || 'marketing-default.html';
+        selectedTemplate = templateName;
+        updateTemplatePreview(templateName);
+      }
+
+      function updateTemplatePreview(templateName) {
+        const descriptions = {
+          'marketing-default.html': {
+            description: 'Klasični marketing template sadrži:',
+            features: [
+              'Profesionalni header sa logojem',
+              'Ključne funkcionalnosti platforme',
+              'Video demonstracije',
+              'CTA dugme za registraciju',
+              'Kontakt informacije',
+            ],
+          },
+          'promo-specijalna-ponuda.html': {
+            description: 'Promotivni template sadrži:',
+            features: [
+              'Atraktivan header sa popustom',
+              'Urgency messaging (ograničeno vreme)',
+              'Lista prednosti/benefita',
+              'Veliki CTA dugmić',
+              'Timer ili deadline mention',
+            ],
+          },
+          'newsletter-mesecni.html': {
+            description: 'Newsletter template sadrži:',
+            features: [
+              'Čist i profesionalan dizajn',
+              'Sekcije za različite novosti',
+              'Kolorni sistem za kategorije',
+              'Linkovi ka dashboard-u',
+              'Saveti i preporuke',
+            ],
+          },
+        };
+
+        const templateInfo =
+          descriptions[templateName] || descriptions['marketing-default.html'];
+        document.getElementById('templateDescription').textContent =
+          templateInfo.description;
+
+        const featuresList = document.getElementById('templateFeatures');
+        featuresList.innerHTML = '';
+        templateInfo.features.forEach(feature => {
+          const li = document.createElement('li');
+          li.textContent = feature;
+          featuresList.appendChild(li);
+        });
+      }
+
+      // Initialize template preview from localStorage
+      document.addEventListener('DOMContentLoaded', function () {
+        updateTemplatePreviewFromStorage();
+
+        // Listen for storage changes (when template is selected in popup)
+        window.addEventListener('storage', function (e) {
+          if (e.key === 'selectedTemplate') {
+            updateTemplatePreviewFromStorage();
+          }
+        });
+
+        // Also listen for focus (when returning from popup)
+        window.addEventListener('focus', function () {
+          updateTemplatePreviewFromStorage();
+        });
+      });
 
       // File drag & drop functionality
       const dropZone = document.getElementById('dropZone');
@@ -731,6 +1468,9 @@
         const email = document.getElementById('testEmail').value;
         const firstName = document.getElementById('testFirstName').value;
         const companyName = document.getElementById('testCompanyName').value;
+        const senderEmail = document.getElementById('senderEmail').value;
+        const senderName = document.getElementById('senderName').value;
+        const subject = document.getElementById('emailSubject').value;
 
         if (!email) {
           showResult('error', 'Email adresa je obavezna.');
@@ -745,27 +1485,40 @@
         showLoading(true);
 
         try {
+          const requestBody = {
+            email,
+            firstName: firstName || undefined,
+            companyName: companyName || undefined,
+          };
+
+          // Dodaj sender config ako je popunjen
+          if (senderEmail) requestBody.senderEmail = senderEmail;
+          if (senderName) requestBody.senderName = senderName;
+          if (subject) requestBody.subject = subject;
+
           const response = await fetch('/api/marketing/test', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              email,
-              firstName: firstName || undefined,
-              companyName: companyName || undefined,
-            }),
+            body: JSON.stringify(requestBody),
           });
 
           // Provjeri status kod prije parsiranja JSON-a
           if (!response.ok) {
             if (response.status === 504) {
-              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+              throw new Error(
+                'Server timeout - molimo pokušajte ponovo za par minuta'
+              );
             } else if (response.status === 500) {
-              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+              throw new Error(
+                'Greška na serveru - molimo kontaktirajte administratora'
+              );
             } else {
               const errorText = await response.text();
-              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+              throw new Error(
+                `HTTP ${response.status}: ${errorText || response.statusText}`
+              );
             }
           }
 
@@ -787,8 +1540,14 @@
 
       // Run test campaign
       async function runTestCampaign() {
-        if (!selectedFile) {
-          showResult('error', 'Molimo odaberite CSV fajl.');
+        // Check if we have saved list or uploaded file
+        const hasSavedList = sessionStorage.getItem('selectedEmailList');
+
+        if (!selectedFile && !hasSavedList) {
+          showResult(
+            'error',
+            'Molimo odaberite CSV fajl ili koristite sačuvanu listu iz filtera.'
+          );
           return;
         }
 
@@ -797,14 +1556,21 @@
 
       // Run full campaign
       async function runFullCampaign() {
-        if (!selectedFile) {
-          showResult('error', 'Molimo odaberite CSV fajl.');
+        // Check if we have saved list or uploaded file
+        const hasSavedList = sessionStorage.getItem('selectedEmailList');
+
+        if (!selectedFile && !hasSavedList) {
+          showResult(
+            'error',
+            'Molimo odaberite CSV fajl ili koristite sačuvanu listu iz filtera.'
+          );
           return;
         }
 
+        const emailSource = selectedFile ? 'CSV fajlu' : 'sačuvanoj listi';
         if (
           !confirm(
-            'Da li ste sigurni da želite pokrenuti kompletnu kampanju? Ovo će poslati emailove svim kontaktima u CSV fajlu.'
+            `Da li ste sigurni da želite pokrenuti kompletnu kampanju? Ovo će poslati emailove svim kontaktima u ${emailSource}.`
           )
         ) {
           return;
@@ -819,7 +1585,45 @@
 
         try {
           const formData = new FormData();
-          formData.append('csvFile', selectedFile);
+
+          // Check if we're using saved list or CSV file
+          const savedList = sessionStorage.getItem('selectedEmailList');
+
+          if (savedList && !selectedFile) {
+            // Use saved filtered list
+            console.log('📧 Using saved filtered email list for campaign');
+            const listData = JSON.parse(savedList);
+
+            // Create a CSV from the saved data
+            const csvHeader = 'email,naziv,grad,kd,broj_zaposlenih,prihod\n';
+            const csvRows = listData.emails
+              .map(
+                email =>
+                  `"${email.email || ''}","${
+                    email.companyName || email.naziv || ''
+                  }","${email.city || email.grad || ''}","${
+                    email.businessCode || email.kd || ''
+                  }","${email.employees || email.broj_zaposlenih || ''}","${
+                    email.revenue || email.prihod || ''
+                  }"`
+              )
+              .join('\n');
+            const csvContent = csvHeader + csvRows;
+
+            // Create a blob and append as file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            formData.append('csvFile', blob, 'filtered-emails.csv');
+            formData.append('isFilteredList', 'true');
+          } else if (selectedFile) {
+            // Use uploaded CSV file
+            console.log('📄 Using uploaded CSV file for campaign');
+            formData.append('csvFile', selectedFile);
+          } else {
+            throw new Error(
+              'Nema podataka za kampanju - ni CSV fajl ni sačuvana lista'
+            );
+          }
+
           formData.append('testMode', testMode.toString());
 
           // Dodaj ime kampanje ako nije test mode
@@ -832,6 +1636,23 @@
             }
           }
 
+          // Dodaj sender konfiguraciju
+          const campaignSenderEmail = document.getElementById(
+            'campaignSenderEmail'
+          ).value;
+          const campaignSenderName =
+            document.getElementById('campaignSenderName').value;
+          const campaignEmailSubject = document.getElementById(
+            'campaignEmailSubject'
+          ).value;
+
+          if (campaignSenderEmail)
+            formData.append('senderEmail', campaignSenderEmail);
+          if (campaignSenderName)
+            formData.append('senderName', campaignSenderName);
+          if (campaignEmailSubject)
+            formData.append('subject', campaignEmailSubject);
+
           const response = await fetch('/api/marketing/campaign', {
             method: 'POST',
             body: formData,
@@ -840,12 +1661,18 @@
           // Provjeri status kod prije parsiranja JSON-a
           if (!response.ok) {
             if (response.status === 504) {
-              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+              throw new Error(
+                'Server timeout - molimo pokušajte ponovo za par minuta'
+              );
             } else if (response.status === 500) {
-              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+              throw new Error(
+                'Greška na serveru - molimo kontaktirajte administratora'
+              );
             } else {
               const errorText = await response.text();
-              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+              throw new Error(
+                `HTTP ${response.status}: ${errorText || response.statusText}`
+              );
             }
           }
 
@@ -890,7 +1717,12 @@
 
       // Preview template
       function previewTemplate() {
-        window.open('/shared/email-marketing-template.html', '_blank');
+        // Use currently selected template
+        window.open(
+          `/email-templates/${selectedTemplate}`,
+          '_blank',
+          'width=800,height=600'
+        );
       }
 
       // Utility functions
@@ -927,11 +1759,17 @@
           .then(response => {
             if (!response.ok) {
               if (response.status === 504) {
-                throw new Error('Server timeout - statistike se ne mogu učitati');
+                throw new Error(
+                  'Server timeout - statistike se ne mogu učitati'
+                );
               } else if (response.status === 500) {
-                throw new Error('Greška na serveru - statistike se ne mogu učitati');
+                throw new Error(
+                  'Greška na serveru - statistike se ne mogu učitati'
+                );
               } else {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error(
+                  `HTTP ${response.status}: ${response.statusText}`
+                );
               }
             }
             return response.json();
@@ -973,19 +1811,25 @@
       async function loadCampaigns() {
         try {
           const response = await fetch('/api/marketing/campaigns');
-          
+
           // Provjeri status kod prije parsiranja JSON-a
           if (!response.ok) {
             if (response.status === 504) {
-              throw new Error('Server timeout - molimo pokušajte ponovo za par minuta');
+              throw new Error(
+                'Server timeout - molimo pokušajte ponovo za par minuta'
+              );
             } else if (response.status === 500) {
-              throw new Error('Greška na serveru - molimo kontaktirajte administratora');
+              throw new Error(
+                'Greška na serveru - molimo kontaktirajte administratora'
+              );
             } else {
               const errorText = await response.text();
-              throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+              throw new Error(
+                `HTTP ${response.status}: ${errorText || response.statusText}`
+              );
             }
           }
-          
+
           const result = await response.json();
 
           if (result.success) {
@@ -1315,6 +2159,673 @@
           </div>
         `;
       }
+    </script>
+
+    <!-- Email Filter JavaScript -->
+    <script>
+      console.log('🚀 Loading Email Filter System...');
+
+      // Simple Email Filter System
+      let filterData = {
+        cities: [],
+        businessCodes: [],
+        stats: {},
+      };
+
+      let selectedFilters = {
+        cities: [],
+        businessCodes: [],
+        employeeRange: [0, 1000],
+        revenueRange: [0, 100000000],
+        emailSentRange: [0, 20],
+        onlyNeverEmailed: false,
+        onlyWithEmail: true,
+      };
+
+      // Load filter data when page loads
+      async function loadFilterData() {
+        console.log('📊 Loading filter data...');
+        try {
+          const response = await fetch('/api/email/filters');
+          const result = await response.json();
+
+          if (result.success) {
+            filterData = result.data;
+            console.log('✅ Filter data loaded:', filterData);
+            populateDropdowns();
+            setupEventListeners();
+          } else {
+            console.error('❌ Failed to load filter data:', result.message);
+          }
+        } catch (error) {
+          console.error('❌ Error loading filter data:', error);
+        }
+      }
+
+      // Populate dropdown options
+      function populateDropdowns() {
+        console.log('🔧 Populating dropdowns...');
+
+        // Cities
+        const citiesContainer = document.querySelector(
+          '#cityFilter .multi-select-options'
+        );
+        if (citiesContainer && filterData.cities) {
+          citiesContainer.innerHTML = filterData.cities
+            .map(
+              city => `
+            <label>
+              <input type="checkbox" value="${city.city}" onchange="updateFilters()">
+              ${city.city} (${city.count})
+            </label>
+          `
+            )
+            .join('');
+        }
+
+        // Business codes
+        const codesContainer = document.querySelector(
+          '#businessCodeFilter .multi-select-options'
+        );
+        if (codesContainer && filterData.businessCodes) {
+          codesContainer.innerHTML = filterData.businessCodes
+            .map(
+              code => `
+            <label>
+              <input type="checkbox" value="${code.code}" onchange="updateFilters()">
+              ${code.code} (${code.count})
+            </label>
+          `
+            )
+            .join('');
+        }
+
+        // Update total count
+        const totalElement = document.getElementById('totalEmailsCount');
+        if (totalElement && filterData.stats.totalEmails) {
+          totalElement.textContent =
+            filterData.stats.totalEmails.toLocaleString('me');
+        }
+
+        console.log('✅ Dropdowns populated');
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        console.log('🎛️ Setting up event listeners...');
+
+        // Multi-select dropdowns
+        document.querySelectorAll('.multi-select-display').forEach(display => {
+          display.addEventListener('click', function () {
+            const dropdown = this.nextElementSibling;
+            const isVisible = dropdown.style.display === 'block';
+
+            // Close all dropdowns
+            document.querySelectorAll('.multi-select-dropdown').forEach(d => {
+              d.style.display = 'none';
+            });
+
+            // Toggle current dropdown
+            dropdown.style.display = isVisible ? 'none' : 'block';
+          });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+          if (!e.target.closest('.multi-select-wrapper')) {
+            document.querySelectorAll('.multi-select-dropdown').forEach(d => {
+              d.style.display = 'none';
+            });
+          }
+        });
+
+        // Range sliders
+        document.querySelectorAll('.range-slider').forEach(container => {
+          const minSlider = container.querySelector('.range-min');
+          const maxSlider = container.querySelector('.range-max');
+          const display = container.querySelector('.range-display');
+
+          if (minSlider && maxSlider && display) {
+            function updateRange() {
+              let minVal = parseInt(minSlider.value);
+              let maxVal = parseInt(maxSlider.value);
+
+              if (minVal >= maxVal) {
+                minSlider.value = maxVal - 1;
+                minVal = maxVal - 1;
+              }
+
+              // Update display based on slider type
+              if (container.id === 'revenueRange') {
+                display.textContent = `${minVal.toLocaleString(
+                  'me'
+                )} - ${maxVal.toLocaleString('me')} €`;
+              } else if (container.id === 'emailSentRange') {
+                display.textContent = `${minVal} - ${maxVal} mailova`;
+              } else {
+                display.textContent = `${minVal} - ${maxVal} zaposlenih`;
+              }
+
+              updateFilters();
+            }
+
+            minSlider.addEventListener('input', updateRange);
+            maxSlider.addEventListener('input', updateRange);
+            updateRange(); // Initial call
+          }
+        });
+
+        // Checkboxes
+        document
+          .getElementById('onlyWithEmail')
+          .addEventListener('change', updateFilters);
+        document
+          .getElementById('onlyNeverEmailed')
+          .addEventListener('change', updateFilters);
+
+        // Buttons
+        document
+          .getElementById('applyFilters')
+          .addEventListener('click', performSearch);
+        document
+          .getElementById('clearFilters')
+          .addEventListener('click', clearAllFilters);
+
+        // Save filtered list button
+        const saveListButton = document.getElementById('saveFilteredList');
+        if (saveListButton) {
+          saveListButton.addEventListener('click', saveFilteredList);
+        }
+
+        console.log('✅ Event listeners set up');
+      }
+
+      // Update filters when user changes selections
+      function updateFilters() {
+        console.log('🔄 Updating filters...');
+
+        // Get selected cities
+        selectedFilters.cities = Array.from(
+          document.querySelectorAll(
+            '#cityFilter .multi-select-options input:checked'
+          )
+        ).map(cb => cb.value);
+
+        // Get selected business codes
+        selectedFilters.businessCodes = Array.from(
+          document.querySelectorAll(
+            '#businessCodeFilter .multi-select-options input:checked'
+          )
+        ).map(cb => cb.value);
+
+        // Get range values
+        const employeeMin = document.querySelector('#employeeRange .range-min');
+        const employeeMax = document.querySelector('#employeeRange .range-max');
+        if (employeeMin && employeeMax) {
+          selectedFilters.employeeRange = [
+            parseInt(employeeMin.value),
+            parseInt(employeeMax.value),
+          ];
+        }
+
+        const revenueMin = document.querySelector('#revenueRange .range-min');
+        const revenueMax = document.querySelector('#revenueRange .range-max');
+        if (revenueMin && revenueMax) {
+          selectedFilters.revenueRange = [
+            parseInt(revenueMin.value),
+            parseInt(revenueMax.value),
+          ];
+        }
+
+        const emailMin = document.querySelector('#emailSentRange .range-min');
+        const emailMax = document.querySelector('#emailSentRange .range-max');
+        if (emailMin && emailMax) {
+          selectedFilters.emailSentRange = [
+            parseInt(emailMin.value),
+            parseInt(emailMax.value),
+          ];
+        }
+
+        // Get checkbox values
+        selectedFilters.onlyWithEmail =
+          document.getElementById('onlyWithEmail').checked;
+        selectedFilters.onlyNeverEmailed =
+          document.getElementById('onlyNeverEmailed').checked;
+
+        // Update display texts
+        updateDisplayTexts();
+
+        // Auto-search after short delay
+        clearTimeout(window.searchTimeout);
+        window.searchTimeout = setTimeout(performSearch, 500);
+      }
+
+      // Update dropdown display texts
+      function updateDisplayTexts() {
+        const cityDisplay = document.querySelector(
+          '#cityFilter .multi-select-display span'
+        );
+        if (cityDisplay) {
+          if (selectedFilters.cities.length === 0) {
+            cityDisplay.textContent = 'Izaberi gradove';
+          } else if (selectedFilters.cities.length === 1) {
+            cityDisplay.textContent = selectedFilters.cities[0];
+          } else {
+            cityDisplay.textContent = `${selectedFilters.cities.length} gradova izabrano`;
+          }
+        }
+
+        const codeDisplay = document.querySelector(
+          '#businessCodeFilter .multi-select-display span'
+        );
+        if (codeDisplay) {
+          if (selectedFilters.businessCodes.length === 0) {
+            codeDisplay.textContent = 'Izaberi šifre djelatnosti';
+          } else if (selectedFilters.businessCodes.length === 1) {
+            codeDisplay.textContent = selectedFilters.businessCodes[0];
+          } else {
+            codeDisplay.textContent = `${selectedFilters.businessCodes.length} šifri izabrano`;
+          }
+        }
+      }
+
+      // Perform search with current filters
+      async function performSearch() {
+        console.log('🔍 Performing search with filters:', selectedFilters);
+
+        try {
+          const response = await fetch('/api/email/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedFilters),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            console.log('✅ Search results:', result.data);
+            displayResults(result.data);
+          } else {
+            console.error('❌ Search failed:', result.message);
+          }
+        } catch (error) {
+          console.error('❌ Search error:', error);
+        }
+      }
+
+      // Display search results
+      function displayResults(data) {
+        const resultsSection = document.getElementById('filterResults');
+        resultsSection.style.display = 'block';
+
+        // Update statistics
+        document.getElementById('filteredCount').textContent =
+          data.totalCount.toLocaleString('me');
+
+        const percentage =
+          filterData.stats.totalEmails > 0
+            ? ((data.totalCount / filterData.stats.totalEmails) * 100).toFixed(
+                1
+              )
+            : '0';
+        document.getElementById(
+          'percentageFiltered'
+        ).textContent = `${percentage}%`;
+
+        // Sample emails
+        const sampleContainer = document.getElementById('sampleEmails');
+        if (data.sampleEmails && data.sampleEmails.length > 0) {
+          sampleContainer.innerHTML = data.sampleEmails
+            .map(
+              email => `
+            <div class="sample-item">
+              <div class="company-name">${email.companyName || 'N/A'}</div>
+              <div class="company-details">
+                ${email.email || 'Nema email'} • ${email.city || 'N/A'} • 
+                ${email.employees || 0} zaposlenih • 
+                ${(email.revenue || 0).toLocaleString('me')} €
+              </div>
+            </div>
+          `
+            )
+            .join('');
+        } else {
+          sampleContainer.innerHTML =
+            '<p class="text-muted">Nema rezultata za trenutne filtere.</p>';
+        }
+
+        // Show/hide save button
+        const saveButton = document.getElementById('saveFilteredList');
+        if (saveButton) {
+          saveButton.style.display =
+            data.totalCount > 0 ? 'inline-block' : 'none';
+        }
+      }
+
+      // Clear all filters
+      function clearAllFilters() {
+        console.log('🧹 Clearing all filters...');
+
+        // Reset checkboxes
+        document
+          .querySelectorAll('.multi-select-options input[type="checkbox"]')
+          .forEach(cb => {
+            cb.checked = false;
+          });
+
+        // Reset sliders to default values
+        document.querySelectorAll('.range-min').forEach(slider => {
+          slider.value = slider.min;
+        });
+        document.querySelectorAll('.range-max').forEach(slider => {
+          slider.value = slider.max;
+        });
+
+        // Reset main checkboxes
+        document.getElementById('onlyWithEmail').checked = true;
+        document.getElementById('onlyNeverEmailed').checked = false;
+
+        // Update filters and search
+        updateFilters();
+      }
+
+      // Save filtered list for campaign
+      async function saveFilteredList() {
+        console.log('💾 Saving filtered list...');
+
+        // Get current search results
+        try {
+          const response = await fetch('/api/email/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              ...selectedFilters,
+              getAllResults: true, // Get all results, not just sample
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.data.totalCount > 0) {
+            // Store in sessionStorage for campaign creation
+            const emailList = {
+              emails: result.data.allEmails || [],
+              count: result.data.totalCount,
+              filters: selectedFilters,
+              timestamp: Date.now(),
+            };
+
+            sessionStorage.setItem(
+              'selectedEmailList',
+              JSON.stringify(emailList)
+            );
+
+            // Show success message
+            alert(
+              `Lista od ${result.data.totalCount.toLocaleString(
+                'me'
+              )} email adresa je sačuvana za kampanju!`
+            );
+
+            // Update button to show saved state
+            const saveButton = document.getElementById('saveFilteredList');
+            const originalText = saveButton.innerHTML;
+            saveButton.innerHTML =
+              '<i class="fas fa-check"></i> Lista Sačuvana';
+            saveButton.classList.remove('btn-success');
+            saveButton.classList.add('btn-secondary');
+            saveButton.disabled = true;
+
+            // Reset button after 3 seconds
+            setTimeout(() => {
+              saveButton.innerHTML = originalText;
+              saveButton.classList.remove('btn-secondary');
+              saveButton.classList.add('btn-success');
+              saveButton.disabled = false;
+            }, 3000);
+          } else {
+            alert(
+              'Nema rezultata za čuvanje ili greška pri dohvatanju podataka.'
+            );
+          }
+        } catch (error) {
+          console.error('❌ Error saving filtered list:', error);
+          alert('Greška pri čuvanju liste.');
+        }
+      }
+
+      // Check and show saved list on page load
+      function checkSavedList() {
+        const savedList = sessionStorage.getItem('selectedEmailList');
+        const savedSection = document.getElementById('savedListSection');
+
+        if (savedList && savedSection) {
+          try {
+            const listData = JSON.parse(savedList);
+
+            // Update UI with saved list info
+            document.getElementById('savedListCount').textContent =
+              listData.count;
+
+            // Create filter description
+            let filterDesc = [];
+            if (listData.filters.cities && listData.filters.cities.length > 0) {
+              filterDesc.push(`Gradovi: ${listData.filters.cities.length}`);
+            }
+            if (
+              listData.filters.businessCodes &&
+              listData.filters.businessCodes.length > 0
+            ) {
+              filterDesc.push(
+                `Djelatnosti: ${listData.filters.businessCodes.length}`
+              );
+            }
+            if (
+              listData.filters.employeesMin ||
+              listData.filters.employeesMax
+            ) {
+              filterDesc.push(
+                `Zaposleni: ${listData.filters.employeesMin || 0}-${
+                  listData.filters.employeesMax || '∞'
+                }`
+              );
+            }
+            if (listData.filters.revenueMin || listData.filters.revenueMax) {
+              filterDesc.push(
+                `Prihod: ${listData.filters.revenueMin || 0}-${
+                  listData.filters.revenueMax || '∞'
+                } €`
+              );
+            }
+
+            document.getElementById('savedListDetails').textContent =
+              filterDesc.length > 0
+                ? `Filtri: ${filterDesc.join(', ')}`
+                : 'Svi rezultati';
+
+            // Show the section
+            savedSection.style.display = 'block';
+
+            // Enable campaign buttons if we have saved list
+            enableCampaignButtons();
+          } catch (error) {
+            console.error('Error parsing saved list:', error);
+          }
+        }
+      }
+
+      // Preview saved list in modal
+      function previewSavedList() {
+        const savedList = sessionStorage.getItem('selectedEmailList');
+        if (!savedList) {
+          alert('Nema sačuvane liste.');
+          return;
+        }
+
+        try {
+          const listData = JSON.parse(savedList);
+
+          // Debug: Log the first email to see structure
+          if (listData.emails && listData.emails.length > 0) {
+            console.log('🔍 First email data structure:', listData.emails[0]);
+          }
+
+          // Update modal content
+          document.getElementById('previewCount').textContent = listData.count;
+
+          const tableBody = document.getElementById('previewTableBody');
+          tableBody.innerHTML = '';
+
+          // Show first 50 emails in preview
+          const previewEmails = listData.emails.slice(0, 50);
+          previewEmails.forEach(email => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td><small>${email.email}</small></td>
+              <td><small>${email.companyName || email.naziv || '-'}</small></td>
+              <td><small>${email.city || email.grad || '-'}</small></td>
+              <td><small>${email.businessCode || email.kd || '-'}</small></td>
+              <td><small>${
+                email.employees || email.broj_zaposlenih || '-'
+              }</small></td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          if (listData.emails.length > 50) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td colspan="5" class="text-center text-muted">
+                <i>... i još ${listData.emails.length - 50} emailova</i>
+              </td>
+            `;
+            tableBody.appendChild(row);
+          }
+
+          // Show modal
+          const modal = new bootstrap.Modal(
+            document.getElementById('savedListPreviewModal')
+          );
+          modal.show();
+        } catch (error) {
+          console.error('Error previewing saved list:', error);
+          alert('Greška pri prikazivanju liste.');
+        }
+      }
+
+      // Use saved list for campaign
+      function useSavedListForCampaign() {
+        const savedList = sessionStorage.getItem('selectedEmailList');
+        if (!savedList) {
+          alert('Nema sačuvane liste.');
+          return;
+        }
+
+        try {
+          const listData = JSON.parse(savedList);
+
+          // Set global variable for campaign use
+          window.currentEmailList = listData.emails;
+
+          // Update UI to show we're using saved list
+          const uploadSection = document.querySelector('.file-drop-zone');
+          if (uploadSection) {
+            uploadSection.innerHTML = `
+              <div class="upload-icon">
+                <i class="fas fa-check-circle text-success"></i>
+              </div>
+              <h5 class="text-success">Koristi se sačuvana lista</h5>
+              <p><strong>${listData.count}</strong> emailova je spremno za kampanju</p>
+            `;
+            uploadSection.style.backgroundColor = '#f8fff8';
+            uploadSection.style.border = '2px dashed #28a745';
+          }
+
+          // Enable campaign buttons
+          enableCampaignButtons();
+
+          // Scroll to campaign section
+          document
+            .getElementById('campaignName')
+            .scrollIntoView({ behavior: 'smooth' });
+        } catch (error) {
+          console.error('Error using saved list:', error);
+          alert('Greška pri korišćenju sačuvane liste.');
+        }
+      }
+
+      // Clear saved list
+      function clearSavedList() {
+        if (confirm('Da li ste sigurni da želite obrisati sačuvanu listu?')) {
+          sessionStorage.removeItem('selectedEmailList');
+          document.getElementById('savedListSection').style.display = 'none';
+
+          // Reset campaign UI
+          const uploadSection = document.querySelector('.file-drop-zone');
+          if (uploadSection) {
+            uploadSection.innerHTML = `
+              <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+              </div>
+              <h5>Kliknite ili prevucite CSV fajl ovdje</h5>
+              <p>Maksimalna veličina: 5MB</p>
+            `;
+            uploadSection.style.backgroundColor = '';
+            uploadSection.style.border = '';
+          }
+
+          // Disable campaign buttons
+          disableCampaignButtons();
+          window.currentEmailList = null;
+        }
+      }
+
+      // Enable campaign buttons
+      function enableCampaignButtons() {
+        const testBtn = document.getElementById('testCampaignBtn');
+        const fullBtn = document.getElementById('fullCampaignBtn');
+
+        if (testBtn) {
+          testBtn.disabled = false;
+          testBtn.classList.remove('disabled');
+        }
+        if (fullBtn) {
+          fullBtn.disabled = false;
+          fullBtn.classList.remove('disabled');
+        }
+      }
+
+      // Disable campaign buttons
+      function disableCampaignButtons() {
+        const testBtn = document.getElementById('testCampaignBtn');
+        const fullBtn = document.getElementById('fullCampaignBtn');
+
+        if (testBtn) {
+          testBtn.disabled = true;
+          testBtn.classList.add('disabled');
+        }
+        if (fullBtn) {
+          fullBtn.disabled = true;
+          fullBtn.classList.add('disabled');
+        }
+      }
+
+      // Initialize when page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log('🎯 Page loaded, initializing filter system...');
+        if (document.getElementById('cityFilter')) {
+          loadFilterData();
+        } else {
+          console.log('ℹ️ Filter section not found, skipping initialization');
+        }
+
+        // Check for saved email list
+        checkSavedList();
+      });
     </script>
   </body>
 </html>

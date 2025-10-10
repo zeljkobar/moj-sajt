@@ -171,4 +171,193 @@ router.post('/broadcast', requireRole([ROLES.ADMIN]), async (req, res) => {
   }
 });
 
+// Get email filter data (cities, business codes, etc.)
+router.get('/filters', requireRole([ROLES.ADMIN]), async (req, res) => {
+  try {
+    const { executeQuery } = require('../config/database');
+
+    // Get unique cities
+    const citiesQuery = `
+      SELECT DISTINCT grad as city, COUNT(*) as count 
+      FROM emails 
+      WHERE grad IS NOT NULL AND grad != '' 
+      GROUP BY grad 
+      ORDER BY count DESC, grad ASC
+    `;
+
+    // Get unique business codes (kd)
+    const businessCodesQuery = `
+      SELECT DISTINCT kd as code, COUNT(*) as count 
+      FROM emails 
+      WHERE kd IS NOT NULL AND kd != '' 
+      GROUP BY kd 
+      ORDER BY count DESC
+    `;
+
+    // Get statistics for ranges
+    const statsQuery = `
+      SELECT 
+        MIN(CAST(broj_zaposlenih AS UNSIGNED)) as minEmployees,
+        MAX(CAST(broj_zaposlenih AS UNSIGNED)) as maxEmployees,
+        MIN(CAST(prihod AS DECIMAL(15,2))) as minRevenue,
+        MAX(CAST(prihod AS DECIMAL(15,2))) as maxRevenue,
+        COUNT(*) as totalEmails
+      FROM emails 
+      WHERE broj_zaposlenih IS NOT NULL 
+        AND prihod IS NOT NULL
+        AND broj_zaposlenih != ''
+        AND prihod != ''
+    `;
+
+    const [cities, businessCodes, stats] = await Promise.all([
+      executeQuery(citiesQuery),
+      executeQuery(businessCodesQuery),
+      executeQuery(statsQuery),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        cities: cities || [],
+        businessCodes: businessCodes || [],
+        stats: stats[0] || {
+          minEmployees: 0,
+          maxEmployees: 1000,
+          minRevenue: 0,
+          maxRevenue: 100000000,
+          totalEmails: 0,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching filter data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri učitavanju podataka za filtere',
+      error: error.message,
+    });
+  }
+});
+
+// Search emails with filters
+router.post('/search', requireRole([ROLES.ADMIN]), async (req, res) => {
+  try {
+    const { executeQuery } = require('../config/database');
+    const {
+      cities = [],
+      businessCodes = [],
+      employeeRange = [0, 1000],
+      revenueRange = [0, 100000000],
+      onlyNeverEmailed = false,
+      onlyWithEmail = true,
+    } = req.body;
+
+    let whereConditions = [];
+    let queryParams = [];
+
+    // Filter by cities
+    if (cities.length > 0) {
+      const cityPlaceholders = cities.map(() => '?').join(',');
+      whereConditions.push(`grad IN (${cityPlaceholders})`);
+      queryParams.push(...cities);
+    }
+
+    // Filter by business codes
+    if (businessCodes.length > 0) {
+      const codePlaceholders = businessCodes.map(() => '?').join(',');
+      whereConditions.push(`kd IN (${codePlaceholders})`);
+      queryParams.push(...businessCodes);
+    }
+
+    // Filter by employee range
+    if (employeeRange && employeeRange.length === 2) {
+      whereConditions.push(`CAST(broj_zaposlenih AS UNSIGNED) BETWEEN ? AND ?`);
+      queryParams.push(employeeRange[0], employeeRange[1]);
+    }
+
+    // Filter by revenue range
+    if (revenueRange && revenueRange.length === 2) {
+      whereConditions.push(`CAST(prihod AS DECIMAL(15,2)) BETWEEN ? AND ?`);
+      queryParams.push(revenueRange[0], revenueRange[1]);
+    }
+
+    // Only companies with valid email addresses
+    if (onlyWithEmail) {
+      whereConditions.push(
+        `email IS NOT NULL AND email != '' AND email LIKE '%@%'`
+      );
+    }
+
+    // Filter by email send history
+    if (onlyNeverEmailed) {
+      whereConditions.push(
+        `id NOT IN (SELECT DISTINCT emails_id FROM marketing_emails WHERE emails_id IS NOT NULL)`
+      );
+    }
+
+    const whereClause =
+      whereConditions.length > 0
+        ? `WHERE ${whereConditions.join(' AND ')}`
+        : '';
+
+    // Count query
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM emails 
+      ${whereClause}
+    `;
+
+    // Sample or full query based on request
+    const { getAllResults = false } = req.body;
+    const limitClause = getAllResults ? '' : 'LIMIT 5';
+
+    const resultQuery = `
+      SELECT id, naziv as companyName, email, grad as city, 
+             kd as businessCode, broj_zaposlenih as employees, 
+             prihod as revenue
+      FROM emails 
+      ${whereClause}
+      ORDER BY prihod DESC
+      ${limitClause}
+    `;
+
+    const [countResult, emailResults] = await Promise.all([
+      executeQuery(countQuery, queryParams),
+      executeQuery(resultQuery, queryParams),
+    ]);
+
+    const totalCount = countResult[0].total;
+
+    const responseData = {
+      totalCount,
+      filters: {
+        cities,
+        businessCodes,
+        employeeRange,
+        revenueRange,
+        onlyNeverEmailed,
+        onlyWithEmail,
+      },
+    };
+
+    if (getAllResults) {
+      responseData.allEmails = emailResults || [];
+    } else {
+      responseData.sampleEmails = emailResults || [];
+    }
+
+    res.json({
+      success: true,
+      data: responseData,
+    });
+  } catch (error) {
+    console.error('Error searching emails:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Greška pri pretraživanju email adresa',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

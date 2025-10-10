@@ -7,17 +7,34 @@ class EmailService {
   }
 
   // Get email address based on email type
-  getEmailAddress(type) {
+  getEmailAddress(type, domain = 'summasummarum') {
+    const domainSuffix = domain === 'mojradnik' ? '_MOJRADNIK' : '';
+
     switch (type) {
       case 'support':
-        return process.env.EMAIL_SUPPORT || process.env.EMAIL_USER;
+        return (
+          process.env[`EMAIL_SUPPORT${domainSuffix}`] || process.env.EMAIL_USER
+        );
       case 'admin':
-        return process.env.EMAIL_ADMIN || process.env.EMAIL_USER;
+        return (
+          process.env[`EMAIL_ADMIN${domainSuffix}`] || process.env.EMAIL_USER
+        );
       case 'invoices':
-        return process.env.EMAIL_INVOICES || process.env.EMAIL_USER;
+        return (
+          process.env[`EMAIL_INVOICES${domainSuffix}`] || process.env.EMAIL_USER
+        );
       default:
         return process.env.EMAIL_USER;
     }
+  }
+
+  // Helper methods for specific domains
+  getSummasummarumEmail(type) {
+    return this.getEmailAddress(type, 'summasummarum');
+  }
+
+  getMojRadnikEmail(type) {
+    return this.getEmailAddress(type, 'mojradnik');
   }
 
   // Osnovni template za email

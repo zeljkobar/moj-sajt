@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📋 Template Selector | SummaSum</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .template-selector-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header-section {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .header-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+
+      .template-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+      }
+
+      .template-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      }
+
+      .template-card.selected {
+        border-color: #28a745;
+        box-shadow: 0 15px 40px rgba(40, 167, 69, 0.3);
+      }
+
+      .template-header {
+        padding: 25px;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+
+      .template-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 35px;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .template-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .template-description {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .template-body {
+        padding: 20px;
+      }
+
+      .template-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+      }
+
+      .template-features li {
+        padding: 8px 0;
+        color: #555;
+        font-size: 14px;
+        border-bottom: 1px solid #f1f1f1;
+      }
+
+      .template-features li:last-child {
+        border-bottom: none;
+      }
+
+      .template-features li:before {
+        content: '✓';
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .template-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+
+      .btn-preview {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-preview:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+      }
+
+      .btn-select {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-select:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+
+      .footer-actions {
+        text-align: center;
+        margin-top: 40px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-back {
+        background: white;
+        color: #667eea;
+        border: 2px solid white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn-back:hover {
+        background: transparent;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .selected-info {
+        background: rgba(40, 167, 69, 0.1);
+        border: 2px solid rgba(40, 167, 69, 0.3);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 30px;
+        text-align: center;
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="template-selector-container">
+      <!-- Header -->
+      <div class="header-section">
+        <h1><i class="fas fa-envelope"></i> Izaberite Email Template</h1>
+        <p>
+          Kliknite na template za preview, zatim Select za izbor. Trenutno
+          dostupno: <strong id="templateCount">3</strong> template-a
+        </p>
+      </div>
+
+      <!-- Selected Template Info -->
+      <div class="selected-info" id="selectedInfo">
+        <i class="fas fa-check-circle"></i>
+        <strong>Izabran template:</strong>
+        <span id="selectedTemplateName"></span>
+      </div>
+
+      <!-- Template Grid -->
+      <div class="template-grid">
+        <!-- Marketing Default -->
+        <div class="template-card" data-template="marketing-default.html">
+          <div class="template-header">
+            <div class="template-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="template-title">Marketing Default</div>
+            <div class="template-description">
+              Profesionalni marketing template za promociju platforme
+            </div>
+          </div>
+          <div class="template-body">
+            <ul class="template-features">
+              <li>Profesionalni header sa logojem</li>
+              <li>Ključne funkcionalnosti platforme</li>
+              <li>Video demonstracije</li>
+              <li>CTA dugme za registraciju</li>
+              <li>Kontakt informacije</li>
+            </ul>
+          </div>
+          <div class="template-actions">
+            <button
+              class="btn-preview"
+              onclick="previewTemplate('marketing-default.html')"
+            >
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button
+              class="btn-select"
+              onclick="selectTemplate('marketing-default.html')"
+            >
+              <i class="fas fa-check"></i> Select
+            </button>
+          </div>
+        </div>
+
+        <!-- Specijalna Ponuda -->
+        <div class="template-card" data-template="promo-specijalna-ponuda.html">
+          <div class="template-header">
+            <div
+              class="template-icon"
+              style="
+                background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+              "
+            >
+              <i class="fas fa-percent"></i>
+            </div>
+            <div class="template-title">Specijalna Ponuda</div>
+            <div class="template-description">
+              Promotivni template sa popustima i urgency messaging
+            </div>
+          </div>
+          <div class="template-body">
+            <ul class="template-features">
+              <li>Atraktivan header sa popustom</li>
+              <li>Urgency messaging (ograničeno vreme)</li>
+              <li>Lista prednosti/benefita</li>
+              <li>Veliki CTA dugmić</li>
+              <li>Timer ili deadline mention</li>
+            </ul>
+          </div>
+          <div class="template-actions">
+            <button
+              class="btn-preview"
+              onclick="previewTemplate('promo-specijalna-ponuda.html')"
+            >
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button
+              class="btn-select"
+              onclick="selectTemplate('promo-specijalna-ponuda.html')"
+            >
+              <i class="fas fa-check"></i> Select
+            </button>
+          </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="template-card" data-template="newsletter-mesecni.html">
+          <div class="template-header">
+            <div
+              class="template-icon"
+              style="
+                background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);
+              "
+            >
+              <i class="fas fa-newspaper"></i>
+            </div>
+            <div class="template-title">Mesečni Newsletter</div>
+            <div class="template-description">
+              Informativni template sa novostima i savetima
+            </div>
+          </div>
+          <div class="template-body">
+            <ul class="template-features">
+              <li>Čist i profesionalan dizajn</li>
+              <li>Sekcije za različite novosti</li>
+              <li>Kolorni sistem za kategorije</li>
+              <li>Linkovi ka dashboard-u</li>
+              <li>Saveti i preporuke</li>
+            </ul>
+          </div>
+          <div class="template-actions">
+            <button
+              class="btn-preview"
+              onclick="previewTemplate('newsletter-mesecni.html')"
+            >
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button
+              class="btn-select"
+              onclick="selectTemplate('newsletter-mesecni.html')"
+            >
+              <i class="fas fa-check"></i> Select
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="footer-actions">
+        <a href="/shared/email-marketing.html" class="btn-back">
+          <i class="fas fa-arrow-left"></i>
+          Vrati se na Email Marketing
+        </a>
+      </div>
+    </div>
+
+    <script>
+      let selectedTemplate =
+        localStorage.getItem('selectedTemplate') || 'marketing-default.html';
+
+      // Initialize page
+      document.addEventListener('DOMContentLoaded', function () {
+        if (selectedTemplate) {
+          selectTemplateVisually(selectedTemplate);
+        }
+      });
+
+      function selectTemplate(templateName) {
+        selectedTemplate = templateName;
+
+        // Save to localStorage
+        localStorage.setItem('selectedTemplate', templateName);
+
+        // Visual update
+        selectTemplateVisually(templateName);
+
+        // Show confirmation
+        showSelectedInfo(templateName);
+      }
+
+      function selectTemplateVisually(templateName) {
+        // Remove all selections
+        document.querySelectorAll('.template-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+
+        // Add selection to chosen template
+        document
+          .querySelector(`[data-template="${templateName}"]`)
+          .classList.add('selected');
+      }
+
+      function showSelectedInfo(templateName) {
+        const displayNames = {
+          'marketing-default.html': 'Marketing Default',
+          'promo-specijalna-ponuda.html': 'Specijalna Ponuda',
+          'newsletter-mesecni.html': 'Mesečni Newsletter',
+        };
+
+        document.getElementById('selectedTemplateName').textContent =
+          displayNames[templateName];
+        document.getElementById('selectedInfo').style.display = 'block';
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+          document.getElementById('selectedInfo').style.display = 'none';
+        }, 3000);
+      }
+
+      function previewTemplate(templateName) {
+        window.open(
+          `/email-templates/${templateName}`,
+          '_blank',
+          'width=800,height=600'
+        );
+      }
+
+      // Show template count
+      document.getElementById('templateCount').textContent =
+        document.querySelectorAll('.template-card').length;
+    </script>
+  </body>
+</html>

@@ -1227,7 +1227,14 @@ app.post(
   requireRole(ROLES.ADMIN),
   async (req, res) => {
     try {
-      const { email, firstName, companyName } = req.body;
+      const {
+        email,
+        firstName,
+        companyName,
+        senderEmail,
+        senderName,
+        subject,
+      } = req.body;
 
       if (!email) {
         return res
@@ -1236,10 +1243,26 @@ app.post(
       }
 
       const service = new MarketingEmailService();
-      const result = await service.sendMarketingEmail(email, {
-        firstName,
-        companyName,
-      });
+
+      // Konfiguracija pošaljioca
+      let senderConfig = null;
+      if (senderEmail || senderName || subject) {
+        senderConfig = {
+          email: senderEmail,
+          name: senderName,
+          subject: subject,
+        };
+      }
+
+      const result = await service.sendMarketingEmail(
+        email,
+        {
+          firstName,
+          companyName,
+        },
+        null,
+        senderConfig
+      );
 
       res.json(result);
     } catch (error) {
@@ -1259,7 +1282,8 @@ app.post(
     // Marketing campaign endpoint called
 
     try {
-      const { testMode, campaignName } = req.body;
+      const { testMode, campaignName, senderEmail, senderName, subject } =
+        req.body;
 
       if (!req.file) {
         // No CSV file provided
@@ -1271,6 +1295,16 @@ app.post(
       const MarketingEmailService = require('./marketing-email');
       const manager = new MarketingEmailService();
 
+      // Konfiguracija pošaljioca
+      let senderConfig = null;
+      if (senderEmail || senderName || subject) {
+        senderConfig = {
+          email: senderEmail,
+          name: senderName,
+          subject: subject,
+        };
+      }
+
       // Učitaj CSV fajl
       const recipients = manager.loadEmailListFromCSV(req.file.path);
       if (testMode === 'true') {
@@ -1279,7 +1313,9 @@ app.post(
         const testRecipient = recipients[0];
         const result = await service.sendMarketingEmail(
           testRecipient.email,
-          testRecipient
+          testRecipient,
+          null,
+          senderConfig
         );
 
         // Obriši privremeni fajl
@@ -1301,7 +1337,8 @@ app.post(
         recipients,
         2000,
         campaignTitle,
-        req.user.id
+        req.user.id,
+        senderConfig
       );
 
       // Obriši privremeni fajl
@@ -1563,12 +1600,10 @@ app.post(
 
       if (!req.file) {
         console.log('❌ No file received!');
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: 'Fajl je obavezan za dodavanje u bazu',
-          });
+        return res.status(400).json({
+          success: false,
+          message: 'Fajl je obavezan za dodavanje u bazu',
+        });
       }
 
       console.log('✅ File received:', req.file.path);
@@ -1883,6 +1918,59 @@ app.get('/api/marketing/track/open/:emailId', async (req, res) => {
   }
 });
 
+// Personalizovano tracking sa PIB-om - /visit/{PIB}/{campaign}
+app.get('/visit/:pib/:campaign', async (req, res) => {
+  try {
+    const { pib, campaign } = req.params;
+    const userAgent = req.get('User-Agent') || '';
+    const ipAddress = req.ip || req.connection.remoteAddress || '';
+
+    console.log(`🔍 Personalized visit: PIB ${pib} from campaign ${campaign}`);
+
+    // 1. Pronađi firmu po PIB-u
+    const firma = await executeQuery(
+      `
+      SELECT id, naziv, email, grad 
+      FROM emails 
+      WHERE pib = ? 
+      LIMIT 1
+    `,
+      [pib]
+    );
+
+    // 2. Logiraj klik u marketing_emails tabelu
+    if (campaign.startsWith('campaign-')) {
+      const campaignId = campaign.replace('campaign-', '');
+      await executeQuery(
+        `
+        UPDATE marketing_emails 
+        SET 
+          clicked_at = COALESCE(clicked_at, NOW()),
+          click_count = click_count + 1,
+          last_click_url = ?,
+          user_agent = ?,
+          ip_address = ?
+        WHERE campaign_id = ? AND email_address IN (
+          SELECT email FROM emails WHERE pib = ?
+        )
+      `,
+        [req.url, userAgent, ipAddress, campaignId, pib]
+      );
+
+      console.log(`✅ PIB ${pib} click logged for campaign ${campaignId}`);
+    }
+
+    // 3. Redirect na glavnu stranicu
+    const firmaNaziv = firma.length > 0 ? firma[0].naziv : 'Unknown';
+    console.log(`🎯 PIB ${pib} (${firmaNaziv}) redirecting to homepage`);
+
+    res.redirect('/?from=email&pib=' + pib);
+  } catch (error) {
+    console.error('Personalized tracking error:', error);
+    res.redirect('/');
+  }
+});
+
 // Profile API endpoint
 const profileController = require('./src/controllers/profileController');
 app.get(
@@ -2000,6 +2088,14 @@ app.put(
 
 // Serve shared files with proper paths
 app.use('/shared', express.static(path.join(__dirname, 'public', 'shared')));
+
+// Serve email templates (admin only)
+app.use(
+  '/email-templates',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  express.static(path.join(__dirname, 'email-templates'))
+);
 
 // Serve domain-specific assets directly
 app.use(
