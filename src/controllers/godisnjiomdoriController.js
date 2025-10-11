@@ -151,7 +151,7 @@ module.exports = {
       }
 
       const odmorData = odmorResult[0];
-      
+
       // Izračunaj ukupno iskorišćene dane za tu godinu
       const godina = new Date(odmorData.datum_od).getFullYear();
       const iskorisceniDaniResult = await executeQuery(
@@ -163,7 +163,8 @@ module.exports = {
         [odmorData.radnik_id, godina]
       );
 
-      odmorData.ukupno_iskorisceno = iskorisceniDaniResult[0].ukupno_iskorisceno;
+      odmorData.ukupno_iskorisceno =
+        iskorisceniDaniResult[0].ukupno_iskorisceno;
 
       console.log('📊 Pronađen odmor:', odmorData);
       res.json(odmorData);
@@ -199,10 +200,17 @@ module.exports = {
         SELECT 
           gp.id, gp.radnik_id, gp.godina, gp.ukupno_dana, gp.iskorisceno_dana, gp.preostalo_dana,
           r.ime, r.prezime, r.subota,
-          p.naziv as pozicija_naziv
+          COALESCE(
+            CASE 
+              WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+              WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+              ELSE 'Nespecifikovano'
+            END
+          ) as pozicija_naziv
         FROM godisnji_plan gp
         LEFT JOIN radnici r ON gp.radnik_id = r.id
-        LEFT JOIN pozicije p ON r.pozicija_id = p.id
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
         WHERE r.firma_id = ? AND gp.godina = ?
         ORDER BY r.ime, r.prezime
       `,

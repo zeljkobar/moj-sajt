@@ -37,6 +37,10 @@
     />
     <link rel="stylesheet" href="/shared/style.css" />
     <link rel="stylesheet" href="/shared/global-components.css" />
+
+    <!-- PDF Export biblioteke -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="/shared/components/export-utils.js"></script>
     <style>
       @media print {
@@ -223,10 +227,7 @@
               <button class="btn btn-primary me-2" onclick="window.print()">
                 <i class="fas fa-print me-1"></i>Štampaj
               </button>
-              <button
-                class="btn btn-success"
-                onclick="exportToPDF('resenje-godisnji-odmor')"
-              >
+              <button class="btn btn-success" onclick="downloadPDF()">
                 <i class="fas fa-file-pdf me-1"></i>Izvezi PDF
               </button>
             </div>
@@ -473,6 +474,32 @@
 
         // Update page title
         document.title = `Rešenje o godišnjem odmoru - ${imePrezime} - ${docNumber}`;
+      }
+
+      // ============================================
+      // PDF EXPORT FUNKCIJA - koristi ExportUtils modul
+      // ============================================
+      async function downloadPDF() {
+        await ExportUtils.exportToPDF({
+          containerSelector: '.document-container',
+          filePrefix: 'Resenje_Godisnji_Odmor',
+          getFileName: () => {
+            const radnikIme =
+              document.getElementById('radnikImePrezime')?.textContent ||
+              'Radnik';
+            const broj =
+              document.getElementById('rešenjeBroj')?.textContent || '001';
+            const firmaNaziv =
+              document.getElementById('firmaNaziv')?.textContent || 'Firma';
+            return `Resenje_Godisnji_Odmor_${radnikIme.replace(
+              /\s+/g,
+              '_'
+            )}_${broj.replace(/[\/\s]/g, '_')}_${firmaNaziv.replace(
+              /\s+/g,
+              '_'
+            )}.pdf`;
+          },
+        });
       }
     </script>
   </body>

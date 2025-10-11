@@ -39,11 +39,17 @@ function updateNajaveljeniOdmoriTable() {
     return;
   }
 
-  // Filtriraj buduce odmori i one na čekanju
+  // Filtriraj buduce odmori, odmori u toku i one na čekanju
   const najavljeni = odmoríData.filter(o => {
     const datumOd = new Date(o.datum_od);
+    const datumDo = new Date(o.datum_do);
     const danas = new Date();
-    return datumOd >= danas || o.status === 'na_cekanju';
+    // Prikaži ako: počinje u budućnosti, ili je u toku (počeo ali nije završen), ili je na čekanju
+    return (
+      datumOd >= danas ||
+      (datumOd <= danas && datumDo >= danas) ||
+      o.status === 'na_cekanju'
+    );
   });
 
   if (najavljeni.length === 0) {
@@ -59,17 +65,23 @@ function updateNajaveljeniOdmoriTable() {
 
   let html = '';
   najavljeni.forEach(odmor => {
+    const danas = new Date();
+    const datumOd = new Date(odmor.datum_od);
+    const datumDo = new Date(odmor.datum_do);
+    const uToku =
+      datumOd <= danas && datumDo >= danas && odmor.status === 'odobren';
+
     const statusClass =
       {
         na_cekanju: 'warning',
-        odobren: 'success',
+        odobren: uToku ? 'info' : 'success', // Plavom bojom za odmori u toku
         odbacen: 'danger',
       }[odmor.status] || 'secondary';
 
     const statusText =
       {
         na_cekanju: 'Na čekanju',
-        odobren: 'Odobren',
+        odobren: uToku ? 'U toku' : 'Odobren', // Različit tekst za odmori u toku
         odbacen: 'Odbačen',
       }[odmor.status] || odmor.status;
 
@@ -80,7 +92,9 @@ function updateNajaveljeniOdmoriTable() {
         <td>${new Date(odmor.datum_od).toLocaleDateString('sr-RS')}</td>
         <td>${new Date(odmor.datum_do).toLocaleDateString('sr-RS')}</td>
         <td>${odmor.broj_dana}</td>
-        <td><span class="badge bg-${statusClass}">${statusText}</span></td>
+        <td><span class="badge bg-${statusClass}">${
+      uToku ? '<i class="fas fa-clock me-1"></i>' : ''
+    }${statusText}</span></td>
         <td>
           ${
             odmor.status === 'na_cekanju'
@@ -127,10 +141,11 @@ function updateIstorijaTable() {
     return;
   }
 
-  // Filtriraj prošle odmori
+  // Filtriraj prošle odmori (potpuno završene)
   const istorija = odmoríData.filter(o => {
     const datumDo = new Date(o.datum_do);
     const danas = new Date();
+    // Prikaži samo odmori koji su se potpuno završili (datum_do je u prošlosti) i odobreni su
     return datumDo < danas && o.status === 'odobren';
   });
 
@@ -156,10 +171,14 @@ function updateIstorijaTable() {
         <td>${odmor.broj_dana}</td>
         <td><span class="badge bg-success">Odobren</span></td>
         <td>
-          <button class="btn btn-sm btn-primary me-1" onclick="generateResenjeOdmor(${odmor.id})" title="Generiši rešenje o godišnjem odmoru">
+          <button class="btn btn-sm btn-primary me-1" onclick="generateResenjeOdmor(${
+            odmor.id
+          })" title="Generiši rešenje o godišnjem odmoru">
             <i class="fas fa-file-alt"></i>
           </button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši zahtev">
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteOdmor(${
+            odmor.id
+          })" title="Obriši zahtev">
             <i class="fas fa-trash"></i>
           </button>
         </td>
@@ -891,5 +910,324 @@ async function generateResenjeOdmor(odmorId) {
   } catch (error) {
     console.error('Greška pri generisanju rešenja:', error);
     alert('Greška pri generisanju rešenja: ' + error.message);
+  }
+}
+
+// ============================================
+// FUNKCIJE ZA BRZE AKCIJE
+// ============================================
+
+// Funkcija za prikazivanje svih zahtjeva (svi statusi)
+function showAllRequests() {
+  try {
+    console.log('🔍 Prikazujem sve zahtjeve...');
+    
+    // Kreiraj modal za prikaz svih zahtjeva
+    const modalHtml = `
+      <div class="modal fade" id="sviZahtjeviModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-list me-2"></i>Svi zahtjevi za odmor
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Radnik</th>
+                      <th>Tip odmora</th>
+                      <th>Datum od</th>
+                      <th>Datum do</th>
+                      <th>Broj dana</th>
+                      <th>Status</th>
+                      <th>Kreiran</th>
+                      <th>Napomena</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sviZahtjeviTabela">
+                    <tr>
+                      <td colspan="9" class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin me-2"></i>Učitavanje...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Zatvori
+              </button>
+              <button type="button" class="btn btn-primary" onclick="exportAllRequests()">
+                <i class="fas fa-download me-2"></i>Izvezi sve
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Ukloni postojeći modal ako postoji
+    const existingModal = document.getElementById('sviZahtjeviModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Dodaj novi modal u body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Popuni tabelu sa svim zahtjevima
+    populateAllRequestsTable();
+
+    // Prikaži modal
+    const modal = new bootstrap.Modal(document.getElementById('sviZahtjeviModal'));
+    modal.show();
+
+  } catch (error) {
+    console.error('Greška pri prikazivanju svih zahtjeva:', error);
+    alert('Greška pri prikazivanju svih zahtjeva');
+  }
+}
+
+// Popuni tabelu sa svim zahtjevima
+function populateAllRequestsTable() {
+  const tabela = document.getElementById('sviZahtjeviTabela');
+  
+  if (!tabela) {
+    console.error('Tabela sviZahtjeviTabela nije pronađena!');
+    return;
+  }
+
+  if (odmoríData.length === 0) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="9" class="text-center text-muted py-4">
+          <i class="fas fa-calendar-times me-2"></i>Nema zahtjeva za odmor
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Sortiraj sve zahtjeve po datumu kreiranja (najnoviji prvi)
+  const sviZahtjevi = [...odmoríData].sort((a, b) => {
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  let html = '';
+  sviZahtjevi.forEach(odmor => {
+    const danas = new Date();
+    const datumOd = new Date(odmor.datum_od);
+    const datumDo = new Date(odmor.datum_do);
+    const uToku = datumOd <= danas && datumDo >= danas && odmor.status === 'odobren';
+    
+    const statusClass = {
+      'na_cekanju': 'warning',
+      'odobren': uToku ? 'info' : 'success',
+      'odbacen': 'danger'
+    }[odmor.status] || 'secondary';
+
+    const statusText = {
+      'na_cekanju': 'Na čekanju',
+      'odobren': uToku ? 'U toku' : 'Odobren',
+      'odbacen': 'Odbačen'
+    }[odmor.status] || odmor.status;
+
+    const datumKreiranja = new Date(odmor.created_at).toLocaleDateString('sr-RS');
+
+    html += `
+      <tr>
+        <td><strong>${odmor.ime} ${odmor.prezime}</strong></td>
+        <td>${odmor.tip_odmora || 'Godišnji'}</td>
+        <td>${new Date(odmor.datum_od).toLocaleDateString('sr-RS')}</td>
+        <td>${new Date(odmor.datum_do).toLocaleDateString('sr-RS')}</td>
+        <td><span class="badge bg-primary">${odmor.broj_dana}</span></td>
+        <td>
+          <span class="badge bg-${statusClass}">
+            ${uToku ? '<i class="fas fa-clock me-1"></i>' : ''}${statusText}
+          </span>
+        </td>
+        <td class="text-muted small">${datumKreiranja}</td>
+        <td>${odmor.napomena ? `<small class="text-muted">${odmor.napomena}</small>` : '-'}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            ${odmor.status === 'na_cekanju' ? `
+              <button class="btn btn-success" onclick="approveOdmor(${odmor.id})" title="Odobri">
+                <i class="fas fa-check"></i>
+              </button>
+              <button class="btn btn-danger" onclick="rejectOdmor(${odmor.id})" title="Odbaci">
+                <i class="fas fa-times"></i>
+              </button>
+            ` : ''}
+            ${odmor.status === 'odobren' ? `
+              <button class="btn btn-primary" onclick="generateResenjeOdmor(${odmor.id})" title="Generiši rešenje">
+                <i class="fas fa-file-alt"></i>
+              </button>
+            ` : ''}
+            <button class="btn btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tabela.innerHTML = html;
+}
+
+// Funkcija za izvoz svih zahtjeva
+function exportAllRequests() {
+  try {
+    // Pripremi podatke za izvoz
+    const exportData = odmoríData.map(odmor => ({
+      'Radnik': `${odmor.ime} ${odmor.prezime}`,
+      'Tip odmora': odmor.tip_odmora || 'Godišnji',
+      'Datum od': new Date(odmor.datum_od).toLocaleDateString('sr-RS'),
+      'Datum do': new Date(odmor.datum_do).toLocaleDateString('sr-RS'),
+      'Broj dana': odmor.broj_dana,
+      'Status': odmor.status === 'na_cekanju' ? 'Na čekanju' : 
+               odmor.status === 'odobren' ? 'Odobren' : 'Odbačen',
+      'Datum kreiranja': new Date(odmor.created_at).toLocaleDateString('sr-RS'),
+      'Napomena': odmor.napomena || ''
+    }));
+
+    // Kreiraj CSV sadržaj
+    const headers = Object.keys(exportData[0]).join(',');
+    const rows = exportData.map(row => 
+      Object.values(row).map(value => 
+        `"${String(value).replace(/"/g, '""')}"`
+      ).join(',')
+    );
+    const csvContent = [headers, ...rows].join('\n');
+
+    // Kreiraj i preuzmi fajl
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `svi_zahtjevi_odmor_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log('✅ CSV fajl kreiran i preuzet');
+    
+  } catch (error) {
+    console.error('Greška pri izvozu:', error);
+    alert('Greška pri kreiranju izvoza');
+  }
+}
+
+// Funkcija za export za štampu
+function exportForPrint() {
+  try {
+    console.log('🖨️ Priprema za štampu...');
+    
+    // Otvori novi prozor sa print-friendly verzijom
+    const printWindow = window.open('', '_blank');
+    
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Godišnji odmori - Export za štampu</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            font-size: 12px;
+          }
+          h1 { 
+            color: #333; 
+            border-bottom: 2px solid #ddd; 
+            padding-bottom: 10px; 
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+          }
+          th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left; 
+          }
+          th { 
+            background-color: #f5f5f5; 
+            font-weight: bold; 
+          }
+          .status-odobren { color: #28a745; }
+          .status-na_cekanju { color: #ffc107; }
+          .status-odbacen { color: #dc3545; }
+          @media print {
+            body { margin: 0; }
+            table { font-size: 10px; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>📋 Godišnji odmori - Svi zahtjevi</h1>
+        <p><strong>Datum izvoza:</strong> ${new Date().toLocaleDateString('sr-RS')}</p>
+        <p><strong>Ukupno zahtjeva:</strong> ${odmoríData.length}</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Br.</th>
+              <th>Radnik</th>
+              <th>Tip odmora</th>
+              <th>Od</th>
+              <th>Do</th>
+              <th>Dani</th>
+              <th>Status</th>
+              <th>Kreiran</th>
+              <th>Napomena</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${odmoríData.map((odmor, index) => `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${odmor.ime} ${odmor.prezime}</td>
+                <td>${odmor.tip_odmora || 'Godišnji'}</td>
+                <td>${new Date(odmor.datum_od).toLocaleDateString('sr-RS')}</td>
+                <td>${new Date(odmor.datum_do).toLocaleDateString('sr-RS')}</td>
+                <td>${odmor.broj_dana}</td>
+                <td class="status-${odmor.status}">
+                  ${odmor.status === 'na_cekanju' ? 'Na čekanju' : 
+                    odmor.status === 'odobren' ? 'Odobren' : 'Odbačen'}
+                </td>
+                <td>${new Date(odmor.created_at).toLocaleDateString('sr-RS')}</td>
+                <td>${odmor.napomena || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <script>
+          window.print();
+          window.onafterprint = function() {
+            window.close();
+          }
+        </script>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+  } catch (error) {
+    console.error('Greška pri pripremi za štampu:', error);
+    alert('Greška pri pripremi za štampu');
   }
 }
