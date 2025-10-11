@@ -1,4 +1,4 @@
-const { executeQuery } = require("../config/database");
+const { executeQuery } = require('../config/database');
 
 // Kreiranje novog otkaza
 exports.createOtkaz = async (req, res) => {
@@ -7,44 +7,44 @@ exports.createOtkaz = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
     // Debugging - loguj šta je stiglo
-    console.log("=== OTKAZ DEBUG ===");
-    console.log("req.body:", req.body);
-    console.log("req.session.user:", req.session.user);
-    console.log("==================");
+    console.log('=== OTKAZ DEBUG ===');
+    console.log('req.body:', req.body);
+    console.log('req.session.user:', req.session.user);
+    console.log('==================');
 
     const { radnik_id, tip_otkaza, datum_otkaza, razlog_otkaza } = req.body;
     const user_id = req.session.user.id;
 
-    console.log("Extrahovani podaci:");
-    console.log("radnik_id:", radnik_id);
-    console.log("tip_otkaza:", tip_otkaza);
-    console.log("datum_otkaza:", datum_otkaza);
-    console.log("razlog_otkaza:", razlog_otkaza);
-    console.log("user_id:", user_id);
+    console.log('Extrahovani podaci:');
+    console.log('radnik_id:', radnik_id);
+    console.log('tip_otkaza:', tip_otkaza);
+    console.log('datum_otkaza:', datum_otkaza);
+    console.log('razlog_otkaza:', razlog_otkaza);
+    console.log('user_id:', user_id);
 
     // Validacija
     if (!radnik_id || !tip_otkaza || !datum_otkaza) {
       return res.status(400).json({
         success: false,
-        message: "Sva obavezna polja moraju biti popunjena!",
+        message: 'Sva obavezna polja moraju biti popunjena!',
       });
     }
 
     // Proveri da li već postoji otkaz za ovog radnika
     const existingOtkaz = await executeQuery(
-      "SELECT id FROM otkazi WHERE radnik_id = ?",
+      'SELECT id FROM otkazi WHERE radnik_id = ?',
       [radnik_id]
     );
 
     if (existingOtkaz.length > 0) {
       return res.status(400).json({
         success: false,
-        message: "Otkaz za ovog radnika već postoji!",
+        message: 'Otkaz za ovog radnika već postoji!',
       });
     }
 
@@ -68,14 +68,14 @@ exports.createOtkaz = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Otkaz je uspešno kreiran!",
+      message: 'Otkaz je uspešno kreiran!',
       otkaz_id: result.insertId,
     });
   } catch (error) {
-    console.error("Greška pri kreiranju otkaza:", error);
+    console.error('Greška pri kreiranju otkaza:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri kreiranju otkaza: " + error.message,
+      message: 'Greška pri kreiranju otkaza: ' + error.message,
     });
   }
 };
@@ -87,7 +87,7 @@ exports.getOtkazi = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
@@ -102,22 +102,23 @@ exports.getOtkazi = async (req, res) => {
                 r.jmbg,
                 r.firma_id,
                 f.naziv as firma_naziv,
-                p.naziv as pozicija_naziv
+                COALESCE(tp.naziv, cp.naziv) as pozicija_naziv
             FROM otkazi o
             JOIN radnici r ON o.radnik_id = r.id
             JOIN firme f ON r.firma_id = f.id
-            LEFT JOIN pozicije p ON r.pozicija_id = p.id
+            LEFT JOIN pozicije tp ON r.pozicija_id = CONCAT('template_', tp.id)
+            LEFT JOIN pozicije cp ON r.pozicija_id = CONCAT('custom_', cp.id)
         `;
 
     let params = [];
 
     // Ograniči pristup na osnovu role
-    if (user_role !== "admin") {
-      query += " WHERE o.user_id = ?";
+    if (user_role !== 'admin') {
+      query += ' WHERE o.user_id = ?';
       params.push(user_id);
     }
 
-    query += " ORDER BY o.created_at DESC";
+    query += ' ORDER BY o.created_at DESC';
 
     const otkazi = await executeQuery(query, params);
 
@@ -126,10 +127,10 @@ exports.getOtkazi = async (req, res) => {
       otkazi: otkazi,
     });
   } catch (error) {
-    console.error("Greška pri dobijanju otkaza:", error);
+    console.error('Greška pri dobijanju otkaza:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dobijanju otkaza: " + error.message,
+      message: 'Greška pri dobijanju otkaza: ' + error.message,
     });
   }
 };
@@ -141,7 +142,7 @@ exports.getOtkazById = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
@@ -174,8 +175,8 @@ exports.getOtkazById = async (req, res) => {
     let params = [id];
 
     // Ograniči pristup na osnovu role
-    if (user_role !== "admin") {
-      query += " AND o.user_id = ?";
+    if (user_role !== 'admin') {
+      query += ' AND o.user_id = ?';
       params.push(user_id);
     }
 
@@ -184,7 +185,7 @@ exports.getOtkazById = async (req, res) => {
     if (otkazi.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Otkaz nije pronađen!",
+        message: 'Otkaz nije pronađen!',
       });
     }
 
@@ -193,10 +194,10 @@ exports.getOtkazById = async (req, res) => {
       otkaz: otkazi[0],
     });
   } catch (error) {
-    console.error("Greška pri dobijanju otkaza:", error);
+    console.error('Greška pri dobijanju otkaza:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dobijanju otkaza: " + error.message,
+      message: 'Greška pri dobijanju otkaza: ' + error.message,
     });
   }
 };
@@ -208,7 +209,7 @@ exports.deleteOtkaz = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
@@ -223,8 +224,8 @@ exports.deleteOtkaz = async (req, res) => {
 
     let checkParams = [id];
 
-    if (user_role !== "admin") {
-      checkQuery += " AND user_id = ?";
+    if (user_role !== 'admin') {
+      checkQuery += ' AND user_id = ?';
       checkParams.push(user_id);
     }
 
@@ -233,14 +234,14 @@ exports.deleteOtkaz = async (req, res) => {
     if (otkazi.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Otkaz nije pronađen!",
+        message: 'Otkaz nije pronađen!',
       });
     }
 
     const otkaz = otkazi[0];
 
     // Obriši otkaz
-    await executeQuery("DELETE FROM otkazi WHERE id = ?", [id]);
+    await executeQuery('DELETE FROM otkazi WHERE id = ?', [id]);
 
     // Vrati status radnika na 'aktivan' (bez updated_at jer kolona ne postoji)
     await executeQuery(
@@ -253,13 +254,13 @@ exports.deleteOtkaz = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Otkaz je uspešno obrisan!",
+      message: 'Otkaz je uspešno obrisan!',
     });
   } catch (error) {
-    console.error("Greška pri brisanju otkaza:", error);
+    console.error('Greška pri brisanju otkaza:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri brisanju otkaza: " + error.message,
+      message: 'Greška pri brisanju otkaza: ' + error.message,
     });
   }
 };
@@ -271,7 +272,7 @@ exports.getOtkazByFirma = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
@@ -280,7 +281,7 @@ exports.getOtkazByFirma = async (req, res) => {
     if (!firmaId) {
       return res.status(400).json({
         success: false,
-        message: "ID firme je obavezan!",
+        message: 'ID firme je obavezan!',
       });
     }
 
@@ -312,10 +313,10 @@ exports.getOtkazByFirma = async (req, res) => {
       data: otkazi,
     });
   } catch (error) {
-    console.error("Greška pri dobavljanju otkaza po firmi:", error);
+    console.error('Greška pri dobavljanju otkaza po firmi:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dobavljanju otkaza!",
+      message: 'Greška pri dobavljanju otkaza!',
       error: error.message,
     });
   }
@@ -328,7 +329,7 @@ exports.getOtkazByRadnik = async (req, res) => {
     if (!req.session || !req.session.user) {
       return res.status(401).json({
         success: false,
-        message: "Korisnik nije autentifikovan!",
+        message: 'Korisnik nije autentifikovan!',
       });
     }
 
@@ -337,7 +338,7 @@ exports.getOtkazByRadnik = async (req, res) => {
     if (!radnikId) {
       return res.status(400).json({
         success: false,
-        message: "ID radnika je obavezan!",
+        message: 'ID radnika je obavezan!',
       });
     }
 
@@ -370,7 +371,7 @@ exports.getOtkazByRadnik = async (req, res) => {
       return res.json({
         success: true,
         otkaz: null,
-        message: "Radnik nema otkaz",
+        message: 'Radnik nema otkaz',
       });
     }
 
@@ -379,10 +380,10 @@ exports.getOtkazByRadnik = async (req, res) => {
       otkaz: result[0],
     });
   } catch (error) {
-    console.error("Greška pri dobavljanju otkaza po radniku:", error);
+    console.error('Greška pri dobavljanju otkaza po radniku:', error);
     res.status(500).json({
       success: false,
-      message: "Greška pri dobavljanju otkaza!",
+      message: 'Greška pri dobavljanju otkaza!',
       error: error.message,
     });
   }

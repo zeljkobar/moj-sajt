@@ -1805,6 +1805,8 @@ function viewOtkaz(otkazId, tipOtkaza, radnikId) {
     documentUrl = `/sporazumni-raskid.html?radnikId=${radnikId}&firmaId=${currentFirmaId}&otkazId=${otkazId}`;
   } else if (tipOtkaza === 'istek_ugovora') {
     documentUrl = `/istek-ugovora.html?radnikId=${radnikId}&firmaId=${currentFirmaId}&otkazId=${otkazId}`;
+  } else if (tipOtkaza === 'jednostrani_raskid_radnik') {
+    documentUrl = `/jednostrani-raskid-od-strane-radnika.html?radnikId=${radnikId}&firmaId=${currentFirmaId}&otkazId=${otkazId}`;
   } else {
     console.error('Nepoznat tip otkaza:', tipOtkaza);
     return;
@@ -2914,6 +2916,7 @@ function openOtkazModalForRadnik(radnikId) {
                   <option value="">Izaberite tip otkaza</option>
                   <option value="sporazumni_raskid">Sporazumni raskid</option>
                   <option value="istek_ugovora">Istek ugovora na određeno</option>
+                  <option value="jednostrani_raskid_radnik">Jednostrani raskid od strane radnika</option>
                 </select>
               </div>
               

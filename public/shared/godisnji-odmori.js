@@ -921,7 +921,7 @@ async function generateResenjeOdmor(odmorId) {
 function showAllRequests() {
   try {
     console.log('🔍 Prikazujem sve zahtjeve...');
-    
+
     // Kreiraj modal za prikaz svih zahtjeva
     const modalHtml = `
       <div class="modal fade" id="sviZahtjeviModal" tabindex="-1">
@@ -985,9 +985,10 @@ function showAllRequests() {
     populateAllRequestsTable();
 
     // Prikaži modal
-    const modal = new bootstrap.Modal(document.getElementById('sviZahtjeviModal'));
+    const modal = new bootstrap.Modal(
+      document.getElementById('sviZahtjeviModal')
+    );
     modal.show();
-
   } catch (error) {
     console.error('Greška pri prikazivanju svih zahtjeva:', error);
     alert('Greška pri prikazivanju svih zahtjeva');
@@ -997,7 +998,7 @@ function showAllRequests() {
 // Popuni tabelu sa svim zahtjevima
 function populateAllRequestsTable() {
   const tabela = document.getElementById('sviZahtjeviTabela');
-  
+
   if (!tabela) {
     console.error('Tabela sviZahtjeviTabela nije pronađena!');
     return;
@@ -1024,21 +1025,26 @@ function populateAllRequestsTable() {
     const danas = new Date();
     const datumOd = new Date(odmor.datum_od);
     const datumDo = new Date(odmor.datum_do);
-    const uToku = datumOd <= danas && datumDo >= danas && odmor.status === 'odobren';
-    
-    const statusClass = {
-      'na_cekanju': 'warning',
-      'odobren': uToku ? 'info' : 'success',
-      'odbacen': 'danger'
-    }[odmor.status] || 'secondary';
+    const uToku =
+      datumOd <= danas && datumDo >= danas && odmor.status === 'odobren';
 
-    const statusText = {
-      'na_cekanju': 'Na čekanju',
-      'odobren': uToku ? 'U toku' : 'Odobren',
-      'odbacen': 'Odbačen'
-    }[odmor.status] || odmor.status;
+    const statusClass =
+      {
+        na_cekanju: 'warning',
+        odobren: uToku ? 'info' : 'success',
+        odbacen: 'danger',
+      }[odmor.status] || 'secondary';
 
-    const datumKreiranja = new Date(odmor.created_at).toLocaleDateString('sr-RS');
+    const statusText =
+      {
+        na_cekanju: 'Na čekanju',
+        odobren: uToku ? 'U toku' : 'Odobren',
+        odbacen: 'Odbačen',
+      }[odmor.status] || odmor.status;
+
+    const datumKreiranja = new Date(odmor.created_at).toLocaleDateString(
+      'sr-RS'
+    );
 
     html += `
       <tr>
@@ -1053,23 +1059,37 @@ function populateAllRequestsTable() {
           </span>
         </td>
         <td class="text-muted small">${datumKreiranja}</td>
-        <td>${odmor.napomena ? `<small class="text-muted">${odmor.napomena}</small>` : '-'}</td>
+        <td>${
+          odmor.napomena
+            ? `<small class="text-muted">${odmor.napomena}</small>`
+            : '-'
+        }</td>
         <td>
           <div class="btn-group btn-group-sm">
-            ${odmor.status === 'na_cekanju' ? `
+            ${
+              odmor.status === 'na_cekanju'
+                ? `
               <button class="btn btn-success" onclick="approveOdmor(${odmor.id})" title="Odobri">
                 <i class="fas fa-check"></i>
               </button>
               <button class="btn btn-danger" onclick="rejectOdmor(${odmor.id})" title="Odbaci">
                 <i class="fas fa-times"></i>
               </button>
-            ` : ''}
-            ${odmor.status === 'odobren' ? `
+            `
+                : ''
+            }
+            ${
+              odmor.status === 'odobren'
+                ? `
               <button class="btn btn-primary" onclick="generateResenjeOdmor(${odmor.id})" title="Generiši rešenje">
                 <i class="fas fa-file-alt"></i>
               </button>
-            ` : ''}
-            <button class="btn btn-outline-danger" onclick="deleteOdmor(${odmor.id})" title="Obriši">
+            `
+                : ''
+            }
+            <button class="btn btn-outline-danger" onclick="deleteOdmor(${
+              odmor.id
+            })" title="Obriši">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -1086,23 +1106,27 @@ function exportAllRequests() {
   try {
     // Pripremi podatke za izvoz
     const exportData = odmoríData.map(odmor => ({
-      'Radnik': `${odmor.ime} ${odmor.prezime}`,
+      Radnik: `${odmor.ime} ${odmor.prezime}`,
       'Tip odmora': odmor.tip_odmora || 'Godišnji',
       'Datum od': new Date(odmor.datum_od).toLocaleDateString('sr-RS'),
       'Datum do': new Date(odmor.datum_do).toLocaleDateString('sr-RS'),
       'Broj dana': odmor.broj_dana,
-      'Status': odmor.status === 'na_cekanju' ? 'Na čekanju' : 
-               odmor.status === 'odobren' ? 'Odobren' : 'Odbačen',
+      Status:
+        odmor.status === 'na_cekanju'
+          ? 'Na čekanju'
+          : odmor.status === 'odobren'
+          ? 'Odobren'
+          : 'Odbačen',
       'Datum kreiranja': new Date(odmor.created_at).toLocaleDateString('sr-RS'),
-      'Napomena': odmor.napomena || ''
+      Napomena: odmor.napomena || '',
     }));
 
     // Kreiraj CSV sadržaj
     const headers = Object.keys(exportData[0]).join(',');
-    const rows = exportData.map(row => 
-      Object.values(row).map(value => 
-        `"${String(value).replace(/"/g, '""')}"`
-      ).join(',')
+    const rows = exportData.map(row =>
+      Object.values(row)
+        .map(value => `"${String(value).replace(/"/g, '""')}"`)
+        .join(',')
     );
     const csvContent = [headers, ...rows].join('\n');
 
@@ -1110,17 +1134,19 @@ function exportAllRequests() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
-    link.setAttribute('download', `svi_zahtjevi_odmor_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      'download',
+      `svi_zahtjevi_odmor_${new Date().toISOString().split('T')[0]}.csv`
+    );
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     console.log('✅ CSV fajl kreiran i preuzet');
-    
   } catch (error) {
     console.error('Greška pri izvozu:', error);
     alert('Greška pri kreiranju izvoza');
@@ -1131,10 +1157,10 @@ function exportAllRequests() {
 function exportForPrint() {
   try {
     console.log('🖨️ Priprema za štampu...');
-    
+
     // Otvori novi prozor sa print-friendly verzijom
     const printWindow = window.open('', '_blank');
-    
+
     const printContent = `
       <!DOCTYPE html>
       <html>
@@ -1176,7 +1202,9 @@ function exportForPrint() {
       </head>
       <body>
         <h1>📋 Godišnji odmori - Svi zahtjevi</h1>
-        <p><strong>Datum izvoza:</strong> ${new Date().toLocaleDateString('sr-RS')}</p>
+        <p><strong>Datum izvoza:</strong> ${new Date().toLocaleDateString(
+          'sr-RS'
+        )}</p>
         <p><strong>Ukupno zahtjeva:</strong> ${odmoríData.length}</p>
         
         <table>
@@ -1194,7 +1222,9 @@ function exportForPrint() {
             </tr>
           </thead>
           <tbody>
-            ${odmoríData.map((odmor, index) => `
+            ${odmoríData
+              .map(
+                (odmor, index) => `
               <tr>
                 <td>${index + 1}</td>
                 <td>${odmor.ime} ${odmor.prezime}</td>
@@ -1203,13 +1233,22 @@ function exportForPrint() {
                 <td>${new Date(odmor.datum_do).toLocaleDateString('sr-RS')}</td>
                 <td>${odmor.broj_dana}</td>
                 <td class="status-${odmor.status}">
-                  ${odmor.status === 'na_cekanju' ? 'Na čekanju' : 
-                    odmor.status === 'odobren' ? 'Odobren' : 'Odbačen'}
+                  ${
+                    odmor.status === 'na_cekanju'
+                      ? 'Na čekanju'
+                      : odmor.status === 'odobren'
+                      ? 'Odobren'
+                      : 'Odbačen'
+                  }
                 </td>
-                <td>${new Date(odmor.created_at).toLocaleDateString('sr-RS')}</td>
+                <td>${new Date(odmor.created_at).toLocaleDateString(
+                  'sr-RS'
+                )}</td>
                 <td>${odmor.napomena || '-'}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
         
@@ -1222,10 +1261,9 @@ function exportForPrint() {
       </body>
       </html>
     `;
-    
+
     printWindow.document.write(printContent);
     printWindow.document.close();
-    
   } catch (error) {
     console.error('Greška pri pripremi za štampu:', error);
     alert('Greška pri pripremi za štampu');

@@ -287,10 +287,14 @@ function renderDokumenti() {
 
   // Dodaj otkaze
   dokumenti.otkazi.forEach(otkaz => {
-    const tipOtkaza =
-      otkaz.tip_otkaza === 'sporazumni_raskid'
-        ? 'Sporazumni raskid'
-        : 'Istek ugovora';
+    let tipOtkaza;
+    if (otkaz.tip_otkaza === 'sporazumni_raskid') {
+      tipOtkaza = 'Sporazumni raskid';
+    } else if (otkaz.tip_otkaza === 'jednostrani_raskid_radnik') {
+      tipOtkaza = 'Jednostrani raskid od strane radnika';
+    } else {
+      tipOtkaza = 'Istek ugovora';
+    }
 
     html += `
       <tr>
@@ -477,6 +481,8 @@ function viewOtkaz(otkazId, tipOtkaza, radnikId, firmaId) {
     documentUrl = `/sporazumni-raskid.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
   } else if (tipOtkaza === 'istek_ugovora') {
     documentUrl = `/istek-ugovora.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
+  } else if (tipOtkaza === 'jednostrani_raskid_radnik') {
+    documentUrl = `/jednostrani-raskid-od-strane-radnika.html?radnikId=${radnikId}&firmaId=${firmaId}&otkazId=${otkazId}`;
   } else {
     console.error('Nepoznat tip otkaza:', tipOtkaza);
     return;

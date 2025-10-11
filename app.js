@@ -532,10 +532,6 @@ app.get(
 );
 
 // Zaštićena ruta za otkaze
-app.get('/otkazi.html', authMiddleware, subscriptionMiddleware, (req, res) => {
-  res.sendFile(__dirname + '/public/shared/otkazi.html');
-});
-
 // Zaštićena ruta za istek ugovora
 app.get(
   '/istek-ugovora.html',
@@ -575,6 +571,16 @@ app.get('/ugovor-o-dopunskom-radu.html', authMiddleware, (req, res) => {
 app.get('/sporazumni-raskid.html', authMiddleware, (req, res) => {
   res.sendFile(__dirname + '/public/shared/sporazumni-raskid.html');
 });
+
+app.get(
+  '/jednostrani-raskid-od-strane-radnika.html',
+  authMiddleware,
+  (req, res) => {
+    res.sendFile(
+      __dirname + '/public/shared/jednostrani-raskid-od-strane-radnika.html'
+    );
+  }
+);
 
 // Javne rute za prijavu i registraciju (bez authMiddleware!)
 app.get('/prijava.html', (req, res) => {
