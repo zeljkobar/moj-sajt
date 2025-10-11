@@ -362,24 +362,114 @@
         });
       }
 
-      // JPR funkcionalnost (pojednostavljena verzija)
+      // JPR funkcionalnost za jednostrani raskid
       function openJPRSimple() {
         try {
-          if (!firmaId) {
+          // Čitaj URL parametre direktno
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlRadnikId = urlParams.get('radnikId');
+          const urlFirmaId = urlParams.get('firmaId');
+
+          if (!urlFirmaId) {
             alert('Greška: nedostaju potrebni parametri za JPR (firmaId)');
             return;
           }
 
-          const radnikIme = document.getElementById('imeRadnika')?.textContent || '';
-          const jmbgRadnika = document.getElementById('jmbgRadnika')?.textContent || '';
+          // Uzmi ime i JMBG radnika iz dokumenta
+          const imeRadnikaElement = document.getElementById('imeRadnika');
+          const jmbgRadnikaElement = document.getElementById('jmbgRadnika');
 
-          // Otvori JPR koricu sa parametrima za jednostrani raskid
-          const jprUrl = `/jpr-korica.html?firmaId=${firmaId}&radnikId=${radnikId}&ime=${encodeURIComponent(radnikIme)}&jmbg=${encodeURIComponent(jmbgRadnika)}&tip=jednostrani_raskid`;
-          window.open(jprUrl, '_blank');
+          const radnikImePrezime = imeRadnikaElement
+            ? imeRadnikaElement.textContent.trim()
+            : '';
+          const radnikJmbg = jmbgRadnikaElement
+            ? jmbgRadnikaElement.textContent.trim()
+            : '';
+
+          // Provi da li su podaci dostupni
+          if (
+            radnikImePrezime === '________________' ||
+            radnikJmbg === '________________' ||
+            !radnikImePrezime ||
+            !radnikJmbg ||
+            radnikImePrezime.includes('__') ||
+            radnikJmbg.includes('__')
+          ) {
+            // Fallback - pozovi API da dobijem podatke
+            if (urlRadnikId) {
+              fetchRadnikDataForJPR(urlRadnikId, urlFirmaId);
+              return;
+            } else {
+              alert('Greška: ime ili JMBG radnika nije pronađeno u dokumentu');
+              return;
+            }
+          }
+
+          // Razdeli ime i prezime
+          const imePrezimeParts = radnikImePrezime.split(' ');
+          const radnikIme = imePrezimeParts[0] || '';
+          const radnikPrezime = imePrezimeParts.slice(1).join(' ') || '';
+
+          // Generiši JPR URL-ove za odjavu
+          const koricaUrl = `jpr-korica.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          const dodatakUrl = `jpr-dodatak-b.html?firmaId=${urlFirmaId}&context=odjava&radnikIme=${encodeURIComponent(
+            radnikIme
+          )}&radnikPrezime=${encodeURIComponent(
+            radnikPrezime
+          )}&radnikJmbg=${encodeURIComponent(radnikJmbg)}`;
+
+          // Otvori JPR korica u novom tabu
+          window.open(koricaUrl, '_blank');
+
+          // Otvori JPR dodatak B nakon kratke pauze
+          setTimeout(() => {
+            window.open(dodatakUrl, '_blank');
+          }, 500);
 
         } catch (error) {
           console.error('Greška pri otvaranju JPR-a:', error);
           alert('Greška pri otvaranju JPR-a: ' + error.message);
+        }
+      }
+
+      // Fallback funkcija za API poziv ako DOM nije popunjen
+      async function fetchRadnikDataForJPR(radnikId, firmaId) {
+        try {
+          const radnikResponse = await fetch(`/api/radnici/id/${radnikId}`);
+          const radnik = await radnikResponse.json();
+
+          if (radnik) {
+            // Generiši JPR URL-ove sa podacima iz API-ja
+            const koricaUrl = `jpr-korica.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+              radnik.ime
+            )}&radnikPrezime=${encodeURIComponent(
+              radnik.prezime
+            )}&radnikJmbg=${encodeURIComponent(radnik.jmbg)}`;
+
+            const dodatakUrl = `jpr-dodatak-b.html?firmaId=${firmaId}&context=odjava&radnikIme=${encodeURIComponent(
+              radnik.ime
+            )}&radnikPrezime=${encodeURIComponent(
+              radnik.prezime
+            )}&radnikJmbg=${encodeURIComponent(radnik.jmbg)}`;
+
+            // Otvori JPR korica u novom tabu
+            window.open(koricaUrl, '_blank');
+
+            // Otvori JPR dodatak B nakon kratke pauze
+            setTimeout(() => {
+              window.open(dodatakUrl, '_blank');
+            }, 500);
+          } else {
+            alert('Greška: radnik nije pronađen');
+          }
+        } catch (error) {
+          console.error('Greška pri učitavanju podataka radnika za JPR:', error);
+          alert('Greška pri učitavanju podataka radnika');
         }
       }
     </script>
