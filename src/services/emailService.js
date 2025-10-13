@@ -495,6 +495,63 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Email notifikacija o brisanju oglasa od strane admin-a
+  async sendOglasDeletedNotification(data) {
+    try {
+      const { toEmail, firmaNaziv, oglasNaslov, razlog, adminEmail } = data;
+
+      const htmlContent = this.createEmailTemplate(
+        'Obaveštenje o uklanjanju oglasa',
+        `
+        <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+          <p style="margin: 0; color: #856404;"><strong>⚠️ Vaš oglas je uklonjen sa platforme</strong></p>
+        </div>
+
+        <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">Poštovani,</p>
+        
+        <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">
+          Obaveštavamo Vas da je Vaš oglas za posao uklonjen sa naše platforme od strane administratora.
+        </p>
+
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="color: #495057; margin: 0 0 10px 0;">Detalji oglasa:</h3>
+          <p style="margin: 5px 0; color: #6c757d;"><strong>Firma:</strong> ${firmaNaziv}</p>
+          <p style="margin: 5px 0; color: #6c757d;"><strong>Naslov oglasa:</strong> ${oglasNaslov}</p>
+          <p style="margin: 5px 0; color: #6c757d;"><strong>Razlog uklanjanja:</strong> ${razlog}</p>
+        </div>
+
+        <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">
+          Ukoliko smatrate da je oglas uklonjen greškom ili imate pitanja, molimo Vas da se obratite našoj podršci.
+        </p>
+
+        <p style="color: #333; line-height: 1.6; margin-bottom: 15px;">
+          Hvala na razumevanju.
+        </p>
+        `,
+        `
+        <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
+          <p style="color: #666; font-size: 12px; margin: 0;">
+            Za pitanja kontaktirajte: <a href="mailto:${adminEmail}" style="color: #007bff;">${adminEmail}</a>
+          </p>
+        </div>
+        `
+      );
+
+      const result = await this.transporter.sendMail({
+        from: `"Moj Radnik - Administracija" <admin@mojradnik.me>`,
+        to: toEmail,
+        subject: `⚠️ Obaveštenje o uklanjanju oglasa - ${oglasNaslov}`,
+        html: htmlContent,
+      });
+
+      console.log('✅ Email o brisanju oglasa poslat:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ Greška pri slanju email-a o brisanju oglasa:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService();

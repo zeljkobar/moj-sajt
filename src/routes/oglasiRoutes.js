@@ -8,6 +8,9 @@ const {
   updateOglas,
   deleteOglas,
   getOglasiStats,
+  getAllOglasiForAdmin,
+  adminDeleteOglas,
+  adminToggleFeatured,
 } = require('../controllers/oglasiController');
 const { authMiddleware } = require('../middleware/auth');
 const { requireRole, ROLES } = require('../middleware/roleAuth');
@@ -41,5 +44,23 @@ router.get(
   requireRole([ROLES.ADMIN]),
   getOglasiStats
 ); // GET /api/oglasi/admin/stats
+router.get(
+  '/admin/all',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  getAllOglasiForAdmin
+); // GET /api/oglasi/admin/all
+router.delete(
+  '/admin/:id',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  adminDeleteOglas
+); // DELETE /api/oglasi/admin/:id
+router.patch(
+  '/admin/:id/featured',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  adminToggleFeatured
+); // PATCH /api/oglasi/admin/:id/featured
 
 module.exports = router;

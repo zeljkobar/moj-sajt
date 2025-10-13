@@ -47,6 +47,48 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
       }
 
+      /* Istaknuti oglasi stilovi */
+      .oglas-card.featured {
+        background: linear-gradient(145deg, #fff8e1, #ffffff);
+        border: 2px solid #ffd700;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .oglas-card.featured::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ffd700, #ffb300);
+      }
+
+      .oglas-card.featured .featured-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #ffd700, #ffb300);
+        color: #333;
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+        z-index: 10;
+      }
+
+      .oglas-card.featured .job-title {
+        color: #e65100;
+        font-weight: 700;
+      }
+
+      .oglas-card.featured:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.25);
+      }
+
       .salary-badge {
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;

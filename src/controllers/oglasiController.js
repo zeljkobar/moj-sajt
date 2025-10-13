@@ -67,7 +67,12 @@ const getOglasi = async (req, res) => {
             FROM poslovi_oglasi o 
             JOIN firme f ON o.firma_id = f.id 
             WHERE ${whereConditions.join(' AND ')}
-            ORDER BY o.datum_objave DESC 
+            ORDER BY 
+                CASE 
+                    WHEN o.istaknut = 1 AND (o.istaknut_do IS NULL OR o.istaknut_do > NOW()) 
+                    THEN 0 ELSE 1 
+                END,
+                o.datum_objave DESC 
             LIMIT ? OFFSET ?
         `;
 
@@ -443,6 +448,211 @@ const getOglasiStats = async (req, res) => {
   }
 };
 
+/**
+ * Dobijanje svih oglasa za admin panel
+ */
+const getAllOglasiForAdmin = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      search,
+      istaknut
+    } = req.query;
+
+    let whereConditions = ['1=1']; // Početni uslov
+    let queryParams = [];
+
+    // Filteri
+    if (status) {
+      whereConditions.push('o.status = ?');
+      queryParams.push(status);
+    }
+
+    if (search) {
+      whereConditions.push('(o.naslov LIKE ? OR o.pozicija LIKE ? OR f.naziv LIKE ?)');
+      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    if (istaknut !== undefined) {
+      whereConditions.push('o.istaknut = ?');
+      queryParams.push(istaknut === 'true' ? 1 : 0);
+    }
+
+    const offset = (page - 1) * limit;
+
+    // Glavni upit
+    const query = `
+      SELECT 
+        o.*,
+        f.naziv as firma_naziv,
+        f.email as firma_email,
+        f.grad as firma_grad,
+        u.username as firma_username,
+        u.email as user_email
+      FROM poslovi_oglasi o 
+      JOIN firme f ON o.firma_id = f.id 
+      JOIN users u ON f.user_id = u.id
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY 
+        CASE WHEN o.istaknut = 1 THEN 0 ELSE 1 END,
+        o.datum_objave DESC 
+      LIMIT ? OFFSET ?
+    `;
+
+    queryParams.push(parseInt(limit), parseInt(offset));
+
+    // Upit za ukupan broj
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM poslovi_oglasi o 
+      JOIN firme f ON o.firma_id = f.id 
+      JOIN users u ON f.user_id = u.id
+      WHERE ${whereConditions.join(' AND ')}
+    `;
+    const countParams = queryParams.slice(0, -2);
+
+    const [oglasi, countResult] = await Promise.all([
+      executeQuery(query, queryParams),
+      executeQuery(countQuery, countParams),
+    ]);
+
+    const total = countResult[0].total;
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      oglasi,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+      },
+    });
+  } catch (error) {
+    console.error('Greška pri dobijanju admin oglasa:', error);
+    res.status(500).json({ error: 'Greška pri dobijanju oglasa' });
+  }
+};
+
+/**
+ * Admin brisanje oglasa
+ */
+const adminDeleteOglas = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { razlog } = req.body;
+
+    // Dobij podatke o oglasu i firmi pre brisanja
+    const oglasQuery = `
+      SELECT o.*, f.naziv as firma_naziv, f.email as firma_email, u.email as user_email
+      FROM poslovi_oglasi o
+      JOIN firme f ON o.firma_id = f.id
+      JOIN users u ON f.user_id = u.id
+      WHERE o.id = ?
+    `;
+    const oglasResult = await executeQuery(oglasQuery, [id]);
+
+    if (oglasResult.length === 0) {
+      return res.status(404).json({ error: 'Oglas nije pronađen' });
+    }
+
+    const oglas = oglasResult[0];
+
+    // Obriši oglas
+    const deleteResult = await executeQuery(
+      'DELETE FROM poslovi_oglasi WHERE id = ?',
+      [id]
+    );
+
+    if (deleteResult.affectedRows === 0) {
+      return res.status(404).json({ error: 'Oglas nije pronađen' });
+    }
+
+    // Pošalji email firmi
+    try {
+      const emailService = require('../services/emailService');
+      await emailService.sendOglasDeletedNotification({
+        toEmail: oglas.user_email || oglas.firma_email,
+        firmaNaziv: oglas.firma_naziv,
+        oglasNaslov: oglas.naslov,
+        razlog: razlog || 'Oglas je uklonjen zbog kršenja uslova korišćenja.',
+        adminEmail: 'admin@mojradnik.me'
+      });
+    } catch (emailError) {
+      console.error('Greška pri slanju email-a:', emailError);
+      // Ne prekidamo proces zbog greške u email-u
+    }
+
+    // Logiraj admin akciju
+    console.log(`Admin ${req.user.username} obrisao oglas ${id} - ${oglas.naslov} (${oglas.firma_naziv}). Razlog: ${razlog || 'Nije naveden'}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Oglas je uspešno obrisan i firma je obaveštena' 
+    });
+  } catch (error) {
+    console.error('Greška pri admin brisanju oglasa:', error);
+    res.status(500).json({ error: 'Greška pri brisanju oglasa' });
+  }
+};
+
+/**
+ * Admin označavanje/uklanjanje istaknutog oglasa
+ */
+const adminToggleFeatured = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { istaknut, istaknut_do, napomena } = req.body;
+
+    // Provjeri da li oglas postoji
+    const checkQuery = 'SELECT id, naslov, istaknut FROM poslovi_oglasi WHERE id = ?';
+    const checkResult = await executeQuery(checkQuery, [id]);
+
+    if (checkResult.length === 0) {
+      return res.status(404).json({ error: 'Oglas nije pronađen' });
+    }
+
+    const currentOglas = checkResult[0];
+    const newIstaknut = istaknut !== undefined ? istaknut : !currentOglas.istaknut;
+
+    // Ažuriraj oglas
+    const updateQuery = `
+      UPDATE poslovi_oglasi 
+      SET istaknut = ?, 
+          istaknut_od = ?, 
+          istaknut_do = ?, 
+          admin_napomena = ?
+      WHERE id = ?
+    `;
+
+    const istaknutOd = newIstaknut ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null;
+    const istaknutDo = newIstaknut && istaknut_do ? istaknut_do : null;
+
+    await executeQuery(updateQuery, [
+      newIstaknut ? 1 : 0,
+      istaknutOd,
+      istaknutDo,
+      napomena || null,
+      id
+    ]);
+
+    // Logiraj admin akciju
+    const action = newIstaknut ? 'označio kao istaknut' : 'uklonio istaknutost';
+    console.log(`Admin ${req.user.username} ${action} oglas ${id} - ${currentOglas.naslov}`);
+
+    res.json({ 
+      success: true, 
+      message: newIstaknut ? 'Oglas je označen kao istaknut' : 'Uklonjena istaknutost oglasa',
+      istaknut: newIstaknut
+    });
+  } catch (error) {
+    console.error('Greška pri označavanju istaknutog oglasa:', error);
+    res.status(500).json({ error: 'Greška pri označavanju oglasa' });
+  }
+};
+
 module.exports = {
   getOglasi,
   getOglasById,
@@ -451,4 +661,7 @@ module.exports = {
   updateOglas,
   deleteOglas,
   getOglasiStats,
+  getAllOglasiForAdmin,
+  adminDeleteOglas,
+  adminToggleFeatured,
 };

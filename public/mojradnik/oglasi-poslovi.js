@@ -174,12 +174,21 @@ class OglasiApp {
     );
     const plataText = this.formatPlata(oglas.plata_od, oglas.plata_do);
     const tipPoslaText = this.formatTipPosla(oglas.tip_posla);
+    
+    // Proverava da li je oglas istaknut i još uvek aktivan
+    const isFeatured = oglas.istaknut === 1 && 
+      (!oglas.istaknut_do || new Date(oglas.istaknut_do) > new Date());
+    
+    const featuredClass = isFeatured ? ' featured' : '';
+    const featuredBadge = isFeatured ? 
+      '<div class="featured-badge"><i class="fas fa-star me-1"></i>ISTAKNUT</div>' : '';
 
     return `
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card oglas-card h-100" data-oglas-id="${
+                <div class="card oglas-card h-100${featuredClass}" data-oglas-id="${
                   oglas.id
                 }" style="cursor: pointer;">
+                    ${featuredBadge}
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <span class="badge job-type-badge bg-primary">${tipPoslaText}</span>
