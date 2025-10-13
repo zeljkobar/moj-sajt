@@ -21,6 +21,7 @@ const odlukaRoutes = require('./src/routes/odlukaRoutes');
 const zadaciRoutes = require('./src/routes/zadaciRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
 const godisnjiomdoriRoutes = require('./src/routes/godisnjiomdori');
+const oglasiRoutes = require('./src/routes/oglasiRoutes');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
 const {
@@ -1198,6 +1199,7 @@ app.use('/api/zadaci', zadaciRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
+app.use('/api/oglasi', oglasiRoutes);
 
 // Marketing Email API endpoints (samo za administratore)
 const multer = require('multer');
