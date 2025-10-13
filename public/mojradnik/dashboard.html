@@ -1318,9 +1318,23 @@ Neto iznos: ${(
         window.open(`/mojradnik/oglasi-poslovi.html#oglas-${id}`, '_blank');
       }
 
-      function editOglas(id) {
-        // TODO: Implementirati edit funkcionalnost
-        alert('Edit funkcionalnost će biti implementirana u sledećoj verziji');
+      async function editOglas(id) {
+        try {
+          // Učitaj postojeće podatke oglasa
+          const response = await fetch(`/api/oglasi/${id}`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju oglasa');
+          }
+
+          const oglas = await response.json();
+          showEditModal(oglas);
+        } catch (error) {
+          console.error('Greška pri učitavanju oglasa:', error);
+          alert('Greška pri učitavanju oglasa za editovanje');
+        }
       }
 
       async function deactivateOglas(id) {
@@ -1370,6 +1384,189 @@ Neto iznos: ${(
         } catch (error) {
           console.error('Greška:', error);
           alert('Greška pri aktivaciji oglasa');
+        }
+      }
+
+      function showEditModal(oglas) {
+        const editModalHTML = `
+          <div class="modal fade" id="editOglasModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Uredi Oglas
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="editOglasForm">
+                    <input type="hidden" id="editOglasId" value="${oglas.id}">
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="editNaslov" class="form-label">Naslov oglasa *</label>
+                        <input type="text" class="form-control" id="editNaslov" value="${oglas.naslov}" required>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="editPozicija" class="form-label">Pozicija *</label>
+                        <input type="text" class="form-control" id="editPozicija" value="${oglas.pozicija}" required>
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="editOpis" class="form-label">Opis posla *</label>
+                      <textarea class="form-control" id="editOpis" rows="4" required>${oglas.opis}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="editLokacija" class="form-label">Lokacija</label>
+                        <input type="text" class="form-control" id="editLokacija" value="${oglas.lokacija || ''}">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="editTipPosla" class="form-label">Tip posla</label>
+                        <select class="form-select" id="editTipPosla">
+                          <option value="puno_vreme" ${oglas.tip_posla === 'puno_vreme' ? 'selected' : ''}>Puno radno vreme</option>
+                          <option value="pola_vremena" ${oglas.tip_posla === 'pola_vremena' ? 'selected' : ''}>Pola radnog vremena</option>
+                          <option value="ugovor" ${oglas.tip_posla === 'ugovor' ? 'selected' : ''}>Rad na ugovor</option>
+                          <option value="praksa" ${oglas.tip_posla === 'praksa' ? 'selected' : ''}>Praksa</option>
+                          <option value="sezonski" ${oglas.tip_posla === 'sezonski' ? 'selected' : ''}>Sezonski rad</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="editPlataOd" class="form-label">Plata od (EUR)</label>
+                        <input type="number" class="form-control" id="editPlataOd" value="${oglas.plata_od || ''}" min="0" step="1">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="editPlataDo" class="form-label">Plata do (EUR)</label>
+                        <input type="number" class="form-control" id="editPlataDo" value="${oglas.plata_do || ''}" min="0" step="1">
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="editIskustvoGodine" class="form-label">Potrebno iskustvo (godine)</label>
+                        <select class="form-select" id="editIskustvoGodine">
+                          <option value="0" ${oglas.iskustvo_godine == 0 ? 'selected' : ''}>Bez iskustva</option>
+                          <option value="1" ${oglas.iskustvo_godine == 1 ? 'selected' : ''}>1 godina</option>
+                          <option value="2" ${oglas.iskustvo_godine == 2 ? 'selected' : ''}>2 godine</option>
+                          <option value="3" ${oglas.iskustvo_godine == 3 ? 'selected' : ''}>3 godine</option>
+                          <option value="5" ${oglas.iskustvo_godine == 5 ? 'selected' : ''}>5+ godina</option>
+                          <option value="10" ${oglas.iskustvo_godine == 10 ? 'selected' : ''}>10+ godina</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="editObrazovanje" class="form-label">Potrebno obrazovanje</label>
+                        <select class="form-select" id="editObrazovanje">
+                          <option value="osnovno" ${oglas.obrazovanje === 'osnovno' ? 'selected' : ''}>Osnovno</option>
+                          <option value="srednje" ${oglas.obrazovanje === 'srednje' ? 'selected' : ''}>Srednje</option>
+                          <option value="visa" ${oglas.obrazovanje === 'visa' ? 'selected' : ''}>Viša škola</option>
+                          <option value="fakultet" ${oglas.obrazovanje === 'fakultet' ? 'selected' : ''}>Fakultet</option>
+                          <option value="master" ${oglas.obrazovanje === 'master' ? 'selected' : ''}>Master</option>
+                          <option value="doktorat" ${oglas.obrazovanje === 'doktorat' ? 'selected' : ''}>Doktorat</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="editKontaktEmail" class="form-label">Kontakt email</label>
+                        <input type="email" class="form-control" id="editKontaktEmail" value="${oglas.kontakt_email || ''}">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="editKontaktTelefon" class="form-label">Kontakt telefon</label>
+                        <input type="tel" class="form-control" id="editKontaktTelefon" value="${oglas.kontakt_telefon || ''}">
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label for="editDatumIsteka" class="form-label">Datum isteka</label>
+                      <input type="date" class="form-control" id="editDatumIsteka" value="${oglas.datum_isteka ? oglas.datum_isteka.split('T')[0] : ''}">
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
+                  <button type="button" class="btn btn-primary" onclick="saveOglasChanges()">
+                    <i class="fas fa-save me-2"></i>Sačuvaj izmjene
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Ukloni postojeći modal ako postoji
+        const existingModal = document.getElementById('editOglasModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Dodaj novi modal
+        document.body.insertAdjacentHTML('beforeend', editModalHTML);
+
+        // Prikaži modal
+        const modal = new bootstrap.Modal(document.getElementById('editOglasModal'));
+        modal.show();
+      }
+
+      async function saveOglasChanges() {
+        const form = document.getElementById('editOglasForm');
+        const formData = new FormData(form);
+        
+        const oglasData = {
+          naslov: document.getElementById('editNaslov').value,
+          pozicija: document.getElementById('editPozicija').value,
+          opis: document.getElementById('editOpis').value,
+          lokacija: document.getElementById('editLokacija').value,
+          tip_posla: document.getElementById('editTipPosla').value,
+          plata_od: document.getElementById('editPlataOd').value || null,
+          plata_do: document.getElementById('editPlataDo').value || null,
+          iskustvo_godine: document.getElementById('editIskustvoGodine').value,
+          obrazovanje: document.getElementById('editObrazovanje').value,
+          kontakt_email: document.getElementById('editKontaktEmail').value,
+          kontakt_telefon: document.getElementById('editKontaktTelefon').value,
+          datum_isteka: document.getElementById('editDatumIsteka').value || null
+        };
+
+        // Validacija obaveznih polja
+        if (!oglasData.naslov || !oglasData.pozicija || !oglasData.opis) {
+          alert('Molimo popunite sva obavezna polja (naslov, pozicija, opis).');
+          return;
+        }
+
+        try {
+          const oglasId = document.getElementById('editOglasId').value;
+          const response = await fetch(`/api/oglasi/${oglasId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(oglasData),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            alert('Oglas je uspješno ažuriran!');
+            
+            // Zatvori modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editOglasModal'));
+            modal.hide();
+            
+            // Osvježi prikaz oglasa
+            showMojiOglasi();
+            loadOglasiCount();
+          } else {
+            const error = await response.json();
+            alert('Greška pri ažuriranju oglasa: ' + (error.error || 'Nepoznata greška'));
+          }
+        } catch (error) {
+          console.error('Greška pri ažuriranju oglasa:', error);
+          alert('Greška pri ažuriranju oglasa. Molim pokušajte ponovo.');
         }
       }
     </script>
