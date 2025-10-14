@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pretplata za Agencije | Summa Summarum</title>
-    
+
     <!-- Favicon -->
     <link
       rel="apple-touch-icon"
@@ -272,9 +272,10 @@
         try {
           // Check if user came from account-suspended page (expired subscription)
           const urlParams = new URLSearchParams(window.location.search);
-          const fromSuspended = urlParams.get('from') === 'suspended' || 
-                               document.referrer.includes('account-suspended');
-          
+          const fromSuspended =
+            urlParams.get('from') === 'suspended' ||
+            document.referrer.includes('account-suspended');
+
           if (fromSuspended) {
             // User has expired subscription, show generic subscription page
             displayGenericSubscriptionPage();
@@ -327,7 +328,7 @@
             </button>
           </div>
         `;
-        
+
         // Show all subscription plans without user-specific data
         const plansContainer = document.querySelector('.subscription-plans');
         if (plansContainer) {

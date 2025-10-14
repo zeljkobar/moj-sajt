@@ -1,303 +1,389 @@
 <!DOCTYPE html>
 <html lang="sr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin - Upravljanje Oglasima | Moj Radnik</title>
-    
+
     <!-- Bootstrap & FontAwesome -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="/shared/style.css">
-    <link rel="stylesheet" href="/shared/global-components.css">
-    <link rel="stylesheet" href="/shared/app-pages.css">
-</head>
-<body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+  </head>
+  <body>
     <!-- Navigation -->
     <div id="navigation-placeholder"></div>
 
     <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fas fa-clipboard-list me-2"></i>Upravljanje Oglasima</h2>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-info" onclick="refreshOglasi()">
-                            <i class="fas fa-sync me-1"></i>Osvježi
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filteri -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Status:</label>
-                                <select class="form-select" id="filterStatus">
-                                    <option value="">Svi statusи</option>
-                                    <option value="aktivan">Aktivni</option>
-                                    <option value="neaktivan">Neaktivni</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Istaknut:</label>
-                                <select class="form-select" id="filterIstaknut">
-                                    <option value="">Svi oglasi</option>
-                                    <option value="true">Istaknuti</option>
-                                    <option value="false">Obični</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Pretraga:</label>
-                                <input type="text" class="form-control" id="searchInput" placeholder="Pretraži po nazivu oglasa, poziciji ili firmi...">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button class="btn btn-primary w-100" onclick="applyFilters()">
-                                    <i class="fas fa-search me-1"></i>Pretraži
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loading indicator -->
-                <div id="loading" class="text-center d-none">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-
-                <!-- Oglasi tabela -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Naslov</th>
-                                        <th>Pozicija</th>
-                                        <th>Firma</th>
-                                        <th>Status</th>
-                                        <th>Istaknut</th>
-                                        <th>Datum objave</th>
-                                        <th>Pregledi</th>
-                                        <th>Akcije</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="oglasiTable">
-                                    <!-- Oglasi će biti učitani dinamički -->
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Paginacija -->
-                        <nav aria-label="Page navigation" id="paginationNav" class="d-none">
-                            <ul class="pagination justify-content-center" id="pagination">
-                                <!-- Paginacija se generiše dinamički -->
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+              <i class="fas fa-clipboard-list me-2"></i>Upravljanje Oglasima
+            </h2>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-info" onclick="refreshOglasi()">
+                <i class="fas fa-sync me-1"></i>Osvježi
+              </button>
             </div>
+          </div>
+
+          <!-- Filteri -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Status:</label>
+                  <select class="form-select" id="filterStatus">
+                    <option value="">Svi statusи</option>
+                    <option value="aktivan">Aktivni</option>
+                    <option value="neaktivan">Neaktivni</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Istaknut:</label>
+                  <select class="form-select" id="filterIstaknut">
+                    <option value="">Svi oglasi</option>
+                    <option value="true">Istaknuti</option>
+                    <option value="false">Obični</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Pretraga:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="searchInput"
+                    placeholder="Pretraži po nazivu oglasa, poziciji ili firmi..."
+                  />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                  <button
+                    class="btn btn-primary w-100"
+                    onclick="applyFilters()"
+                  >
+                    <i class="fas fa-search me-1"></i>Pretraži
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading indicator -->
+          <div id="loading" class="text-center d-none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Oglasi tabela -->
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>ID</th>
+                      <th>Naslov</th>
+                      <th>Pozicija</th>
+                      <th>Firma</th>
+                      <th>Status</th>
+                      <th>Istaknut</th>
+                      <th>Datum objave</th>
+                      <th>Pregledi</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody id="oglasiTable">
+                    <!-- Oglasi će biti učitani dinamički -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Paginacija -->
+              <nav
+                aria-label="Page navigation"
+                id="paginationNav"
+                class="d-none"
+              >
+                <ul class="pagination justify-content-center" id="pagination">
+                  <!-- Paginacija se generiše dinamički -->
+                </ul>
+              </nav>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Modal za brisanje oglasa -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-trash text-danger me-2"></i>Brisanje oglasa
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Da li ste sigurni da želite obrisati ovaj oglas?</strong></p>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
-                        Ova akcija je nepovratna i firma će biti obaveštena emailom.
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Razlog brisanja:</label>
-                        <textarea class="form-control" id="deleteReason" rows="3" 
-                                  placeholder="Objasnite razlog brisanja oglasa..."></textarea>
-                    </div>
-                    <div id="deleteOglasInfo" class="small text-muted">
-                        <!-- Info o oglasu -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                        <i class="fas fa-trash me-1"></i>Obriši oglas
-                    </button>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-trash text-danger me-2"></i>Brisanje oglasa
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              <strong>Da li ste sigurni da želite obrisati ovaj oglas?</strong>
+            </p>
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Ova akcija je nepovratna i firma će biti obaveštena emailom.
             </div>
+            <div class="mb-3">
+              <label class="form-label">Razlog brisanja:</label>
+              <textarea
+                class="form-control"
+                id="deleteReason"
+                rows="3"
+                placeholder="Objasnite razlog brisanja oglasa..."
+              ></textarea>
+            </div>
+            <div id="deleteOglasInfo" class="small text-muted">
+              <!-- Info o oglasu -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="confirmDelete()"
+            >
+              <i class="fas fa-trash me-1"></i>Obriši oglas
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Modal za pregled oglasa -->
     <div class="modal fade" id="viewModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-eye me-2"></i>Pregled oglasa
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="oglasDetails">
-                        <!-- Detalji oglasa će biti učitani dinamički -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-warning" onclick="toggleFeatureFromView()">
-                            <i class="fas fa-star me-1"></i>Istakni/Ukloni
-                        </button>
-                        <button type="button" class="btn btn-danger" onclick="deleteFromView()">
-                            <i class="fas fa-trash me-1"></i>Obriši
-                        </button>
-                    </div>
-                </div>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-eye me-2"></i>Pregled oglasa
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="oglasDetails">
+              <!-- Detalji oglasa će biti učitani dinamički -->
             </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Zatvori
+            </button>
+            <div class="btn-group">
+              <button
+                type="button"
+                class="btn btn-warning"
+                onclick="toggleFeatureFromView()"
+              >
+                <i class="fas fa-star me-1"></i>Istakni/Ukloni
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                onclick="deleteFromView()"
+              >
+                <i class="fas fa-trash me-1"></i>Obriši
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Modal za označavanje istaknutog -->
     <div class="modal fade" id="featureModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="featureModalTitle">
-                        <i class="fas fa-star text-warning me-2"></i>Označavanje istaknutog oglasa
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="istaknutCheck">
-                        <label class="form-check-label" for="istaknutCheck">
-                            Označiti oglas kao istaknut
-                        </label>
-                    </div>
-                    <div id="istaknutOptions" class="d-none">
-                        <div class="mb-3">
-                            <label class="form-label">Istaknut do (opcionalno):</label>
-                            <input type="date" class="form-control" id="istaknutDo">
-                            <small class="form-text text-muted">Ostaviti prazno za neograničeno</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Napomena (opcionalno):</label>
-                            <textarea class="form-control" id="istaknutNapomena" rows="2" 
-                                      placeholder="Razlog označavanja kao istaknut..."></textarea>
-                        </div>
-                    </div>
-                    <div id="featureOglasInfo" class="small text-muted">
-                        <!-- Info o oglasu -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Otkaži</button>
-                    <button type="button" class="btn btn-warning" onclick="confirmFeature()">
-                        <i class="fas fa-star me-1"></i>Sačuvaj
-                    </button>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="featureModalTitle">
+              <i class="fas fa-star text-warning me-2"></i>Označavanje
+              istaknutog oglasa
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-check mb-3">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="istaknutCheck"
+              />
+              <label class="form-check-label" for="istaknutCheck">
+                Označiti oglas kao istaknut
+              </label>
             </div>
+            <div id="istaknutOptions" class="d-none">
+              <div class="mb-3">
+                <label class="form-label">Istaknut do (opcionalno):</label>
+                <input type="date" class="form-control" id="istaknutDo" />
+                <small class="form-text text-muted"
+                  >Ostaviti prazno za neograničeno</small
+                >
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Napomena (opcionalno):</label>
+                <textarea
+                  class="form-control"
+                  id="istaknutNapomena"
+                  rows="2"
+                  placeholder="Razlog označavanja kao istaknut..."
+                ></textarea>
+              </div>
+            </div>
+            <div id="featureOglasInfo" class="small text-muted">
+              <!-- Info o oglasu -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Otkaži
+            </button>
+            <button
+              type="button"
+              class="btn btn-warning"
+              onclick="confirmFeature()"
+            >
+              <i class="fas fa-star me-1"></i>Sačuvaj
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/shared/components/navigation.js"></script>
     <script>
-        // Globalne varijable
-        let currentPage = 1;
-        let totalPages = 1;
-        let currentOglasId = null;
+      // Globalne varijable
+      let currentPage = 1;
+      let totalPages = 1;
+      let currentOglasId = null;
 
-        // Utility funkcija za escaping HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Inicijalizacija stranice
-        document.addEventListener('DOMContentLoaded', function() {
-            loadOglasi();
-            
-            // Event listeneri
-            document.getElementById('istaknutCheck').addEventListener('change', function() {
-                const options = document.getElementById('istaknutOptions');
-                if (this.checked) {
-                    options.classList.remove('d-none');
-                } else {
-                    options.classList.add('d-none');
-                }
-            });
+      // Utility funkcija za escaping HTML
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
 
-            // Enter key za pretragu
-            document.getElementById('searchInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    applyFilters();
-                }
-            });
-        });
+      // Inicijalizacija stranice
+      document.addEventListener('DOMContentLoaded', function () {
+        loadOglasi();
 
-        // Učitaj oglase
-        async function loadOglasi(page = 1) {
-            try {
-                showLoading(true);
-                
-                const params = new URLSearchParams({
-                    page: page,
-                    limit: 20
-                });
-
-                // Dodaj filtere
-                const status = document.getElementById('filterStatus').value;
-                const istaknut = document.getElementById('filterIstaknut').value;
-                const search = document.getElementById('searchInput').value;
-
-                if (status) params.append('status', status);
-                if (istaknut) params.append('istaknut', istaknut);
-                if (search) params.append('search', search);
-
-                const response = await fetch(`/api/oglasi/admin/all?${params}`, {
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    throw new Error('Greška pri učitavanju oglasa');
-                }
-
-                const data = await response.json();
-                renderOglasi(data.oglasi);
-                renderPagination(data.pagination);
-                
-                currentPage = page;
-                totalPages = data.pagination.totalPages;
-                
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Greška pri učitavanju oglasa: ' + error.message);
-            } finally {
-                showLoading(false);
+        // Event listeneri
+        document
+          .getElementById('istaknutCheck')
+          .addEventListener('change', function () {
+            const options = document.getElementById('istaknutOptions');
+            if (this.checked) {
+              options.classList.remove('d-none');
+            } else {
+              options.classList.add('d-none');
             }
-        }
+          });
 
-        // Renderuj oglase u tabeli
-        function renderOglasi(oglasi) {
-            const tbody = document.getElementById('oglasiTable');
-            
-            if (!oglasi || oglasi.length === 0) {
-                tbody.innerHTML = `
+        // Enter key za pretragu
+        document
+          .getElementById('searchInput')
+          .addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+              applyFilters();
+            }
+          });
+      });
+
+      // Učitaj oglase
+      async function loadOglasi(page = 1) {
+        try {
+          showLoading(true);
+
+          const params = new URLSearchParams({
+            page: page,
+            limit: 20,
+          });
+
+          // Dodaj filtere
+          const status = document.getElementById('filterStatus').value;
+          const istaknut = document.getElementById('filterIstaknut').value;
+          const search = document.getElementById('searchInput').value;
+
+          if (status) params.append('status', status);
+          if (istaknut) params.append('istaknut', istaknut);
+          if (search) params.append('search', search);
+
+          const response = await fetch(`/api/oglasi/admin/all?${params}`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju oglasa');
+          }
+
+          const data = await response.json();
+          renderOglasi(data.oglasi);
+          renderPagination(data.pagination);
+
+          currentPage = page;
+          totalPages = data.pagination.totalPages;
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri učitavanju oglasa: ' + error.message);
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      // Renderuj oglase u tabeli
+      function renderOglasi(oglasi) {
+        const tbody = document.getElementById('oglasiTable');
+
+        if (!oglasi || oglasi.length === 0) {
+          tbody.innerHTML = `
                     <tr>
                         <td colspan="9" class="text-center text-muted py-4">
                             <i class="fas fa-clipboard fa-2x mb-2"></i><br>
@@ -305,117 +391,150 @@
                         </td>
                     </tr>
                 `;
-                return;
-            }
+          return;
+        }
 
-            tbody.innerHTML = oglasi.map(oglas => `
+        tbody.innerHTML = oglasi
+          .map(
+            oglas => `
                 <tr>
                     <td>${oglas.id}</td>
                     <td>
                         <div class="fw-bold">${escapeHtml(oglas.naslov)}</div>
-                        ${oglas.istaknut ? '<span class="badge bg-warning text-dark"><i class="fas fa-star me-1"></i>ISTAKNUT</span>' : ''}
+                        ${
+                          oglas.istaknut
+                            ? '<span class="badge bg-warning text-dark"><i class="fas fa-star me-1"></i>ISTAKNUT</span>'
+                            : ''
+                        }
                     </td>
                     <td>${escapeHtml(oglas.pozicija)}</td>
                     <td>
                         <div>${escapeHtml(oglas.firma_naziv)}</div>
-                        <small class="text-muted">${escapeHtml(oglas.user_email)}</small>
+                        <small class="text-muted">${escapeHtml(
+                          oglas.user_email
+                        )}</small>
                     </td>
                     <td>
-                        <span class="badge ${getStatusClass(oglas.status)}">${getStatusText(oglas.status)}</span>
+                        <span class="badge ${getStatusClass(
+                          oglas.status
+                        )}">${getStatusText(oglas.status)}</span>
                     </td>
                     <td>
-                        ${oglas.istaknut ? 
-                            `<i class="fas fa-star text-warning" title="Istaknut ${oglas.istaknut_od ? 'od ' + formatDate(oglas.istaknut_od) : ''}${oglas.istaknut_do ? ' do ' + formatDate(oglas.istaknut_do) : ''}"></i>` : 
-                            '<i class="fas fa-star text-muted"></i>'
+                        ${
+                          oglas.istaknut
+                            ? `<i class="fas fa-star text-warning" title="Istaknut ${
+                                oglas.istaknut_od
+                                  ? 'od ' + formatDate(oglas.istaknut_od)
+                                  : ''
+                              }${
+                                oglas.istaknut_do
+                                  ? ' do ' + formatDate(oglas.istaknut_do)
+                                  : ''
+                              }"></i>`
+                            : '<i class="fas fa-star text-muted"></i>'
                         }
                     </td>
                     <td>${formatDate(oglas.datum_objave)}</td>
                     <td>${oglas.broj_pregleda || 0}</td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewOglas(${oglas.id})" title="Pregled">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewOglas(${
+                              oglas.id
+                            })" title="Pregled">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-outline-warning btn-sm" onclick="toggleFeature(${oglas.id})" title="Istakni/ukloni istaknutost">
+                            <button class="btn btn-outline-warning btn-sm" onclick="toggleFeature(${
+                              oglas.id
+                            })" title="Istakni/ukloni istaknutost">
                                 <i class="fas fa-star"></i>
                             </button>
-                            <button class="btn btn-outline-danger btn-sm" onclick="deleteOglas(${oglas.id})" title="Obriši">
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteOglas(${
+                              oglas.id
+                            })" title="Obriši">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `
+          )
+          .join('');
+      }
+
+      // Renderuj paginaciju
+      function renderPagination(pagination) {
+        const nav = document.getElementById('paginationNav');
+        const ul = document.getElementById('pagination');
+
+        if (pagination.totalPages <= 1) {
+          nav.classList.add('d-none');
+          return;
         }
 
-        // Renderuj paginaciju
-        function renderPagination(pagination) {
-            const nav = document.getElementById('paginationNav');
-            const ul = document.getElementById('pagination');
-            
-            if (pagination.totalPages <= 1) {
-                nav.classList.add('d-none');
-                return;
-            }
-            
-            nav.classList.remove('d-none');
-            
-            let paginationHTML = '';
-            
-            // Previous button
-            if (pagination.currentPage > 1) {
-                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${pagination.currentPage - 1})">Prethodna</a></li>`;
-            }
-            
-            // Page numbers
-            for (let i = 1; i <= pagination.totalPages; i++) {
-                if (i === pagination.currentPage) {
-                    paginationHTML += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
-                } else {
-                    paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${i})">${i}</a></li>`;
-                }
-            }
-            
-            // Next button
-            if (pagination.currentPage < pagination.totalPages) {
-                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${pagination.currentPage + 1})">Sljedeća</a></li>`;
-            }
-            
-            ul.innerHTML = paginationHTML;
+        nav.classList.remove('d-none');
+
+        let paginationHTML = '';
+
+        // Previous button
+        if (pagination.currentPage > 1) {
+          paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${
+            pagination.currentPage - 1
+          })">Prethodna</a></li>`;
         }
 
-        // Funkcije za akcije
-        function refreshOglasi() {
-            loadOglasi(currentPage);
+        // Page numbers
+        for (let i = 1; i <= pagination.totalPages; i++) {
+          if (i === pagination.currentPage) {
+            paginationHTML += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+          } else {
+            paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${i})">${i}</a></li>`;
+          }
         }
 
-        function applyFilters() {
-            loadOglasi(1); // Reset na prvu stranicu
+        // Next button
+        if (pagination.currentPage < pagination.totalPages) {
+          paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadOglasi(${
+            pagination.currentPage + 1
+          })">Sljedeća</a></li>`;
         }
 
-        async function viewOglas(id) {
-            try {
-                const response = await fetch(`/api/oglasi/${id}`, {
-                    credentials: 'include'
-                });
+        ul.innerHTML = paginationHTML;
+      }
 
-                if (!response.ok) {
-                    throw new Error('Greška pri učitavanju oglasa');
-                }
+      // Funkcije za akcije
+      function refreshOglasi() {
+        loadOglasi(currentPage);
+      }
 
-                const oglas = await response.json();
-                showOglasDetails(oglas);
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Greška pri učitavanju detalja oglasa: ' + error.message);
-            }
+      function applyFilters() {
+        loadOglasi(1); // Reset na prvu stranicu
+      }
+
+      async function viewOglas(id) {
+        try {
+          const response = await fetch(`/api/oglasi/${id}`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            throw new Error('Greška pri učitavanju oglasa');
+          }
+
+          const oglas = await response.json();
+          showOglasDetails(oglas);
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri učitavanju detalja oglasa: ' + error.message);
         }
+      }
 
-        function showOglasDetails(oglas) {
-            const detailsHtml = `
+      function showOglasDetails(oglas) {
+        const detailsHtml = `
                 <div class="row">
                     <div class="col-md-8">
-                        <h4 class="text-primary mb-3">${escapeHtml(oglas.naslov)}</h4>
+                        <h4 class="text-primary mb-3">${escapeHtml(
+                          oglas.naslov
+                        )}</h4>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>ID oglasa:</strong></div>
@@ -424,41 +543,60 @@
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Pozicija:</strong></div>
-                            <div class="col-sm-8">${escapeHtml(oglas.pozicija)}</div>
+                            <div class="col-sm-8">${escapeHtml(
+                              oglas.pozicija
+                            )}</div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Lokacija:</strong></div>
-                            <div class="col-sm-8">${escapeHtml(oglas.lokacija || 'Nije specificirana')}</div>
+                            <div class="col-sm-8">${escapeHtml(
+                              oglas.lokacija || 'Nije specificirana'
+                            )}</div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Tip posla:</strong></div>
                             <div class="col-sm-8">
-                                <span class="badge bg-info">${formatTipPosla(oglas.tip_posla)}</span>
+                                <span class="badge bg-info">${formatTipPosla(
+                                  oglas.tip_posla
+                                )}</span>
                             </div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Plata:</strong></div>
-                            <div class="col-sm-8">${formatPlata(oglas.plata_od, oglas.plata_do)}</div>
+                            <div class="col-sm-8">${formatPlata(
+                              oglas.plata_od,
+                              oglas.plata_do
+                            )}</div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Iskustvo:</strong></div>
-                            <div class="col-sm-8">${formatIskustvo(oglas.iskustvo_godine)}</div>
+                            <div class="col-sm-8">${formatIskustvo(
+                              oglas.iskustvo_godine
+                            )}</div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Obrazovanje:</strong></div>
-                            <div class="col-sm-8">${formatObrazovanje(oglas.obrazovanje)}</div>
+                            <div class="col-sm-8">${formatObrazovanje(
+                              oglas.obrazovanje
+                            )}</div>
                         </div>
                         
                         <div class="row mb-3">
                             <div class="col-sm-4"><strong>Status:</strong></div>
                             <div class="col-sm-8">
-                                <span class="badge ${getStatusClass(oglas.status)}">${getStatusText(oglas.status)}</span>
-                                ${oglas.istaknut ? '<span class="badge bg-warning text-dark ms-2"><i class="fas fa-star me-1"></i>ISTAKNUT</span>' : ''}
+                                <span class="badge ${getStatusClass(
+                                  oglas.status
+                                )}">${getStatusText(oglas.status)}</span>
+                                ${
+                                  oglas.istaknut
+                                    ? '<span class="badge bg-warning text-dark ms-2"><i class="fas fa-star me-1"></i>ISTAKNUT</span>'
+                                    : ''
+                                }
                             </div>
                         </div>
                     </div>
@@ -469,12 +607,20 @@
                                 <h6 class="mb-0"><i class="fas fa-building me-1"></i>Informacije o firmi</h6>
                             </div>
                             <div class="card-body">
-                                <p><strong>${escapeHtml(oglas.firma_naziv)}</strong></p>
+                                <p><strong>${escapeHtml(
+                                  oglas.firma_naziv
+                                )}</strong></p>
                                 <p class="small text-muted mb-2">
-                                    <i class="fas fa-envelope me-1"></i>${escapeHtml(oglas.user_email || oglas.firma_email || 'N/A')}
+                                    <i class="fas fa-envelope me-1"></i>${escapeHtml(
+                                      oglas.user_email ||
+                                        oglas.firma_email ||
+                                        'N/A'
+                                    )}
                                 </p>
                                 <p class="small text-muted mb-2">
-                                    <i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(oglas.firma_grad || 'N/A')}
+                                    <i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(
+                                      oglas.firma_grad || 'N/A'
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -486,275 +632,336 @@
                             <div class="card-body">
                                 <div class="row text-center">
                                     <div class="col">
-                                        <div class="h4 text-primary">${oglas.broj_pregleda || 0}</div>
+                                        <div class="h4 text-primary">${
+                                          oglas.broj_pregleda || 0
+                                        }</div>
                                         <small class="text-muted">Pregleda</small>
                                     </div>
                                 </div>
                                 <hr>
-                                <p class="small mb-1"><strong>Objavljeno:</strong> ${formatDate(oglas.datum_objave)}</p>
-                                <p class="small mb-1"><strong>Važi do:</strong> ${formatDate(oglas.datum_isteka)}</p>
-                                ${oglas.istaknut ? `
-                                    <p class="small mb-1"><strong>Istaknut od:</strong> ${formatDate(oglas.istaknut_od)}</p>
-                                    ${oglas.istaknut_do ? `<p class="small mb-1"><strong>Istaknut do:</strong> ${formatDate(oglas.istaknut_do)}</p>` : ''}
-                                ` : ''}
+                                <p class="small mb-1"><strong>Objavljeno:</strong> ${formatDate(
+                                  oglas.datum_objave
+                                )}</p>
+                                <p class="small mb-1"><strong>Važi do:</strong> ${formatDate(
+                                  oglas.datum_isteka
+                                )}</p>
+                                ${
+                                  oglas.istaknut
+                                    ? `
+                                    <p class="small mb-1"><strong>Istaknut od:</strong> ${formatDate(
+                                      oglas.istaknut_od
+                                    )}</p>
+                                    ${
+                                      oglas.istaknut_do
+                                        ? `<p class="small mb-1"><strong>Istaknut do:</strong> ${formatDate(
+                                            oglas.istaknut_do
+                                          )}</p>`
+                                        : ''
+                                    }
+                                `
+                                    : ''
+                                }
                             </div>
                         </div>
                         
-                        ${oglas.kontakt_email || oglas.kontakt_telefon ? `
+                        ${
+                          oglas.kontakt_email || oglas.kontakt_telefon
+                            ? `
                         <div class="card mt-3">
                             <div class="card-header">
                                 <h6 class="mb-0"><i class="fas fa-phone me-1"></i>Kontakt</h6>
                             </div>
                             <div class="card-body">
-                                ${oglas.kontakt_email ? `<p class="small mb-1"><i class="fas fa-envelope me-1"></i>${escapeHtml(oglas.kontakt_email)}</p>` : ''}
-                                ${oglas.kontakt_telefon ? `<p class="small mb-0"><i class="fas fa-phone me-1"></i>${escapeHtml(oglas.kontakt_telefon)}</p>` : ''}
+                                ${
+                                  oglas.kontakt_email
+                                    ? `<p class="small mb-1"><i class="fas fa-envelope me-1"></i>${escapeHtml(
+                                        oglas.kontakt_email
+                                      )}</p>`
+                                    : ''
+                                }
+                                ${
+                                  oglas.kontakt_telefon
+                                    ? `<p class="small mb-0"><i class="fas fa-phone me-1"></i>${escapeHtml(
+                                        oglas.kontakt_telefon
+                                      )}</p>`
+                                    : ''
+                                }
                             </div>
                         </div>
-                        ` : ''}
+                        `
+                            : ''
+                        }
                     </div>
                 </div>
                 
                 <div class="row mt-4">
                     <div class="col-12">
                         <h6><i class="fas fa-align-left me-1"></i>Opis posla:</h6>
-                        <div class="bg-light p-3 rounded" style="white-space: pre-wrap;">${escapeHtml(oglas.opis)}</div>
+                        <div class="bg-light p-3 rounded" style="white-space: pre-wrap;">${escapeHtml(
+                          oglas.opis
+                        )}</div>
                     </div>
                 </div>
                 
-                ${oglas.admin_napomena ? `
+                ${
+                  oglas.admin_napomena
+                    ? `
                 <div class="row mt-3">
                     <div class="col-12">
                         <div class="alert alert-info">
                             <h6><i class="fas fa-sticky-note me-1"></i>Admin napomena:</h6>
-                            <p class="mb-0">${escapeHtml(oglas.admin_napomena)}</p>
+                            <p class="mb-0">${escapeHtml(
+                              oglas.admin_napomena
+                            )}</p>
                         </div>
                     </div>
                 </div>
-                ` : ''}
+                `
+                    : ''
+                }
             `;
 
-            document.getElementById('oglasDetails').innerHTML = detailsHtml;
-            currentOglasId = oglas.id;
-            
-            // Prikaži modal
-            new bootstrap.Modal(document.getElementById('viewModal')).show();
-        }
+        document.getElementById('oglasDetails').innerHTML = detailsHtml;
+        currentOglasId = oglas.id;
 
-        function deleteOglas(id) {
-            currentOglasId = id;
-            
-            // Pronađi oglas u tabeli da prikažeš info
-            let oglasInfo = `<strong>Oglas ID:</strong> ${id}`;
-            
-            // Pokušaj da pronađeš dodatne informacije iz tabele
-            const rows = document.querySelectorAll('#oglasiTable tr');
-            for (let row of rows) {
-                const firstCell = row.querySelector('td:first-child');
-                if (firstCell && firstCell.textContent.trim() === id.toString()) {
-                    const naslovCell = row.querySelector('td:nth-child(2)');
-                    const firmaCell = row.querySelector('td:nth-child(4)');
-                    if (naslovCell && firmaCell) {
-                        const naslov = naslovCell.querySelector('.fw-bold')?.textContent || '';
-                        const firma = firmaCell.querySelector('div')?.textContent || '';
-                        oglasInfo += `<br><strong>Naslov:</strong> ${escapeHtml(naslov)}`;
-                        oglasInfo += `<br><strong>Firma:</strong> ${escapeHtml(firma)}`;
-                    }
-                    break;
-                }
+        // Prikaži modal
+        new bootstrap.Modal(document.getElementById('viewModal')).show();
+      }
+
+      function deleteOglas(id) {
+        currentOglasId = id;
+
+        // Pronađi oglas u tabeli da prikažeš info
+        let oglasInfo = `<strong>Oglas ID:</strong> ${id}`;
+
+        // Pokušaj da pronađeš dodatne informacije iz tabele
+        const rows = document.querySelectorAll('#oglasiTable tr');
+        for (let row of rows) {
+          const firstCell = row.querySelector('td:first-child');
+          if (firstCell && firstCell.textContent.trim() === id.toString()) {
+            const naslovCell = row.querySelector('td:nth-child(2)');
+            const firmaCell = row.querySelector('td:nth-child(4)');
+            if (naslovCell && firmaCell) {
+              const naslov =
+                naslovCell.querySelector('.fw-bold')?.textContent || '';
+              const firma = firmaCell.querySelector('div')?.textContent || '';
+              oglasInfo += `<br><strong>Naslov:</strong> ${escapeHtml(naslov)}`;
+              oglasInfo += `<br><strong>Firma:</strong> ${escapeHtml(firma)}`;
             }
-            
-            const info = document.getElementById('deleteOglasInfo');
-            info.innerHTML = oglasInfo;
-            
-            // Očisti razlog
-            document.getElementById('deleteReason').value = '';
-            
-            // Prikaži modal
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+            break;
+          }
         }
 
-        function toggleFeature(id) {
-            currentOglasId = id;
-            
-            // Reset form
-            document.getElementById('istaknutCheck').checked = false;
-            document.getElementById('istaknutDo').value = '';
-            document.getElementById('istaknutNapomena').value = '';
-            document.getElementById('istaknutOptions').classList.add('d-none');
-            
-            // Prikaži modal
-            new bootstrap.Modal(document.getElementById('featureModal')).show();
+        const info = document.getElementById('deleteOglasInfo');
+        info.innerHTML = oglasInfo;
+
+        // Očisti razlog
+        document.getElementById('deleteReason').value = '';
+
+        // Prikaži modal
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+      }
+
+      function toggleFeature(id) {
+        currentOglasId = id;
+
+        // Reset form
+        document.getElementById('istaknutCheck').checked = false;
+        document.getElementById('istaknutDo').value = '';
+        document.getElementById('istaknutNapomena').value = '';
+        document.getElementById('istaknutOptions').classList.add('d-none');
+
+        // Prikaži modal
+        new bootstrap.Modal(document.getElementById('featureModal')).show();
+      }
+
+      async function confirmDelete() {
+        if (!currentOglasId) return;
+
+        const razlog = document.getElementById('deleteReason').value.trim();
+        if (!razlog) {
+          alert('Molimo unesite razlog brisanja.');
+          return;
         }
 
-        async function confirmDelete() {
-            if (!currentOglasId) return;
-            
-            const razlog = document.getElementById('deleteReason').value.trim();
-            if (!razlog) {
-                alert('Molimo unesite razlog brisanja.');
-                return;
+        try {
+          const response = await fetch(`/api/oglasi/admin/${currentOglasId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ razlog }),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            alert('Oglas je uspješno obrisan i firma je obaviještena.');
+            bootstrap.Modal.getInstance(
+              document.getElementById('deleteModal')
+            ).hide();
+            loadOglasi(currentPage);
+          } else {
+            alert('Greška: ' + (result.error || 'Nepoznata greška'));
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri brisanju oglasa: ' + error.message);
+        }
+      }
+
+      async function confirmFeature() {
+        if (!currentOglasId) return;
+
+        const istaknut = document.getElementById('istaknutCheck').checked;
+        const istaknut_do = document.getElementById('istaknutDo').value || null;
+        const napomena =
+          document.getElementById('istaknutNapomena').value.trim() || null;
+
+        try {
+          const response = await fetch(
+            `/api/oglasi/admin/${currentOglasId}/featured`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify({
+                istaknut,
+                istaknut_do,
+                napomena,
+              }),
             }
-            
-            try {
-                const response = await fetch(`/api/oglasi/admin/${currentOglasId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({ razlog })
-                });
+          );
 
-                const result = await response.json();
+          const result = await response.json();
 
-                if (response.ok) {
-                    alert('Oglas je uspješno obrisan i firma je obaviještena.');
-                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-                    loadOglasi(currentPage);
-                } else {
-                    alert('Greška: ' + (result.error || 'Nepoznata greška'));
-                }
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Greška pri brisanju oglasa: ' + error.message);
-            }
+          if (response.ok) {
+            alert(result.message);
+            bootstrap.Modal.getInstance(
+              document.getElementById('featureModal')
+            ).hide();
+            loadOglasi(currentPage);
+          } else {
+            alert('Greška: ' + (result.error || 'Nepoznata greška'));
+          }
+        } catch (error) {
+          console.error('Greška:', error);
+          alert('Greška pri označavanju oglasa: ' + error.message);
         }
+      }
 
-        async function confirmFeature() {
-            if (!currentOglasId) return;
-            
-            const istaknut = document.getElementById('istaknutCheck').checked;
-            const istaknut_do = document.getElementById('istaknutDo').value || null;
-            const napomena = document.getElementById('istaknutNapomena').value.trim() || null;
-            
-            try {
-                const response = await fetch(`/api/oglasi/admin/${currentOglasId}/featured`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        istaknut,
-                        istaknut_do,
-                        napomena
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(result.message);
-                    bootstrap.Modal.getInstance(document.getElementById('featureModal')).hide();
-                    loadOglasi(currentPage);
-                } else {
-                    alert('Greška: ' + (result.error || 'Nepoznata greška'));
-                }
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Greška pri označavanju oglasa: ' + error.message);
-            }
+      // Helper funkcije
+      function showLoading(show) {
+        const loading = document.getElementById('loading');
+        if (show) {
+          loading.classList.remove('d-none');
+        } else {
+          loading.classList.add('d-none');
         }
+      }
 
-        // Helper funkcije
-        function showLoading(show) {
-            const loading = document.getElementById('loading');
-            if (show) {
-                loading.classList.remove('d-none');
-            } else {
-                loading.classList.add('d-none');
-            }
-        }
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+      function getStatusClass(status) {
+        switch (status) {
+          case 'aktivan':
+            return 'bg-success';
+          case 'neaktivan':
+            return 'bg-secondary';
+          default:
+            return 'bg-warning';
         }
+      }
 
-        function getStatusClass(status) {
-            switch(status) {
-                case 'aktivan': return 'bg-success';
-                case 'neaktivan': return 'bg-secondary';
-                default: return 'bg-warning';
-            }
+      function getStatusText(status) {
+        switch (status) {
+          case 'aktivan':
+            return 'Aktivan';
+          case 'neaktivan':
+            return 'Neaktivan';
+          default:
+            return status;
         }
+      }
 
-        function getStatusText(status) {
-            switch(status) {
-                case 'aktivan': return 'Aktivan';
-                case 'neaktivan': return 'Neaktivan';
-                default: return status;
-            }
-        }
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('sr-RS');
+      }
 
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            return new Date(dateString).toLocaleDateString('sr-RS');
-        }
+      function formatTipPosla(tip) {
+        const tipovi = {
+          puno_vreme: 'Puno radno vreme',
+          pola_vremena: 'Pola radnog vremena',
+          ugovor: 'Rad na ugovor',
+          praksa: 'Praksa',
+          sezonski: 'Sezonski rad',
+        };
+        return tipovi[tip] || tip;
+      }
 
-        function formatTipPosla(tip) {
-            const tipovi = {
-                'puno_vreme': 'Puno radno vreme',
-                'pola_vremena': 'Pola radnog vremena', 
-                'ugovor': 'Rad na ugovor',
-                'praksa': 'Praksa',
-                'sezonski': 'Sezonski rad'
-            };
-            return tipovi[tip] || tip;
-        }
+      function formatPlata(od, doPlata) {
+        if (!od && !doPlata) return 'Nije specificirana';
+        if (od && doPlata) return `${od}€ - ${doPlata}€`;
+        if (od) return `od ${od}€`;
+        if (doPlata) return `do ${doPlata}€`;
+        return 'Nije specificirana';
+      }
 
-        function formatPlata(od, doPlata) {
-            if (!od && !doPlata) return 'Nije specificirana';
-            if (od && doPlata) return `${od}€ - ${doPlata}€`;
-            if (od) return `od ${od}€`;
-            if (doPlata) return `do ${doPlata}€`;
-            return 'Nije specificirana';
-        }
+      function formatIskustvo(godine) {
+        if (!godine || godine == 0) return 'Bez iskustva';
+        if (godine >= 10) return '10+ godina';
+        if (godine >= 5) return '5+ godina';
+        return `${godine} ${godine == 1 ? 'godina' : 'godine'}`;
+      }
 
-        function formatIskustvo(godine) {
-            if (!godine || godine == 0) return 'Bez iskustva';
-            if (godine >= 10) return '10+ godina';
-            if (godine >= 5) return '5+ godina';
-            return `${godine} ${godine == 1 ? 'godina' : 'godine'}`;
-        }
+      function formatObrazovanje(obrazovanje) {
+        const nivoi = {
+          osnovno: 'Osnovno',
+          srednje: 'Srednje',
+          visa: 'Viša škola',
+          fakultet: 'Fakultet',
+          master: 'Master',
+          doktorat: 'Doktorat',
+        };
+        return nivoi[obrazovanje] || obrazovanje;
+      }
 
-        function formatObrazovanje(obrazovanje) {
-            const nivoi = {
-                'osnovno': 'Osnovno',
-                'srednje': 'Srednje',
-                'visa': 'Viša škola',
-                'fakultet': 'Fakultet',
-                'master': 'Master',
-                'doktorat': 'Doktorat'
-            };
-            return nivoi[obrazovanje] || obrazovanje;
-        }
+      function toggleFeatureFromView() {
+        if (!currentOglasId) return;
 
-        function toggleFeatureFromView() {
-            if (!currentOglasId) return;
-            
-            // Zatvori view modal
-            bootstrap.Modal.getInstance(document.getElementById('viewModal')).hide();
-            
-            // Otvori feature modal
-            setTimeout(() => {
-                toggleFeature(currentOglasId);
-            }, 300);
-        }
+        // Zatvori view modal
+        bootstrap.Modal.getInstance(
+          document.getElementById('viewModal')
+        ).hide();
 
-        function deleteFromView() {
-            if (!currentOglasId) return;
-            
-            // Zatvori view modal
-            bootstrap.Modal.getInstance(document.getElementById('viewModal')).hide();
-            
-            // Otvori delete modal
-            setTimeout(() => {
-                deleteOglas(currentOglasId);
-            }, 300);
-        }
+        // Otvori feature modal
+        setTimeout(() => {
+          toggleFeature(currentOglasId);
+        }, 300);
+      }
+
+      function deleteFromView() {
+        if (!currentOglasId) return;
+
+        // Zatvori view modal
+        bootstrap.Modal.getInstance(
+          document.getElementById('viewModal')
+        ).hide();
+
+        // Otvori delete modal
+        setTimeout(() => {
+          deleteOglas(currentOglasId);
+        }, 300);
+      }
     </script>
-</body>
+  </body>
 </html>

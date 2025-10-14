@@ -453,13 +453,7 @@ const getOglasiStats = async (req, res) => {
  */
 const getAllOglasiForAdmin = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      status,
-      search,
-      istaknut
-    } = req.query;
+    const { page = 1, limit = 20, status, search, istaknut } = req.query;
 
     let whereConditions = ['1=1']; // Početni uslov
     let queryParams = [];
@@ -471,7 +465,9 @@ const getAllOglasiForAdmin = async (req, res) => {
     }
 
     if (search) {
-      whereConditions.push('(o.naslov LIKE ? OR o.pozicija LIKE ? OR f.naziv LIKE ?)');
+      whereConditions.push(
+        '(o.naslov LIKE ? OR o.pozicija LIKE ? OR f.naziv LIKE ?)'
+      );
       queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
@@ -578,7 +574,7 @@ const adminDeleteOglas = async (req, res) => {
         firmaNaziv: oglas.firma_naziv,
         oglasNaslov: oglas.naslov,
         razlog: razlog || 'Oglas je uklonjen zbog kršenja uslova korišćenja.',
-        adminEmail: 'admin@mojradnik.me'
+        adminEmail: 'admin@mojradnik.me',
       });
     } catch (emailError) {
       console.error('Greška pri slanju email-a:', emailError);
@@ -586,11 +582,15 @@ const adminDeleteOglas = async (req, res) => {
     }
 
     // Logiraj admin akciju
-    console.log(`Admin ${req.user.username} obrisao oglas ${id} - ${oglas.naslov} (${oglas.firma_naziv}). Razlog: ${razlog || 'Nije naveden'}`);
+    console.log(
+      `Admin ${req.user.username} obrisao oglas ${id} - ${oglas.naslov} (${
+        oglas.firma_naziv
+      }). Razlog: ${razlog || 'Nije naveden'}`
+    );
 
-    res.json({ 
-      success: true, 
-      message: 'Oglas je uspešno obrisan i firma je obaveštena' 
+    res.json({
+      success: true,
+      message: 'Oglas je uspešno obrisan i firma je obaveštena',
     });
   } catch (error) {
     console.error('Greška pri admin brisanju oglasa:', error);
@@ -607,7 +607,8 @@ const adminToggleFeatured = async (req, res) => {
     const { istaknut, istaknut_do, napomena } = req.body;
 
     // Provjeri da li oglas postoji
-    const checkQuery = 'SELECT id, naslov, istaknut FROM poslovi_oglasi WHERE id = ?';
+    const checkQuery =
+      'SELECT id, naslov, istaknut FROM poslovi_oglasi WHERE id = ?';
     const checkResult = await executeQuery(checkQuery, [id]);
 
     if (checkResult.length === 0) {
@@ -615,7 +616,8 @@ const adminToggleFeatured = async (req, res) => {
     }
 
     const currentOglas = checkResult[0];
-    const newIstaknut = istaknut !== undefined ? istaknut : !currentOglas.istaknut;
+    const newIstaknut =
+      istaknut !== undefined ? istaknut : !currentOglas.istaknut;
 
     // Ažuriraj oglas
     const updateQuery = `
@@ -627,7 +629,9 @@ const adminToggleFeatured = async (req, res) => {
       WHERE id = ?
     `;
 
-    const istaknutOd = newIstaknut ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null;
+    const istaknutOd = newIstaknut
+      ? new Date().toISOString().slice(0, 19).replace('T', ' ')
+      : null;
     const istaknutDo = newIstaknut && istaknut_do ? istaknut_do : null;
 
     await executeQuery(updateQuery, [
@@ -635,17 +639,21 @@ const adminToggleFeatured = async (req, res) => {
       istaknutOd,
       istaknutDo,
       napomena || null,
-      id
+      id,
     ]);
 
     // Logiraj admin akciju
     const action = newIstaknut ? 'označio kao istaknut' : 'uklonio istaknutost';
-    console.log(`Admin ${req.user.username} ${action} oglas ${id} - ${currentOglas.naslov}`);
+    console.log(
+      `Admin ${req.user.username} ${action} oglas ${id} - ${currentOglas.naslov}`
+    );
 
-    res.json({ 
-      success: true, 
-      message: newIstaknut ? 'Oglas je označen kao istaknut' : 'Uklonjena istaknutost oglasa',
-      istaknut: newIstaknut
+    res.json({
+      success: true,
+      message: newIstaknut
+        ? 'Oglas je označen kao istaknut'
+        : 'Uklonjena istaknutost oglasa',
+      istaknut: newIstaknut,
     });
   } catch (error) {
     console.error('Greška pri označavanju istaknutog oglasa:', error);

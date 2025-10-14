@@ -125,9 +125,66 @@
       footer a:hover {
         color: #0d6efd;
       }
+
+      /* Promo notification bar */
+      .promo-notification {
+        background: linear-gradient(90deg, #ff6b35, #f7931e);
+        color: white;
+        padding: 12px 0;
+        text-align: center;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1040;
+      }
+
+      .promo-notification strong {
+        font-weight: 700;
+      }
+
+      .notification-cta {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 10px;
+        padding: 4px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .notification-cta:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+      }
+
+      /* Adjust fixed navbar for notification */
+      .navbar.fixed-top {
+        top: 44px;
+        z-index: 1041;
+      }
+
+      .hero {
+        padding-top: calc(100px + 44px);
+      }
     </style>
   </head>
   <body>
+    <!-- Promo Notification Bar -->
+    <div class="promo-notification">
+      <div class="container">
+        🎉 <strong>NOVOST:</strong> Poslodavci mogu objavljivati oglase za posao
+        potpuno besplatno!
+        <a href="/mojradnik/registracija.html" class="notification-cta">
+          Registruj firmu →
+        </a>
+      </div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-white border-bottom fixed-top">
       <div class="container">
@@ -195,20 +252,38 @@
               Automatizuj procese i izbjegni greške koje koštaju. Naš sistem
               prati rokove da ne dođete u situaciju da istekne ugovor.
             </p>
-            <div class="d-flex gap-2 mt-3">
-              <a
-                id="start"
-                href="/registracija.html?domain=mojradnik"
-                class="btn btn-primary btn-lg"
-              >
-                <i class="bi bi-magic me-1"></i> Započni odmah
-              </a>
-              <a
-                href="/prijava.html?domain=mojradnik"
-                class="btn btn-outline-primary btn-lg"
-              >
-                <i class="bi bi-play-circle me-1"></i> Uđi u aplikaciju
-              </a>
+            <div class="d-flex flex-column gap-3 mt-4">
+              <!-- Primary CTA -->
+              <div class="d-flex gap-2 flex-wrap">
+                <a
+                  id="start"
+                  href="/registracija.html?domain=mojradnik"
+                  class="btn btn-primary btn-lg"
+                >
+                  <i class="bi bi-magic me-1"></i> Započni odmah
+                </a>
+                <a
+                  href="/prijava.html?domain=mojradnik"
+                  class="btn btn-outline-primary btn-lg"
+                >
+                  <i class="bi bi-play-circle me-1"></i> Uđi u aplikaciju
+                </a>
+              </div>
+
+              <!-- Job posting CTA -->
+              <div class="text-center">
+                <p class="mb-2 small text-muted">
+                  <strong>Poslodavci:</strong> Objavite oglase za posao
+                  besplatno!
+                </p>
+                <a
+                  href="/mojradnik/oglasi-poslovi.html"
+                  class="btn btn-success btn-lg"
+                >
+                  <i class="bi bi-briefcase me-1"></i> Pogledaj Oglase & Objavi
+                  Besplatno
+                </a>
+              </div>
             </div>
             <div class="d-flex gap-3 mt-4 small-muted">
               <div><i class="bi bi-shield-check me-1"></i>Bez greške</div>
