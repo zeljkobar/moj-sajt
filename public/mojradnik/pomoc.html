@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomoć | Moj Radnik</title>
+
+    <!-- Favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon/favicon-16x16.png"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link href="/shared/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      .help-hero {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+      }
+
+      .video-card {
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 2rem;
+      }
+
+      .video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .video-thumbnail {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #6c757d;
+      }
+
+      .video-card .card-body {
+        padding: 1.5rem;
+      }
+
+      .video-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #212529;
+      }
+
+      .video-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      .btn-watch {
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        border: none;
+        color: white;
+        font-weight: 500;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-watch:hover {
+        background: linear-gradient(135deg, #e55a2b, #e0831a);
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .category-title {
+        color: #007bff;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .category-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation će biti automatski ubačena ovde -->
+    <div id="navigation-placeholder"></div>
+
+    <!-- Hero Section -->
+    <div class="help-hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">
+              <i class="fas fa-play-circle me-3"></i>Video Uputstva
+            </h1>
+            <p class="lead mb-0">
+              Naučite kako da koristite Moj Radnik platformu kroz detaljne video
+              tutorijale
+            </p>
+          </div>
+          <div class="col-lg-4 text-center">
+            <i
+              class="fas fa-graduation-cap"
+              style="font-size: 6rem; opacity: 0.3"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Osnovne funkcionalnosti -->
+      <section class="mb-5">
+        <h2 class="category-title">
+          <i class="fas fa-star me-2"></i>Osnovne funkcionalnosti
+        </h2>
+
+        <div class="row">
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Kako prijaviti radnika</h5>
+                <p class="video-description">
+                  Korak po korak uputstvo za prijavu novog radnika u sistem
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('YOUTUBE_VIDEO_ID_1')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-user-minus"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Kako odjaviti radnika</h5>
+                <p class="video-description">
+                  Proces odjave radnika i sve potrebne procedure
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('DQvgirIUoNM')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-file-contract"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Kreiranje ugovora</h5>
+                <p class="video-description">
+                  Kako da napravite i generirate ugovor o radu
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('YOUTUBE_VIDEO_ID_3')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Napredne funkcionalnosti -->
+      <section class="mb-5">
+        <h2 class="category-title">
+          <i class="fas fa-cogs me-2"></i>Napredne funkcionalnosti
+        </h2>
+
+        <div class="row">
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Upravljanje smjenama</h5>
+                <p class="video-description">
+                  Kako da organizujete raspored smjena za vaše radnike
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('QYovOaJd6zM')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-umbrella-beach"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Godišnji odmori</h5>
+                <p class="video-description">
+                  Plan i rešenja o godišnjim odmorima radnika
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('YOUTUBE_VIDEO_ID_5')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="card video-card">
+              <div class="video-thumbnail">
+                <i class="fas fa-briefcase"></i>
+              </div>
+              <div class="card-body">
+                <h5 class="video-title">Oglasi za poslove</h5>
+                <p class="video-description">
+                  Kako da objavite oglas za posao i pronađete kandidate
+                </p>
+                <a
+                  href="#"
+                  class="btn btn-watch"
+                  onclick="openVideoModal('YOUTUBE_VIDEO_ID_6')"
+                >
+                  <i class="fas fa-play me-2"></i>Pogledaj video
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kontakt i podrška -->
+      <section
+        class="text-center py-5"
+        style="background: #f8f9fa; border-radius: 15px"
+      >
+        <h3 class="mb-3">Potrebna vam je dodatna pomoć?</h3>
+        <p class="mb-4">Kontaktirajte naš tim za podršku</p>
+        <div class="row justify-content-center">
+          <div class="col-md-3">
+            <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+            <h6>Email</h6>
+            <p>podrska@mojradnik.me</p>
+          </div>
+          <div class="col-md-3">
+            <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+            <h6>Telefon</h6>
+            <p>+382 67 123 456</p>
+          </div>
+          <div class="col-md-3">
+            <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+            <h6>Radno vreme</h6>
+            <p>Pon-Pet: 09:00-17:00</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal fade" id="videoModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="videoModalTitle">Video tutorial</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="ratio ratio-16x9">
+              <iframe
+                id="videoFrame"
+                src=""
+                frameborder="0"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script src="/shared/components/auth-check.js"></script>
+
+    <script>
+      // Initialize navigation
+      document.addEventListener('DOMContentLoaded', function () {
+        const navigation = new Navigation();
+        navigation.init();
+      });
+
+      // Function to open video modal
+      function openVideoModal(videoId) {
+        const modal = new bootstrap.Modal(
+          document.getElementById('videoModal')
+        );
+        const videoFrame = document.getElementById('videoFrame');
+
+        // Construct YouTube embed URL
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        videoFrame.src = embedUrl;
+
+        modal.show();
+
+        // Clear video when modal is closed
+        document
+          .getElementById('videoModal')
+          .addEventListener('hidden.bs.modal', function () {
+            videoFrame.src = '';
+          });
+      }
+    </script>
+  </body>
+</html>

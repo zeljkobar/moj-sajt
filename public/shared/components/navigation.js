@@ -84,6 +84,15 @@ class Navigation {
 
               ${pdvCalendarItem}
 
+              <!-- Pomoć -->
+              <li class="nav-item">
+                <a class="nav-link" href="${
+                  isMojradnik ? '/mojradnik/pomoc.html' : '/shared/pomoc.html'
+                }">
+                  <i class="fas fa-question-circle me-1"></i>Pomoć
+                </a>
+              </li>
+
               <!-- Administrator dropdown (samo za admin korisnike) -->
               <li class="nav-item dropdown" id="adminMenu" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
