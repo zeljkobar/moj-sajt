@@ -1572,7 +1572,7 @@ function potvrdiSedmicniOdmor(radnikId, firmaId) {
   }
 
   // Otvori dokument sa parametrima
-  const url = `/sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}&danOdmora=${encodeURIComponent(
+  const url = `/shared/sedmicni-odmor.html?radnikId=${radnikId}&firmaId=${firmaId}&danOdmora=${encodeURIComponent(
     danOdmora
   )}`;
   window.open(url, '_blank');
@@ -2639,7 +2639,7 @@ function pregledajUgovor(pozajmicaId) {
     return;
   }
 
-  const url = `/ugovor-o-zajmu-novca.html?pozajmnicaId=${pozajmicaId}&firmaId=${currentFirmaId}`;
+  const url = `/shared/ugovor-o-zajmu-novca.html?pozajmnicaId=${pozajmicaId}&firmaId=${currentFirmaId}`;
   console.log('Opening URL:', url);
   window.open(url, '_blank');
 }
@@ -3101,7 +3101,7 @@ async function kreirajOdlukuPovracaj(pozajmicaId) {
     }
 
     // Otvori odluku u novom tabu
-    const url = `/odluka-o-povracaju.html?povracajId=${poslednjiPovracaj.id}`;
+    const url = `/shared/odluka-o-povracaju.html?povracajId=${poslednjiPovracaj.id}`;
     window.open(url, '_blank');
   } catch (error) {
     console.error('Greška pri otvaranju odluke:', error);
