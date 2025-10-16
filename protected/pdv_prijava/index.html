@@ -96,6 +96,16 @@
         >
           <option value="">-- Učitavanje firmi... --</option>
         </select>
+
+        <!-- Checkbox za izmenjenu prijavu u istom redu -->
+        <input
+          type="checkbox"
+          id="izmenjena_prijava"
+          style="margin-left: 20px"
+        />
+        <label for="izmenjena_prijava" style="margin-left: 5px">
+          <strong>Izmjenjena</strong>
+        </label>
       </div>
 
       <table>
@@ -493,35 +503,35 @@
     <!-- Dark Mode Toggle Script -->
     <script>
       // Dark mode functionality
-      const themeToggle = document.getElementById("theme-toggle");
-      const themeIcon = themeToggle.querySelector("i");
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = themeToggle.querySelector('i');
 
       // Initialize theme
       function initializeTheme() {
-        const savedTheme = localStorage.getItem("theme") || "light";
-        document.documentElement.setAttribute("data-theme", savedTheme);
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
       }
 
       // Update icon based on theme
       function updateThemeIcon(theme) {
-        if (theme === "dark") {
-          themeIcon.className = "fas fa-sun";
-          themeToggle.setAttribute("aria-label", "Switch to light mode");
+        if (theme === 'dark') {
+          themeIcon.className = 'fas fa-sun';
+          themeToggle.setAttribute('aria-label', 'Switch to light mode');
         } else {
-          themeIcon.className = "fas fa-moon";
-          themeToggle.setAttribute("aria-label", "Switch to dark mode");
+          themeIcon.className = 'fas fa-moon';
+          themeToggle.setAttribute('aria-label', 'Switch to dark mode');
         }
       }
 
       // Toggle theme
-      themeToggle.addEventListener("click", () => {
+      themeToggle.addEventListener('click', () => {
         const currentTheme =
-          document.documentElement.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
+          document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        document.documentElement.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
         updateThemeIcon(newTheme);
       });
 
