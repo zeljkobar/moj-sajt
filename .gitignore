@@ -27,6 +27,9 @@ logs/
 # Cookie test files
 cookies*.txt
 
+# SEO disavow files (uploaduješ direktno u Google Search Console)
+disavow-links.txt
+
 # Dokumentacija i markdown fajlovi (lokalni)
 *.md
 README.md
