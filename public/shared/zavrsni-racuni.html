@@ -241,6 +241,34 @@
         </div>
       </div>
 
+      <!-- Search/Filter Bar -->
+      <div class="card shadow-sm mb-3">
+        <div class="card-body py-2">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text bg-white">
+                  <i class="fas fa-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  id="firmSearchInput"
+                  class="form-control"
+                  placeholder="Pretraži po nazivu ili PIB-u..."
+                  autocomplete="off"
+                />
+                <button class="btn btn-outline-secondary" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <small class="text-muted" id="searchResults">Prikazano: <span id="visibleCount">0</span> / <span id="totalCount">0</span> firmi</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Grid -->
       <div class="card shadow-sm">
         <div class="card-body p-0">
@@ -405,6 +433,11 @@
         document
           .getElementById('yearFilter')
           .addEventListener('change', loadData);
+
+        // Search filter
+        document
+          .getElementById('firmSearchInput')
+          .addEventListener('input', filterTable);
 
         // Enter key in todo input
         document
@@ -618,6 +651,56 @@
 
         // Update statistics display
         updateStatistics(completedCount, totalCount);
+        
+        // Update search counter
+        updateSearchCounter();
+      }
+
+      function filterTable() {
+        const searchTerm = document.getElementById('firmSearchInput').value.toLowerCase().trim();
+        const tbody = document.getElementById('tableBody');
+        const rows = tbody.getElementsByTagName('tr');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        
+        let visibleCount = 0;
+
+        for (let row of rows) {
+          const firmaName = row.querySelector('td:first-child .fw-bold')?.textContent.toLowerCase() || '';
+          const firmaPib = row.querySelector('td:first-child .text-muted')?.textContent.toLowerCase() || '';
+          
+          if (firmaName.includes(searchTerm) || firmaPib.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        }
+
+        // Show/hide clear button
+        clearBtn.style.display = searchTerm ? 'inline-block' : 'none';
+        
+        // Update counter
+        updateSearchCounter();
+      }
+
+      function clearSearch() {
+        document.getElementById('firmSearchInput').value = '';
+        filterTable();
+      }
+
+      function updateSearchCounter() {
+        const tbody = document.getElementById('tableBody');
+        const rows = tbody.getElementsByTagName('tr');
+        let visibleCount = 0;
+        
+        for (let row of rows) {
+          if (row.style.display !== 'none') {
+            visibleCount++;
+          }
+        }
+        
+        document.getElementById('visibleCount').textContent = visibleCount;
+        document.getElementById('totalCount').textContent = currentData.length;
       }
 
       function updateStatistics(completed, total) {
