@@ -79,7 +79,7 @@
 }
 
 /* Dark mode varijable */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-color: #1a1a1a;
   --text-color: #e0e0e0;
   --card-bg: #2d2d2d;
@@ -101,98 +101,98 @@ body {
 }
 
 /* Dark mode override za bg-light elemente */
-[data-theme="dark"] .bg-light {
+[data-theme='dark'] .bg-light {
   background-color: var(--card-bg) !important;
   color: var(--text-color) !important;
 }
 
 /* Dark mode override za bg-warning kombinacije */
-[data-theme="dark"] .bg-warning.bg-opacity-25 {
+[data-theme='dark'] .bg-warning.bg-opacity-25 {
   background-color: rgba(255, 193, 7, 0.15) !important;
   color: var(--text-color) !important;
 }
 
-[data-theme="dark"] .bg-danger.bg-opacity-25 {
+[data-theme='dark'] .bg-danger.bg-opacity-25 {
   background-color: rgba(220, 53, 69, 0.15) !important;
   color: var(--text-color) !important;
 }
 
-[data-theme="dark"] .bg-success.bg-opacity-25 {
+[data-theme='dark'] .bg-success.bg-opacity-25 {
   background-color: rgba(40, 167, 69, 0.15) !important;
   color: var(--text-color) !important;
 }
 
-[data-theme="dark"] .bg-info.bg-opacity-25 {
+[data-theme='dark'] .bg-info.bg-opacity-25 {
   background-color: rgba(23, 162, 184, 0.15) !important;
   color: var(--text-color) !important;
 }
 
-[data-theme="dark"] .text-dark {
+[data-theme='dark'] .text-dark {
   color: var(--text-color) !important;
 }
 
 /* Dark mode override za text utility klase */
-[data-theme="dark"] .text-muted {
+[data-theme='dark'] .text-muted {
   color: #adb5bd !important; /* Svetliji muted tekst za dark mode */
 }
 
-[data-theme="dark"] .text-primary {
+[data-theme='dark'] .text-primary {
   color: #66b3ff !important; /* Svetliji primary za dark mode */
 }
 
-[data-theme="dark"] .text-secondary {
+[data-theme='dark'] .text-secondary {
   color: #a6acb6 !important; /* Svetliji secondary za dark mode */
 }
 
-[data-theme="dark"] .text-success {
+[data-theme='dark'] .text-success {
   color: #51cf66 !important; /* Svetliji success za dark mode */
 }
 
-[data-theme="dark"] .text-danger {
+[data-theme='dark'] .text-danger {
   color: #ff6b6b !important; /* Svetliji danger za dark mode */
 }
 
-[data-theme="dark"] .text-warning {
+[data-theme='dark'] .text-warning {
   color: #ffd43b !important; /* Svetliji warning za dark mode */
 }
 
-[data-theme="dark"] .text-info {
+[data-theme='dark'] .text-info {
   color: #74c0fc !important; /* Svetliji info za dark mode */
 }
 
-[data-theme="dark"] .text-light {
+[data-theme='dark'] .text-light {
   color: var(--text-color) !important;
 }
 
 /* Dodatno override za small tekst */
-[data-theme="dark"] small.text-muted {
+[data-theme='dark'] small.text-muted {
   color: #adb5bd !important;
 }
 
 /* Generalni text override */
-[data-theme="dark"] h1,
-[data-theme="dark"] h2,
-[data-theme="dark"] h3,
-[data-theme="dark"] h4,
-[data-theme="dark"] h5,
-[data-theme="dark"] h6 {
+[data-theme='dark'] h1,
+[data-theme='dark'] h2,
+[data-theme='dark'] h3,
+[data-theme='dark'] h4,
+[data-theme='dark'] h5,
+[data-theme='dark'] h6 {
   color: var(--text-color) !important;
 }
 
-[data-theme="dark"] p,
-[data-theme="dark"] span:not([class*="text-"]),
-[data-theme="dark"] div:not([class*="text-"]) {
+[data-theme='dark'] p,
+[data-theme='dark'] span:not([class*='text-']),
+[data-theme='dark'] div:not([class*='text-']) {
   color: var(--text-color);
 }
 
 /* Tabela text override */
-[data-theme="dark"] .table td,
-[data-theme="dark"] .table th {
+[data-theme='dark'] .table td,
+[data-theme='dark'] .table th {
   color: var(--text-color);
 }
 
 /* Dark mode override za warning komponente */
-[data-theme="dark"] .bg-warning {
+[data-theme='dark'] .bg-warning {
   background-color: var(--warning-color) !important;
   color: #212529 !important; /* Tamni tekst na žutoj pozadini */
 }
@@ -227,7 +227,7 @@ body {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(51, 51, 51, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
-[data-theme="dark"] .navbar-toggler-icon {
+[data-theme='dark'] .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(224, 224, 224, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
@@ -240,18 +240,18 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
   }
-  
+
   .navbar .nav-link,
   .navbar .dropdown-toggle {
     color: var(--navbar-text) !important;
     padding: 12px 15px !important;
     border-bottom: 1px solid var(--border-color);
   }
-  
+
   .navbar .nav-link:last-child {
     border-bottom: none;
   }
-  
+
   /* Administrator dropdown stavke */
   .navbar .dropdown-menu {
     background-color: var(--card-bg) !important;
@@ -261,12 +261,12 @@ body {
     float: none !important;
     margin-top: 5px !important;
   }
-  
+
   .navbar .dropdown-item {
     color: var(--text-color) !important;
     padding: 10px 20px !important;
   }
-  
+
   .navbar .dropdown-item:hover {
     background-color: var(--primary-color) !important;
     color: white !important;
@@ -309,8 +309,8 @@ body {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > td,
-[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > th {
+[data-theme='dark'] .table-striped > tbody > tr:nth-of-type(odd) > td,
+[data-theme='dark'] .table-striped > tbody > tr:nth-of-type(odd) > th {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
@@ -346,7 +346,7 @@ body {
 }
 
 /* Dropdown divider u dark mode */
-[data-theme="dark"] .dropdown-divider {
+[data-theme='dark'] .dropdown-divider {
   border-top-color: var(--border-color) !important;
 }
 
@@ -395,7 +395,7 @@ body {
   background-color: var(--light-color);
 }
 
-[data-theme="dark"] .list-group-item:hover {
+[data-theme='dark'] .list-group-item:hover {
   background-color: var(--secondary-color);
 }
 
@@ -426,7 +426,7 @@ body {
   color: var(--text-color);
 }
 
-[data-theme="dark"] .accordion-button:not(.collapsed) {
+[data-theme='dark'] .accordion-button:not(.collapsed) {
   background-color: var(--secondary-color);
 }
 
@@ -435,12 +435,12 @@ body {
   background-color: var(--light-color);
 }
 
-[data-theme="dark"] .progress {
+[data-theme='dark'] .progress {
   background-color: var(--secondary-color);
 }
 
 /* Close button za dark mode */
-[data-theme="dark"] .btn-close {
+[data-theme='dark'] .btn-close {
   filter: invert(1) grayscale(100%) brightness(200%);
 }
 

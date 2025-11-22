@@ -1395,6 +1395,60 @@ app.get(
   }
 );
 
+// Sačuvaj novi email template
+app.post(
+  '/api/marketing/save-template',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { fileName, content } = req.body;
+
+      if (!fileName || !content) {
+        return res.status(400).json({
+          success: false,
+          error: 'Naziv fajla i sadržaj su obavezni',
+        });
+      }
+
+      // Validacija imena fajla - mora biti bezbedno
+      const safeFileName = fileName.replace(/[^a-z0-9\-_.]/gi, '-');
+      if (!safeFileName.endsWith('.html')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Fajl mora imati .html ekstenziju',
+        });
+      }
+
+      const templatePath = path.join(
+        __dirname,
+        'email-templates',
+        safeFileName
+      );
+
+      // Provjeri da li fajl već postoji
+      if (fs.existsSync(templatePath)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Template sa tim imenom već postoji',
+        });
+      }
+
+      // Sačuvaj fajl
+      fs.writeFileSync(templatePath, content, 'utf8');
+
+      res.json({
+        success: true,
+        fileName: safeFileName,
+        message: 'Template uspješno sačuvan',
+      });
+    } catch (error) {
+      console.error('Save template error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // 📧 EMAIL ADMIN API ENDPOINTS
 // Get email database statistics
 app.get(

@@ -624,6 +624,14 @@
                 <i class="fas fa-th-large"></i>
                 Selektuj Template
               </button>
+              <button
+                class="btn-custom btn-info"
+                onclick="openTemplateEditor()"
+                style="background: #17a2b8"
+              >
+                <i class="fas fa-plus-circle"></i>
+                Kreiraj Novi Template
+              </button>
             </div>
           </div>
         </div>
@@ -1182,6 +1190,110 @@
         </div>
       </div>
 
+      <!-- Template Editor Modal -->
+      <div class="modal fade" id="templateEditorModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div
+              class="modal-header"
+              style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              "
+            >
+              <h5 class="modal-title">
+                <i class="fas fa-code"></i> Kreiraj Novi Email Template
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto">
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label class="form-label"
+                    ><strong>Naziv Template-a:</strong></label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="newTemplateName"
+                    placeholder="npr. promo-novogodisnja-ponuda"
+                  />
+                  <small class="text-muted"
+                    >Bez razmaka, koristite crtice (-)</small
+                  >
+                </div>
+
+                <div class="col-md-12 mb-3">
+                  <label class="form-label"><strong>HTML Kod:</strong></label>
+                  <textarea
+                    class="form-control"
+                    id="newTemplateCode"
+                    rows="15"
+                    style="
+                      font-family: 'Courier New', monospace;
+                      font-size: 13px;
+                    "
+                    placeholder="Paste HTML kod za email template ovde..."
+                  ></textarea>
+                  <small class="text-muted">
+                    💡 <strong>Tip:</strong> Možete kopirati i modifikovati
+                    postojeći template kao osnovu
+                  </small>
+                </div>
+
+                <div class="col-md-12">
+                  <div class="alert alert-info">
+                    <h6>
+                      <i class="fas fa-info-circle"></i> Placeholderi koji će
+                      biti zamijenjeni:
+                    </h6>
+                    <ul class="mb-0" style="font-size: 13px">
+                      <li>
+                        <code>{{PERSONALIZED_URL}}</code> - Personalizovani link
+                        za firmu
+                      </li>
+                      <li>
+                        <code>{{TRACKING_PIXEL_URL}}</code> - Tracking pixel
+                        (opcionalno)
+                      </li>
+                      <li><code>{{companyName}}</code> - Naziv firme</li>
+                      <li><code>{{firstName}}</code> - Ime kontakt osobe</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times"></i> Otkaži
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="previewNewTemplate()"
+              >
+                <i class="fas fa-eye"></i> Pregled
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                onclick="saveNewTemplate()"
+              >
+                <i class="fas fa-save"></i> Sačuvaj Template
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Loading Spinner -->
       <div class="loading-spinner" id="loadingSpinner">
         <div class="spinner-border text-primary" role="status">
@@ -1361,8 +1473,15 @@
           },
         };
 
-        const templateInfo =
-          descriptions[templateName] || descriptions['marketing-default.html'];
+        const templateInfo = descriptions[templateName] || {
+          description: '🆕 Custom template - Vaš kreirani template',
+          features: [
+            'Prilagođen sadržaj prema vašim potrebama',
+            'Sve personalizacije dostupne',
+            'Potpuno prilagodljiv dizajn',
+          ],
+        };
+
         document.getElementById('templateDescription').textContent =
           templateInfo.description;
 
@@ -1373,6 +1492,24 @@
           li.textContent = feature;
           featuresList.appendChild(li);
         });
+
+        // Prikaži naziv template-a
+        const currentTemplateName = document.querySelector(
+          '.template-actions-row'
+        );
+        if (currentTemplateName) {
+          let templateNameDisplay = document.getElementById(
+            'currentTemplateDisplay'
+          );
+          if (!templateNameDisplay) {
+            templateNameDisplay = document.createElement('div');
+            templateNameDisplay.id = 'currentTemplateDisplay';
+            templateNameDisplay.style.cssText =
+              'text-align: center; margin-top: 10px; font-size: 14px; color: #666;';
+            currentTemplateName.parentElement.appendChild(templateNameDisplay);
+          }
+          templateNameDisplay.innerHTML = `<strong>Trenutni template:</strong> <span style="color: #0055a5;">${templateName}</span>`;
+        }
       }
 
       // Initialize template preview from localStorage
@@ -1451,8 +1588,13 @@
         selectedFile = null;
         document.getElementById('csvFile').value = '';
         document.getElementById('fileInfo').style.display = 'none';
-        document.getElementById('testCampaignBtn').disabled = true;
-        document.getElementById('fullCampaignBtn').disabled = true;
+
+        // 🔥 Only disable buttons if there's NO saved list
+        const hasSavedList = sessionStorage.getItem('selectedEmailList');
+        if (!hasSavedList) {
+          document.getElementById('testCampaignBtn').disabled = true;
+          document.getElementById('fullCampaignBtn').disabled = true;
+        }
       }
 
       function formatFileSize(bytes) {
@@ -1556,8 +1698,14 @@
 
       // Run full campaign
       async function runFullCampaign() {
+        console.log('🎯 runFullCampaign() pozvana!');
         // Check if we have saved list or uploaded file
         const hasSavedList = sessionStorage.getItem('selectedEmailList');
+        console.log('📋 Saved list:', hasSavedList ? 'DA' : 'NE');
+        console.log(
+          '📁 Selected file:',
+          selectedFile ? selectedFile.name : 'NE'
+        );
 
         if (!selectedFile && !hasSavedList) {
           showResult(
@@ -1581,6 +1729,7 @@
 
       // Run campaign
       async function runCampaign(testMode) {
+        console.log('🚀 runCampaign pozvan, testMode:', testMode);
         showLoading(true);
 
         try {
@@ -1631,10 +1780,16 @@
             const campaignName = document
               .getElementById('campaignName')
               .value.trim();
+            console.log('📝 Campaign name:', campaignName);
             if (campaignName) {
               formData.append('campaignName', campaignName);
             }
           }
+
+          console.log(
+            '📤 Slanje na /api/marketing/campaign, testMode:',
+            testMode
+          );
 
           // Dodaj sender konfiguraciju
           const campaignSenderEmail = document.getElementById(
@@ -1677,6 +1832,7 @@
           }
 
           const result = await response.json();
+          console.log('📥 Odgovor servera:', result);
 
           if (result.success) {
             if (result.testMode) {
@@ -1686,6 +1842,7 @@
               );
             } else {
               const stats = result.campaign;
+              console.log('📊 Campaign stats:', stats);
               showResult(
                 'success',
                 `
@@ -1723,6 +1880,133 @@
           '_blank',
           'width=800,height=600'
         );
+      }
+
+      // Template Editor Functions
+      function openTemplateEditor() {
+        // Učitaj postojeći template kao osnovu
+        const defaultTemplate = `<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Campaign</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: linear-gradient(135deg, #0055a5 0%, #003d7a 100%); padding: 40px; text-align: center; color: white; }
+    .content { padding: 40px 30px; line-height: 1.6; }
+    .cta-button { display: inline-block; padding: 16px 32px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    .footer { background: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 SummaSummarum.me</h1>
+      <p>Naslov Vaše Kampanje</p>
+    </div>
+    <div class="content">
+      <h2>Poštovani,</h2>
+      <p>Ovdje ide sadržaj vašeg email-a...</p>
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="{{PERSONALIZED_URL}}" class="cta-button">Saznajte Više</a>
+      </p>
+    </div>
+    <div class="footer">
+      <p>Srdačno,<br><strong>Vaše Ime</strong></p>
+      <p><small>admin@summasummarum.me | +382 67 440 040</small></p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+        document.getElementById('newTemplateCode').value = defaultTemplate;
+        const modal = new bootstrap.Modal(
+          document.getElementById('templateEditorModal')
+        );
+        modal.show();
+      }
+
+      function previewNewTemplate() {
+        const templateCode = document.getElementById('newTemplateCode').value;
+
+        if (!templateCode.trim()) {
+          alert('Molimo unesite HTML kod template-a.');
+          return;
+        }
+
+        // Otvori novi prozor sa preview-om
+        const previewWindow = window.open('', '_blank', 'width=800,height=600');
+        previewWindow.document.write(templateCode);
+        previewWindow.document.close();
+      }
+
+      async function saveNewTemplate() {
+        const templateName = document
+          .getElementById('newTemplateName')
+          .value.trim();
+        const templateCode = document
+          .getElementById('newTemplateCode')
+          .value.trim();
+
+        if (!templateName) {
+          alert('Molimo unesite naziv template-a.');
+          return;
+        }
+
+        if (!templateCode) {
+          alert('Molimo unesite HTML kod template-a.');
+          return;
+        }
+
+        // Dodaj .html ekstenziju ako nije uključena
+        const fileName = templateName.endsWith('.html')
+          ? templateName
+          : `${templateName}.html`;
+
+        try {
+          showLoading(true);
+
+          const response = await fetch('/api/marketing/save-template', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fileName: fileName,
+              content: templateCode,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert(`✅ Template "${fileName}" je uspješno sačuvan!`);
+
+            // Zatvori modal
+            bootstrap.Modal.getInstance(
+              document.getElementById('templateEditorModal')
+            ).hide();
+
+            // Automatski selektuj novi template
+            selectedTemplate = fileName;
+            localStorage.setItem('selectedTemplate', fileName);
+            updateTemplatePreview(fileName);
+
+            showResult(
+              'success',
+              `Template "${fileName}" je kreiran i automatski odabran!`
+            );
+          } else {
+            showResult('error', `Greška: ${result.error}`);
+          }
+        } catch (error) {
+          console.error('Save template error:', error);
+          showResult('error', `Greška pri čuvanju: ${error.message}`);
+        } finally {
+          showLoading(false);
+        }
       }
 
       // Utility functions
@@ -2587,6 +2871,12 @@
               saveButton.classList.add('btn-success');
               saveButton.disabled = false;
             }, 3000);
+
+            // 🔥 ENABLE CAMPAIGN BUTTONS after saving list
+            enableCampaignButtons();
+
+            // Show saved list section
+            checkSavedList();
           } else {
             alert(
               'Nema rezultata za čuvanje ili greška pri dohvatanju podataka.'
