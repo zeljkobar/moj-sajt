@@ -22,6 +22,7 @@ const zadaciRoutes = require('./src/routes/zadaciRoutes');
 const emailRoutes = require('./src/routes/emailRoutes');
 const godisnjiomdoriRoutes = require('./src/routes/godisnjiomdori');
 const oglasiRoutes = require('./src/routes/oglasiRoutes');
+const zavrsniRacuniRoutes = require('./src/routes/zavrsniRacuniRoutes');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
 const {
@@ -599,6 +600,11 @@ app.get('/forgot-password.html', (req, res) => {
 
 app.get('/reset-password.html', (req, res) => {
   res.sendFile(__dirname + '/public/shared/reset-password.html');
+});
+
+// Zaštićena ruta za završne račune
+app.get('/zavrsni-racuni.html', authMiddleware, (req, res) => {
+  res.sendFile(__dirname + '/public/shared/zavrsni-racuni.html');
 });
 
 // Zaštićena ruta za email admin panel - SAMO ADMIN
@@ -1200,6 +1206,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 app.use('/api/oglasi', oglasiRoutes);
+app.use('/api/zavrsni-racuni', zavrsniRacuniRoutes);
 
 // Marketing Email API endpoints (samo za administratore)
 const multer = require('multer');

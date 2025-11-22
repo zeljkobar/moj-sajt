@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Završni Računi | Summa Summarum</title>
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Styles -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      /* Custom styles for Završni Računi */
+      .status-grid {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .status-table th {
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 0.85rem;
+        padding: 10px 5px;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+
+      .status-table td {
+        vertical-align: middle;
+        text-align: center;
+        padding: 8px 5px;
+      }
+
+      /* Zebra striping - alternating row colors */
+      .status-table tbody tr:nth-child(odd) td {
+        background-color: #fff;
+      }
+
+      .status-table tbody tr:nth-child(even) td {
+        background-color: #e7f3ff;
+      }
+
+      .status-table td:first-child {
+        text-align: left;
+        font-weight: 500;
+        min-width: 200px;
+        position: sticky;
+        left: 0;
+        z-index: 5;
+      }
+
+      /* Checkbox styling */
+      .custom-check {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      /* Status buttons */
+      .btn-status {
+        width: 100%;
+        padding: 5px;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+
+      .btn-status.completed {
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+        color: #0f5132;
+      }
+
+      .btn-status.pending {
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+        color: #664d03;
+      }
+
+      .btn-status:hover {
+        filter: brightness(0.95);
+      }
+
+      /* Progress bar in table */
+      .mini-progress {
+        height: 6px;
+        border-radius: 3px;
+        background-color: #e9ecef;
+        margin-top: 5px;
+        overflow: hidden;
+      }
+
+      .mini-progress-bar {
+        height: 100%;
+        background-color: #0d6efd;
+        transition: width 0.3s ease;
+      }
+
+      .mini-progress-bar.bg-success {
+        background-color: #198754 !important;
+      }
+
+      /* Todo List in Modal */
+      .todo-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        background: #fff;
+        transition: background 0.2s;
+      }
+
+      .todo-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: #adb5bd;
+      }
+
+      .todo-text {
+        flex-grow: 1;
+        margin: 0 10px;
+        font-size: 0.95rem;
+      }
+
+      .todo-date {
+        font-size: 0.75rem;
+        color: #adb5bd;
+        margin-right: 10px;
+      }
+
+      .todo-delete {
+        color: #dc3545;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+      }
+
+      .todo-delete:hover {
+        opacity: 1;
+      }
+
+      /* Input field for notes in table */
+      .table-input {
+        border: 1px solid transparent;
+        background: transparent;
+        width: 100%;
+        padding: 4px;
+        font-size: 0.85rem;
+        border-radius: 3px;
+      }
+
+      .table-input:focus {
+        border-color: #86b7fe;
+        background: #fff;
+        outline: 0;
+      }
+
+      .table-input::placeholder {
+        color: #adb5bd;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation placeholder -->
+    <div id="navigation-placeholder"></div>
+
+    <div class="container-fluid py-4">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-1">Završni Računi</h2>
+          <p class="text-muted mb-0">
+            Praćenje statusa i dokumentacije za sve firme
+          </p>
+        </div>
+
+        <!-- Statistics Box -->
+        <div class="card shadow-sm border-0" style="background-color: #e7f3ff; min-width: 280px;">
+          <div class="card-body py-3 px-4">
+            <h6 class="text-primary mb-2 fw-bold">
+              <i class="fas fa-chart-pie me-2"></i>Statistika
+            </h6>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="small text-muted mb-1">Predato</div>
+                <div class="fs-5 fw-bold text-dark" id="statsCompleted">0 od 0</div>
+              </div>
+              <div class="text-end">
+                <div class="small text-muted mb-1">Napredak</div>
+                <div class="fs-5 fw-bold text-primary" id="statsPercent">0%</div>
+              </div>
+            </div>
+            <div class="progress mt-2" style="height: 8px;">
+              <div class="progress-bar bg-primary" id="statsProgressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 align-items-center">
+          <select id="yearFilter" class="form-select" style="width: 120px">
+            <option value="2025">2025</option>
+            <option value="2024" selected>2024</option>
+            <option value="2023">2023</option>
+          </select>
+          <button class="btn btn-outline-primary" onclick="printReport()">
+            <i class="fas fa-print me-2"></i>Štampaj listu nedostataka
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="status-grid">
+            <table
+              class="table table-hover status-table mb-0"
+              id="zavrsniTable"
+            >
+              <thead>
+                <tr>
+                  <th style="width: 250px">Firma</th>
+                  <th style="width: 150px">Izvodi</th>
+                  <th style="width: 120px">Kupci</th>
+                  <th style="width: 120px">Dobavljači</th>
+                  <th style="width: 150px">Plate</th>
+                  <th style="width: 100px">Amortizacija</th>
+                  <th style="width: 80px">PDV 0</th>
+                  <th style="width: 80px">Dobit</th>
+                  <th style="width: 100px">Završni Račun Kreiran</th>
+                  <th style="width: 100px">Završni Račun Predat</th>
+                  <th style="width: 100px">Dobit Predata</th>
+                  <th style="width: 100px">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <!-- Rows will be populated by JS -->
+                <tr>
+                  <td colspan="12" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Učitavanje...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Todo List (Kupci/Dobavljači) -->
+    <div class="modal fade" id="todoModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="todoModalTitle">Usaglašavanje</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- Input Section -->
+            <div class="input-group mb-4">
+              <input
+                type="text"
+                id="newTodoInput"
+                class="form-control"
+                placeholder="Šta nedostaje / Šta treba uraditi?"
+              />
+              <button class="btn btn-primary" onclick="addTodoItem()">
+                <i class="fas fa-plus me-2"></i>Dodaj
+              </button>
+            </div>
+
+            <!-- Lists -->
+            <h6 class="text-danger mb-2">
+              <i class="fas fa-exclamation-circle me-2"></i>Čeka se (Pending)
+            </h6>
+            <div class="card mb-4 bg-light border-0">
+              <div class="card-body p-0">
+                <ul class="todo-list" id="pendingList">
+                  <!-- Items go here -->
+                </ul>
+                <div
+                  id="emptyPending"
+                  class="text-center py-3 text-muted small"
+                  style="display: none"
+                >
+                  Nema otvorenih stavki
+                </div>
+              </div>
+            </div>
+
+            <h6 class="text-success mb-2">
+              <i class="fas fa-check-circle me-2"></i>Rešeno (Completed)
+            </h6>
+            <div class="card mb-3 border-0">
+              <div class="card-body p-0">
+                <ul class="todo-list" id="completedList">
+                  <!-- Items go here -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="modalMainStatus"
+              />
+              <label class="form-check-label fw-bold" for="modalMainStatus"
+                >KOMPLETNO SLOŽENO</label
+              >
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Zatvori
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Simple Note (Plate) -->
+    <div class="modal fade" id="noteModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Napomena za Plate</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <textarea
+              id="noteTextarea"
+              class="form-control"
+              rows="5"
+              placeholder="Upiši šta fali ili šta treba proveriti..."
+            ></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="saveNote()">
+              Sačuvaj
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+
+    <script>
+      // Global state
+      let currentData = [];
+      let activeModalData = null; // { firmaId, type: 'kupci'|'dobavljaci'|'plate' }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+
+        // Year filter change
+        document
+          .getElementById('yearFilter')
+          .addEventListener('change', loadData);
+
+        // Enter key in todo input
+        document
+          .getElementById('newTodoInput')
+          .addEventListener('keypress', e => {
+            if (e.key === 'Enter') addTodoItem();
+          });
+
+        // Modal status toggle listener
+        document
+          .getElementById('modalMainStatus')
+          .addEventListener('change', e => {
+            if (activeModalData) {
+              updateStatus(
+                activeModalData.firmaId,
+                activeModalData.type + '_slozeni',
+                e.target.checked
+              );
+            }
+          });
+      });
+
+      async function loadData() {
+        const year = document.getElementById('yearFilter').value;
+        const tbody = document.getElementById('tableBody');
+
+        try {
+          const response = await fetch(`/api/zavrsni-racuni/${year}`);
+          const result = await response.json();
+
+          if (result.success) {
+            currentData = result.data;
+            renderTable();
+          } else {
+            alert('Greška pri učitavanju podataka');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          tbody.innerHTML =
+            '<tr><td colspan="12" class="text-center text-danger">Greška pri komunikaciji sa serverom</td></tr>';
+        }
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        // Sort data: unfinished first, finished last
+        const sortedData = [...currentData].sort((a, b) => {
+          const getProgress = (row) => {
+            let completed = 0;
+            if (row.izvodi_gotovi) completed++;
+            if (row.kupci_slozeni) completed++;
+            if (row.dobavljaci_slozeni) completed++;
+            if (row.plate_proknjizene) completed++;
+            if (row.amortizacija_gotova) completed++;
+            if (row.pdv_nula_provera) completed++;
+            if (row.obracunata_dobit) completed++;
+            if (row.kreiran_zavrsni_racun) completed++;
+            if (row.predat_zavrsni_racun) completed++;
+            if (row.predata_dobit) completed++;
+            return completed;
+          };
+
+          const progressA = getProgress(a);
+          const progressB = getProgress(b);
+
+          // Finished (10/10) go to bottom, others sorted by progress descending
+          if (progressA === 10 && progressB !== 10) return 1;
+          if (progressB === 10 && progressA !== 10) return -1;
+          
+          // Both finished or both unfinished - sort by progress (higher first)
+          return progressB - progressA;
+        });
+
+        // Calculate statistics
+        let completedCount = 0;
+        const totalCount = currentData.length;
+
+        sortedData.forEach(row => {
+          const tr = document.createElement('tr');
+
+          // Calculate progress
+          const totalSteps = 10; // Total checkboxes
+          let completedSteps = 0;
+          if (row.izvodi_gotovi) completedSteps++;
+          if (row.kupci_slozeni) completedSteps++;
+          if (row.dobavljaci_slozeni) completedSteps++;
+          if (row.plate_proknjizene) completedSteps++;
+          if (row.amortizacija_gotova) completedSteps++;
+          if (row.pdv_nula_provera) completedSteps++;
+          if (row.obracunata_dobit) completedSteps++;
+          if (row.kreiran_zavrsni_racun) completedSteps++;
+          if (row.predat_zavrsni_racun) completedSteps++;
+          if (row.predata_dobit) completedSteps++;
+
+          const progressPercent = (completedSteps / totalSteps) * 100;
+          const progressColor =
+            progressPercent === 100 ? 'bg-success' : 'bg-primary';
+
+          // Count completed companies (all 3 final steps done)
+          if (row.predat_zavrsni_racun && row.predata_dobit && row.kreiran_zavrsni_racun) {
+            completedCount++;
+          }
+
+          tr.innerHTML = `
+                    <td>
+                        <div class="fw-bold">${row.naziv}</div>
+                        <div class="small text-muted">PIB: ${row.pib}</div>
+                        <div class="mini-progress">
+                            <div class="mini-progress-bar ${progressColor}" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </td>
+                    
+                    <!-- Izvodi: Checkbox + Input -->
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" class="custom-check" 
+                                ${row.izvodi_gotovi ? 'checked' : ''} 
+                                onchange="updateStatus(${
+                                  row.firma_id
+                                }, 'izvodi_gotovi', this.checked)">
+                            <input type="text" class="table-input" 
+                                value="${row.izvodi_napomena || ''}" 
+                                placeholder="Koje nemam?"
+                                ${
+                                  row.izvodi_gotovi
+                                    ? 'disabled style="text-decoration: line-through; opacity: 0.5;"'
+                                    : ''
+                                }
+                                onblur="updateStatus(${
+                                  row.firma_id
+                                }, 'izvodi_napomena', this.value)">
+                        </div>
+                    </td>
+
+                    <!-- Kupci: Modal Button -->
+                    <td>
+                        ${renderModalButton(row, 'kupci')}
+                    </td>
+
+                    <!-- Dobavljači: Modal Button -->
+                    <td>
+                        ${renderModalButton(row, 'dobavljaci')}
+                    </td>
+
+                    <!-- Plate: Checkbox + Note Icon -->
+                    <td>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <input type="checkbox" class="custom-check" 
+                                ${row.plate_proknjizene ? 'checked' : ''} 
+                                onchange="updateStatus(${
+                                  row.firma_id
+                                }, 'plate_proknjizene', this.checked)">
+                            <button class="btn btn-sm ${
+                              row.plate_napomena
+                                ? 'btn-warning'
+                                : 'btn-light text-muted'
+                            }" 
+                                onclick="openNoteModal(${
+                                  row.firma_id
+                                }, 'plate')">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                        </div>
+                    </td>
+
+                    <!-- Simple Checkboxes -->
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.amortizacija_gotova ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'amortizacija_gotova', this.checked)"></td>
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.pdv_nula_provera ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'pdv_nula_provera', this.checked)"></td>
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.obracunata_dobit ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'obracunata_dobit', this.checked)"></td>
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.kreiran_zavrsni_racun ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'kreiran_zavrsni_racun', this.checked)"></td>
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.predat_zavrsni_racun ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'predat_zavrsni_racun', this.checked)"></td>
+                    <td><input type="checkbox" class="custom-check" ${
+                      row.predata_dobit ? 'checked' : ''
+                    } onchange="updateStatus(${
+            row.firma_id
+          }, 'predata_dobit', this.checked)"></td>
+                    
+                    <!-- Final Status -->
+                    <td>
+                        ${
+                          progressPercent === 100
+                            ? '<span class="badge bg-success">ZAVRŠENO</span>'
+                            : '<span class="badge bg-light text-dark border">U TOKU</span>'
+                        }
+                    </td>
+                `;
+          tbody.appendChild(tr);
+        });
+
+        // Update statistics display
+        updateStatistics(completedCount, totalCount);
+      }
+
+      function updateStatistics(completed, total) {
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        document.getElementById('statsCompleted').textContent = `${completed} od ${total}`;
+        document.getElementById('statsPercent').textContent = `${percent}%`;
+        document.getElementById('statsProgressBar').style.width = `${percent}%`;
+        
+        // Change progress bar color based on completion
+        const progressBar = document.getElementById('statsProgressBar');
+        if (percent >= 100) {
+          progressBar.classList.remove('bg-primary');
+          progressBar.classList.add('bg-success');
+        } else {
+          progressBar.classList.remove('bg-success');
+          progressBar.classList.add('bg-primary');
+        }
+      }
+
+      function renderModalButton(row, type) {
+        const isCompleted = row[type + '_slozeni'];
+        const todoList = row[type + '_todo'] || [];
+        const pendingCount = todoList.filter(t => !t.reseno).length;
+
+        let btnClass = 'btn-status';
+        let content = '';
+
+        if (isCompleted) {
+          btnClass += ' completed';
+          content = '<i class="fas fa-check me-1"></i> Složeno';
+        } else if (pendingCount > 0) {
+          btnClass += ' pending';
+          content = `<i class="fas fa-exclamation-triangle me-1"></i> ${pendingCount} fali`;
+        } else {
+          content = 'Nije početo';
+        }
+
+        return `<button class="${btnClass}" onclick="openTodoModal(${row.firma_id}, '${type}')">${content}</button>`;
+      }
+
+      // API Update Function
+      async function updateStatus(firmaId, field, value) {
+        const year = document.getElementById('yearFilter').value;
+
+        try {
+          const response = await fetch('/api/zavrsni-racuni/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ firmaId, godina: year, field, value }),
+          });
+
+          if (response.ok) {
+            // Update local data to reflect changes without full reload if possible
+            // For now, simple reload to keep UI consistent
+            loadData();
+          }
+        } catch (error) {
+          console.error('Update failed:', error);
+        }
+      }
+
+      // --- TODO MODAL LOGIC ---
+
+      function openTodoModal(firmaId, type) {
+        const row = currentData.find(r => r.firma_id === firmaId);
+        if (!row) return;
+
+        activeModalData = { firmaId, type };
+
+        // Set Title
+        const typeLabel = type === 'kupci' ? 'Kupaca' : 'Dobavljača';
+        document.getElementById(
+          'todoModalTitle'
+        ).innerText = `Usaglašavanje ${typeLabel} - ${row.naziv}`;
+
+        // Set Main Toggle
+        document.getElementById('modalMainStatus').checked =
+          row[type + '_slozeni'];
+
+        // Render Lists
+        renderTodoLists(row[type + '_todo'] || []);
+
+        // Show Modal
+        new bootstrap.Modal(document.getElementById('todoModal')).show();
+      }
+
+      function renderTodoLists(todos) {
+        const pendingList = document.getElementById('pendingList');
+        const completedList = document.getElementById('completedList');
+        const emptyPending = document.getElementById('emptyPending');
+
+        pendingList.innerHTML = '';
+        completedList.innerHTML = '';
+
+        let pendingCount = 0;
+
+        todos.forEach((todo, index) => {
+          const li = document.createElement('li');
+          li.className = `todo-item ${todo.reseno ? 'completed' : ''}`;
+          li.innerHTML = `
+                    <input type="checkbox" class="custom-check" 
+                        ${todo.reseno ? 'checked' : ''} 
+                        onchange="toggleTodoItem(${index})">
+                    <span class="todo-text">${todo.tekst}</span>
+                    <span class="todo-date">${todo.datum}</span>
+                    <i class="fas fa-trash todo-delete" onclick="deleteTodoItem(${index})"></i>
+                `;
+
+          if (todo.reseno) {
+            completedList.appendChild(li);
+          } else {
+            pendingList.appendChild(li);
+            pendingCount++;
+          }
+        });
+
+        emptyPending.style.display = pendingCount === 0 ? 'block' : 'none';
+      }
+
+      async function addTodoItem() {
+        const input = document.getElementById('newTodoInput');
+        const text = input.value.trim();
+        if (!text || !activeModalData) return;
+
+        const row = currentData.find(
+          r => r.firma_id === activeModalData.firmaId
+        );
+        const todos = row[activeModalData.type + '_todo'] || [];
+
+        const newItem = {
+          tekst: text,
+          reseno: false,
+          datum: new Date().toLocaleDateString('sr-RS'),
+        };
+
+        todos.push(newItem);
+
+        // Optimistic update
+        renderTodoLists(todos);
+        input.value = '';
+
+        // Save to DB
+        await updateStatus(
+          activeModalData.firmaId,
+          activeModalData.type + '_todo',
+          todos
+        );
+
+        // If we added a task, uncheck "Složeno" automatically
+        if (row[activeModalData.type + '_slozeni']) {
+          updateStatus(
+            activeModalData.firmaId,
+            activeModalData.type + '_slozeni',
+            false
+          );
+          document.getElementById('modalMainStatus').checked = false;
+        }
+      }
+
+      async function toggleTodoItem(index) {
+        if (!activeModalData) return;
+        const row = currentData.find(
+          r => r.firma_id === activeModalData.firmaId
+        );
+        const todos = row[activeModalData.type + '_todo'];
+
+        todos[index].reseno = !todos[index].reseno;
+
+        renderTodoLists(todos);
+        await updateStatus(
+          activeModalData.firmaId,
+          activeModalData.type + '_todo',
+          todos
+        );
+      }
+
+      async function deleteTodoItem(index) {
+        if (!activeModalData || !confirm('Da li ste sigurni?')) return;
+        const row = currentData.find(
+          r => r.firma_id === activeModalData.firmaId
+        );
+        const todos = row[activeModalData.type + '_todo'];
+
+        todos.splice(index, 1);
+
+        renderTodoLists(todos);
+        await updateStatus(
+          activeModalData.firmaId,
+          activeModalData.type + '_todo',
+          todos
+        );
+      }
+
+      // --- NOTE MODAL LOGIC (Plate) ---
+
+      function openNoteModal(firmaId, type) {
+        const row = currentData.find(r => r.firma_id === firmaId);
+        if (!row) return;
+
+        activeModalData = { firmaId, type };
+        document.getElementById('noteTextarea').value =
+          row[type + '_napomena'] || '';
+        new bootstrap.Modal(document.getElementById('noteModal')).show();
+      }
+
+      async function saveNote() {
+        if (!activeModalData) return;
+        const text = document.getElementById('noteTextarea').value;
+
+        await updateStatus(
+          activeModalData.firmaId,
+          activeModalData.type + '_napomena',
+          text
+        );
+
+        // Close modal
+        const modalEl = document.getElementById('noteModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+      }
+
+      // --- REPORT PRINTING ---
+      function printReport() {
+        // Simple implementation: Open a new window with filtered list
+        const year = document.getElementById('yearFilter').value;
+        let reportHtml = `
+                <html>
+                <head>
+                    <title>Lista Nedostataka ${year}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .firma-block { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+                        .firma-title { font-weight: bold; font-size: 1.2em; margin-bottom: 5px; }
+                        .issue-item { margin-left: 20px; color: #d63384; }
+                        .print-btn { display: block; margin-bottom: 20px; }
+                        @media print { .print-btn { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <button class="print-btn" onclick="window.print()">Štampaj</button>
+                    <h1>Lista Nedostataka za Završne Račune ${year}</h1>
+            `;
+
+        let hasIssues = false;
+
+        currentData.forEach(row => {
+          let issues = [];
+
+          // Check Izvodi
+          if (!row.izvodi_gotovi && row.izvodi_napomena) {
+            issues.push(`Izvodi: ${row.izvodi_napomena}`);
+          }
+
+          // Check Kupci Todos
+          const pendingKupci = (row.kupci_todo || []).filter(t => !t.reseno);
+          if (pendingKupci.length > 0) {
+            pendingKupci.forEach(t => issues.push(`Kupci: ${t.tekst}`));
+          }
+
+          // Check Dobavljači Todos
+          const pendingDobavljaci = (row.dobavljaci_todo || []).filter(
+            t => !t.reseno
+          );
+          if (pendingDobavljaci.length > 0) {
+            pendingDobavljaci.forEach(t =>
+              issues.push(`Dobavljači: ${t.tekst}`)
+            );
+          }
+
+          // Check Plate Note
+          if (row.plate_napomena) {
+            issues.push(`Plate: ${row.plate_napomena}`);
+          }
+
+          if (issues.length > 0) {
+            hasIssues = true;
+            reportHtml += `
+                        <div class="firma-block">
+                            <div class="firma-title">${row.naziv}</div>
+                            ${issues
+                              .map(i => `<div class="issue-item">• ${i}</div>`)
+                              .join('')}
+                        </div>
+                    `;
+          }
+        });
+
+        if (!hasIssues) {
+          reportHtml += '<p>Nema zabeleženih nedostataka.</p>';
+        }
+
+        reportHtml += '</body></html>';
+
+        const win = window.open('', '_blank');
+        win.document.write(reportHtml);
+        win.document.close();
+      }
+    </script>
+  </body>
+</html>

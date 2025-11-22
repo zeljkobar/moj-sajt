@@ -36,6 +36,17 @@ class Navigation {
       : '/shared/pdv-pregled.html';
 
     // Različita navigacija za različne tipove korisnika i domene
+    const zavrsniRacuniItem =
+      !isMojradnik && this.userRole !== 'firma'
+        ? `
+              <!-- Završni Računi -->
+              <li class="nav-item">
+                <a class="nav-link" href="/shared/zavrsni-racuni.html">
+                  <i class="fas fa-file-invoice-dollar me-1"></i>Završni Računi
+                </a>
+              </li>`
+        : '';
+
     const pdvCalendarItem =
       !isMojradnik && this.userRole !== 'firma'
         ? `
@@ -81,6 +92,8 @@ class Navigation {
                   }
                 </a>
               </li>
+
+              ${zavrsniRacuniItem}
 
               ${pdvCalendarItem}
 
