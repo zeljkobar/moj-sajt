@@ -208,7 +208,10 @@
         </div>
 
         <!-- Statistics Box -->
-        <div class="card shadow-sm border-0" style="background-color: #e7f3ff; min-width: 280px;">
+        <div
+          class="card shadow-sm border-0"
+          style="background-color: #e7f3ff; min-width: 280px"
+        >
           <div class="card-body py-3 px-4">
             <h6 class="text-primary mb-2 fw-bold">
               <i class="fas fa-chart-pie me-2"></i>Statistika
@@ -216,23 +219,32 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <div class="small text-muted mb-1">Predato</div>
-                <div class="fs-5 fw-bold text-dark" id="statsCompleted">0 od 0</div>
+                <div class="fs-5 fw-bold text-dark" id="statsCompleted">
+                  0 od 0
+                </div>
               </div>
               <div class="text-end">
                 <div class="small text-muted mb-1">Napredak</div>
-                <div class="fs-5 fw-bold text-primary" id="statsPercent">0%</div>
+                <div class="fs-5 fw-bold text-primary" id="statsPercent">
+                  0%
+                </div>
               </div>
             </div>
-            <div class="progress mt-2" style="height: 8px;">
-              <div class="progress-bar bg-primary" id="statsProgressBar" role="progressbar" style="width: 0%"></div>
+            <div class="progress mt-2" style="height: 8px">
+              <div
+                class="progress-bar bg-primary"
+                id="statsProgressBar"
+                role="progressbar"
+                style="width: 0%"
+              ></div>
             </div>
           </div>
         </div>
 
         <div class="d-flex gap-3 align-items-center">
           <select id="yearFilter" class="form-select" style="width: 120px">
-            <option value="2025">2025</option>
-            <option value="2024" selected>2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2024">2024</option>
             <option value="2023">2023</option>
           </select>
           <button class="btn btn-outline-primary" onclick="printReport()">
@@ -257,13 +269,21 @@
                   placeholder="Pretraži po nazivu ili PIB-u..."
                   autocomplete="off"
                 />
-                <button class="btn btn-outline-secondary" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">
+                <button
+                  class="btn btn-outline-secondary"
+                  onclick="clearSearch()"
+                  id="clearSearchBtn"
+                  style="display: none"
+                >
                   <i class="fas fa-times"></i>
                 </button>
               </div>
             </div>
             <div class="col-md-6 text-end">
-              <small class="text-muted" id="searchResults">Prikazano: <span id="visibleCount">0</span> / <span id="totalCount">0</span> firmi</small>
+              <small class="text-muted" id="searchResults"
+                >Prikazano: <span id="visibleCount">0</span> /
+                <span id="totalCount">0</span> firmi</small
+              >
             </div>
           </div>
         </div>
@@ -314,7 +334,17 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="todoModalTitle">Usaglašavanje</h5>
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <h5 class="modal-title" id="todoModalTitle">Usaglašavanje</h5>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary me-2"
+                onclick="sendEmailRequest()"
+                title="Pošalji zahtev za karticu"
+              >
+                <i class="fas fa-envelope me-1"></i>Pošalji email za karticu
+              </button>
+            </div>
             <button
               type="button"
               class="btn-close"
@@ -487,7 +517,7 @@
 
         // Sort data: unfinished first, finished last
         const sortedData = [...currentData].sort((a, b) => {
-          const getProgress = (row) => {
+          const getProgress = row => {
             let completed = 0;
             if (row.izvodi_gotovi) completed++;
             if (row.kupci_slozeni) completed++;
@@ -508,7 +538,7 @@
           // Finished (10/10) go to bottom, others sorted by progress descending
           if (progressA === 10 && progressB !== 10) return 1;
           if (progressB === 10 && progressA !== 10) return -1;
-          
+
           // Both finished or both unfinished - sort by progress (higher first)
           return progressB - progressA;
         });
@@ -539,7 +569,11 @@
             progressPercent === 100 ? 'bg-success' : 'bg-primary';
 
           // Count completed companies (all 3 final steps done)
-          if (row.predat_zavrsni_racun && row.predata_dobit && row.kreiran_zavrsni_racun) {
+          if (
+            row.predat_zavrsni_racun &&
+            row.predata_dobit &&
+            row.kreiran_zavrsni_racun
+          ) {
             completedCount++;
           }
 
@@ -651,23 +685,32 @@
 
         // Update statistics display
         updateStatistics(completedCount, totalCount);
-        
+
         // Update search counter
         updateSearchCounter();
       }
 
       function filterTable() {
-        const searchTerm = document.getElementById('firmSearchInput').value.toLowerCase().trim();
+        const searchTerm = document
+          .getElementById('firmSearchInput')
+          .value.toLowerCase()
+          .trim();
         const tbody = document.getElementById('tableBody');
         const rows = tbody.getElementsByTagName('tr');
         const clearBtn = document.getElementById('clearSearchBtn');
-        
+
         let visibleCount = 0;
 
         for (let row of rows) {
-          const firmaName = row.querySelector('td:first-child .fw-bold')?.textContent.toLowerCase() || '';
-          const firmaPib = row.querySelector('td:first-child .text-muted')?.textContent.toLowerCase() || '';
-          
+          const firmaName =
+            row
+              .querySelector('td:first-child .fw-bold')
+              ?.textContent.toLowerCase() || '';
+          const firmaPib =
+            row
+              .querySelector('td:first-child .text-muted')
+              ?.textContent.toLowerCase() || '';
+
           if (firmaName.includes(searchTerm) || firmaPib.includes(searchTerm)) {
             row.style.display = '';
             visibleCount++;
@@ -678,7 +721,7 @@
 
         // Show/hide clear button
         clearBtn.style.display = searchTerm ? 'inline-block' : 'none';
-        
+
         // Update counter
         updateSearchCounter();
       }
@@ -692,24 +735,26 @@
         const tbody = document.getElementById('tableBody');
         const rows = tbody.getElementsByTagName('tr');
         let visibleCount = 0;
-        
+
         for (let row of rows) {
           if (row.style.display !== 'none') {
             visibleCount++;
           }
         }
-        
+
         document.getElementById('visibleCount').textContent = visibleCount;
         document.getElementById('totalCount').textContent = currentData.length;
       }
 
       function updateStatistics(completed, total) {
         const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-        
-        document.getElementById('statsCompleted').textContent = `${completed} od ${total}`;
+
+        document.getElementById(
+          'statsCompleted'
+        ).textContent = `${completed} od ${total}`;
         document.getElementById('statsPercent').textContent = `${percent}%`;
         document.getElementById('statsProgressBar').style.width = `${percent}%`;
-        
+
         // Change progress bar color based on completion
         const progressBar = document.getElementById('statsProgressBar');
         if (percent >= 100) {
@@ -764,6 +809,29 @@
       }
 
       // --- TODO MODAL LOGIC ---
+
+      function sendEmailRequest() {
+        if (!activeModalData) return;
+        
+        const row = currentData.find(r => r.firma_id === activeModalData.firmaId);
+        if (!row) return;
+
+        const year = document.getElementById('yearFilter').value;
+        const typeLabel = activeModalData.type === 'kupci' ? 'kupca' : 'dobavljača';
+        const typeNaziv = activeModalData.type === 'kupci' ? 'kupaca' : 'dobavljača';
+        
+        // Email subject
+        const subject = `Zahtev za analitičku karticu ${typeNaziv} - ${row.naziv} - ${year}`;
+        
+        // Email body
+        const body = `Poštovani,\n\nMolim vas da mi pošaljete analitičku karticu ${typeNaziv} za ${year}. godinu za ${row.naziv.toUpperCase()} (PIB: ${row.pib}).\n\nHvala unapred.\n\nS poštovanjem`;
+        
+        // Create mailto link
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        // Open email client
+        window.location.href = mailtoLink;
+      }
 
       function openTodoModal(firmaId, type) {
         const row = currentData.find(r => r.firma_id === firmaId);
