@@ -4,6 +4,15 @@ node_modules/
 .env.production
 database/
 
+# Email processing scripts (lokalne utility skripte)
+email-lists/
+
+# CSV fajlovi sa PIB-ovima i email-ima (osetljivi podaci)
+*.csv
+bad-emails.csv
+pogresnipibovi.csv
+rezultati*.csv
+
 # VS Code workspace settings (lokalna podešavanja)
 .vscode/
 .vscode/settings.json
