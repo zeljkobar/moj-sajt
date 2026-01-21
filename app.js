@@ -87,6 +87,8 @@ const allowedOrigins = [
   'http://summasummarum.me',
   'https://mojradnik.me',
   'http://mojradnik.me',
+  'https://prijaviradnika.com',
+  'http://prijaviradnika.com',
   'http://185.102.78.178',
   'https://185.102.78.178',
 ];
