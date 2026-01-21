@@ -219,6 +219,26 @@
         transform: translateY(-1px);
       }
 
+      /* Mobile styling for Prijava link */
+      @media (max-width: 991px) {
+        .nav-link-login {
+          display: inline-block;
+          margin-top: 0.5rem;
+          padding: 0.5rem 1.25rem !important;
+          background-color: transparent;
+          border: 2px solid #10b981;
+          border-radius: 0.5rem;
+          color: #10b981 !important;
+          font-weight: 600;
+          text-align: center;
+          transition: all 0.3s ease;
+        }
+        .nav-link-login:hover {
+          background-color: #10b981;
+          color: white !important;
+        }
+      }
+
       /* Adjust fixed navbar for notification */
       .navbar.fixed-top {
         top: 44px;
@@ -338,7 +358,7 @@
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/prijava.html?domain=mojradnik"
+              <a class="nav-link nav-link-login" href="/prijava.html?domain=mojradnik"
                 >Prijava</a
               >
             </li>

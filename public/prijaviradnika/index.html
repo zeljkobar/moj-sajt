@@ -203,6 +203,26 @@
         color: #dc2626 !important;
       }
 
+      /* Mobile styling for Prijava link */
+      @media (max-width: 991px) {
+        .nav-link-login {
+          display: inline-block;
+          margin-top: 0.5rem;
+          padding: 0.5rem 1.25rem !important;
+          background-color: transparent;
+          border: 2px solid #dc2626;
+          border-radius: 0.5rem;
+          color: #dc2626 !important;
+          font-weight: 600;
+          text-align: center;
+          transition: all 0.3s ease;
+        }
+        .nav-link-login:hover {
+          background-color: #dc2626;
+          color: white !important;
+        }
+      }
+
       /* Promo notification bar */
       .promo-notification {
         background: linear-gradient(90deg, #dc2626, #b91c1c);
@@ -333,7 +353,7 @@
             </li>
             <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
             <li class="nav-item">
-              <a class="nav-link" href="/prijava.html?domain=prijaviradnika"
+              <a class="nav-link nav-link-login" href="/prijava.html?domain=prijaviradnika"
                 >Prijava</a
               >
             </li>
