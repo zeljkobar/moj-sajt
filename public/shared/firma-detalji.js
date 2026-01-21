@@ -607,6 +607,11 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
             })" title="Obriši radnika">
               <i class="fas fa-trash"></i>
             </button>
+            <button class="btn btn-sm btn-outline-success prijavi-radnika-btn" style="display: none;" onclick="prijaviRadnika(${
+              radnik.id
+            })" title="Prijavi radnika u IRMS">
+              <i class="fas fa-paper-plane"></i>
+            </button>
           </td>
         </tr>
       `;
@@ -4394,6 +4399,18 @@ async function checkUserPermissions() {
           ovlascenteCard.style.display = 'block';
         }
       }
+
+      // Prikaži prijavi radnika dugme za firme i admine
+      if (user.role === 'firma' || user.role === 'admin') {
+        const legendPrijaviRadnika = document.getElementById('legend-prijavi-radnika');
+        if (legendPrijaviRadnika) {
+          legendPrijaviRadnika.style.display = 'block';
+        }
+        
+        document.querySelectorAll('.prijavi-radnika-btn').forEach(btn => {
+          btn.style.display = 'inline-block';
+        });
+      }
     }
   } catch (error) {
     console.error('Greška pri proveri korisničkih dozvola:', error);
@@ -4410,6 +4427,12 @@ function generisjOvlascenje() {
   // Otvori ovlašćenje direktno bez modala
   const url = `/shared/ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`;
   window.open(url, '_blank');
+}
+
+// Funkcija za prijavu radnika u IRMS
+function prijaviRadnika(radnikId) {
+  console.log('Prijava radnika u IRMS:', radnikId);
+  alert('Funkcionalnost za prijavu radnika u IRMS će uskoro biti dostupna.');
 }
 
 // =============================================================================
