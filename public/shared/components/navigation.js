@@ -15,23 +15,31 @@ class Navigation {
     const urlParams = new URLSearchParams(window.location.search);
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
+    const isPrijaviradnika = host.includes('prijaviradnika.com') || domain === 'prijaviradnika';
 
     // Domain detection completed
 
     // Domain-specific branding and paths
-    const brandLogo = isMojradnik
-      ? '/mojradnik/logo.png'
-      : '/shared/images/summasummarum_logo.svg';
-    const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
+    let brandLogo, brandName;
+    if (isMojradnik) {
+      brandLogo = '/mojradnik/logo.png';
+      brandName = 'Moj Radnik';
+    } else if (isPrijaviradnika) {
+      brandLogo = '/prijaviradnika/logo.png';
+      brandName = 'Prijavi Radnika';
+    } else {
+      brandLogo = '/shared/images/summasummarum_logo.svg';
+      brandName = 'Summa Summarum';
+    }
 
     // Domain-specific paths
-    const dashboardPath = isMojradnik
+    const dashboardPath = (isMojradnik || isPrijaviradnika)
       ? '/mojradnik/dashboard.html'
       : '/shared/dashboard.html';
-    const firmePath = isMojradnik
-      ? 'javascript:void(0)' // JavaScript funkcija za mojradnik
+    const firmePath = (isMojradnik || isPrijaviradnika)
+      ? 'javascript:void(0)' // JavaScript funkcija za mojradnik i prijaviradnika
       : '/shared/firme.html';
-    const pdvPath = isMojradnik
+    const pdvPath = (isMojradnik || isPrijaviradnika)
       ? '/mojradnik/dashboard.html'
       : '/shared/pdv-pregled.html';
 

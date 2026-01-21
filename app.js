@@ -193,6 +193,9 @@ app.use((req, res, next) => {
   const referer = req.get('referer') || '';
   const isDomainMojradnik =
     referer.includes('domain=mojradnik') || req.query.domain === 'mojradnik';
+  const isDomainPrijaviradnika =
+    referer.includes('domain=prijaviradnika') ||
+    req.query.domain === 'prijaviradnika';
 
   // Detect domain and set appropriate paths
   if (
@@ -202,6 +205,14 @@ app.use((req, res, next) => {
   ) {
     // For mojradnik.me domain
     req.domainType = 'mojradnik';
+    req.isMultiTenant = false;
+  } else if (
+    host &&
+    (host.includes('prijaviradnika.com') ||
+      (host.includes('localhost') && isDomainPrijaviradnika))
+  ) {
+    // For prijaviradnika.com domain
+    req.domainType = 'prijaviradnika';
     req.isMultiTenant = false;
   } else {
     // For summasummarum.me domain (default)
@@ -340,6 +351,11 @@ app.get(
     // Domain-specific dashboard routing
     if (req.domainType === 'mojradnik' && req.session.user.role === 'firma') {
       res.sendFile(__dirname + '/public/mojradnik/dashboard.html');
+    } else if (
+      req.domainType === 'prijaviradnika' &&
+      req.session.user.role === 'firma'
+    ) {
+      res.sendFile(__dirname + '/public/mojradnik/dashboard.html'); // Shared dashboard for now
     } else {
       res.sendFile(__dirname + '/public/shared/dashboard.html');
     }
@@ -588,6 +604,8 @@ app.get(
 app.get('/prijava.html', (req, res) => {
   if (req.domainType === 'mojradnik') {
     res.sendFile(__dirname + '/public/mojradnik/prijava.html');
+  } else if (req.domainType === 'prijaviradnika') {
+    res.sendFile(__dirname + '/public/prijaviradnika/prijava.html');
   } else {
     res.sendFile(__dirname + '/public/shared/prijava.html');
   }
@@ -2174,6 +2192,10 @@ app.use(
 app.use(
   '/mojradnik',
   express.static(path.join(__dirname, 'public', 'mojradnik'))
+);
+app.use(
+  '/prijaviradnika',
+  express.static(path.join(__dirname, 'public', 'prijaviradnika'))
 );
 
 // Statički fajlovi - zadnji da zaštićene rute imaju prioritet

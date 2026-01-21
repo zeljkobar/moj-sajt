@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (
     loginForm &&
     (window.location.pathname === '/prijava.html' ||
-      window.location.pathname === '/shared/prijava.html')
+      window.location.pathname === '/shared/prijava.html' ||
+      window.location.pathname === '/prijaviradnika/prijava.html')
   ) {
     loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -75,6 +76,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const dashboardURL =
               host.includes('localhost') && domain === 'mojradnik'
                 ? '/dashboard.html?domain=mojradnik'
+                : '/dashboard.html';
+            window.location.href = dashboardURL;
+          } else if (host.includes('prijaviradnika.com') || domain === 'prijaviradnika') {
+            // Za prijaviradnika.com - isti dashboard kao mojradnik
+            const dashboardURL =
+              host.includes('localhost') && domain === 'prijaviradnika'
+                ? '/dashboard.html?domain=prijaviradnika'
                 : '/dashboard.html';
             window.location.href = dashboardURL;
           } else {

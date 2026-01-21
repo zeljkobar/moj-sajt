@@ -45,9 +45,18 @@
         const domain = urlParams.get('domain');
         const isMojradnik =
           host.includes('mojradnik.me') || domain === 'mojradnik';
+        const isPrijaviradnika =
+          host.includes('prijaviradnika.com') || domain === 'prijaviradnika';
 
         // Set appropriate title based on domain
-        const brandName = isMojradnik ? 'Moj Radnik' : 'Summa Summarum';
+        let brandName;
+        if (isMojradnik) {
+          brandName = 'Moj Radnik';
+        } else if (isPrijaviradnika) {
+          brandName = 'Prijavi Radnika';
+        } else {
+          brandName = 'Summa Summarum';
+        }
         document.title = `Dashboard | ${brandName}`;
       })();
     </script>

@@ -2,13 +2,23 @@
 // Koristi se u shared HTML stranicama za multi-domain setup
 
 (function () {
-  // Detektuj da li je mojradnik domen
-  const isMojradnik = window.location.hostname.includes('mojradnik');
+  // Detektuj domen
+  const urlParams = new URLSearchParams(window.location.search);
+  const domain = urlParams.get('domain');
+  const hostname = window.location.hostname;
+  
+  const isMojradnik = hostname.includes('mojradnik') || domain === 'mojradnik';
+  const isPrijaviradnika = hostname.includes('prijaviradnika') || domain === 'prijaviradnika';
 
   // Definiši base putanje za favikone
-  const faviconBasePath = isMojradnik
-    ? '/mojradnik/images/favicon/'
-    : '/shared/images/favicon/';
+  let faviconBasePath;
+  if (isMojradnik) {
+    faviconBasePath = '/mojradnik/images/favicon/';
+  } else if (isPrijaviradnika) {
+    faviconBasePath = '/prijaviradnika/images/favicon/';
+  } else {
+    faviconBasePath = '/shared/images/favicon/';
+  }
 
   // Lista favicon linkova koje treba ažurirati
   const faviconSelectors = [
@@ -34,7 +44,6 @@
   });
 
   // Debug info (možeš ukloniti u produkciji)
-  console.log(
-    `Favicon loaded for: ${isMojradnik ? 'MojRadnik' : 'SummaSum'} domain`
-  );
+  const domainName = isMojradnik ? 'MojRadnik' : (isPrijaviradnika ? 'PrijaviRadnika' : 'SummaSum');
+  console.log(`Favicon loaded for: ${domainName} domain`);
 })();
