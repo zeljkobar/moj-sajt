@@ -619,6 +619,9 @@ function updateAktivniRadnici(radnici, otkaziMap = {}) {
     .join('');
 
   tbody.innerHTML = rows;
+  
+  // Prikaži dugmad nakon što je tabela kreirana
+  showPrijaviRadnikaBtns();
 }
 
 function updateNeaktivniRadnici(radnici, otkaziMap = {}) {
@@ -4400,20 +4403,28 @@ async function checkUserPermissions() {
         }
       }
 
+      // Sačuvaj role u globalnu promenljivu za kasniju upotrebu
+      window.currentUserRole = user.role;
+      
       // Prikaži prijavi radnika dugme za firme i admine
       if (user.role === 'firma' || user.role === 'admin') {
         const legendPrijaviRadnika = document.getElementById('legend-prijavi-radnika');
         if (legendPrijaviRadnika) {
           legendPrijaviRadnika.style.display = 'block';
         }
-        
-        document.querySelectorAll('.prijavi-radnika-btn').forEach(btn => {
-          btn.style.display = 'inline-block';
-        });
       }
     }
   } catch (error) {
     console.error('Greška pri proveri korisničkih dozvola:', error);
+  }
+}
+
+// Funkcija za prikaz dugmadi "Prijavi u IRMS" nakon kreiranja tabele
+function showPrijaviRadnikaBtns() {
+  if (window.currentUserRole === 'firma' || window.currentUserRole === 'admin') {
+    document.querySelectorAll('.prijavi-radnika-btn').forEach(btn => {
+      btn.style.display = 'inline-block';
+    });
   }
 }
 
