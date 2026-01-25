@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatizujte Preuzimanje Bankovnih Izvoda</title>
+    <!--[if mso]>
+      <noscript>
+        <xml>
+          <o:OfficeDocumentSettings>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+        </xml>
+      </noscript>
+    <![endif]-->
+    <style>
+      /* Reset styles */
+      body,
+      table,
+      td,
+      p,
+      a,
+      li,
+      blockquote {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      table,
+      td {
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+      img {
+        -ms-interpolation-mode: bicubic;
+        border: 0;
+      }
+
+      /* Client-specific styles */
+      .ReadMsgBody {
+        width: 100%;
+      }
+      .ExternalClass {
+        width: 100%;
+      }
+      .ExternalClass,
+      .ExternalClass p,
+      .ExternalClass span,
+      .ExternalClass font,
+      .ExternalClass td,
+      .ExternalClass div {
+        line-height: 100%;
+      }
+
+      /* Mobile styles */
+      @media screen and (max-width: 600px) {
+        .mobile-hide {
+          display: none !important;
+        }
+        .mobile-center {
+          text-align: center !important;
+        }
+        .mobile-full {
+          width: 100% !important;
+        }
+        .mobile-padding {
+          padding: 20px !important;
+        }
+        .mobile-button {
+          width: 100% !important;
+          display: block !important;
+          margin: 20px auto !important;
+        }
+        .stat-number {
+          font-size: 32px !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f5f5f7;
+      color: #1d1d1f;
+    "
+  >
+    <!-- Main container -->
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="margin: 0; padding: 20px 0; background-color: #f5f5f7"
+    >
+      <tr>
+        <td align="center">
+          <!-- Email wrapper -->
+          <table
+            width="640"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            class="mobile-full"
+            style="
+              max-width: 640px;
+              background-color: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td style="padding: 0">
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="background-color: #003d7a; padding: 40px 30px"
+                >
+                  <tr>
+                    <td style="text-align: center">
+                      <h1
+                        style="
+                          margin: 0;
+                          color: #ffffff;
+                          font-size: 24px;
+                          font-weight: 600;
+                          letter-spacing: -0.5px;
+                        "
+                      >
+                        Summa Summarum
+                      </h1>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Hero section -->
+            <tr>
+              <td style="padding: 50px 40px 30px" class="mobile-padding">
+                <h2
+                  style="
+                    margin: 0 0 16px 0;
+                    color: #1d1d1f;
+                    font-size: 32px;
+                    font-weight: 700;
+                    line-height: 1.2;
+                    letter-spacing: -0.8px;
+                  "
+                >
+                  Koliko vremena gubite na snimanje izvoda?
+                </h2>
+                <p
+                  style="
+                    margin: 0;
+                    color: #6e6e73;
+                    font-size: 18px;
+                    line-height: 1.5;
+                  "
+                >
+                  Prosječno računovodstvo troši
+                  <strong style="color: #1d1d1f">2-3 sata dnevno</strong> na
+                  preuzimanje, preimenovanje i organizaciju bankovnih izvoda.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Problem section -->
+            <tr>
+              <td style="padding: 0 40px 30px" class="mobile-padding">
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    background-color: #f5f5f7;
+                    border-radius: 8px;
+                    padding: 24px;
+                  "
+                >
+                  <tr>
+                    <td>
+                      <p
+                        style="
+                          margin: 0 0 12px 0;
+                          color: #1d1d1f;
+                          font-size: 16px;
+                          line-height: 1.6;
+                        "
+                      >
+                        ❌ Ručno otvaranje svakog email-a<br />
+                        ❌ Preuzimanje PDF attachmenta<br />
+                        ❌ Preimenovanje fajlova u odgovarajući format<br />
+                        ❌ Organizacija po folderima<br />
+                        ❌ Kontrola da li nešto nedostaje
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Solution section -->
+            <tr>
+              <td style="padding: 20px 40px 30px" class="mobile-padding">
+                <h3
+                  style="
+                    margin: 0 0 20px 0;
+                    color: #003d7a;
+                    font-size: 24px;
+                    font-weight: 700;
+                    letter-spacing: -0.5px;
+                  "
+                >
+                  Postoji jednostavnije rješenje
+                </h3>
+                <p
+                  style="
+                    margin: 0 0 20px 0;
+                    color: #1d1d1f;
+                    font-size: 17px;
+                    line-height: 1.6;
+                  "
+                >
+                  Naš program <strong>automatski</strong> preuzima bankovne
+                  izvode direktno iz vašeg Outlook inbox-a, imenuje ih po
+                  standardnom formatu i organizuje u folderima.
+                </p>
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="
+                    background-color: #f0f9ff;
+                    border-left: 4px solid #003d7a;
+                    border-radius: 6px;
+                    padding: 20px;
+                  "
+                >
+                  <tr>
+                    <td>
+                      <p
+                        style="
+                          margin: 0 0 12px 0;
+                          color: #1d1d1f;
+                          font-size: 16px;
+                          line-height: 1.6;
+                        "
+                      >
+                        ✅ Automatsko prepoznavanje izvoda u emailovima<br />
+                        ✅ Preuzimanje PDF-ova u pozadini<br />
+                        ✅ Standardizovano imenovanje fajlova<br />
+                        ✅ Sortiranje po kompanijama i periodima<br />
+                        ✅ Kompletan log svih preuzimanja
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Stats section -->
+            <tr>
+              <td style="padding: 20px 40px 40px" class="mobile-padding">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td
+                      width="50%"
+                      style="padding-right: 10px; vertical-align: top"
+                    >
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                        style="
+                          text-align: center;
+                          background-color: #f5f5f7;
+                          border-radius: 8px;
+                          padding: 24px 16px;
+                        "
+                      >
+                        <tr>
+                          <td>
+                            <div
+                              style="
+                                font-size: 40px;
+                                font-weight: 700;
+                                color: #003d7a;
+                                line-height: 1;
+                                margin-bottom: 8px;
+                              "
+                              class="stat-number"
+                            >
+                              95%
+                            </div>
+                            <div
+                              style="
+                                font-size: 15px;
+                                color: #6e6e73;
+                                line-height: 1.4;
+                              "
+                            >
+                              manje vremena na obradi
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                    <td
+                      width="50%"
+                      style="padding-left: 10px; vertical-align: top"
+                    >
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                        style="
+                          text-align: center;
+                          background-color: #f5f5f7;
+                          border-radius: 8px;
+                          padding: 24px 16px;
+                        "
+                      >
+                        <tr>
+                          <td>
+                            <div
+                              style="
+                                font-size: 40px;
+                                font-weight: 700;
+                                color: #003d7a;
+                                line-height: 1;
+                                margin-bottom: 8px;
+                              "
+                              class="stat-number"
+                            >
+                              0
+                            </div>
+                            <div
+                              style="
+                                font-size: 15px;
+                                color: #6e6e73;
+                                line-height: 1.4;
+                              "
+                            >
+                              grešaka u imenovanju
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- How it works -->
+            <tr>
+              <td
+                style="padding: 0 40px 40px; border-top: 1px solid #e5e5e7"
+                class="mobile-padding"
+              >
+                <h3
+                  style="
+                    margin: 40px 0 24px 0;
+                    color: #1d1d1f;
+                    font-size: 22px;
+                    font-weight: 700;
+                    letter-spacing: -0.5px;
+                  "
+                >
+                  Kako funkcioniše?
+                </h3>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="padding-bottom: 16px">
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                      >
+                        <tr>
+                          <td
+                            width="40"
+                            style="vertical-align: top; padding-right: 16px"
+                          >
+                            <div
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                background-color: #003d7a;
+                                color: #ffffff;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 700;
+                                font-size: 16px;
+                              "
+                            >
+                              1
+                            </div>
+                          </td>
+                          <td style="vertical-align: top">
+                            <p
+                              style="
+                                margin: 0;
+                                color: #1d1d1f;
+                                font-size: 16px;
+                                line-height: 1.5;
+                              "
+                            >
+                              <strong>Povežite Outlook</strong> – Jednostavna
+                              konfiguracija
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-bottom: 16px">
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                      >
+                        <tr>
+                          <td
+                            width="40"
+                            style="vertical-align: top; padding-right: 16px"
+                          >
+                            <div
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                background-color: #003d7a;
+                                color: #ffffff;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 700;
+                                font-size: 16px;
+                              "
+                            >
+                              2
+                            </div>
+                          </td>
+                          <td style="vertical-align: top">
+                            <p
+                              style="
+                                margin: 0;
+                                color: #1d1d1f;
+                                font-size: 16px;
+                                line-height: 1.5;
+                              "
+                            >
+                              <strong>Pokrenite program</strong> – Radi u
+                              pozadini dok radite
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                      >
+                        <tr>
+                          <td
+                            width="40"
+                            style="vertical-align: top; padding-right: 16px"
+                          >
+                            <div
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                background-color: #003d7a;
+                                color: #ffffff;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: 700;
+                                font-size: 16px;
+                              "
+                            >
+                              3
+                            </div>
+                          </td>
+                          <td style="vertical-align: top">
+                            <p
+                              style="
+                                margin: 0;
+                                color: #1d1d1f;
+                                font-size: 16px;
+                                line-height: 1.5;
+                              "
+                            >
+                              <strong>Gotovo</strong> – Svi izvodi organizovani
+                              i spremni
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- CTA Button -->
+            <tr>
+              <td style="padding: 0 40px 50px" class="mobile-padding">
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="text-align: center"
+                >
+                  <tr>
+                    <td>
+                      <a
+                        href="https://summasummarum.me/summasummarum/izvodi.html"
+                        style="
+                          display: inline-block;
+                          background-color: #003d7a;
+                          color: #ffffff;
+                          text-decoration: none;
+                          padding: 16px 48px;
+                          border-radius: 8px;
+                          font-size: 17px;
+                          font-weight: 600;
+                          letter-spacing: -0.2px;
+                        "
+                        class="mobile-button"
+                      >
+                        Saznajte Više
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-top: 16px">
+                      <p
+                        style="
+                          margin: 0;
+                          color: #6e6e73;
+                          font-size: 14px;
+                          line-height: 1.4;
+                        "
+                      >
+                        Besplatno preuzimanje • Windows kompatibilno
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 30px 40px;
+                  background-color: #f5f5f7;
+                  border-top: 1px solid #e5e5e7;
+                "
+                class="mobile-padding"
+              >
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="text-align: center; padding-bottom: 16px">
+                      <p
+                        style="
+                          margin: 0 0 12px 0;
+                          color: #1d1d1f;
+                          font-size: 15px;
+                          font-weight: 600;
+                        "
+                      >
+                        Summa Summarum d.o.o.
+                      </p>
+                      <p
+                        style="
+                          margin: 0 0 8px 0;
+                          color: #6e6e73;
+                          font-size: 14px;
+                          line-height: 1.6;
+                        "
+                      ></p>
+                      <p style="margin: 0; color: #6e6e73; font-size: 14px">
+                        <a
+                          href="mailto:info@summasummarum.me"
+                          style="color: #003d7a; text-decoration: none"
+                        >
+                          info@summasummarum.me
+                        </a>
+                        &nbsp;|&nbsp;
+                        <a
+                          href="https://summasummarum.me"
+                          style="color: #003d7a; text-decoration: none"
+                        >
+                          summasummarum.me
+                        </a>
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        text-align: center;
+                        padding-top: 16px;
+                        border-top: 1px solid #e5e5e7;
+                      "
+                    >
+                      <p
+                        style="
+                          margin: 0;
+                          color: #86868b;
+                          font-size: 12px;
+                          line-height: 1.5;
+                        "
+                      >
+                        Primili ste ovaj email jer ste izrazili interesovanje za
+                        naše usluge.<br />
+                        <a
+                          href="{{unsubscribe_link}}"
+                          style="color: #86868b; text-decoration: underline"
+                        >
+                          Odjavi se
+                        </a>
+                        od primanja email obavještenja.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
