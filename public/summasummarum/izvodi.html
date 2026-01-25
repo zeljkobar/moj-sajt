@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-17519789176"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'AW-17519789176');
+    </script>
+
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-DGZCVVHKXW');
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatsko Preuzimanje Bankovnih Izvoda | Summa Summarum</title>
+    <link rel="canonical" href="https://summasummarum.me/izvodi.html" />
+    <meta
+      name="description"
+      content="Automatizujte preuzimanje i organizaciju bankovnih izvoda iz Outlooka. Uštedite sate vremena dnevno sa našim programom za automatsko snimanje i preimenovanje izvoda."
+    />
+    <meta
+      name="keywords"
+      content="bankovni izvodi, automatizacija računovodstva, Outlook izvodi, preuzimanje izvoda, računovodstvo Crna Gora, knjigovodstvo Montenegro, automatizacija poslovanja"
+    />
+    <meta name="author" content="Summa Summarum d.o.o." />
+
+    <!-- Open Graph Meta Tags -->
+    <meta
+      property="og:title"
+      content="Automatsko Preuzimanje Bankovnih Izvoda | Summa Summarum"
+    />
+    <meta
+      property="og:description"
+      content="Uštedite sate vremena dnevno. Program automatski preuzima i imenuje bankovne izvode iz Outlooka."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://www.summasummarum.me/images/summasummarum_logo.svg"
+    />
+    <meta property="og:url" content="https://www.summasummarum.me/izvodi.html" />
+
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/cookie-consent.css" />
+    <link rel="stylesheet" href="override.css" />
+
+    <!-- Theme Preloader -->
+    <script src="/shared/components/theme-preloader.js"></script>
+
+    <style>
+      [data-theme='dark'] body {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .bg-white {
+        background-color: #2d2d2d !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .text-dark {
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .bg-light {
+        background-color: #404040 !important;
+        color: #e0e0e0 !important;
+      }
+
+      [data-theme='dark'] .card {
+        background-color: #2d2d2d !important;
+        border-color: #404040 !important;
+      }
+
+      .hero-gradient {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        padding: 100px 0 60px;
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .comparison-card {
+        transition: transform 0.3s ease;
+      }
+
+      .comparison-card:hover {
+        transform: translateY(-10px);
+      }
+
+      .price-tag {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .testimonial-card {
+        border-left: 4px solid #667eea;
+      }
+
+      .step-number {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 auto 15px;
+      }
+
+      .download-cta {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        padding: 60px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigacija -->
+    <nav
+      class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top"
+    >
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Summa Summarum</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navMenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Početna</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html#usluge">Usluge</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="izvodi.html">Izvodi</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/shared/kontakt.html">Kontakt</a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link d-none"
+                href="/dashboard.html"
+                id="dashboardLink"
+              >
+                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+              </a>
+            </li>
+          </ul>
+            <!-- Login dugmići -->
+            <div class="d-flex align-items-center ms-lg-3">
+              <!-- Dark mode toggle -->
+              <button id="themeToggle" class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
+              <a href="/prijava.html" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-sign-in-alt me-1"></i>Prijava
+              </a>
+              <a href="/registracija.html" class="btn btn-sm btn-primary ms-2">
+                <i class="fas fa-user-plus me-1"></i>Registracija
+              </a>
+            </div>
+            <!-- Panel za ulogovanog korisnika -->
+            <div
+              id="userPanel"
+              class="d-none d-flex align-items-center ms-lg-3"
+            >
+              <!-- Dark mode toggle za ulogovane korisnike -->
+              <button class="theme-toggle me-2">
+                <i class="fas fa-moon"></i> Dark
+              </button>
+              <span id="welcomeMsg" class="me-2"></span>
+              <button
+                id="logoutBtn"
+                class="btn btn-sm btn-outline-danger"
+                type="button"
+              >
+                Odjavi se
+              </button>
+            </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white text-center">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <h1 class="display-4 fw-bold mb-4">
+              <i class="fas fa-file-invoice-dollar me-3"></i>
+              Automatsko Preuzimanje Bankovnih Izvoda
+            </h1>
+            <p class="lead fs-4 mb-4">
+              Prestanite gubiti sate na snimanje izvoda. Neka program to uradi
+              za vas.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+              <a href="#kako-radi" class="btn btn-light btn-lg">
+                <i class="fas fa-info-circle me-2"></i>Kako radi?
+              </a>
+              <a href="#download" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-download me-2"></i>Preuzmi sada
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="py-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <h2 class="display-5 fw-bold mb-4">
+              <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+              Problem Koji Poznajete Previše Dobro
+            </h2>
+            <p class="fs-5 mb-3">
+              Svakog jutra ste bombardovani sa <strong>stotinama email-ova</strong>
+              sa bankovnim izvodima.
+            </p>
+            <ul class="list-unstyled fs-5">
+              <li class="mb-3">
+                <i class="fas fa-times-circle text-danger me-2"></i>
+                Ne možete znati čiji je izvod dok ne otvorite attachment
+              </li>
+              <li class="mb-3">
+                <i class="fas fa-times-circle text-danger me-2"></i>
+                Morate ručno snimiti svaki izvod na pravu lokaciju
+              </li>
+              <li class="mb-3">
+                <i class="fas fa-times-circle text-danger me-2"></i>
+                Gubite <strong>sate vremena</strong> svaki dan na ovaj posao
+              </li>
+              <li class="mb-3">
+                <i class="fas fa-times-circle text-danger me-2"></i>
+                Lako možete da propustite ili pogrešno snimite izvod
+              </li>
+            </ul>
+          </div>
+          <div class="col-lg-6">
+            <div class="card border-danger shadow-lg">
+              <div class="card-body text-center p-5">
+                <i class="fas fa-clock text-danger mb-3" style="font-size: 4rem;"></i>
+                <h3 class="card-title fw-bold mb-3">Gubite dragocjeno vrijeme</h3>
+                <p class="fs-4 text-danger mb-0">
+                  <strong>2-4 sata dnevno</strong>
+                </p>
+                <p class="text-muted">na manualno snimanje izvoda</p>
+                <hr class="my-4" />
+                <p class="fs-5 mb-0">
+                  To je <strong>40-80 sati mjesečno</strong><br />
+                  koje možete iskoristiti za vrijedniji posao
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            Vaše Rješenje Je Ovdje
+          </h2>
+          <p class="lead text-muted">
+            Program koji automatski preuzima, organizuje i imenuje sve vaše
+            bankovne izvode
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <!-- Feature 1 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow">
+              <div class="card-body text-center p-4">
+                <div class="feature-icon">
+                  <i class="fas fa-magic fa-2x text-white"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Automatsko Preuzimanje</h5>
+                <p class="text-muted">
+                  Program se konektuje na vaš Outlook i automatski preuzima sve
+                  izvode iz emailova
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow">
+              <div class="card-body text-center p-4">
+                <div class="feature-icon">
+                  <i class="fas fa-file-signature fa-2x text-white"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Pametno Preimenovanje</h5>
+                <p class="text-muted">
+                  Čita broj izvoda iz PDF ili HTML fajla i automatski ga imenuje ispravno
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow">
+              <div class="card-body text-center p-4">
+                <div class="feature-icon">
+                  <i class="fas fa-folder-tree fa-2x text-white"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Organizovano Skladištenje</h5>
+                <p class="text-muted">
+                  Snima izvode na tačno definisanu lokaciju, organizovano po firmama
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border-0 shadow">
+              <div class="card-body text-center p-4">
+                <div class="feature-icon">
+                  <i class="fas fa-bolt fa-2x text-white"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Brzo kao Munja</h5>
+                <p class="text-muted">
+                  Obrada stotina izvoda za manje od jedne sekunde
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two Modes Section -->
+    <section class="py-5" id="kako-radi">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-cogs me-2"></i>
+            Dva Načina Rada
+          </h2>
+          <p class="lead text-muted">
+            Prilagođen vašem načinu organizacije
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <!-- Mode 1 -->
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-lg comparison-card">
+              <div
+                class="card-header text-white text-center py-3"
+                style="background: linear-gradient(135deg, #667eea, #764ba2)"
+              >
+                <h4 class="mb-0">
+                  <i class="fas fa-folder-open me-2"></i>
+                  Mod 1: Outlook Rules & Folderi
+                </h4>
+              </div>
+              <div class="card-body p-4">
+                <p class="lead mb-4">
+                  Za one koji već koriste Outlook pravila za sortiranje emailova
+                </p>
+                <h6 class="fw-bold mb-3">Kako funkcioniše:</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    Imate odvojene foldere za svaku firmu u Outlooku
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    Program skenira svaki folder pojedinačno
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    Automatski mapira folder na odgovarajuću firmu
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-primary me-2"></i>
+                    Snima izvode na pravu lokaciju za tu firmu
+                  </li>
+                </ul>
+                <div class="alert alert-info mt-4">
+                  <i class="fas fa-star me-2"></i>
+                  <strong>Idealno za:</strong> Organizovane korisnike koji već
+                  imaju Outlook strukturiran po firmama
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode 2 -->
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-lg comparison-card">
+              <div
+                class="card-header text-white text-center py-3"
+                style="background: linear-gradient(135deg, #dc3545, #c82333)"
+              >
+                <h4 class="mb-0">
+                  <i class="fas fa-inbox me-2"></i>
+                  Mod 2: Inbox Haos
+                </h4>
+              </div>
+              <div class="card-body p-4">
+                <p class="lead mb-4">
+                  Za one kojima svi izvodi stižu u jedan inbox folder
+                </p>
+                <h6 class="fw-bold mb-3">Kako funkcioniše:</h6>
+                <ul class="list-unstyled">
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-danger me-2"></i>
+                    Svi izvodi dolaze u isti inbox
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-danger me-2"></i>
+                    Program otvara svaki izvod (PDF ili HTML) i čita broj
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-danger me-2"></i>
+                    Automatski prepoznaje kojoj firmi pripada
+                  </li>
+                  <li class="mb-3">
+                    <i class="fas fa-check-circle text-danger me-2"></i>
+                    Snima i imenuje izvod bez dodatnih koraka
+                  </li>
+                </ul>
+                <div class="alert alert-danger mt-4">
+                  <i class="fas fa-fire me-2"></i>
+                  <strong>Idealno za:</strong> Korisnike u potpunom haosu koji
+                  gube najv više vremena na sortiranje
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits/ROI Section -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-chart-line text-success me-2"></i>
+            Šta Dobijate?
+          </h2>
+        </div>
+
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-4">
+            <div class="card border-0 shadow text-center p-4">
+              <i class="fas fa-hourglass-end text-primary mb-3" style="font-size: 3rem;"></i>
+              <h4 class="fw-bold mb-2">Ušteda Vremena</h4>
+              <p class="price-tag mb-2">40-80h</p>
+              <p class="text-muted">mjesečno oslobođenih sati za vrijednije poslove</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card border-0 shadow text-center p-4">
+              <i class="fas fa-shield-check text-primary mb-3" style="font-size: 3rem;"></i>
+              <h4 class="fw-bold mb-2">Bez Grešaka</h4>
+              <p class="price-tag mb-2">100%</p>
+              <p class="text-muted">preciznost u imenovanju i snimanju izvoda</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card border-0 shadow text-center p-4">
+              <i class="fas fa-smile-beam text-primary mb-3" style="font-size: 3rem;"></i>
+              <h4 class="fw-bold mb-2">Manje Stresa</h4>
+              <p class="price-tag mb-2">∞</p>
+              <p class="text-muted">zaboravite na jutarnji haos sa izvodima</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-5">
+          <div class="col-lg-8 mx-auto">
+            <div class="card testimonial-card shadow-lg p-4">
+              <div class="card-body">
+                <i class="fas fa-quote-left text-primary fa-2x mb-3"></i>
+                <p class="fs-5 mb-4">
+                  "Prije sam gubila najmanje 3 sata svako jutro samo na snimanje
+                  izvoda. Sad program to uradi za mene za par sekundi. Ovo mi je
+                  promijenilo život! Sad imam vrijeme da se fokusiram na pravi
+                  računovodstveni posao."
+                </p>
+                <div class="d-flex align-items-center">
+                  <div>
+                    <p class="fw-bold mb-0">Ana Popović</p>
+                    <p class="text-muted mb-0">Ovlaščeni računovođa</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How to Start Section -->
+    <section class="py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-rocket me-2"></i>
+            Kako Početi?
+          </h2>
+          <p class="lead text-muted">Samo 3 jednostavna koraka</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="text-center">
+              <div class="step-number">1</div>
+              <h5 class="fw-bold mb-3">Preuzmite Program</h5>
+              <p class="text-muted">
+                Kliknite na dugme ispod i preuzmite instalacioni fajl. Instalacija
+                traje manje od minute.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="text-center">
+              <div class="step-number">2</div>
+              <h5 class="fw-bold mb-3">Aktivirajte Licencu</h5>
+              <p class="text-muted">
+                Nakon instalacije, kontaktirajte nas za aktivaciju licence.
+                Dobićete pristup odmah.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="text-center">
+              <div class="step-number">3</div>
+              <h5 class="fw-bold mb-3">Uživajte u Slobodi</h5>
+              <p class="text-muted">
+                Program radi u pozadini. Vi više nikad ne morate misliti o
+                izvodima.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-tags me-2"></i>
+            Transparentna Cijena
+          </h2>
+          <p class="lead text-muted">Bez skrivenih troškova</p>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="row g-4">
+              <!-- Mjesečna pretplata -->
+              <div class="col-md-6 col-lg-3">
+                <div class="card shadow h-100">
+                  <div
+                    class="card-header text-white text-center py-3"
+                    style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                  >
+                    <h5 class="mb-0">Mjesečno</h5>
+                  </div>
+                  <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                      <span class="price-tag" style="font-size: 2.5rem;">€10</span>
+                      <span class="fs-6 text-muted d-block">/mjesečno</span>
+                      <small class="text-muted">+PDV</small>
+                    </div>
+                    <ul class="list-unstyled text-start mb-4">
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Neograničen broj izvoda</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Oba moda rada</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Ažuriranja</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Tehnička podrška</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Otkaz bilo kad</small>
+                      </li>
+                    </ul>
+                    <a href="/shared/kontakt.html" class="btn btn-primary btn-sm w-100">
+                      Kontaktiraj
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6 mjeseci -->
+              <div class="col-md-6 col-lg-3">
+                <div class="card shadow h-100">
+                  <div
+                    class="card-header text-white text-center py-3"
+                    style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                  >
+                    <h5 class="mb-0">6 Mjeseci</h5>
+                  </div>
+                  <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                      <span class="price-tag" style="font-size: 2.5rem;">€50</span>
+                      <span class="fs-6 text-muted d-block">€8.33/mjesečno</span>
+                      <small class="text-muted">+PDV</small>
+                    </div>
+                    <div class="badge bg-success mb-3">Ušteda €10</div>
+                    <ul class="list-unstyled text-start mb-4">
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Neograničen broj izvoda</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Oba moda rada</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Ažuriranja</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Tehnička podrška</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>17% popust</small>
+                      </li>
+                    </ul>
+                    <a href="/shared/kontakt.html" class="btn btn-primary btn-sm w-100">
+                      Kontaktiraj
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Godišnja -->
+              <div class="col-md-6 col-lg-3">
+                <div class="card shadow h-100 border-primary" style="border-width: 2px;">
+                  <div class="position-relative">
+                    <div class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle">POPULARNO</div>
+                    <div
+                      class="card-header text-white text-center py-3"
+                      style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                    >
+                      <h5 class="mb-0">Godišnje</h5>
+                    </div>
+                  </div>
+                  <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                      <span class="price-tag" style="font-size: 2.5rem;">€100</span>
+                      <span class="fs-6 text-muted d-block">€8.33/mjesečno</span>
+                      <small class="text-muted">+PDV</small>
+                    </div>
+                    <div class="badge bg-success mb-3">Ušteda €20</div>
+                    <ul class="list-unstyled text-start mb-4">
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Neograničen broj izvoda</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Oba moda rada</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Ažuriranja</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Prioritetna podrška</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>17% popust</small>
+                      </li>
+                    </ul>
+                    <a href="/shared/kontakt.html" class="btn btn-primary btn-sm w-100">
+                      Kontaktiraj
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Doživotna -->
+              <div class="col-md-6 col-lg-3">
+                <div class="card shadow h-100">
+                  <div
+                    class="card-header text-white text-center py-3"
+                    style="background: linear-gradient(135deg, #667eea, #764ba2)"
+                  >
+                    <h5 class="mb-0">Doživotno</h5>
+                  </div>
+                  <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                      <span class="price-tag" style="font-size: 2.5rem;">€200</span>
+                      <span class="fs-6 text-muted d-block">jednokratno</span>
+                      <small class="text-muted">+PDV</small>
+                    </div>
+                    <div class="badge bg-warning text-dark mb-3">NAJBOLJA VRIJEDNOST</div>
+                    <ul class="list-unstyled text-start mb-4">
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Neograničen broj izvoda</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Oba moda rada</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Doživotna ažuriranja</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-check text-primary me-2"></i>
+                        <small>Prioritetna podrška</small>
+                      </li>
+                      <li class="mb-2">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        <small><strong>Bez pretplate</strong></small>
+                      </li>
+                    </ul>
+                    <a href="/shared/kontakt.html" class="btn btn-primary btn-sm w-100">
+                      Kontaktiraj
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-5">
+          <div class="col-lg-10 mx-auto">
+            <div class="alert alert-info text-center p-4">
+              <i class="fas fa-calculator fa-2x mb-3"></i>
+              <h5 class="fw-bold mb-3">Brza Računica</h5>
+              <p class="mb-0">
+                Ako gubite 3 sata dnevno (60€) x 20 radnih dana = <strong>1.200€ mjesečno</strong><br />
+                Naša pretplata košta samo <strong>€10 mjesečno</strong> ili <strong>€100 godišnje</strong>.<br />
+                Ušteda: <strong>€1.190+ mjesečno</strong> ili <strong>€14.280+ godišnje</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download CTA Section -->
+    <section class="download-cta text-white" id="download">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-8">
+            <i class="fas fa-download fa-4x mb-4"></i>
+            <h2 class="display-4 fw-bold mb-4">
+              Spremni da Preuzete Kontrolu?
+            </h2>
+            <p class="lead fs-4 mb-5">
+              Preuzmite program i prestanite gubiti vrijeme na manualni rad
+            </p>
+            <a
+              href="/summasummarum/downloads/bank-statement-downloader.zip"
+              class="btn btn-light btn-lg me-3"
+              download
+            >
+              <i class="fas fa-download me-2"></i>Preuzmi Program (ZIP)
+            </a>
+            <a href="/shared/kontakt.html" class="btn btn-outline-light btn-lg">
+              <i class="fas fa-comments me-2"></i>Kontaktiraj Nas
+            </a>
+            <p class="mt-4 mb-0">
+              <small>
+                <i class="fas fa-lock me-2"></i>
+                Siguran download • Windows kompatibilan • Licenca potrebna za aktivaciju
+              </small>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">
+            <i class="fas fa-question-circle me-2"></i>
+            Često Postavljana Pitanja
+          </h2>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="accordion" id="faqAccordion">
+              <!-- FAQ 1 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq1"
+                  >
+                    Da li program radi sa svim bankama?
+                  </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    Da! Program radi sa svim bankama koje šalju izvode kao PDF ili HTML
+                    attachmente preko emaila. Podržava oba formata - PDF izvode (većina banaka)
+                    i HTML izvode (npr. Erste banka). Testiran je sa svim glavnim bankama u
+                    Crnoj Gori.
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAQ 2 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq2"
+                  >
+                    Kako se vrši aktivacija licence?
+                  </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    Nakon što preuzmete i instalirate program, dobijate <strong>10 dana
+                    besplatnog trial perioda</strong> da isprobate sve funkcionalnosti prije
+                    nego što odlučite da kupite. Nakon toga, kontaktirajte nas za aktivaciju
+                    licence i dobićete licencni ključ.
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAQ 3 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq3"
+                  >
+                    Da li mogu otkazati pretplatu?
+                  </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    Naravno! Nema ugovorne obaveze. Možete otkazati pretplatu u
+                    svakom trenutku, bez dodatnih troškova ili pitanja.
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAQ 4 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq4"
+                  >
+                    Šta ako imam problema sa programom?
+                  </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    Svi pretplatnici dobijaju pristup našoj tehničkoj podršci. Tu
+                    smo da pomognemo sa instalacijom, podešavanjima i bilo kojim
+                    tehničkim pitanjima.
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAQ 5 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq5"
+                  >
+                    Da li program radi na Mac-u?
+                  </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    Trenutno program podržava samo Windows operativne sisteme.
+                    Mac verzija je u planu za budućnost.
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAQ 6 -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#faq6"
+                  >
+                    Koji su uslovi za funkcionisanje programa?
+                  </button>
+                </h2>
+                <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body">
+                    <p class="mb-2">Program zahtijeva sljedeće:</p>
+                    <ul class="mb-0">
+                      <li><strong>Windows operativni sistem</strong> (Windows 10 ili noviji)</li>
+                      <li><strong>Microsoft Outlook</strong> - program mora biti instaliran i podešen na računaru</li>
+                      <li><strong>Bankovni izvodi kao PDF ili HTML attachmenti</strong> u emailovima</li>
+                      <li><strong>Aktivna internet konekcija</strong> za verifikaciju licence</li>
+                    </ul>
+                    <p class="mt-3 mb-0"><small class="text-muted">
+                      Napomena: Program funkcioniše isključivo sa Microsoft Outlook desktop aplikacijom. 
+                      Ne radi sa web verzijom Outlooka ili drugim email klijentima.
+                    </small></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+      <div class="container text-center">
+        <p class="mb-2">
+          &copy; 2026 Summa Summarum d.o.o. Sva prava zadržana.
+        </p>
+        <p class="mb-0">
+          <a href="/shared/kontakt.html" class="text-white text-decoration-none">
+            <i class="fas fa-envelope me-2"></i>Kontakt
+          </a>
+          |
+          <a href="index.html" class="text-white text-decoration-none ms-2">
+            <i class="fas fa-home me-2"></i>Početna
+          </a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Cookie Consent -->
+    <script src="/shared/cookie-consent.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/theme-toggle.js"></script>
+  </body>
+</html>
