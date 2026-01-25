@@ -252,12 +252,27 @@ class MarketingEmailService {
       );
 
       for (let i = 0; i < recipients.length; i++) {
+        // Check if campaign was cancelled
+        if (campaignId) {
+          const cancelCheck = await this.checkCampaignCancelled(campaignId);
+          if (cancelCheck) {
+            console.log('⚠️ Kampanja prekinuta od strane korisnika');
+            await this.setCampaignCancelled(campaignId);
+            break;
+          }
+        }
+
         const recipient = recipients[i];
         const email =
           typeof recipient === 'string' ? recipient : recipient.email;
         const userData = typeof recipient === 'object' ? recipient : {};
 
         console.log(`📧 Šalje ${i + 1}/${recipients.length}: ${email}`);
+
+        // Update current email being sent
+        if (campaignId) {
+          await this.updateCurrentEmail(campaignId, email);
+        }
 
         const result = await this.sendMarketingEmail(
           email,
@@ -276,7 +291,12 @@ class MarketingEmailService {
 
       // Završi kampanju
       if (campaignId) {
-        await this.completeCampaign(campaignId);
+        const cancelCheck = await this.checkCampaignCancelled(campaignId);
+        if (cancelCheck) {
+          await this.setCampaignCancelled(campaignId);
+        } else {
+          await this.completeCampaign(campaignId);
+        }
       }
 
       const successful = results.filter(r => r.success).length;
@@ -467,12 +487,110 @@ SummaSummarum Team
     try {
       const query = `
         UPDATE marketing_campaigns 
-        SET status = 'completed', completed_at = NOW() 
+        SET status = 'completed', completed_at = NOW(), current_email = NULL 
         WHERE id = ?
       `;
       await executeQuery(query, [campaignId]);
     } catch (error) {
       console.error('Greška pri završavanju kampanje:', error);
+    }
+  }
+
+  // NEW: Check if campaign was cancelled
+  async checkCampaignCancelled(campaignId) {
+    try {
+      const query = `SELECT cancel_requested FROM marketing_campaigns WHERE id = ?`;
+      const result = await executeQuery(query, [campaignId]);
+      return result[0]?.cancel_requested === 1;
+    } catch (error) {
+      console.error('Greška pri provjeri prekida kampanje:', error);
+      return false;
+    }
+  }
+
+  // NEW: Set campaign as cancelled
+  async setCampaignCancelled(campaignId) {
+    try {
+      const query = `
+        UPDATE marketing_campaigns 
+        SET status = 'cancelled', completed_at = NOW(), current_email = NULL 
+        WHERE id = ?
+      `;
+      await executeQuery(query, [campaignId]);
+    } catch (error) {
+      console.error('Greška pri postavljanju kampanje kao prekinute:', error);
+    }
+  }
+
+  // NEW: Update current email being sent
+  async updateCurrentEmail(campaignId, email) {
+    try {
+      const query = `
+        UPDATE marketing_campaigns 
+        SET current_email = ?, status = 'running'
+        WHERE id = ?
+      `;
+      await executeQuery(query, [email, campaignId]);
+    } catch (error) {
+      console.error('Greška pri ažuriranju trenutnog emaila:', error);
+    }
+  }
+
+  // NEW: Get campaign progress
+  async getCampaignProgress(campaignId) {
+    try {
+      const campaignQuery = `
+        SELECT 
+          status,
+          total_recipients,
+          emails_sent,
+          emails_failed,
+          current_email,
+          cancel_requested
+        FROM marketing_campaigns 
+        WHERE id = ?
+      `;
+      const result = await executeQuery(campaignQuery, [campaignId]);
+      
+      if (result.length === 0) {
+        throw new Error('Kampanja nije pronađena');
+      }
+
+      const campaign = result[0];
+      const total = campaign.total_recipients;
+      const sent = campaign.emails_sent || 0;
+      const failed = campaign.emails_failed || 0;
+      const remaining = total - sent - failed;
+      const percentage = total > 0 ? ((sent + failed) / total) * 100 : 0;
+
+      return {
+        total,
+        sent,
+        failed,
+        remaining,
+        percentage: Math.min(percentage, 100),
+        current_email: campaign.current_email,
+        status: campaign.cancel_requested ? 'cancelled' : campaign.status,
+      };
+    } catch (error) {
+      console.error('Greška pri dobijanju progresa kampanje:', error);
+      throw error;
+    }
+  }
+
+  // NEW: Request campaign cancellation
+  async requestCampaignCancellation(campaignId) {
+    try {
+      const query = `
+        UPDATE marketing_campaigns 
+        SET cancel_requested = 1 
+        WHERE id = ? AND status = 'running'
+      `;
+      const result = await executeQuery(query, [campaignId]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Greška pri zahtjevu za prekid kampanje:', error);
+      throw error;
     }
   }
 

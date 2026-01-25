@@ -1469,6 +1469,57 @@ app.post(
   }
 );
 
+// NEW: Get campaign progress
+app.get(
+  '/api/marketing/campaign-progress/:campaignId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { campaignId } = req.params;
+      const MarketingEmailService = require('./marketing-email');
+      const service = new MarketingEmailService();
+      
+      const progress = await service.getCampaignProgress(campaignId);
+      res.json(progress);
+    } catch (error) {
+      console.error('Campaign progress error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// NEW: Cancel campaign
+app.post(
+  '/api/marketing/cancel-campaign/:campaignId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { campaignId } = req.params;
+      const MarketingEmailService = require('./marketing-email');
+      const service = new MarketingEmailService();
+      
+      const cancelled = await service.requestCampaignCancellation(campaignId);
+      
+      if (cancelled) {
+        res.json({ 
+          success: true, 
+          message: 'Kampanja će biti prekinuta nakon trenutnog emaila' 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          error: 'Kampanja nije pronađena ili nije aktivna' 
+        });
+      }
+    } catch (error) {
+      console.error('Cancel campaign error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // 📧 EMAIL ADMIN API ENDPOINTS
 // Get email database statistics
 app.get(
