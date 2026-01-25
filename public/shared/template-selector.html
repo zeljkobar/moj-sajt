@@ -229,7 +229,7 @@
         <h1><i class="fas fa-envelope"></i> Izaberite Email Template</h1>
         <p>
           Kliknite na template za preview, zatim Select za izbor. Trenutno
-          dostupno: <strong id="templateCount">3</strong> template-a
+          dostupno: <strong id="templateCount">4</strong> template-a
         </p>
       </div>
 
@@ -242,6 +242,47 @@
 
       <!-- Template Grid -->
       <div class="template-grid">
+        <!-- Izvodi Automatizacija -->
+        <div class="template-card" data-template="izvodi-automatizacija.html">
+          <div class="template-header">
+            <div
+              class="template-icon"
+              style="
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              "
+            >
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="template-title">Izvodi Automatizacija</div>
+            <div class="template-description">
+              Promotivni template za automatsko preuzimanje bankovnih izvoda
+            </div>
+          </div>
+          <div class="template-body">
+            <ul class="template-features">
+              <li>Prikaz problema sa ručnim izvozom</li>
+              <li>Prezentacija automatizovanog rešenja</li>
+              <li>Lista benefita i prednosti</li>
+              <li>CTA za zakazivanje demo sastanka</li>
+              <li>Profesionalni dizajn sa ilustracijama</li>
+            </ul>
+          </div>
+          <div class="template-actions">
+            <button
+              class="btn-preview"
+              onclick="previewTemplate('izvodi-automatizacija.html')"
+            >
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button
+              class="btn-select"
+              onclick="selectTemplate('izvodi-automatizacija.html')"
+            >
+              <i class="fas fa-check"></i> Select
+            </button>
+          </div>
+        </div>
+
         <!-- Marketing Default -->
         <div class="template-card" data-template="marketing-default.html">
           <div class="template-header">
@@ -331,7 +372,7 @@
               <i class="fas fa-newspaper"></i>
             </div>
             <div class="template-title">Mesečni Newsletter</div>
-            <div class="template-description">
+            <div class="template-description">izvodi-automatizacija
               Informativni template sa novostima i savetima
             </div>
           </div>
@@ -408,6 +449,7 @@
 
       function showSelectedInfo(templateName) {
         const displayNames = {
+          'izvodi-automatizacija.html': 'Izvodi Automatizacija',
           'marketing-default.html': 'Marketing Default',
           'promo-specijalna-ponuda.html': 'Specijalna Ponuda',
           'newsletter-mesecni.html': 'Mesečni Newsletter',
