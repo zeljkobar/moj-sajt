@@ -1956,6 +1956,35 @@ app.get('/api/marketing/stats', async (req, res) => {
   }
 });
 
+// Dobij trenutnu aktivnu kampanju (running status)
+app.get(
+  '/api/marketing/campaigns/running',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const { executeQuery } = require('./src/config/database');
+      const query = `
+        SELECT id, campaign_name, total_recipients, emails_sent, emails_failed, created_at, status
+        FROM marketing_campaigns 
+        WHERE status = 'running'
+        ORDER BY created_at DESC
+        LIMIT 1
+      `;
+      const campaigns = await executeQuery(query);
+      
+      if (campaigns.length > 0) {
+        res.json({ success: true, campaign: campaigns[0] });
+      } else {
+        res.json({ success: true, campaign: null });
+      }
+    } catch (error) {
+      console.error('Running campaign check error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // Dobij listu svih kampanja
 app.get(
   '/api/marketing/campaigns',

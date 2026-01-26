@@ -3538,6 +3538,42 @@
         }
       }
 
+      // Proveri da li postoji aktivna kampanja
+      async function checkForRunningCampaign() {
+        try {
+          const response = await fetch('/api/marketing/campaigns/running');
+          if (response.ok) {
+            const result = await response.json();
+            if (result.campaign) {
+              const campaign = result.campaign;
+              console.log('🔄 Pronađena aktivna kampanja:', campaign);
+              
+              // Postavi activeCampaignId
+              activeCampaignId = campaign.id;
+              
+              // Prikaži progress bar
+              showProgressBar(true);
+              
+              // Učitaj trenutni progres
+              const progressResponse = await fetch(`/api/marketing/campaign-progress/${campaign.id}`);
+              if (progressResponse.ok) {
+                const progressData = await progressResponse.json();
+                updateProgressBar(progressData);
+              }
+              
+              // Pokreni monitoring
+              addLog('info', `🔄 Nastavljeno praćenje kampanje #${campaign.id}: ${campaign.name}`);
+              startProgressMonitoring(campaign.id);
+              
+              // Prikaži poruku korisniku
+              showResult('info', `🔄 Nastavlja se kampanja "${campaign.name}" - ${campaign.name}`);
+            }
+          }
+        } catch (error) {
+          console.error('Greška pri provjeri aktivne kampanje:', error);
+        }
+      }
+
       // Initialize when page loads
       document.addEventListener('DOMContentLoaded', function () {
         console.log('🎯 Page loaded, initializing filter system...');
@@ -3549,6 +3585,9 @@
 
         // Check for saved email list
         checkSavedList();
+        
+        // Check for running campaign
+        checkForRunningCampaign();
       });
     </script>
   </body>
