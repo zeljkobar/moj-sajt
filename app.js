@@ -1317,7 +1317,7 @@ app.post(
     // Marketing campaign endpoint called
 
     try {
-      const { testMode, campaignName, senderEmail, senderName, subject } =
+      const { testMode, campaignName, senderEmail, senderName, subject, template } =
         req.body;
 
       if (!req.file) {
@@ -1329,6 +1329,12 @@ app.post(
 
       const MarketingEmailService = require('./marketing-email');
       const manager = new MarketingEmailService();
+      
+      // Postavi template ako je prosleđen
+      if (template) {
+        manager.setTemplate(template);
+        console.log('📧 Koristi template:', template);
+      }
 
       // Konfiguracija pošaljioca
       let senderConfig = null;
@@ -1368,28 +1374,55 @@ app.post(
       const service = new MarketingEmailService();
       const campaignTitle =
         campaignName || `Kampanja ${new Date().toISOString().split('T')[0]}`;
-      const results = await service.sendBulkMarketingEmails(
-        recipients,
-        2000,
+      
+      // Kreiraj kampanju ID ODMAH i vrati odgovor
+      const campaignId = await service.createCampaign(
         campaignTitle,
-        req.user.id,
-        senderConfig
+        '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!',
+        recipients.length,
+        req.user.id
       );
+
+      // Dodaj sve email adrese u kampanju
+      for (const recipient of recipients) {
+        const email = typeof recipient === 'string' ? recipient : recipient.email;
+        const firstName = typeof recipient === 'object' ? recipient.firstName : null;
+        const companyName = typeof recipient === 'object' ? recipient.companyName : null;
+
+        await service.addEmailToCampaign(
+          campaignId,
+          email,
+          firstName,
+          companyName
+        );
+      }
+
+      console.log(`📋 Kampanja kreirana #${campaignId}, pokreće se u pozadini...`);
 
       // Obriši privremeni fajl
       fs.unlinkSync(req.file.path);
 
+      // Vrati ODMAH odgovor sa campaignId
       res.json({
         success: true,
         campaign: {
-          id: results.campaignId,
+          id: campaignId,
           name: campaignTitle,
-          total: results.total,
-          successful: results.successful,
-          failed: results.failed,
+          total: recipients.length,
           recipients: recipients.length,
         },
       });
+
+      // Pokreni slanje emailova U POZADINI (ne čekaj rezultat)
+      service.sendBulkMarketingEmailsBackground(
+        recipients,
+        2000,
+        campaignId,
+        senderConfig
+      ).catch(error => {
+        console.error('❌ Greška u pozadinskom slanju:', error);
+      });
+
     } catch (error) {
       console.error('Marketing campaign error:', error);
       res.status(500).json({ success: false, error: error.message });

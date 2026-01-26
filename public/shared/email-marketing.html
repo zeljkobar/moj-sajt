@@ -2070,6 +2070,10 @@
             formData.append('senderName', campaignSenderName);
           if (campaignEmailSubject)
             formData.append('subject', campaignEmailSubject);
+          
+          // Dodaj template koji se koristi
+          formData.append('template', selectedTemplate);
+          console.log('📧 Template koji se koristi:', selectedTemplate);
 
           const response = await fetch('/api/marketing/campaign', {
             method: 'POST',
@@ -2106,6 +2110,8 @@
             } else {
               // Start monitoring campaign progress
               activeCampaignId = result.campaign.id;
+              showProgressBar(true);
+              resetProgressBar();
               addLog('info', `Kampanja pokrenuta - ID: ${activeCampaignId}`);
               startProgressMonitoring(activeCampaignId);
 
@@ -2171,6 +2177,7 @@
       }
 
       function updateProgressBar(data) {
+        console.log('📊 updateProgressBar data:', data);
         const { total, sent, failed, current_email, percentage, status } = data;
         const remaining = total - sent - failed;
 
@@ -2203,7 +2210,6 @@
           document.getElementById('cancelCampaignBtn').disabled = true;
           addLog('success', `Kampanja završena! Poslato: ${sent}, Neuspešno: ${failed}`);
           stopProgressMonitoring();
-          loadCampaigns(); // Refresh campaign list
         }
       }
 
@@ -2218,7 +2224,20 @@
       }
 
       async function startProgressMonitoring(campaignId) {
+        console.log('🎯 startProgressMonitoring called for campaign:', campaignId);
         addLog('info', 'Praćenje progresa pokrenuto...');
+
+        // Odmah pozovi progress jednom pre polling-a
+        try {
+          const response = await fetch(`/api/marketing/campaign-progress/${campaignId}`);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📊 Initial progress data:', data);
+            updateProgressBar(data);
+          }
+        } catch (error) {
+          console.error('Initial progress fetch error:', error);
+        }
 
         // Poll every 2 seconds
         progressInterval = setInterval(async () => {
@@ -2252,6 +2271,8 @@
           progressInterval = null;
         }
         activeCampaignId = null;
+        // Refresh campaign list after stopping
+        loadCampaigns();
       }
 
       async function cancelCampaign() {

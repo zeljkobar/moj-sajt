@@ -9,7 +9,13 @@ class MarketingEmailService {
   constructor() {
     this.transporter = createTransporter();
     this.templatesPath = path.join(__dirname, 'email-templates');
-    this.templatePath = path.join(this.templatesPath, 'marketing-default.html'); // default template
+    this.templatePath = path.join(this.templatesPath, 'izvodi-automatizacija.html'); // default template
+  }
+
+  // Postavi template za slanje
+  setTemplate(templateName) {
+    this.templatePath = path.join(this.templatesPath, templateName);
+    console.log('📧 Template postavljen na:', this.templatePath);
   }
 
   // Učitaj HTML template
@@ -324,6 +330,89 @@ class MarketingEmailService {
     }
   }
 
+  // NOVO: Slanje emailova u pozadini (kampanja već kreirana)
+  async sendBulkMarketingEmailsBackground(
+    recipients,
+    delay = 500,
+    campaignId,
+    senderConfig = null
+  ) {
+    const results = [];
+
+    try {
+      console.log(
+        `🚀 Započinje pozadinsko slanje za kampanju #${campaignId} na ${recipients.length} adresa...`
+      );
+
+      for (let i = 0; i < recipients.length; i++) {
+        // Check if campaign was cancelled
+        const cancelCheck = await this.checkCampaignCancelled(campaignId);
+        if (cancelCheck) {
+          console.log('⚠️ Kampanja prekinuta od strane korisnika');
+          await this.setCampaignCancelled(campaignId);
+          break;
+        }
+
+        const recipient = recipients[i];
+        const email =
+          typeof recipient === 'string' ? recipient : recipient.email;
+        const userData = typeof recipient === 'object' ? recipient : {};
+
+        console.log(`📧 Šalje ${i + 1}/${recipients.length}: ${email}`);
+
+        // Update current email being sent
+        await this.updateCurrentEmail(campaignId, email);
+
+        const result = await this.sendMarketingEmail(
+          email,
+          userData,
+          campaignId,
+          senderConfig
+        );
+        results.push(result);
+
+        // Pauza između mailova da ne opteretimo SMTP server
+        if (i < recipients.length - 1) {
+          console.log(`⏳ Pauza ${delay}ms...`);
+          await this.sleep(delay);
+        }
+      }
+
+      // Završi kampanju
+      const cancelCheck = await this.checkCampaignCancelled(campaignId);
+      if (cancelCheck) {
+        await this.setCampaignCancelled(campaignId);
+      } else {
+        await this.completeCampaign(campaignId);
+      }
+
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+
+      console.log(`\n📊 Rezultat pozadinskog slanja za kampanju #${campaignId}:`);
+      console.log(`✅ Uspješno poslano: ${successful}`);
+      console.log(`❌ Neuspješno: ${failed}`);
+      console.log(`📈 Ukupno: ${results.length}`);
+
+      return {
+        campaignId,
+        total: results.length,
+        successful,
+        failed,
+        results,
+      };
+    } catch (error) {
+      console.error('Greška u pozadinskom slanju:', error);
+      // Ne bacaj error jer je ovo background proces
+      // Umjesto toga, označi kampanju kao failed
+      try {
+        await this.setCampaignFailed(campaignId);
+      } catch (dbError) {
+        console.error('Greška pri označavanju kampanje kao neuspešne:', dbError);
+      }
+    }
+  }
+
   // Kreiraj text verziju emaila
   createTextVersion(userData = {}) {
     const greeting = userData.firstName
@@ -493,6 +582,21 @@ SummaSummarum Team
       await executeQuery(query, [campaignId]);
     } catch (error) {
       console.error('Greška pri završavanju kampanje:', error);
+    }
+  }
+
+  // Postavi kampanju kao neuspešnu
+  async setCampaignFailed(campaignId) {
+    try {
+      const query = `
+        UPDATE marketing_campaigns 
+        SET status = 'failed', completed_at = NOW(), current_email = NULL 
+        WHERE id = ?
+      `;
+      await executeQuery(query, [campaignId]);
+      console.log(`❌ Kampanja #${campaignId} označena kao neuspješna`);
+    } catch (error) {
+      console.error('Greška pri postavljanju kampanje kao neuspešne:', error);
     }
   }
 
