@@ -304,10 +304,10 @@
       <div class="container">
         <div class="row justify-content-center text-center">
           <div class="col-lg-8">
-            <h1 class="display-4 fw-bold mb-4">
+            <h1 class="display-4 fw-bold mb-4" id="mainTitle">
               Dobrodošli u Summa Summarum aplikaciju!
             </h1>
-            <p class="lead mb-4" style="font-size: 1.3rem">
+            <p class="lead mb-4" style="font-size: 1.3rem" id="mainSubtitle">
               Upravljajte vašom firmom, radnicima i dokumentima na jednom mestu
             </p>
             <div class="mt-4">
@@ -553,9 +553,25 @@
     <script src="/shared/script.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
+        // Detekcija domena i prilagođavanje sadržaja
+        detectDomainAndUpdateContent();
+        
         // Učitavanje korisničkih podataka za prikaz imena
         loadUserData();
       });
+
+      // Funkcija za detekciju domena i ažuriranje sadržaja
+      function detectDomainAndUpdateContent() {
+        const host = window.location.hostname;
+        const isMojradnik = host.includes('mojradnik.me') || host.includes('mojradnik');
+        
+        if (isMojradnik) {
+          // Promeni naslove za Moj Radnik domen
+          document.getElementById('mainTitle').textContent = 'Dobrodošli u Moj Radnik aplikaciju!';
+          document.getElementById('mainSubtitle').textContent = 'Upravljajte vašom firmom i radnicima na jednom mestu';
+          document.title = 'Dobrodošli u Moj Radnik | Registracija firme';
+        }
+      }
 
       // Funkcija za učitavanje korisničkih podataka
       async function loadUserData() {
