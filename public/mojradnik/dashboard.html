@@ -607,11 +607,30 @@
             const firma = await response.json();
             currentFirma = firma;
             displayFirmaData(firma);
+          } else if (response.status === 404) {
+            // Korisnik nema firmu - preusmjeri na onboarding stranicu
+            console.log('❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html');
+            window.location.href = '/shared/company-onboarding.html';
           } else {
-            console.error('Greška pri učitavanju podataka firme');
+            console.error('Greška pri učitavanju podataka firme:', response.status);
+            // Za ostale greške, prikaži error umjesto spinnera
+            document.querySelector('.firma-loading').innerHTML = `
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Greška pri učitavanju podataka firme. 
+                <a href="/shared/dodaj-firmu.html" class="alert-link">Dodajte firmu</a>
+              </div>
+            `;
           }
         } catch (error) {
           console.error('Greška pri povezivanju sa API:', error);
+          // Za mrežne greške, prikaži error
+          document.querySelector('.firma-loading').innerHTML = `
+            <div class="alert alert-danger">
+              <i class="fas fa-times-circle me-2"></i>
+              Greška pri povezivanju sa serverom. Molimo pokušajte kasnije.
+            </div>
+          `;
         }
       }
 
