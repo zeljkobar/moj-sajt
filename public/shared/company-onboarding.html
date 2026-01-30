@@ -512,7 +512,7 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-lg-8 text-center">
-            <h3 class="mb-4">Zašto izabrati Summa Summarum?</h3>
+            <h3 class="mb-4" id="whyChooseTitle">Zašto izabrati Summa Summarum?</h3>
             <div class="row">
               <div class="col-md-4 mb-4">
                 <div class="p-4">
@@ -564,12 +564,20 @@
       function detectDomainAndUpdateContent() {
         const host = window.location.hostname;
         const isMojradnik = host.includes('mojradnik.me') || host.includes('mojradnik');
+        const isPrijaviradnika = host.includes('prijaviradnika.com') || host.includes('prijaviradnika');
         
         if (isMojradnik) {
           // Promeni naslove za Moj Radnik domen
           document.getElementById('mainTitle').textContent = 'Dobrodošli u Moj Radnik aplikaciju!';
           document.getElementById('mainSubtitle').textContent = 'Upravljajte vašom firmom i radnicima na jednom mestu';
+          document.getElementById('whyChooseTitle').textContent = 'Zašto izabrati Moj Radnik?';
           document.title = 'Dobrodošli u Moj Radnik | Registracija firme';
+        } else if (isPrijaviradnika) {
+          // Promeni naslove za Prijavi Radnika domen
+          document.getElementById('mainTitle').textContent = 'Dobrodošli u Prijavi Radnika aplikaciju!';
+          document.getElementById('mainSubtitle').textContent = 'Prijavite radnike brzo i jednostavno';
+          document.getElementById('whyChooseTitle').textContent = 'Zašto izabrati Prijavi Radnika?';
+          document.title = 'Dobrodošli u Prijavi Radnika | Registracija firme';
         }
       }
 
