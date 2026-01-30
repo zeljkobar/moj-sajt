@@ -66,8 +66,18 @@
     <link rel="stylesheet" href="/shared/app-pages.css" />
 
     <style>
+      :root {
+        --hero-gradient-start: #667eea;
+        --hero-gradient-end: #764ba2;
+        --primary-gradient-start: #0d6efd;
+        --primary-gradient-end: #6610f2;
+        --step1-color: #0d6efd;
+        --step2-color: #198754;
+        --step3-color: #17a2b8;
+      }
+
       .welcome-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
         color: white;
         padding: 10px 0 155px 0; /* Povećan padding i podignut tekst */
         position: relative;
@@ -136,7 +146,7 @@
       }
 
       .main-card-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
         color: white;
         padding: 40px;
         text-align: center;
@@ -152,14 +162,14 @@
       }
 
       .btn-primary-custom {
-        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
         border: none;
         padding: 15px 40px;
         border-radius: 50px;
         font-weight: 600;
         font-size: 1.1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+        box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
       }
 
       .btn-primary-custom:hover {
@@ -209,13 +219,13 @@
       }
 
       .step-1 .step-circle {
-        background: #0d6efd;
+        background: var(--step1-color);
       }
       .step-2 .step-circle {
-        background: #198754;
+        background: var(--step2-color);
       }
       .step-3 .step-circle {
-        background: #17a2b8;
+        background: var(--step3-color);
       }
 
       /* Responsive naslov - osiguravamo da se vidi potpuno */
@@ -565,6 +575,7 @@
         const host = window.location.hostname;
         const isMojradnik = host.includes('mojradnik.me') || host.includes('mojradnik');
         const isPrijaviradnika = host.includes('prijaviradnika.com') || host.includes('prijaviradnika');
+        const root = document.documentElement;
         
         if (isMojradnik) {
           // Promeni naslove za Moj Radnik domen
@@ -578,6 +589,15 @@
           document.getElementById('mainSubtitle').textContent = 'Prijavite radnike brzo i jednostavno';
           document.getElementById('whyChooseTitle').textContent = 'Zašto izabrati Prijavi Radnika?';
           document.title = 'Dobrodošli u Prijavi Radnika | Registracija firme';
+          
+          // Promeni boje u crvene nijanse
+          root.style.setProperty('--hero-gradient-start', '#dc2626');
+          root.style.setProperty('--hero-gradient-end', '#b91c1c');
+          root.style.setProperty('--primary-gradient-start', '#dc2626');
+          root.style.setProperty('--primary-gradient-end', '#b91c1c');
+          root.style.setProperty('--step1-color', '#dc2626');
+          root.style.setProperty('--step2-color', '#b91c1c');
+          root.style.setProperty('--step3-color', '#ef4444');
         }
       }
 
