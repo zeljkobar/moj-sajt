@@ -410,6 +410,7 @@
                     <th>Datum zaposlenja</th>
                     <th>Tip ugovora</th>
                     <th class="text-end">Zarada</th>
+                    <th class="text-center">Ugovor</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -433,6 +434,13 @@
                       <td class="text-end"><strong>${parseFloat(
                         radnik.visina_zarade
                       ).toFixed(2)}€</strong></td>
+                      <td class="text-center">
+                        <a href="/shared/ugovor-o-radu.html?radnikId=${radnik.id}&firmaId=${firma.id}" 
+                           target="_blank" 
+                           class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-file-contract"></i> Pregled
+                        </a>
+                      </td>
                     </tr>
                   `
                     )

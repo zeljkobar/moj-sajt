@@ -888,16 +888,31 @@ app.get('/api/firme/id/:id', authMiddleware, async (req, res) => {
   try {
     const firmaId = req.params.id;
     const userId = req.session.user.id;
+    const isAdmin = req.session.user.role === 'admin';
+    
+    console.log('[app.js /api/firme/id/:id] ID:', firmaId, 'User:', userId, 'IsAdmin:', isAdmin);
 
-    const firma = await executeQuery(
-      'SELECT * FROM firme WHERE id = ? AND user_id = ?',
-      [firmaId, userId]
-    );
+    let firma;
+    if (isAdmin) {
+      // Admin može vidjeti bilo koju firmu
+      firma = await executeQuery(
+        'SELECT * FROM firme WHERE id = ?',
+        [firmaId]
+      );
+    } else {
+      // Obični korisnik samo svoje firme
+      firma = await executeQuery(
+        'SELECT * FROM firme WHERE id = ? AND user_id = ?',
+        [firmaId, userId]
+      );
+    }
 
     if (firma.length === 0) {
+      console.log('[app.js /api/firme/id/:id] Firma NOT FOUND');
       return res.status(404).json({ message: 'Firma nije pronađena' });
     }
 
+    console.log('[app.js /api/firme/id/:id] Firma FOUND:', firma[0].naziv);
     res.json(firma[0]);
   } catch (error) {
     console.error('Greška pri učitavanju firme:', error);

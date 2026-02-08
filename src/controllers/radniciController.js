@@ -104,6 +104,7 @@ const radniciController = {
       }
 
       const username = req.session.user.username;
+      const isAdmin = req.session.user.role === 'admin';
 
       // Dobij ID korisnika
       const [user] = await executeQuery(
@@ -115,9 +116,40 @@ const radniciController = {
         return res.status(404).json({ message: 'Korisnik nije pronađen' });
       }
 
-      // Dobij radnika samo ako pripada firmi ovog korisnika
-      const [radnik] = await executeQuery(
-        `
+      // Ako je admin, dobij radnika bez provjere vlasništva, inače provjeri vlasništvo
+      let query, params;
+      if (isAdmin) {
+        query = `
+        SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
+               r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
+               r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
+               r.status, r.subota,
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.naziv
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.naziv
+                   ELSE 'Nespecifikovano'
+                 END
+               ) as pozicija_naziv, 
+               COALESCE(
+                 CASE 
+                   WHEN r.pozicija_id LIKE 'template_%' THEN pt.opis_poslova
+                   WHEN r.pozicija_id LIKE 'custom_%' THEN p.opis_poslova
+                   ELSE ''
+                 END
+               ) as opis_poslova, 
+               f.naziv as firma_naziv,
+               u.vrsta_ugovora
+        FROM radnici r 
+        LEFT JOIN pozicije p ON r.pozicija_id = CONCAT('custom_', p.id)
+        LEFT JOIN pozicije_templates pt ON r.pozicija_id = CONCAT('template_', pt.id)
+        LEFT JOIN firme f ON r.firma_id = f.id 
+        LEFT JOIN ugovori u ON r.id = u.radnik_id
+        WHERE r.id = ?
+      `;
+        params = [id];
+      } else {
+        query = `
         SELECT r.id, r.ime, r.prezime, r.jmbg, r.grad, r.adresa, 
                r.pozicija_id, r.firma_id, r.datum_zaposlenja, r.visina_zarade, 
                r.tip_radnog_vremena, r.tip_ugovora, r.datum_prestanka, r.napomene,
@@ -144,9 +176,11 @@ const radniciController = {
         LEFT JOIN firme f ON r.firma_id = f.id 
         LEFT JOIN ugovori u ON r.id = u.radnik_id
         WHERE r.id = ? AND f.user_id = ?
-      `,
-        [id, user.id]
-      );
+      `;
+        params = [id, user.id];
+      }
+
+      const [radnik] = await executeQuery(query, params);
 
       if (!radnik) {
         return res.status(404).json({

@@ -412,14 +412,45 @@ const firmeController = {
   getFirmaById: async (req, res) => {
     const { id } = req.params;
     try {
-      const [firma] = await executeQuery('SELECT * FROM firme WHERE id = ?', [
-        id,
-      ]);
+      console.log('[getFirmaById] Firma ID:', id, 'User:', req.session?.user?.username, 'Role:', req.session?.user?.role);
+      
+      // Proveri da li je korisnik admin
+      const isAdmin = req.session?.user?.role === 'admin';
+      console.log('[getFirmaById] Is Admin:', isAdmin);
+      
+      let query, params;
+      if (isAdmin) {
+        // Admin može vidjeti bilo koju firmu
+        query = 'SELECT * FROM firme WHERE id = ?';
+        params = [id];
+        console.log('[getFirmaById] Admin query - bez provjere vlasništva');
+      } else {
+        // Obični korisnik može vidjeti samo svoje firme
+        const username = req.session.user.username;
+        const [user] = await executeQuery(
+          'SELECT id FROM users WHERE username = ?',
+          [username]
+        );
+        
+        if (!user) {
+          console.log('[getFirmaById] Korisnik nije pronađen');
+          return res.status(404).json({ message: 'Korisnik nije pronađen' });
+        }
+        
+        query = 'SELECT * FROM firme WHERE id = ? AND user_id = ?';
+        params = [id, user.id];
+        console.log('[getFirmaById] Regular user query - provjerava vlasništvo za user_id:', user.id);
+      }
+      
+      const [firma] = await executeQuery(query, params);
+      console.log('[getFirmaById] Query result:', firma ? 'FOUND' : 'NOT FOUND');
+      
       if (!firma) {
         return res.status(404).json({ message: 'Firma nije pronađena' });
       }
       res.json(firma);
     } catch (error) {
+      console.error('[getFirmaById] Error:', error);
       res.status(500).json({ message: 'Greška na serveru' });
     }
   },
