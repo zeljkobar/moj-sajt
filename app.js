@@ -93,6 +93,8 @@ const allowedOrigins = [
   'http://www.mojradnik.me',
   'https://prijaviradnika.com',
   'http://prijaviradnika.com',
+  'https://www.prijaviradnika.com',
+  'http://www.prijaviradnika.com',
   'http://185.102.78.178',
   'https://185.102.78.178',
 ];
