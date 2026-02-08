@@ -4403,6 +4403,14 @@ async function checkUserPermissions() {
         }
       }
 
+      // Prikaži IRMS ovlašćenje dugme za firme
+      if (user.role === 'firma') {
+        const ovlascenteIrmsCard = document.getElementById('ovlascenje-irms-card');
+        if (ovlascenteIrmsCard) {
+          ovlascenteIrmsCard.style.display = 'block';
+        }
+      }
+
       // Sačuvaj role u globalnu promenljivu za kasniju upotrebu
       window.currentUserRole = user.role;
       
@@ -4437,6 +4445,18 @@ function generisjOvlascenje() {
 
   // Otvori ovlašćenje direktno bez modala
   const url = `/shared/ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`;
+  window.open(url, '_blank');
+}
+
+// Funkcija za generisanje ovlašćenja za IRMS portal
+function generisjOvlascenjeIRMS() {
+  if (!currentFirmaId) {
+    alert('Greška: Nema ID firme');
+    return;
+  }
+
+  // Otvori IRMS ovlašćenje direktno bez modala
+  const url = `/shared/ovlascenje-irms.html?firmaId=${currentFirmaId}`;
   window.open(url, '_blank');
 }
 
