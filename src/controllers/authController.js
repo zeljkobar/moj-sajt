@@ -304,13 +304,7 @@ const authController = {
         role: userType || 'firma', // default role je 'firma'
       });
 
-      // Kopiraj template pozicije za novog korisnika (ne blokiramo registraciju ako ne uspe)
-      copyTemplatesToUser(userId).catch(error => {
-        console.error(
-          `❌ Greška pri kopiranju template pozicija za korisnika ${username}:`,
-          error
-        );
-      });
+      // Template pozicije se NE kopiraju - korisnici koriste zajedničke template + mogu dodati custom
 
       // Pošalji welcome email (ne čekamo rezultat da ne sporimo registraciju)
       const userName = `${ime.trim()} ${prezime.trim()}`;
@@ -550,8 +544,7 @@ const authController = {
 
       const userId = userResult.insertId;
 
-      // Copy template positions
-      await copyTemplatesToUser(userId);
+      // Template pozicije se NE kopiraju - korisnici koriste zajedničke template + mogu dodati custom
 
       // Agencija registered successfully
 
@@ -614,8 +607,7 @@ const authController = {
 
       const userId = userResult.insertId;
 
-      // Copy template positions
-      await copyTemplatesToUser(userId);
+      // Template pozicije se NE kopiraju - korisnici koriste zajedničke template + mogu dodati custom
 
       // Kompanija registered successfully
 
