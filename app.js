@@ -85,8 +85,12 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://summasummarum.me',
   'http://summasummarum.me',
+  'https://www.summasummarum.me',
+  'http://www.summasummarum.me',
   'https://mojradnik.me',
   'http://mojradnik.me',
+  'https://www.mojradnik.me',
+  'http://www.mojradnik.me',
   'https://prijaviradnika.com',
   'http://prijaviradnika.com',
   'http://185.102.78.178',
@@ -184,6 +188,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+// DEBUG: Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`🔍 [${new Date().toISOString()}] ${req.method} ${req.originalUrl} - Host: ${req.get('host')} - IP: ${req.ip}`);
+  next();
+});
+
 // Domain-specific middleware for multi-domain setup
 app.use((req, res, next) => {
   // Domain middleware called
@@ -199,13 +209,13 @@ app.use((req, res, next) => {
     referer.includes('domain=prijaviradnika') ||
     req.query.domain === 'prijaviradnika';
 
-  // Detect domain and set appropriate paths
+  // Detect domain and set appropriate paths (support both with and without www)
   if (
     host &&
     (host.includes('mojradnik.me') ||
       (host.includes('localhost') && isDomainMojradnik))
   ) {
-    // For mojradnik.me domain
+    // For mojradnik.me domain (with or without www)
     req.domainType = 'mojradnik';
     req.isMultiTenant = false;
   } else if (
@@ -217,11 +227,12 @@ app.use((req, res, next) => {
     req.domainType = 'prijaviradnika';
     req.isMultiTenant = false;
   } else {
-    // For summasummarum.me domain (default)
+    // For summasummarum.me domain (default, with or without www)
     req.domainType = 'summasummarum';
     req.isMultiTenant = true;
   }
 
+  console.log(`📍 Domain detected: ${req.domainType} (Host: ${host})`);
   // Domain type determined
   next();
 });
