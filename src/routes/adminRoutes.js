@@ -432,12 +432,20 @@ router.delete('/users/:id', async (req, res) => {
       );
       console.log(`💰 Obrisano ${pozajmniceResult.affectedRows} pozajmnica`);
 
-      // Obriši zavrsne racune vezane za radnike ove firme
-      const [zavrsniRacuniResult] = await connection.execute(
-        'DELETE FROM zavrsni_racuni WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
-        [firma.id]
-      );
-      console.log(`🧾 Obrisano ${zavrsniRacuniResult.affectedRows} završnih računa`);
+      // Obriši zavrsne racune vezane za radnike ove firme (ako tabela postoji)
+      try {
+        const [zavrsniRacuniResult] = await connection.execute(
+          'DELETE FROM zavrsni_racuni WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
+          [firma.id]
+        );
+        console.log(`🧾 Obrisano ${zavrsniRacuniResult.affectedRows} završnih računa`);
+      } catch (err) {
+        if (err.code === 'ER_NO_SUCH_TABLE') {
+          console.log(`🧾 Tabela zavrsni_racuni ne postoji - preskačem`);
+        } else {
+          throw err;
+        }
+      }
 
       // Obriši radnike
       const [radniciResult] = await connection.execute(
@@ -454,33 +462,65 @@ router.delete('/users/:id', async (req, res) => {
     );
     console.log(`🏢 Obrisano ${firmeResult.affectedRows} firmi`);
 
-    // 4. Obriši password_reset_logs
-    const [passwordResetResult] = await connection.execute(
-      'DELETE FROM password_reset_logs WHERE user_id = ?',
-      [id]
-    );
-    console.log(`🔑 Obrisano ${passwordResetResult.affectedRows} password reset logova`);
+    // 4. Obriši password_reset_logs (ako postoji)
+    try {
+      const [passwordResetResult] = await connection.execute(
+        'DELETE FROM password_reset_logs WHERE user_id = ?',
+        [id]
+      );
+      console.log(`🔑 Obrisano ${passwordResetResult.affectedRows} password reset logova`);
+    } catch (err) {
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        console.log(`🔑 Tabela password_reset_logs ne postoji - preskačem`);
+      } else {
+        throw err;
+      }
+    }
 
-    // 5. Obriši pdv_prijave
-    const [pdvResult] = await connection.execute(
-      'DELETE FROM pdv_prijave WHERE user_id = ?',
-      [id]
-    );
-    console.log(`📊 Obrisano ${pdvResult.affectedRows} PDV prijava`);
+    // 5. Obriši pdv_prijave (ako postoji)
+    try {
+      const [pdvResult] = await connection.execute(
+        'DELETE FROM pdv_prijave WHERE user_id = ?',
+        [id]
+      );
+      console.log(`📊 Obrisano ${pdvResult.affectedRows} PDV prijava`);
+    } catch (err) {
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        console.log(`📊 Tabela pdv_prijave ne postoji - preskačem`);
+      } else {
+        throw err;
+      }
+    }
 
-    // 6. Obriši marketing_campaigns gde je ovaj korisnik kreirao kampanje
-    const [marketingResult] = await connection.execute(
-      'DELETE FROM marketing_campaigns WHERE created_by = ?',
-      [id]
-    );
-    console.log(`📧 Obrisano ${marketingResult.affectedRows} marketing kampanja`);
+    // 6. Obriši marketing_campaigns gde je ovaj korisnik kreirao kampanje (ako postoji)
+    try {
+      const [marketingResult] = await connection.execute(
+        'DELETE FROM marketing_campaigns WHERE created_by = ?',
+        [id]
+      );
+      console.log(`📧 Obrisano ${marketingResult.affectedRows} marketing kampanja`);
+    } catch (err) {
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        console.log(`📧 Tabela marketing_campaigns ne postoji - preskačem`);
+      } else {
+        throw err;
+      }
+    }
 
     // 7. Obriši godisnji_odmori gde je ovaj korisnik odobravao (odobrio_user_id)
-    const [odmoriOdobrioResult] = await connection.execute(
-      'UPDATE godisnji_odmori SET odobrio_user_id = NULL WHERE odobrio_user_id = ?',
-      [id]
-    );
-    console.log(`🏖️ Uklonjeno ${odmoriOdobrioResult.affectedRows} odobrenja godišnjih odmora`);
+    try {
+      const [odmoriOdobrioResult] = await connection.execute(
+        'UPDATE godisnji_odmori SET odobrio_user_id = NULL WHERE odobrio_user_id = ?',
+        [id]
+      );
+      console.log(`🏖️ Uklonjeno ${odmoriOdobrioResult.affectedRows} odobrenja godišnjih odmora`);
+    } catch (err) {
+      if (err.code === 'ER_NO_SUCH_TABLE' || err.code === 'ER_BAD_FIELD_ERROR') {
+        console.log(`🏖️ Tabela/kolona godisnji_odmori.odobrio_user_id ne postoji - preskačem`);
+      } else {
+        throw err;
+      }
+    }
 
     // 8. Obriši subscription_history WHERE user_id = ? OR created_by = ?
     const [subscriptionHistoryResult] = await connection.execute(
