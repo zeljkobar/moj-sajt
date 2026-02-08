@@ -404,12 +404,40 @@ router.delete('/users/:id', async (req, res) => {
         `🏢 Brišem podatke za firmu: ${firma.naziv} (ID: ${firma.id})`
       );
 
+      // Obriši zadatke firme
+      const [zadaciResult] = await connection.execute(
+        'DELETE FROM firma_zadaci WHERE firma_id = ?',
+        [firma.id]
+      );
+      console.log(`📝 Obrisano ${zadaciResult.affectedRows} zadataka`);
+
+      // Obriši godišnje odmor vezane za radnike ove firme
+      const [odmoriResult] = await connection.execute(
+        'DELETE FROM godisnji_odmori WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
+        [firma.id]
+      );
+      console.log(`🏖️ Obrisano ${odmoriResult.affectedRows} godišnjih odmora`);
+
+      // Obriši otkaze vezane za radnike ove firme
+      const [otkaziRadniciResult] = await connection.execute(
+        'DELETE FROM otkazi WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
+        [firma.id]
+      );
+      console.log(`📄 Obrisano ${otkaziRadniciResult.affectedRows} otkaza radnika`);
+
       // Obriši pozajmnice koje su vezane za radnike ove firme
       const [pozajmniceResult] = await connection.execute(
         'DELETE FROM pozajmnice WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
         [firma.id]
       );
       console.log(`💰 Obrisano ${pozajmniceResult.affectedRows} pozajmnica`);
+
+      // Obriši zavrsne racune vezane za radnike ove firme
+      const [zavrsniRacuniResult] = await connection.execute(
+        'DELETE FROM zavrsni_racuni WHERE radnik_id IN (SELECT id FROM radnici WHERE firma_id = ?)',
+        [firma.id]
+      );
+      console.log(`🧾 Obrisano ${zavrsniRacuniResult.affectedRows} završnih računa`);
 
       // Obriši radnike
       const [radniciResult] = await connection.execute(
@@ -426,21 +454,35 @@ router.delete('/users/:id', async (req, res) => {
     );
     console.log(`🏢 Obrisano ${firmeResult.affectedRows} firmi`);
 
-    // 4. Obriši pozicije korisnika
+    // 4. Obriši subscription_history
+    const [subscriptionHistoryResult] = await connection.execute(
+      'DELETE FROM subscription_history WHERE user_id = ?',
+      [id]
+    );
+    console.log(`📜 Obrisano ${subscriptionHistoryResult.affectedRows} subscription history zapisa`);
+
+    // 5. Obriši payments (uplate)
+    const [paymentsResult] = await connection.execute(
+      'DELETE FROM payments WHERE user_id = ?',
+      [id]
+    );
+    console.log(`💳 Obrisano ${paymentsResult.affectedRows} uplata`);
+
+    // 6. Obriši pozicije korisnika
     const [pozicijeResult] = await connection.execute(
       'DELETE FROM pozicije WHERE user_id = ?',
       [id]
     );
     console.log(`📋 Obrisano ${pozicijeResult.affectedRows} pozicija`);
 
-    // 5. Obriši otkaze vezane za korisnika
+    // 7. Obriši otkaze vezane za korisnika (ako postoje direktno vezani)
     const [otkaziResult] = await connection.execute(
       'DELETE FROM otkazi WHERE user_id = ?',
       [id]
     );
-    console.log(`📄 Obrisano ${otkaziResult.affectedRows} otkaza`);
+    console.log(`📄 Obrisano ${otkaziResult.affectedRows} otkaza korisnika`);
 
-    // 6. Konačno obriši korisnika
+    // 8. Konačno obriši korisnika
     const [userResult] = await connection.execute(
       'DELETE FROM users WHERE id = ?',
       [id]
