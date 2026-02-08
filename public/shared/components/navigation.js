@@ -93,10 +93,10 @@ class Navigation {
               <!-- Firme/Firma -->
               <li class="nav-item">
                 <a class="nav-link" href="${firmePath}" ${
-      isMojradnik ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''
+      (isMojradnik || isPrijaviradnika) ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''
     }>
                   <i class="fas fa-building me-1"></i>${
-                    isMojradnik ? 'Firma' : 'Firme'
+                    (isMojradnik || isPrijaviradnika) ? 'Firma' : 'Firme'
                   }
                 </a>
               </li>
