@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <!--
@@ -80,7 +80,7 @@
           type="number"
           id="godina"
           name="godina"
-          value="2024"
+          value="2025"
           min="2020"
           max="2030"
         />
@@ -148,13 +148,19 @@
         <input type="number" id="x13" name="x13" />
         <br />
         <label for="x14"
-          >14) Ispravka vrijednosti pojedinacnih potraživanja od lica kojima se
-          istovremeno duguje</label
+          >14) Ispravka vrijednosti pojedinačnih potraživanja od lica kojima se
+          istovremeno duguje, do iznosa obaveze prema tom licu</label
         >
         <input type="number" id="x14" name="x14" />
         <br />
-        <label for="x15">15) Prilozi dati politickim organizacijama</label>
-        <input type="number" id="x15" name="x15" />
+        <label for="x15">15) Ukupno (a + b)</label>
+        <input type="number" id="x15" name="x15" disabled />
+        <br />
+        <label for="x15a">15. a) Prilozi dati političkim organizacijama</label>
+        <input type="number" id="x15a" name="x15a" />
+        <br />
+        <label for="x15b">15. b) Pokloni i drugi prenosi bez naknade</label>
+        <input type="number" id="x15b" name="x15b" />
         <br />
         <label for="x16"
           >16) Troškovi zarada, troškovi otpremnina prilikom odlaska u penziju,
@@ -165,14 +171,17 @@
         <input type="number" id="x16" name="x16" />
         <br />
         <label for="x17"
-          >17) Troškovi materijala i nabavna vrijednost prodate robe iznad
-          iznosa obracunatog primjenom metode prosjecne cijene ili FIFO
-          metode</label
+          >17) Troškovi materijala i nabavna vrijednost prodate trgovačke robe
+          iznad iznosa obračunatog primjenom metode prosječne ponderisane cijene
+          ili " prvi ulaz-prvi izlaz"metode.</label
         >
         <input type="number" id="x17" name="x17" />
         <br />
-        <label for="x18"
-          >18) Iznos izdataka isplacenih pravnim licima za zdravstvene,
+        <label for="x18">18) Ukupno (a + b + c)</label>
+        <input type="number" id="x18" name="x18" disabled />
+        <br />
+        <label for="x18a"
+          >18. a) Iznos izdataka isplacenih pravnim licima za zdravstvene,
           socijalne, obrazovne, naucne, vjerske, kulturne, sportske i
           humanitarne svrhe, smanjenje siromaštva, zaštitu životne sredine,
           zaštitu lica sa invaliditetom, društvenu brigu o djeci i mladima,
@@ -185,7 +194,20 @@
           ukupnog prihoda, uvecan za ukupan iznos ovih izdataka isplacenih
           fizickim licima</label
         >
-        <input type="number" id="x18" name="x18" />
+        <input type="number" id="x18a" name="x18a" />
+        <br />
+        <label for="x18b"
+          >18. b) Iznos izdataka po osnovu donacija u naucnoistraživacke
+          projekte ili inovacionu infrastrukturu po osnovu kojih je poreski
+          obveznik stekao status korisnika podsticajnih mjera</label
+        >
+        <input type="number" id="x18b" name="x18b" />
+        <br />
+        <label for="x18c"
+          >18. c) Iznos izdataka za nacionalne sportske saveze iznad 5% ukupnog
+          prihoda</label
+        >
+        <input type="number" id="x18c" name="x18c" />
         <br />
         <label for="x19"
           >19) Troškovi reprezentacije iznad 1% ukupnog prihoda</label
@@ -198,238 +220,264 @@
         >
         <input type="number" id="x20" name="x20" />
         <br />
-        <label for="x21"
-          >21) Otpisana sumnjiva potraživanja koja se ne priznaju u poreske
-          svrhe</label
+        <label for="x21">21) Ukupno (a + b)</label>
+        <input type="number" id="x21" name="x21" disabled />
+        <br />
+        <label for="x21a"
+          >21. a) Otpisana vrijednost sumnjivih potraživanja koja se ne priznaju
+          u poreske svrhe</label
         >
-        <input type="number" id="x21" name="x21" />
+        <input type="number" id="x21a" name="x21a" />
+        <br />
+        <label for="x21b"
+          >21. b) Ispravka vrijednosti sumnjivih potraživanja koja se ne
+          priznaju u poreske svrhe</label
+        >
+        <input type="number" id="x21b" name="x21b" />
         <br />
         <label for="x22"
-          >22) Obracunate kamate i pripadajuci troškovi prema povezanim licima
-          koje prelaze troškove kamata koje su u skladu sa principom "van
-          dohvata ruke"</label
+          >22) Rezervisanja koja se ne priznaju u poreske svrhe</label
         >
         <input type="number" id="x22" name="x22" />
         <br />
         <label for="x23"
-          >23) Kamata i pripadajuci troškovi placeni povezanim licima iznad
-          tržišnih iznosa</label
+          >23) Obračunate kamate i pripadajući troškovi prema povezanim licima
+          koje prelaze troškove kamata koje su u skladu sa principom "van
+          dohvata ruke", zatezne kamate između povezanih lica</label
         >
         <input type="number" id="x23" name="x23" />
         <br />
         <label for="x24"
           >24) Rashodi po osnovu obezvredjivanja imovine koji se ne priznaju u
-          poreske svrhe (clan 18a Zakona)</label
+          poreske svrhe (član 18a Zakona)</label
         >
         <input type="number" id="x24" name="x24" />
         <br />
         <label for="x25"
-          >25) Obracunati troškovi primjenom transfernih cijena</label
+          >25) Rashodi po osnovu efekata promjene računovodstvene politike
+          nastali usled prve primjene MRS, odnosno MSFI</label
         >
         <input type="number" id="x25" name="x25" />
         <br />
         <label for="x26"
-          >26) Obracunati troškovi primjenom cijena koje su u skladu sa
-          principom "van dohvata ruke"?</label
+          >26) Obračunati troškovi primjenom transfernih cijena</label
         >
         <input type="number" id="x26" name="x26" />
         <br />
         <label for="x27"
-          >27) Razlika obracunatih troškova (red.br.25 - 26>0)</label
+          >27) Obračunati troškovi primjenom cijena koje su u skladu sa
+          principom "van dohvata ruke"</label
         >
         <input type="number" id="x27" name="x27" />
         <br />
         <label for="x28"
-          >28) Iznos poreza po odbitku na dividende i udjele u dobiti koji je
-          platila nerezidentna filijala rezidentnog poreskog obveznika</label
+          >28) Razlika obračunatih troškova (red.br.26 - 27)>0</label
         >
-        <input type="number" id="x28" name="x28" />
+        <input type="number" id="x28" name="x28" disabled />
         <br />
         <label for="x29"
-          >29) Obracunate kamate i pripadajuci troškovi prema povezanim licima
-          koje su manje od prihoda po osnovu kamata koje su u skladu sa
-          principom "van dohvata ruke"</label
+          >29) Iznos poreza po odbitku na dividende i udjele u dobiti koji je
+          platila nerezidentna filijala rezidentnog poreskog obveznika</label
         >
         <input type="number" id="x29" name="x29" />
         <br />
         <label for="x30"
-          >30) Obracunati prihodi primjenom transfernih cijena</label
+          >30) Obračunate kamate i pripadajući troškovi prema povezanim licima
+          koje su manje od prihoda po osnovu kamata koje su u skladu sa
+          principom "van dohvata ruke"</label
         >
         <input type="number" id="x30" name="x30" />
         <br />
         <label for="x31"
-          >31) Obracunati prihodi primjenom cijena koje su u skladu sa principom
-          "van dohvata ruke"</label
+          >31) Prihodi po osnovu efekata promjene računovodstvene politike
+          nastali usled prve primjene MRS, odnosno MSFI</label
         >
         <input type="number" id="x31" name="x31" />
         <br />
         <label for="x32"
-          >32) Razlika obracunatih prihoda (red.br.31 - 30)>0</label
+          >32) Obračunati prihodi primjenom transfernih cijena</label
         >
         <input type="number" id="x32" name="x32" />
         <br />
         <label for="x33"
-          >33) Prihod od naplacenih sumnjivih potraživanja ostvaren u poreskom
-          periodu, a koja u ranijem poreskom periodu (godina______) nijesu
-          priznata kao rashod u poreske svrhe</label
+          >33) Obračunati prihodi primjenom cijena koje su u skladu sa principom
+          "van dohvata ruke"</label
         >
         <input type="number" id="x33" name="x33" />
         <br />
         <label for="x34"
-          >34) Rashodi koji po osnovu obezvredjivanja imovine u ranijem poreskom
-          periodu nijesu priznati u poreske svrhe (godina_____) za imovinu koja
-          je otudjena u poreskom periodu, odnosno oštecena usljed više sile
-          (Clan 18a Zakona)</label
+          >34) Razlika obračunatih prihoda (red.br.33 - 32)>0</label
         >
-        <input type="number" id="x34" name="x34" />
+        <input type="number" id="x34" name="x34" disabled />
         <br />
         <label for="x35"
-          >35) Troškovi zarada, troškovi otpremnina prilikom odlaska u penziju,
-          troškovi usljed tehnološkog viška i ostalih isplata naknada prilikom
-          prestanka radnog odnosa, koji nijesu bili priznati u poreske svrhe u
-          prethodnim poreskim periodima (godina_____)</label
+          >35) Prihod od naplaćenih sumnjivih potraživanja ostvaren u poreskom
+          periodu, a koji u ranijem poreskom periodu nijesu priznata kao rashod
+          u poreske svrhe</label
         >
         <input type="number" id="x35" name="x35" />
         <br />
         <label for="x36"
-          >36) Oporeziva dobit ( 1-3+4+5-6+7 do 24+27+28+29+32 -33-34-35)
-          >0</label
+          >36) Rashodi koji po osnovu obezvredjivanja imovine u ranijem poreskom
+          periodu nijesu priznati u poreske svrhe za imovinu koja je otudjena u
+          poreskom periodu, odnosno oštećena usljed više sile (član 18a
+          Zakona)</label
         >
-        <input type="number" id="x36" name="x36" disabled />
+        <input type="number" id="x36" name="x36" />
         <br />
         <label for="x37"
-          >37) Gubitak ( 2+3-4-5+6-7do 24-27-28-29-32+33+34+35) >0</label
+          >37) Troškovi zarada, autorski naknada, naknada po osnovu ugovora o
+          djelu i ostalih prihoda isplaćenih fizičkim licima po osnovu povremene
+          samostalne djelatnosti, troškovi otpremnina prilikom odlaska u
+          penziju, troškovi usljed tehnološkog viška i ostalih isplata naknada
+          prilikom prestanka radnog odnosa, koji nijesu bili priznati u poreske
+          svrhe u prethodnim poreskim periodima</label
         >
-        <input type="number" id="x37" name="x37" disabled />
+        <input type="number" id="x37" name="x37" />
         <br />
         <label for="x38"
-          >38) Iznos gubitka u poreskoj prijavi iz prethodnih godina, do visine
-          oporezive dobiti</label
+          >38) Oporeziva dobit (1-3+4+5-6+7 do 24-25+28+29+30+31+34-35-36-37)
+          >0</label
         >
-        <input type="number" id="x38" name="x38" />
+        <input type="number" id="x38" name="x38" disabled />
         <br />
-        <label for="x39">39) Ostatak oporezive dobiti (red. br.36-38) >0</label>
-        <input type="number" id="x39" name="x39" disabled tabindex="0" />
+        <label for="x39"
+          >39) Gubitak (2+3-4-5+6-7 do 24+25-28-29-30-31-34+35+36+37)>0</label
+        >
+        <input type="number" id="x39" name="x39" disabled />
         <br />
         <label for="x40"
-          >40) Ukupni kapitalni dobici tekuce godine(redni broj 3)</label
+          >40) Iznos gubitka u poreskoj prijavi iz prethodnih godina, do visine
+          oporezive dobiti</label
         >
         <input type="number" id="x40" name="x40" disabled />
         <br />
-        <label for="x41"
-          >41) Ukupni kapitalni gubici tekuce godine(redni broj 4)</label
-        >
+        <label for="x41">41) Ostatak oporezive dobiti (red. br.38-40) >0</label>
         <input type="number" id="x41" name="x41" disabled />
         <br />
-        <label for="x42">42) Kapitalni dobici (red. br.40-41) >0</label>
+        <label for="x42">42) Ukupni kapitalni dobici tekuće godine</label>
         <input type="number" id="x42" name="x42" disabled />
         <br />
-        <label for="x43">43) Kapitalni gubici (red. br.41-40) >0</label>
+        <label for="x43">43) Ukupni kapitalni gubici tekuće godine</label>
         <input type="number" id="x43" name="x43" disabled />
         <br />
-        <label for="x44"
-          >44) Prenijeti kapitalni gubici iz ranijih godina do visine iznosa pod
-          rednim brojem 42</label
-        >
-        <input type="number" id="x44" name="x44" />
+        <label for="x44">44) Kapitalni dobici (red. br.42-43) >0</label>
+        <input type="number" id="x44" name="x44" disabled />
         <br />
-        <label for="x45"
-          >45) Ostatak kapitalnog dobitka (red. br. 42-44)>=0</label
-        >
+        <label for="x45">45) Kapitalni gubici (red. br.43-42) >0</label>
         <input type="number" id="x45" name="x45" disabled />
         <br />
         <label for="x46"
-          >46) Poreska osnovica(red.br.39+100% od red.br.45)>0</label
+          >46) Prenijeti kapitalni gubici iz ranijih godina do visine iznosa pod
+          rednim brojem 44</label
         >
-        <input type="number" id="x46" name="x46" disabled />
+        <input type="number" id="x46" name="x46" />
         <br />
         <label for="x47"
-          >47) Prihodi po osnovu dividendi i udjela u dobiti rezidentnih pravnih
-          lica</label
+          >47) Ostatak kapitalnog dobitka (red. br.44-46) ≥0</label
         >
-        <input type="number" id="x47" name="x47" />
+        <input type="number" id="x47" name="x47" disabled />
         <br />
-        <label for="x48">48) Umanjena poreska osnovica (red. br.46-47)</label>
+        <label for="x48"
+          >48) Poreska osnovica (red. br.41+100% od red.br 47) >0</label
+        >
         <input type="number" id="x48" name="x48" disabled />
         <br />
-        <label for="">49) Iznos poreza</label> <br />
-        <label for="x49a">a) 9% za oporezivu dobit do 100.000,00€ </label>
-        <input type="number" id="x49a" name="x49a" disabled />
+        <p>Umanjenje poreske osnovice</p>
+        <label for="x49">49) Ukupno (a + b)</label>
+        <input type="number" id="x49" name="x49" disabled />
         <br />
-        <label for="x49b"
-          >b) 12% za oporezivu dobit koja prelazi 100.000,00€;</label
+        <label for="x49a"
+          >49. a) Prihodi po osnovu dividendi i udjela u dobiti rezidentnih
+          pravnih lica</label
         >
-        <input type="number" id="x49b" name="x49b" disabled />
+        <input type="number" id="x49a" name="x49a" />
         <br />
-        <label for="x49c"
-          >c) 15% za oporezivu dobit koja prelazi 1.500.000,00€;</label
+        <label for="x49b">49. b) Prihodi po osnovu likvidacionog ostatka</label>
+        <input type="number" id="x49b" name="x49b" />
+        <br />
+        <label for="x50"
+          >50) Poreska osnovica-oporeziva dobit (red. br. 48-49) > 0</label
         >
-        <input type="number" id="x49c" name="x49c" disabled />
-        <br />
-        <label for="x50">50) Ukupan iznos poreza (49a+49b+49c)</label>
         <input type="number" id="x50" name="x50" disabled />
         <br />
-        <label for="x51"
-          >51) Iznos poreza na dobit ostvaren u nedovoljno razvijenim
-          opštinama</label
-        >
-        <input type="number" id="x51" name="x51" />
+        <input type="hidden" id="x51" name="x51" value="0" />
+        <label for="x51a">51. a) 9% za oporezivu dobit do 100.000,00 €</label>
+        <input type="number" id="x51a" name="x51a" disabled />
         <br />
-        <label for="x52"
-          >52) Iznos poreza na dobit koju pravno lice reinvestira u svoje
-          naucnoistraživacke ili inovativne projekte, inovativne programe
-          subjekata inovacione infrastrukture, odnosno program rada Fonda za
-          inovacije Crne Gore</label
+        <label for="x51b"
+          >51. b) 12% za oporezivu dobit koja prelazi 100.000,00 €</label
         >
-        <input type="number" id="x52" name="x52" />
+        <input type="number" id="x51b" name="x51b" disabled />
+        <br />
+        <label for="x51c"
+          >51. c) 15% za oporezivu dobit koja prelazi 1.500.000,00 €</label
+        >
+        <input type="number" id="x51c" name="x51c" disabled />
+        <br />
+        <label for="x52">52) Ukupan iznos poreza (51a + 51b + 51c)</label>
+        <input type="number" id="x52" name="x52" disabled />
         <br />
         <label for="x53"
-          >53) Iznos sredstava koji je odložen u: 0.00 1)udjele ili akcije
-          startapova i spinofova; 2)donacije naucnoistraživackim ustanovama i
-          subjektima inovacione infrastrukture u projekte i naucnoistraživacku
-          infrastrukturu; 3)Fond za inovacije Crne Gore i/ili druge investicione
-          fondove u Crnoj Gori koji ulažu sredstva u subjekte koji obavljaju
-          inovacionu djelatnost.</label
+          >53) Iznos poreza na dobit ostvarenog u nedovoljno razvijenim
+          opštinama</label
         >
         <input type="number" id="x53" name="x53" />
         <br />
         <label for="x54"
-          >54) Utvrdjena poreska obaveza (red. br.50-51-52-53)</label
+          >54) Iznos poreza na dobit koju pravno lice reinvestira u svoje
+          naučnoistraživačke ili inovativne projekte, inovativne programe
+          subjekata inovacione infrastrukture, odnosno program rada Fonda za
+          inovacije Crne Gore</label
         >
-        <input type="number" id="x54" name="x54" disabled />
+        <input type="number" id="x54" name="x54" />
         <br />
-        <label for="x55">55) Iznos akontativno placenog poreza</label>
-        <input type="number" id="x55" name="x55" />
+        <label for="x55">55) Ukupno (a + b + c)</label>
+        <input type="number" id="x55" name="x55" disabled />
         <br />
-        <label for="x56">56) Iznos poreza placen u drugoj državi</label>
-        <input type="number" id="x56" name="x56" />
+        <label for="x55a"
+          >55. a) Udjele ili akcije startapova i spinofova</label
+        >
+        <input type="number" id="x55a" name="x55a" />
         <br />
-        <label for="x57">57) Ukupno placeni porez (red.br55+56)</label>
+        <label for="x55b">
+          55. b) Donacije naučnoistraživačkim ustanovama i subjektima inovacione
+          infrastrukture u projekte i naučnoistraživačku infrastrukturu</label
+        >
+        <input type="number" id="x55b" name="x55b" />
+        <br />
+        <label for="x55c">
+          55. c) Fond za inovacije Crne Gore i/ili druge investicione fondove u
+          Crnoj Gori koji ulažu sredstva u subjekte koji obavljaju inovacionu
+          djelatnost</label
+        >
+        <input type="number" id="x55c" name="x55c" />
+        <br />
+        <label for="x56">56) Ukupno (a + b)</label>
+        <input type="number" id="x56" name="x56" disabled />
+        <br />
+        <label for="x56a"
+          >56. a) Iznos sredstava koje je pravno lice reinvestiralo u
+          poljoprivredne projekte</label
+        >
+        <input type="number" id="x56a" name="x56a" />
+        <br />
+        <label for="x56b"
+          >56. b) Iznos sredstava koje je pravno lice uložilo u druge subjekte
+          poljoprivredne djelatnosti</label
+        >
+        <input type="number" id="x56b" name="x56b" />
+        <br />
+        <label for="x57"
+          >57) Utvrđena poreska obaveza (red. br.52-53-54-55-56)</label
+        >
         <input type="number" id="x57" name="x57" disabled />
         <br />
-        <label for="x58"
-          >58) Iznos poreza koji se duguje (red.br.54-57)>0</label
-        >
-        <input type="number" id="x58" name="x58" disabled />
+        <label for="x58">58) Iznos poreza plaćenog u drugoj državi</label>
+        <input type="number" id="x58" name="x58" />
         <br />
-        <label for="x59">59) Preplaceni porez (red.br57-54)>0</label>
+        <label for="x59">59) Ukupna poreska obaveza (red. br.57 - 58) >0</label>
         <input type="number" id="x59" name="x59" disabled />
-        <br />
-        <label for="x60"
-          >60) Iznos poreza za koji se traži povracaj preplacenog poreza</label
-        >
-        <input type="number" id="x60" name="x60" />
-        <br />
-        <label for="x61"
-          >61) Iznos poreza koji se želi koristiti za akontativna placanja
-          poreza u narednoj godini</label
-        >
-        <input type="number" id="x61" name="x61" />
-        <br />
-        <label for="x62"
-          >62) Iznos mjesecne akontacije(1/12 rednog broja sa 54)</label
-        >
-        <input type="number" id="x62" name="x62" />
         <br />
         <br />
         <p>DODATAK PG1: PRENOS POSLOVNIH GUBITAKA</p>
@@ -507,7 +555,7 @@
         <button
           id="backButton"
           class="global-back-btn"
-          onclick="window.location.href='/dashboard.html'"
+          onclick="window.location.href = '/dashboard.html'"
         >
           <i class="fas fa-arrow-left"></i> Nazad na dashboard
         </button>
@@ -521,35 +569,35 @@
     <!-- Dark Mode Toggle Script -->
     <script>
       // Dark mode functionality
-      const themeToggle = document.getElementById("theme-toggle");
-      const themeIcon = themeToggle.querySelector("i");
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = themeToggle.querySelector('i');
 
       // Initialize theme
       function initializeTheme() {
-        const savedTheme = localStorage.getItem("theme") || "light";
-        document.documentElement.setAttribute("data-theme", savedTheme);
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
       }
 
       // Update icon based on theme
       function updateThemeIcon(theme) {
-        if (theme === "dark") {
-          themeIcon.className = "fas fa-sun";
-          themeToggle.setAttribute("aria-label", "Switch to light mode");
+        if (theme === 'dark') {
+          themeIcon.className = 'fas fa-sun';
+          themeToggle.setAttribute('aria-label', 'Switch to light mode');
         } else {
-          themeIcon.className = "fas fa-moon";
-          themeToggle.setAttribute("aria-label", "Switch to dark mode");
+          themeIcon.className = 'fas fa-moon';
+          themeToggle.setAttribute('aria-label', 'Switch to dark mode');
         }
       }
 
       // Toggle theme
-      themeToggle.addEventListener("click", () => {
+      themeToggle.addEventListener('click', () => {
         const currentTheme =
-          document.documentElement.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
+          document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        document.documentElement.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
         updateThemeIcon(newTheme);
       });
 
