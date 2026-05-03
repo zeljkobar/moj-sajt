@@ -949,6 +949,14 @@
       let workerFilter = 'active';
       let workerSearch = '';
       const initialWorkerId = params.get('radnikId');
+      const domainParam = (params.get('domain') || '').toLowerCase();
+      const hostName = window.location.host.toLowerCase();
+      const isMojradnikTenantDomain =
+        hostName.includes('mojradnik.me') ||
+        hostName.includes('prijaviradnika.com') ||
+        (hostName.includes('localhost') &&
+          (domainParam === 'mojradnik' || domainParam === 'prijaviradnika'));
+      let isMonthlyTabAllowed = true;
       let openedInitialWorkerDetails = false;
       let currentDetailsWorkerId = null;
       const monthlyFields = [
@@ -960,8 +968,9 @@
         'plate_predao',
       ];
 
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         setupTabs();
+        await applyRoleBasedTabVisibility();
         setupDeepLink();
 
         if (!currentFirmaId) {
@@ -977,6 +986,40 @@
         loadTasks();
         loadMonthlyObligations();
       });
+
+      async function applyRoleBasedTabVisibility() {
+        if (!isMojradnikTenantDomain) {
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/users/current', {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            return;
+          }
+
+          const user = await response.json();
+          if (user.role === 'firma') {
+            isMonthlyTabAllowed = false;
+            const monthlyTabButton = document.querySelector(
+              '.workspace-tabs button[data-tab="mjesecne"]'
+            );
+            const monthlyTabPane = document.getElementById('tab-mjesecne');
+
+            if (monthlyTabButton) {
+              monthlyTabButton.remove();
+            }
+            if (monthlyTabPane) {
+              monthlyTabPane.remove();
+            }
+          }
+        } catch (error) {
+          console.error('Greška pri proveri role za tab prikaz:', error);
+        }
+      }
 
       function setupTabs() {
         document.querySelectorAll('.workspace-tabs button').forEach(button => {
@@ -994,12 +1037,20 @@
           switchTab('radnici');
           return;
         }
+        if (hash === 'mjesecne' && !isMonthlyTabAllowed) {
+          switchTab('pregled');
+          return;
+        }
         if (['pregled', 'radnici', 'pozajmice', 'mjesecne', 'dokumenti'].includes(hash)) {
           switchTab(hash);
         }
       }
 
       function switchTab(tabName) {
+        if (tabName === 'mjesecne' && !isMonthlyTabAllowed) {
+          tabName = 'pregled';
+        }
+
         document
           .querySelectorAll('.workspace-tabs button')
           .forEach(button => button.classList.toggle('active', button.dataset.tab === tabName));
@@ -3200,6 +3251,10 @@
       }
 
       function switchTab(tab) {
+        if (tab === 'mjesecne' && !isMonthlyTabAllowed) {
+          tab = 'pregled';
+        }
+
         document.querySelectorAll('.workspace-tabs button').forEach(button => {
           const isActive = button.dataset.tab === tab;
           button.classList.toggle('active', isActive);
