@@ -76,6 +76,209 @@
     <link rel="stylesheet" href="/shared/style.css" />
     <link rel="stylesheet" href="/shared/global-components.css" />
     <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      :root {
+        --dashboard-bg: #f5f7fb;
+        --dashboard-panel: #ffffff;
+        --dashboard-border: #dde3ee;
+        --dashboard-text: #1f2937;
+        --dashboard-muted: #667085;
+        --dashboard-primary: #1f5eff;
+        --dashboard-primary-soft: #e9efff;
+        --dashboard-success: #159947;
+        --dashboard-warning: #c47a00;
+        --dashboard-danger: #cc3340;
+        --dashboard-radius: 10px;
+      }
+
+      [data-theme='dark'] {
+        --dashboard-bg: #181a1f;
+        --dashboard-panel: #24272f;
+        --dashboard-border: #363b47;
+        --dashboard-text: #f1f4f8;
+        --dashboard-muted: #a8b0bd;
+        --dashboard-primary-soft: rgba(60, 115, 255, 0.18);
+      }
+
+      body {
+        background: var(--dashboard-bg);
+        color: var(--dashboard-text);
+      }
+
+      .agency-shell {
+        padding: 24px 0 40px;
+      }
+
+      .dashboard-header {
+        background: transparent;
+        margin-bottom: 16px;
+      }
+
+      .welcome-section {
+        background: var(--dashboard-panel);
+        border: 1px solid var(--dashboard-border);
+        border-radius: var(--dashboard-radius);
+        padding: 22px;
+      }
+
+      .welcome-section h1 {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        color: var(--dashboard-text) !important;
+      }
+
+      .welcome-section .lead,
+      .welcome-section h5 {
+        color: var(--dashboard-muted) !important;
+      }
+
+      .welcome-section #currentDate {
+        color: var(--dashboard-text) !important;
+      }
+
+      .welcome-section #userName {
+        color: var(--dashboard-text) !important;
+      }
+
+      .card h6,
+      .quick-action-card h5,
+      .quick-action-card h6 {
+        color: var(--dashboard-text);
+      }
+
+      .ops-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .ops-card {
+        background: var(--dashboard-panel);
+        border: 1px solid var(--dashboard-border);
+        border-radius: var(--dashboard-radius);
+        min-height: 106px;
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .ops-card .label {
+        color: var(--dashboard-muted);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+
+      .ops-card .value {
+        font-size: 1.8rem;
+        font-weight: 750;
+        line-height: 1;
+      }
+
+      .ops-card .hint {
+        color: var(--dashboard-muted);
+        font-size: 0.8rem;
+        margin-top: 8px;
+      }
+
+      .ops-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--dashboard-primary-soft);
+        color: var(--dashboard-primary);
+        flex: 0 0 auto;
+      }
+
+      .ops-card.warning .ops-icon {
+        background: rgba(196, 122, 0, 0.12);
+        color: var(--dashboard-warning);
+      }
+
+      .ops-card.success .ops-icon {
+        background: rgba(21, 153, 71, 0.12);
+        color: var(--dashboard-success);
+      }
+
+      .ops-card.danger .ops-icon {
+        background: rgba(204, 51, 64, 0.12);
+        color: var(--dashboard-danger);
+      }
+
+      .card,
+      .quick-action-card {
+        background: var(--dashboard-panel);
+        border: 1px solid var(--dashboard-border);
+        border-radius: var(--dashboard-radius);
+        box-shadow: none;
+      }
+
+      .card-header {
+        background: transparent;
+        border-bottom-color: var(--dashboard-border);
+      }
+
+      .quick-action-card {
+        padding: 18px;
+        margin-bottom: 16px;
+      }
+
+      .quick-action-btn {
+        margin-bottom: 8px;
+      }
+
+      .quick-action-btn:last-child {
+        margin-bottom: 0;
+      }
+
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .quick-tile {
+        border: 1px solid var(--dashboard-border);
+        border-radius: var(--dashboard-radius);
+        min-height: 78px;
+        padding: 12px;
+        text-decoration: none;
+        color: var(--dashboard-text);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: var(--dashboard-panel);
+      }
+
+      .quick-tile:hover {
+        border-color: var(--dashboard-primary);
+        color: var(--dashboard-text);
+      }
+
+      .quick-tile i {
+        color: var(--dashboard-primary);
+      }
+
+      @media (max-width: 1100px) {
+        .ops-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .ops-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .quick-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
     <!-- Navigation će biti automatski ubačena ovde -->
@@ -103,7 +306,8 @@
       </div>
     </section>
 
-    <div class="container py-4">
+    <main class="agency-shell">
+      <div class="container-fluid px-3 px-lg-4">
       <!-- Informacije o firmi -->
       <div class="row mb-4">
         <div class="col-12">
@@ -183,6 +387,44 @@
         </div>
       </div>
 
+      <section class="ops-strip" aria-label="Ključni pokazatelji">
+        <article class="ops-card warning">
+          <div>
+            <div class="label">Obaveštenja</div>
+            <div class="value" id="kpiAlerts">0</div>
+            <div class="hint">Stavke koje čekaju akciju</div>
+          </div>
+          <div class="ops-icon"><i class="fas fa-bell"></i></div>
+        </article>
+
+        <article class="ops-card success">
+          <div>
+            <div class="label">Aktivne pozajmice</div>
+            <div class="value" id="kpiLoans">0</div>
+            <div class="hint">Trenutno otvorene pozajmice</div>
+          </div>
+          <div class="ops-icon"><i class="fas fa-coins"></i></div>
+        </article>
+
+        <article class="ops-card">
+          <div>
+            <div class="label">Preostalo zaduženje</div>
+            <div class="value" id="kpiLoanAmount">0€</div>
+            <div class="hint">Ukupan iznos aktivnih pozajmica</div>
+          </div>
+          <div class="ops-icon"><i class="fas fa-wallet"></i></div>
+        </article>
+
+        <article class="ops-card danger">
+          <div>
+            <div class="label">Aktivni radnici</div>
+            <div class="value" id="kpiWorkers">0</div>
+            <div class="hint">Broj radnika u firmi</div>
+          </div>
+          <div class="ops-icon"><i class="fas fa-users"></i></div>
+        </article>
+      </section>
+
       <div class="row">
         <!-- Leva kolona -->
         <div class="col-lg-8">
@@ -244,34 +486,40 @@
               Brze akcije
             </h5>
 
-            <button
-              onclick="openRadnikModal({ 
-                onSuccess: function(result) { 
-                  console.log('Radnik uspešno dodan:', result); 
-                } 
-              })"
-              class="btn btn-success quick-action-btn"
-            >
-              <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
-            </button>
+            <div class="quick-grid">
+              <a class="quick-tile" href="#" id="quickFirmaLink">
+                <i class="fas fa-building"></i>
+                <strong>Firma</strong>
+              </a>
 
-            <button class="btn btn-info quick-action-btn" id="createPozajmica">
-              <i class="fas fa-money-bill-wave me-2"></i>Kreiraj pozajmicu
-            </button>
+              <button
+                type="button"
+                class="quick-tile text-start"
+                onclick="openRadnikModal({ 
+                  onSuccess: function(result) { 
+                    console.log('Radnik uspešno dodan:', result); 
+                  } 
+                })"
+              >
+                <i class="fas fa-user-plus"></i>
+                <strong>Dodaj radnika</strong>
+              </button>
 
-            <a
-              href="/shared/obracun-zaliha.html"
-              class="btn btn-primary quick-action-btn"
-            >
-              <i class="fas fa-calculator me-2"></i>Obračun zaliha
-            </a>
+              <a class="quick-tile" href="#" id="createPozajmica">
+                <i class="fas fa-money-bill-wave"></i>
+                <strong>Kreiraj pozajmicu</strong>
+              </a>
 
-            <a
-              href="/shared/obracun-preduzetnika.html"
-              class="btn btn-warning quick-action-btn"
-            >
-              <i class="fas fa-chart-line me-2"></i>Obračun preduzetnika
-            </a>
+              <a href="/shared/obracun-zaliha.html" class="quick-tile">
+                <i class="fas fa-calculator"></i>
+                <strong>Obračun zaliha</strong>
+              </a>
+
+              <a href="/shared/obracun-preduzetnika.html" class="quick-tile">
+                <i class="fas fa-chart-line"></i>
+                <strong>Obračun preduzetnika</strong>
+              </a>
+            </div>
           </div>
 
           <!-- Oglasi za Poslove -->
@@ -506,7 +754,8 @@
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/shared/components/navigation.js"></script>
@@ -541,7 +790,7 @@
           .getElementById('viewFirmaDetails')
           .addEventListener('click', function () {
             if (currentFirma) {
-              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}`;
+              window.location.href = buildFirmaDetaljiUrl(currentFirma.id);
             }
           });
 
@@ -549,7 +798,10 @@
           .getElementById('createPozajmica')
           .addEventListener('click', function () {
             if (currentFirma) {
-              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}#pozajmice`;
+              window.location.href = buildFirmaDetaljiUrl(
+                currentFirma.id,
+                'pozajmice'
+              );
             }
           });
 
@@ -557,7 +809,10 @@
           .getElementById('viewAllPozajmice')
           .addEventListener('click', function () {
             if (currentFirma) {
-              window.location.href = `/shared/firma-detalji.html?id=${currentFirma.id}#pozajmice`;
+              window.location.href = buildFirmaDetaljiUrl(
+                currentFirma.id,
+                'pozajmice'
+              );
             }
           });
 
@@ -573,6 +828,51 @@
 
         console.log('Dashboard firme učitan');
       });
+
+      function setKpiValue(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = value;
+        }
+      }
+
+      function buildFirmaDetaljiUrl(firmaId, hash = '') {
+        const isLocalhost =
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1';
+        const domainPart = isLocalhost ? '&domain=mojradnik' : '';
+        const hashPart = hash ? `#${hash}` : '';
+        return `/shared/firma-detalji.html?id=${firmaId}${domainPart}${hashPart}`;
+      }
+
+      function updateQuickActionLinks() {
+        const firmaLink = document.getElementById('quickFirmaLink');
+        const pozajmicaLink = document.getElementById('createPozajmica');
+
+        if (!currentFirma || !currentFirma.id) {
+          if (firmaLink) {
+            firmaLink.setAttribute('href', '#');
+          }
+          if (pozajmicaLink) {
+            pozajmicaLink.setAttribute('href', '#');
+          }
+          return;
+        }
+
+        if (firmaLink) {
+          firmaLink.setAttribute(
+            'href',
+            buildFirmaDetaljiUrl(currentFirma.id)
+          );
+        }
+
+        if (pozajmicaLink) {
+          pozajmicaLink.setAttribute(
+            'href',
+            buildFirmaDetaljiUrl(currentFirma.id, 'pozajmice')
+          );
+        }
+      }
 
       // Funkcija za učitavanje korisničkih podataka
       async function loadUserData() {
@@ -607,6 +907,8 @@
             const firma = await response.json();
             currentFirma = firma;
             displayFirmaData(firma);
+            updateQuickActionLinks();
+            loadWorkersCount(firma.id);
           } else if (response.status === 404) {
             // Korisnik nema firmu - preusmjeri na onboarding stranicu
             console.log('❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html');
@@ -631,6 +933,30 @@
               Greška pri povezivanju sa serverom. Molimo pokušajte kasnije.
             </div>
           `;
+        }
+      }
+
+      async function loadWorkersCount(firmaId) {
+        if (!firmaId) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/radnici/firma/${firmaId}`, {
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            setKpiValue('kpiWorkers', '0');
+            return;
+          }
+
+          const radnici = await response.json();
+          const workers = Array.isArray(radnici) ? radnici : [];
+          setKpiValue('kpiWorkers', String(workers.length));
+        } catch (error) {
+          console.error('Greška pri učitavanju broja radnika:', error);
+          setKpiValue('kpiWorkers', '0');
         }
       }
 
@@ -683,6 +1009,11 @@
 
       // Funkcija za ažuriranje sekcije sa obaveštenjima
       function updateNotificationsSection(notifications) {
+        const safeNotifications = Array.isArray(notifications)
+          ? notifications
+          : [];
+        setKpiValue('kpiAlerts', String(safeNotifications.length));
+
         const container = document
           .querySelector('.quick-action-card h5 i.fa-exclamation-triangle')
           .closest('.quick-action-card');
@@ -693,7 +1024,7 @@
           loader.style.display = 'none';
         }
 
-        if (notifications.length === 0) {
+        if (safeNotifications.length === 0) {
           const noNotifications = document.createElement('div');
           noNotifications.className = 'text-center py-3 text-muted';
           noNotifications.innerHTML = `
@@ -705,7 +1036,7 @@
         }
 
         // Dodaj obaveštenja
-        notifications.forEach(notification => {
+        safeNotifications.forEach(notification => {
           const notificationElement = createNotificationElement(notification);
           container.appendChild(notificationElement);
         });
@@ -779,6 +1110,8 @@
 
       // Funkcija za ažuriranje sekcije sa pozajmicama
       function updatePozajmiceSection(pozajmice) {
+        const safePozajmice = Array.isArray(pozajmice) ? pozajmice : [];
+
         const container = document
           .querySelector('.quick-action-card h5 i.fa-coins')
           .closest('.quick-action-card');
@@ -790,11 +1123,21 @@
         }
 
         // Filtruj aktivne pozajmice
-        const aktivnePozajmice = pozajmice.filter(
+        const aktivnePozajmice = safePozajmice.filter(
           p =>
             p.status === 'aktivna' &&
             (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
         );
+
+        const ukupnoZaduzenje = aktivnePozajmice.reduce((sum, p) => {
+          if (p.preostalo_dugovanje !== undefined) {
+            return sum + Number(p.preostalo_dugovanje || 0);
+          }
+          return sum + Number(p.ukupni_iznos || p.iznos || 0);
+        }, 0);
+
+        setKpiValue('kpiLoans', String(aktivnePozajmice.length));
+        setKpiValue('kpiLoanAmount', `${ukupnoZaduzenje.toFixed(0)}€`);
 
         if (aktivnePozajmice.length === 0) {
           const noPozajmice = document.createElement('div');
