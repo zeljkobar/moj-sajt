@@ -113,13 +113,26 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="pib" class="form-label">PIB *</label>
-              <input
-                type="text"
-                class="form-control"
-                id="pib"
-                name="pib"
-                required
-              />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pib"
+                  name="pib"
+                  required
+                  maxlength="8"
+                />
+                <button
+                  class="btn btn-outline-primary"
+                  type="button"
+                  id="irmsLookupBtn"
+                >
+                  <i class="fas fa-cloud-download-alt me-1"></i>IRMS
+                </button>
+              </div>
+              <div class="form-text" id="irmsLookupStatus">
+                Unesite PIB i povucite podatke iz IRMS registra.
+              </div>
             </div>
           </div>
 

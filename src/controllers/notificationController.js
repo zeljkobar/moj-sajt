@@ -1,87 +1,54 @@
 const { executeQuery } = require('../config/database');
 
+const notificationCache = new Map();
+const NOTIFICATION_CACHE_TTL_MS = 60 * 1000;
+
 // Dobijanje obavještenja za dashboard
 const getNotifications = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const userRole = req.session.user.role;
-    const notifications = [];
+    const cacheKey = `${userId}:${userRole}`;
+    const cached = notificationCache.get(cacheKey);
 
-    // UNIFIKOVANA LOGIKA - svi korisnici (admin, firma, agencija) vide samo svoje firme i podatke
-    const firme = await executeQuery(
-      'SELECT id, naziv, created_at FROM firme WHERE user_id = ?',
-      [userId]
-    );
-
-    // Ako korisnik nema firme, nema obavještenja
-    if (firme.length === 0) {
-      return res.json({ notifications: [] });
+    if (
+      req.query.refresh !== '1' &&
+      cached &&
+      Date.now() - cached.createdAt < NOTIFICATION_CACHE_TTL_MS
+    ) {
+      res.set('X-Notifications-Cache', 'HIT');
+      return res.json(cached.payload);
     }
 
-    const firmaIds = firme.map(f => f.id);
-    const placeholders = firmaIds.map(() => '?').join(',');
+    const notifications = [];
 
     // 1. NOVE REGISTRACIJE - samo admin vidi ove
-    if (userRole === 'admin') {
-      const today = new Date();
-      const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const today = new Date();
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-      const noveRegistracijeQuery = `
+    const noveRegistracijePromise =
+      userRole === 'admin'
+        ? executeQuery(
+            `
         SELECT id, username, ime, prezime, email, role, created_at
         FROM users 
         WHERE created_at >= ?
           AND role != 'admin'
         ORDER BY created_at DESC
         LIMIT 10
-      `;
-
-      const noveRegistracije = await executeQuery(noveRegistracijeQuery, [
-        sevenDaysAgo.toISOString().split('T')[0],
-      ]);
-
-      // Manual calculation za dane od registracije
-      noveRegistracije.forEach(user => {
-        const registrationDate = new Date(user.created_at);
-        const diffTime = today.getTime() - registrationDate.getTime();
-        user.dana_od_registracije = Math.floor(
-          diffTime / (1000 * 60 * 60 * 24)
-        );
-      });
-
-      // Individualne notifikacije za svaki novi korisnik (ograniči na 5)
-      noveRegistracije.slice(0, 5).forEach(user => {
-        const danaOdRegistracije = user.dana_od_registracije;
-        const imaUlogu = user.role && user.role !== 'user';
-
-        notifications.push({
-          id: `nova_registracija_${user.id}`,
-          type: danaOdRegistracije === 0 ? 'urgent' : 'info',
-          icon: imaUlogu ? '✅' : '👤',
-          title:
-            danaOdRegistracije === 0
-              ? 'Nova registracija danas!'
-              : `Nova registracija (${danaOdRegistracije} ${
-                  danaOdRegistracije === 1 ? 'dan' : 'dana'
-                })`,
-          description: `${user.ime} ${user.prezime} (${user.username}) - ${
-            user.email
-          }${imaUlogu ? ` [${user.role.toUpperCase()}]` : ' [ČEKA DOZVOLU]'}`,
-          days: danaOdRegistracije,
-          action: `/admin-users.html`,
-          timestamp: new Date(),
-        });
-      });
-    }
+      `,
+            [sevenDaysAgo.toISOString().split('T')[0]]
+          )
+        : Promise.resolve([]);
 
     // 2. UGOVORI O RADU - radnici kojima ističu ugovori (za svoje firme)
     const ugovoriQuery = `
       SELECT r.id, r.ime, r.prezime, r.datum_prestanka, r.firma_id, f.naziv as firma_naziv,
              DATEDIFF(r.datum_prestanka, CURDATE()) as dana_do_isteka
       FROM radnici r 
-      JOIN firme f ON r.firma_id = f.id 
+      JOIN firme f ON r.firma_id = f.id AND f.user_id = ?
       LEFT JOIN otkazi o ON r.id = o.radnik_id
-      WHERE r.firma_id IN (${placeholders})
-        AND r.datum_prestanka IS NOT NULL
+      WHERE r.datum_prestanka IS NOT NULL
         AND o.id IS NULL
         AND (r.datum_prestanka BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
              OR r.datum_prestanka < CURDATE())
@@ -94,56 +61,6 @@ const getNotifications = async (req, res) => {
       LIMIT 10
     `;
 
-    const ugovori = await executeQuery(ugovoriQuery, firmaIds);
-
-    ugovori.forEach(radnik => {
-      const prestanakDate = new Date(radnik.datum_prestanka);
-      const currentDate = new Date();
-      prestanakDate.setHours(0, 0, 0, 0);
-      currentDate.setHours(0, 0, 0, 0);
-      const diffTime = prestanakDate.getTime() - currentDate.getTime();
-      const finalDana = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-      let type, icon, title;
-
-      if (finalDana < 0) {
-        type = 'urgent';
-        icon = '🚨';
-        title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
-          Math.abs(finalDana) === 1 ? 'dan' : 'dana'
-        }`;
-      } else if (finalDana === 0) {
-        type = 'urgent';
-        icon = '⚠️';
-        title = `Ugovor ističe danas!`;
-      } else if (finalDana <= 7) {
-        type = 'urgent';
-        icon = '⚠️';
-        title = `Ugovor ističe za ${finalDana} ${
-          finalDana === 1 ? 'dan' : 'dana'
-        }`;
-      } else if (finalDana <= 15) {
-        type = 'warning';
-        icon = '📋';
-        title = `Ugovor ističe za ${finalDana} dana`;
-      } else {
-        type = 'info';
-        icon = '📅';
-        title = `Ugovor ističe za ${finalDana} dana`;
-      }
-
-      notifications.push({
-        id: `ugovor_${radnik.id}`,
-        type,
-        icon,
-        title,
-        description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
-        days: finalDana,
-        action: `/firma-detalji.html?id=${radnik.firma_id}&radnikId=${radnik.id}`,
-        timestamp: new Date(),
-      });
-    });
-
     // 3. NOVE FIRME (za svoje firme)
     const noveFirmeQuery = `
       SELECT id, naziv, DATEDIFF(CURDATE(), created_at) as dana_od_kreiranja
@@ -154,28 +71,8 @@ const getNotifications = async (req, res) => {
       LIMIT 3
     `;
 
-    const noveFirme = await executeQuery(noveFirmeQuery, [userId]);
-
-    noveFirme.forEach(firma => {
-      notifications.push({
-        id: `nova_firma_${firma.id}`,
-        type: 'info',
-        icon: '🏭',
-        title: 'Nova firma dodana',
-        description: `${firma.naziv} - kreirana ${
-          firma.dana_od_kreiranja === 0
-            ? 'danas'
-            : `pre ${firma.dana_od_kreiranja} dana`
-        }`,
-        days: firma.dana_od_kreiranja,
-        action: `/firme.html`,
-        timestamp: new Date(),
-      });
-    });
-
     // 4. PDV OBAVEŠTENJA - za firme koje zahtevaju pažnju
     // Kopirana logika iz pdvController.js
-    const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonthNum = today.getMonth() + 1;
     const currentDay = today.getDate();
@@ -245,14 +142,117 @@ const getNotifications = async (req, res) => {
       LIMIT 10
     `;
 
-    const pdvFirme = await executeQuery(pdvQuery, [
-      daysToDeadline,
-      daysToDeadline,
-      targetMonthString,
-      userId,
-      daysToDeadline,
-      daysToDeadline,
+    const [noveRegistracije, ugovori, noveFirme, pdvFirme] = await Promise.all([
+      noveRegistracijePromise,
+      executeQuery(ugovoriQuery, [userId]),
+      executeQuery(noveFirmeQuery, [userId]),
+      executeQuery(pdvQuery, [
+        daysToDeadline,
+        daysToDeadline,
+        targetMonthString,
+        userId,
+        daysToDeadline,
+        daysToDeadline,
+      ]),
     ]);
+
+    // Manual calculation za dane od registracije
+    noveRegistracije.forEach(user => {
+      const registrationDate = new Date(user.created_at);
+      const diffTime = today.getTime() - registrationDate.getTime();
+      user.dana_od_registracije = Math.floor(
+        diffTime / (1000 * 60 * 60 * 24)
+      );
+    });
+
+    // Individualne notifikacije za svaki novi korisnik (ograniči na 5)
+    noveRegistracije.slice(0, 5).forEach(user => {
+      const danaOdRegistracije = user.dana_od_registracije;
+      const imaUlogu = user.role && user.role !== 'user';
+
+      notifications.push({
+        id: `nova_registracija_${user.id}`,
+        type: danaOdRegistracije === 0 ? 'urgent' : 'info',
+        icon: imaUlogu ? '✅' : '👤',
+        title:
+          danaOdRegistracije === 0
+            ? 'Nova registracija danas!'
+            : `Nova registracija (${danaOdRegistracije} ${
+                danaOdRegistracije === 1 ? 'dan' : 'dana'
+              })`,
+        description: `${user.ime} ${user.prezime} (${user.username}) - ${
+          user.email
+        }${imaUlogu ? ` [${user.role.toUpperCase()}]` : ' [ČEKA DOZVOLU]'}`,
+        days: danaOdRegistracije,
+        action: `/admin-users.html`,
+        timestamp: new Date(),
+      });
+    });
+
+    ugovori.forEach(radnik => {
+      const prestanakDate = new Date(radnik.datum_prestanka);
+      const currentDate = new Date();
+      prestanakDate.setHours(0, 0, 0, 0);
+      currentDate.setHours(0, 0, 0, 0);
+      const diffTime = prestanakDate.getTime() - currentDate.getTime();
+      const finalDana = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      let type, icon, title;
+
+      if (finalDana < 0) {
+        type = 'urgent';
+        icon = '🚨';
+        title = `Ugovor istekao prije ${Math.abs(finalDana)} ${
+          Math.abs(finalDana) === 1 ? 'dan' : 'dana'
+        }`;
+      } else if (finalDana === 0) {
+        type = 'urgent';
+        icon = '⚠️';
+        title = `Ugovor ističe danas!`;
+      } else if (finalDana <= 7) {
+        type = 'urgent';
+        icon = '⚠️';
+        title = `Ugovor ističe za ${finalDana} ${
+          finalDana === 1 ? 'dan' : 'dana'
+        }`;
+      } else if (finalDana <= 15) {
+        type = 'warning';
+        icon = '📋';
+        title = `Ugovor ističe za ${finalDana} dana`;
+      } else {
+        type = 'info';
+        icon = '📅';
+        title = `Ugovor ističe za ${finalDana} dana`;
+      }
+
+      notifications.push({
+        id: `ugovor_${radnik.id}`,
+        type,
+        icon,
+        title,
+        description: `${radnik.ime} ${radnik.prezime} - ${radnik.firma_naziv}`,
+        days: finalDana,
+        action: `/firma-detalji.html?id=${radnik.firma_id}&radnikId=${radnik.id}`,
+        timestamp: new Date(),
+      });
+    });
+
+    noveFirme.forEach(firma => {
+      notifications.push({
+        id: `nova_firma_${firma.id}`,
+        type: 'info',
+        icon: '🏭',
+        title: 'Nova firma dodana',
+        description: `${firma.naziv} - kreirana ${
+          firma.dana_od_kreiranja === 0
+            ? 'danas'
+            : `pre ${firma.dana_od_kreiranja} dana`
+        }`,
+        days: firma.dana_od_kreiranja,
+        action: `/firme.html`,
+        timestamp: new Date(),
+      });
+    });
 
     pdvFirme.forEach(firma => {
       let type, icon, title;
@@ -350,7 +350,13 @@ const getNotifications = async (req, res) => {
       return a.days - b.days;
     });
 
-    res.json({ notifications });
+    const payload = { notifications };
+    notificationCache.set(cacheKey, {
+      createdAt: Date.now(),
+      payload,
+    });
+    res.set('X-Notifications-Cache', 'MISS');
+    res.json(payload);
   } catch (error) {
     console.error('Error in getNotifications:', error);
     res.status(500).json({ error: 'Greška pri dohvatanju obavještenja' });

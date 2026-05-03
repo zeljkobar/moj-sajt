@@ -23,6 +23,7 @@ const authMiddleware = (req, res, next) => {
         "..",
         "..",
         "public",
+        "shared",
         "access-denied-dynamic.html"
       );
       const basicPath = path.join(
@@ -30,6 +31,7 @@ const authMiddleware = (req, res, next) => {
         "..",
         "..",
         "public",
+        "shared",
         "access-denied.html"
       );
 

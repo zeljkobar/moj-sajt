@@ -3491,6 +3491,7 @@ function initOdlukaRaspored() {
   const secondShiftTime = urlParams.get('secondShiftTime');
   const assignmentType = urlParams.get('assignmentType');
   const workerAssignments = urlParams.get('workerAssignments');
+  const workerFreeDays = urlParams.get('workerFreeDays');
 
   if (firmaId && decisionDate && periodStart && periodEnd) {
     // Automatski generiši odluku na osnovu prosleđenih parametara
@@ -3504,6 +3505,7 @@ function initOdlukaRaspored() {
       workerAssignments: workerAssignments
         ? JSON.parse(workerAssignments)
         : null,
+      workerFreeDays: workerFreeDays ? JSON.parse(workerFreeDays) : null,
     });
   }
 }
@@ -3637,6 +3639,12 @@ function generateWorkersTableFromConfig(workers, config) {
 
       let shiftText = '';
       let shiftClass = '';
+      const freeDays = config.workerFreeDays?.[worker.id] || [];
+
+      if (freeDays.includes(dayIndex)) {
+        dayCell.textContent = '/';
+        return;
+      }
 
       if (config.assignmentType === 'empty') {
         shiftText = '';
@@ -3660,10 +3668,7 @@ function generateWorkersTableFromConfig(workers, config) {
       ) {
         // Ručna dodela
         const assignment = config.workerAssignments[worker.id];
-        if (dayIndex === 6) {
-          // Nedelja
-          shiftText = '/';
-        } else if (assignment === 'first') {
+        if (assignment === 'first') {
           shiftText = 'I smjena';
           shiftClass = 'first-shift';
         } else if (assignment === 'second') {
@@ -3944,10 +3949,7 @@ function generateWorkersTable(assignmentType) {
         );
         if (workerSelect) {
           const assignment = workerSelect.value;
-          if (dayIndex === 6) {
-            // Nedelja
-            shiftText = '/';
-          } else if (assignment === 'first') {
+          if (assignment === 'first') {
             shiftText = 'I smjena';
             shiftClass = 'first-shift';
           } else if (assignment === 'second') {

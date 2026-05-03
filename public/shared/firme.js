@@ -11,6 +11,7 @@ let allFirms = [];
 let filteredFirms = [];
 let currentFilter = 'all';
 let currentPib = null;
+let currentFirmId = null;
 let originalStatus = null;
 
 // =============================================================================
@@ -157,10 +158,10 @@ function filterFirms() {
   if (searchTerm) {
     firms = firms.filter(
       firm =>
-        firm.naziv.toLowerCase().includes(searchTerm) ||
-        firm.pib.includes(searchTerm) ||
-        firm.adresa.toLowerCase().includes(searchTerm) ||
-        (firm.pdvBroj && firm.pdvBroj.toLowerCase().includes(searchTerm))
+        String(firm.naziv || '').toLowerCase().includes(searchTerm) ||
+        String(firm.pib || '').includes(searchTerm) ||
+        String(firm.adresa || '').toLowerCase().includes(searchTerm) ||
+        String(firm.pdvBroj || '').toLowerCase().includes(searchTerm)
     );
   }
 
@@ -182,74 +183,7 @@ function renderFirms() {
 
   if (noResults) noResults.classList.add('d-none');
 
-  const firmsHtml = filteredFirms
-    .map(
-      firm => `
-    <div class="firm-card card firma-row-clickable" onclick="viewFirmaDetalji(${
-      firm.id
-    })">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-md-7">
-            <h5 class="card-title mb-2">
-              <span class="firm-status ${
-                firm.status === 'aktivan' ? 'status-active' : 'status-zero'
-              }"></span>
-              ${firm.naziv}
-            </h5>
-            <p class="mb-1"><strong>PIB:</strong> ${firm.pib}</p>
-            <p class="mb-1"><strong>Adresa:</strong> ${firm.adresa}</p>
-            ${
-              firm.pdvBroj
-                ? `<p class="mb-1"><strong>PDV broj:</strong> ${firm.pdvBroj}</p>`
-                : ''
-            }
-            ${
-              firm.direktor_ime_prezime
-                ? `<p class="mb-1"><strong>Direktor:</strong> ${firm.direktor_ime_prezime}</p>`
-                : ''
-            }
-            ${
-              firm.direktor_jmbg
-                ? `<p class="mb-0"><strong>JMBG direktora:</strong> ${firm.direktor_jmbg}</p>`
-                : ''
-            }
-          </div>
-          <div class="col-md-3 text-md-center">
-            <span class="badge ${
-              firm.status === 'aktivan' ? 'bg-success' : 'bg-warning'
-            } fs-6 px-3 py-2">
-              ${firm.status === 'aktivan' ? 'Aktivna' : 'Na nuli'}
-            </span>
-          </div>
-          <div class="col-md-2 text-md-end">
-            <div class="action-buttons" onclick="event.stopPropagation();">
-              <button class="edit-btn" onclick="editFirm('${firm.pib}')">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="edit-btn" onclick="viewRadnici(${
-                firm.id
-              })" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                <i class="fas fa-users"></i>
-              </button>
-              <button class="edit-btn" onclick="viewFirmaDetalji(${
-                firm.id
-              })" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="Detalji firme">
-                <i class="fas fa-info-circle"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger delete-btn" data-pib="${
-                firm.pib
-              }" data-naziv="${firm.naziv.replace(/"/g, '&quot;')}">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `
-    )
-    .join('');
+  const firmsHtml = filteredFirms.map(firm => renderFirmRow(firm)).join('');
 
   container.innerHTML = firmsHtml;
 
@@ -268,6 +202,77 @@ function renderFirms() {
       }
     });
   });
+}
+
+function renderFirmRow(firm) {
+  const statusClass = firm.status === 'aktivan' ? 'active' : 'zero';
+  const statusLabel = firm.status === 'aktivan' ? 'Aktivna' : 'Na nuli';
+  const safePib = escapeHtml(firm.pib || '-');
+  const safeName = escapeHtml(firm.naziv || 'Bez naziva');
+  const safeAddress = escapeHtml(firm.adresa || '-');
+  const safePdv = escapeHtml(firm.pdvBroj || '-');
+  const safeDirector = escapeHtml(firm.direktor_ime_prezime || '-');
+  const safeDirectorJmbg = firm.direktor_jmbg
+    ? `<small class="client-muted">${escapeHtml(firm.direktor_jmbg)}</small>`
+    : '';
+
+  return `
+    <tr class="client-row" onclick="viewFirmaDetalji(${firm.id})">
+      <td class="client-name">
+        <strong>${safeName}</strong>
+      </td>
+      <td>
+        <strong>${safePib}</strong>
+        <div class="client-muted">PDV: ${safePdv}</div>
+      </td>
+      <td>${safeAddress}</td>
+      <td>
+        <strong>${safeDirector}</strong>
+        ${safeDirectorJmbg}
+      </td>
+      <td>
+        <span class="status-pill ${statusClass}">
+          <i class="fas fa-circle"></i>${statusLabel}
+        </span>
+      </td>
+      <td onclick="event.stopPropagation();">
+        <div class="dropdown">
+          <button
+            class="action-button dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="Akcije"
+          >
+            <i class="fas fa-ellipsis"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button class="dropdown-item" type="button" onclick="viewFirmaDetalji(${firm.id})">
+                <i class="fas fa-briefcase me-2"></i>Otvori workspace
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" type="button" onclick="editFirm('${escapeAttribute(firm.pib || '')}')">
+                <i class="fas fa-pen me-2"></i>Uredi
+              </button>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button
+                class="dropdown-item text-danger delete-btn"
+                type="button"
+                data-pib="${escapeAttribute(firm.pib || '')}"
+                data-naziv="${escapeAttribute(firm.naziv || '')}"
+              >
+                <i class="fas fa-trash me-2"></i>Obriši firmu
+              </button>
+            </li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+  `;
 }
 
 // Edit firma function
@@ -328,6 +333,7 @@ async function deleteFirm(pib, naziv) {
 
 function initAddFirmPage() {
   setupStatusSelection();
+  setupIrmsLookup();
   setupFormSubmit();
   
   // Automatski selektuj status iz URL-a ili podrazumevani "aktivan"
@@ -510,23 +516,133 @@ function initEditFirmPage() {
   console.log('initEditFirmPage pozvana');
   const urlParams = new URLSearchParams(window.location.search);
   currentPib = urlParams.get('pib');
+  currentFirmId = urlParams.get('id') || urlParams.get('firmaId');
   console.log('PIB iz URL-a:', currentPib);
+  console.log('ID iz URL-a:', currentFirmId);
 
-  if (!currentPib) {
-    console.error('PIB firme nije specificiran u URL-u');
-    showError('PIB firme nije specificiran');
+  if (!currentPib && !currentFirmId) {
+    console.error('PIB ili ID firme nije specificiran u URL-u');
+    showError('PIB ili ID firme nije specificiran');
     return;
   }
 
   loadFirmData();
   setupStatusSelection();
+  setupIrmsLookup();
   setupEditFormSubmit();
+}
+
+function setupIrmsLookup() {
+  const lookupBtn = document.getElementById('irmsLookupBtn');
+  const pibInput = document.getElementById('pib');
+
+  if (!lookupBtn || !pibInput) return;
+
+  lookupBtn.addEventListener('click', function () {
+    lookupIrmsCompany();
+  });
+
+  pibInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && document.getElementById('irmsLookupBtn')) {
+      event.preventDefault();
+      lookupIrmsCompany();
+    }
+  });
+}
+
+async function lookupIrmsCompany() {
+  const pibInput = document.getElementById('pib');
+  const lookupBtn = document.getElementById('irmsLookupBtn');
+  const statusEl = document.getElementById('irmsLookupStatus');
+  const pib = String(pibInput?.value || '').trim();
+
+  if (!/^\d{8}$/.test(pib)) {
+    setIrmsStatus('PIB mora imati tačno 8 cifara.', 'error');
+    return;
+  }
+
+  setIrmsStatus('Pretražujem IRMS registar...', 'loading');
+  if (lookupBtn) lookupBtn.disabled = true;
+
+  try {
+    const response = await fetch('/api/irms/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ pib }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setIrmsStatus(result.message || 'Podaci nisu pronađeni u IRMS-u.', 'error');
+      return;
+    }
+
+    fillFirmFormFromIrms(result.data || {});
+    setIrmsStatus('Podaci su povučeni iz IRMS registra.', 'success');
+  } catch (error) {
+    console.error('IRMS lookup error:', error);
+    setIrmsStatus('Greška pri komunikaciji sa IRMS servisom.', 'error');
+  } finally {
+    if (lookupBtn) lookupBtn.disabled = false;
+  }
+}
+
+function fillFirmFormFromIrms(company) {
+  const firstDirector = Array.isArray(company.directors)
+    ? company.directors.find(d => d.fullName) || company.directors[0]
+    : null;
+
+  const fields = {
+    naziv: company.name,
+    adresa: company.address,
+    grad: company.city,
+    telefon: company.phone,
+    email: company.email,
+    direktorImePrezime: firstDirector?.fullName,
+  };
+
+  Object.entries(fields).forEach(([fieldId, value]) => {
+    const input = document.getElementById(fieldId);
+    const cleanValue = String(value || '').trim();
+    if (input && cleanValue) {
+      input.value = cleanValue;
+    }
+  });
+}
+
+function setIrmsStatus(message, type) {
+  const statusEl = document.getElementById('irmsLookupStatus');
+  if (!statusEl) return;
+
+  statusEl.textContent = message;
+  statusEl.classList.remove(
+    'irms-status-success',
+    'irms-status-error',
+    'irms-status-loading'
+  );
+
+  if (type) {
+    statusEl.classList.add(`irms-status-${type}`);
+  }
 }
 
 async function loadFirmData() {
   try {
-    console.log('Učitavam podatke za PIB:', currentPib);
-    const response = await fetch(`/api/firme/${currentPib}`, {
+    const firmEndpoint = currentPib
+      ? `/api/firme/${encodeURIComponent(currentPib)}`
+      : `/api/firme/id/${encodeURIComponent(currentFirmId)}`;
+
+    console.log('Učitavam podatke firme:', {
+      pib: currentPib,
+      id: currentFirmId,
+      endpoint: firmEndpoint,
+    });
+
+    const response = await fetch(firmEndpoint, {
       credentials: 'include',
     });
 
@@ -550,6 +666,9 @@ async function loadFirmData() {
     console.log('Telefon iz baze:', firm.telefon);
     console.log('Email iz baze:', firm.email);
     console.log('Grad iz baze:', firm.grad);
+
+    currentPib = firm.pib || currentPib;
+    currentFirmId = firm.id || currentFirmId;
 
     // Populate form
     const nazivInput = document.getElementById('naziv');
@@ -737,4 +856,17 @@ function viewRadnici(firmaId) {
 // Funkcija za pregled detalja firme
 function viewFirmaDetalji(firmaId) {
   window.location.href = `/shared/firma-detalji.html?id=${firmaId}`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replaceAll('`', '&#096;');
 }

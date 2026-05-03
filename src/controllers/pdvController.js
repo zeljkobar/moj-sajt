@@ -1,55 +1,65 @@
 const { executeQuery } = require("../config/database");
 
+function resolveTargetMonth(inputMonth) {
+  if (inputMonth) {
+    const normalizedMonth = String(inputMonth).slice(0, 7);
+    if (/^\d{4}-\d{2}$/.test(normalizedMonth)) {
+      const [year, month] = normalizedMonth.split("-").map(Number);
+      return {
+        targetYear: year,
+        targetMonth: month,
+        targetMonthString: `${normalizedMonth}-01`,
+      };
+    }
+  }
+
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonthNum = today.getMonth() + 1;
+  const currentDay = today.getDate();
+
+  let targetMonth = currentMonthNum;
+  let targetYear = currentYear;
+
+  if (currentDay <= 20) {
+    targetMonth = currentMonthNum - 1;
+    if (targetMonth < 1) {
+      targetMonth = 12;
+      targetYear--;
+    }
+  }
+
+  return {
+    targetYear,
+    targetMonth,
+    targetMonthString: `${targetYear}-${targetMonth
+      .toString()
+      .padStart(2, "0")}-01`,
+  };
+}
+
+function calculateDaysToDeadline(targetYear, targetMonth) {
+  let rokMonth = targetMonth + 1;
+  let rokYear = targetYear;
+
+  if (rokMonth > 12) {
+    rokMonth = 1;
+    rokYear++;
+  }
+
+  const danas = new Date();
+  const rok = new Date(rokYear, rokMonth - 1, 15);
+  return Math.ceil((rok - danas) / (1000 * 60 * 60 * 24));
+}
+
 // Dohvati PDV firme sa statusom prijava za trenutni mjesec
 exports.getPDVOverview = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonthNum = today.getMonth() + 1; // JavaScript months are 0-indexed
-    const currentDay = today.getDate();
-
-    // Determine target month based on business logic:
-    // If day <= 20: target = PREVIOUS month (PDV that should have been submitted)
-    // If day > 20: target = CURRENT month (PDV that needs to be submitted)
-    let targetMonth = currentMonthNum;
-    let targetYear = currentYear;
-
-    if (currentDay <= 20) {
-      // We're in submission period for PREVIOUS month
-      targetMonth = currentMonthNum - 1;
-      if (targetMonth < 1) {
-        targetMonth = 12;
-        targetYear--;
-      }
-    }
-    // If day > 20, we show CURRENT month (default values above)
-
-    // Create target month string directly (avoid timezone issues)
-    const targetMonthString = `${targetYear}-${targetMonth
-      .toString()
-      .padStart(2, "0")}-01`;
-
-    // Kalkuliraj dane do roka za ciljni mjesec
-    const danaDoRoka = () => {
-      const danas = new Date();
-      const currentDay = danas.getDate();
-
-      // Rok za target mjesec je 15. dan sljedećeg mjeseca
-      let rokMonth = targetMonth + 1;
-      let rokYear = targetYear;
-
-      if (rokMonth > 12) {
-        rokMonth = 1;
-        rokYear++;
-      }
-
-      const rok = new Date(rokYear, rokMonth - 1, 15); // month je 0-indexed u Date()
-      const diff = Math.ceil((rok - danas) / (1000 * 60 * 60 * 24));
-      return diff;
-    };
-
-    const daysToDeadline = danaDoRoka();
+    const { targetYear, targetMonth, targetMonthString } = resolveTargetMonth(
+      req.query.mjesec
+    );
+    const daysToDeadline = calculateDaysToDeadline(targetYear, targetMonth);
 
     // Dohvati sve PDV firme korisnika sa statusom prijava
     const pdvData = await executeQuery(
@@ -100,7 +110,7 @@ exports.getPDVOverview = async (req, res) => {
     );
 
     const rokInfo = {
-      dana_do_roka: danaDoRoka(),
+      dana_do_roka: daysToDeadline,
       rok_datum: `${targetYear}-${targetMonth.toString().padStart(2, "0")}-15`,
       trenutni_mjesec: `${targetYear}-${targetMonth
         .toString()
@@ -123,30 +133,9 @@ exports.markAsSubmitted = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { firmaId } = req.params;
-    const { napomena } = req.body;
-
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonthNum = today.getMonth() + 1;
-    const currentDay = today.getDate();
-
-    // Determine target month (same logic as getPDVOverview)
-    let targetMonth = currentMonthNum;
-    let targetYear = currentYear;
-
-    if (currentDay <= 20) {
-      // We're in submission period for PREVIOUS month
-      targetMonth = currentMonthNum - 1;
-      if (targetMonth < 1) {
-        targetMonth = 12;
-        targetYear--;
-      }
-    }
-    // If day > 20, we show CURRENT month
-
-    const targetMonthString = `${targetYear}-${targetMonth
-      .toString()
-      .padStart(2, "0")}-01`;
+    const { napomena, mjesec } = req.body;
+    const { targetYear, targetMonth, targetMonthString } =
+      resolveTargetMonth(mjesec);
 
     // Provjeri da li firma pripada korisniku
     const [firma] = await executeQuery(
@@ -259,29 +248,7 @@ exports.unmarkSubmitted = async (req, res) => {
   try {
     const userId = req.session.user.id;
     const { firmaId } = req.params;
-
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonthNum = today.getMonth() + 1;
-    const currentDay = today.getDate();
-
-    // Determine target month (same logic as getPDVOverview)
-    let targetMonth = currentMonthNum;
-    let targetYear = currentYear;
-
-    if (currentDay <= 20) {
-      // We're in submission period for PREVIOUS month
-      targetMonth = currentMonthNum - 1;
-      if (targetMonth < 1) {
-        targetMonth = 12;
-        targetYear--;
-      }
-    }
-    // If day > 20, we show CURRENT month
-
-    const targetMonthString = `${targetYear}-${targetMonth
-      .toString()
-      .padStart(2, "0")}-01`;
+    const { targetMonthString } = resolveTargetMonth(req.body?.mjesec);
 
     // Provjeri da li firma pripada korisniku
     const [firma] = await executeQuery(

@@ -195,7 +195,7 @@
         <div id="prethodniPovracaji" style="margin-top: 10px"></div>
       </div>
 
-      <div class="sadrzaj">
+      <div class="sadrzaj" id="tekstOdluke">
         Izvršni direktor društva,
         <span id="direktorIme">Željko Djuranovic</span> je donijeo/la odluku da
         zajmodavcu vrati sredstva u iznosu od
@@ -276,7 +276,9 @@
         // Podaci o pozajmici
         document.getElementById(
           'radnikImeJmbg'
-        ).textContent = `${odluka.radnik_ime_prezime}, JMBG ${odluka.radnik_jmbg}`;
+        ).textContent = `${odluka.pozajmilac_ime_prezime || '-'}, JMBG ${
+          odluka.pozajmilac_jmbg || '-'
+        }`;
         document.getElementById('brojUgovora').textContent =
           odluka.broj_ugovora;
         document.getElementById('datumPozajmice').textContent = formatDate(
@@ -286,15 +288,36 @@
           odluka.ukupan_iznos_pozajmice
         );
 
-        // Podaci o povraćaju
-        document.getElementById('iznosPovracaja').textContent = formatCurrency(
-          odluka.iznos_povracaja
-        );
-        document.getElementById('direktorIme').textContent =
-          odluka.direktor_ime_prezime || '';
+        renderTekstOdluke(odluka);
 
         // Prethodni povraćaji
         renderPrethodniPovracaji(odluka.prethodni_povracaji);
+      }
+
+      function renderTekstOdluke(odluka) {
+        const direktor = odluka.direktor_ime_prezime || '';
+        const iznosPovracaja = formatCurrency(odluka.iznos_povracaja);
+        const preostalo = Number(odluka.preostalo_dugovanje || 0);
+        const tekstOdluke = document.getElementById('tekstOdluke');
+
+        if (preostalo <= 0.005) {
+          tekstOdluke.innerHTML = `
+            Izvršni direktor društva,
+            <span id="direktorIme">${escapeHtml(direktor)}</span> je donijeo/la odluku da
+            zajmodavcu vrati sredstva u iznosu od
+            <span id="iznosPovracaja">${iznosPovracaja}</span>, čime je pozajmnica
+            vraćena u potpunosti.
+          `;
+          return;
+        }
+
+        tekstOdluke.innerHTML = `
+          Izvršni direktor društva,
+          <span id="direktorIme">${escapeHtml(direktor)}</span> je donijeo/la odluku da
+          zajmodavcu vrati sredstva u iznosu od
+          <span id="iznosPovracaja">${iznosPovracaja}</span>, a ostatak će vratiti do kraja
+          godine.
+        `;
       }
 
       function renderPrethodniPovracaji(povracaji) {
@@ -322,6 +345,15 @@
       function formatCurrency(amount) {
         if (!amount) return '0,00';
         return parseFloat(amount).toFixed(2).replace('.', ',');
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
       }
 
       // ============================================

@@ -1,39 +1,10 @@
-<!D    <!--
-    Google tag (gtag.js)
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'G-DGZCVVHKXW');
-    </script>
-  </head>
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "G-DGZCVVHKXW");
-    </script>
-
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pregled firmi | Summa Summarum</title>
+    <title>Klijenti | Summa Summarum</title>
 
-    <!-- Favicon -->
     <link rel="icon" href="/shared/images/favicon/favicon.ico" type="image/x-icon" />
     <link
       rel="apple-touch-icon"
@@ -53,12 +24,8 @@
       href="/shared/images/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="/shared/site.webmanifest" />
-
-    <!-- Dynamic Favicon Script - automatski menja putanje na osnovu domena -->
-    <script src="/shared/components/dynamic-favicon.js"></script>
-
-    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
     <script src="/shared/components/theme-preloader.js"></script>
+    <script src="/shared/components/dynamic-favicon.js"></script>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -68,79 +35,344 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/shared/style.css" />
     <link rel="stylesheet" href="/shared/global-components.css" />
     <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      :root {
+        --clients-bg: #f5f7fb;
+        --clients-panel: #ffffff;
+        --clients-border: #dde3ee;
+        --clients-text: #1f2937;
+        --clients-muted: #667085;
+        --clients-primary: #1f5eff;
+        --clients-primary-soft: #e9efff;
+        --clients-success: #159947;
+        --clients-warning: #c47a00;
+        --clients-radius: 8px;
+      }
+
+      [data-theme='dark'] {
+        --clients-bg: #181a1f;
+        --clients-panel: #24272f;
+        --clients-border: #363b47;
+        --clients-text: #f1f4f8;
+        --clients-muted: #a8b0bd;
+        --clients-primary-soft: rgba(60, 115, 255, 0.18);
+      }
+
+      body {
+        background: var(--clients-bg);
+        color: var(--clients-text);
+      }
+
+      .clients-shell {
+        padding: 24px 0 42px;
+      }
+
+      .clients-header,
+      .clients-toolbar,
+      .clients-list-panel,
+      .stat-tile {
+        background: var(--clients-panel);
+        border: 1px solid var(--clients-border);
+        border-radius: var(--clients-radius);
+      }
+
+      .clients-header {
+        padding: 20px;
+        margin-bottom: 14px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .clients-header h1 {
+        margin: 0 0 6px;
+        font-size: 1.7rem;
+        line-height: 1.2;
+      }
+
+      .clients-header p {
+        margin: 0;
+        color: var(--clients-muted);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .stat-tile {
+        padding: 15px;
+      }
+
+      .stat-tile small {
+        color: var(--clients-muted);
+      }
+
+      .stat-tile strong {
+        display: block;
+        font-size: 1.9rem;
+        line-height: 1;
+        margin-top: 8px;
+      }
+
+      .clients-toolbar {
+        padding: 14px;
+        margin-bottom: 14px;
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .client-search {
+        position: relative;
+      }
+
+      .client-search i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        transform: translateY(-50%);
+        color: var(--clients-muted);
+      }
+
+      .client-search input {
+        height: 44px;
+        padding-left: 38px;
+        border-color: var(--clients-border);
+        background: var(--clients-panel);
+        color: var(--clients-text);
+      }
+
+      .filter-tabs {
+        display: inline-flex;
+        padding: 4px;
+        border: 1px solid var(--clients-border);
+        border-radius: var(--clients-radius);
+        background: var(--clients-panel);
+        gap: 0;
+      }
+
+      .tab-btn {
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--clients-muted);
+        padding: 8px 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .tab-btn.active {
+        background: var(--clients-primary);
+        color: #fff;
+      }
+
+      .clients-list-panel {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .clients-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      .clients-table th {
+        color: var(--clients-muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0;
+        border-bottom: 1px solid var(--clients-border);
+        padding: 12px 14px;
+      }
+
+      .clients-table td {
+        border-bottom: 1px solid var(--clients-border);
+        padding: 14px;
+        vertical-align: middle;
+      }
+
+      .clients-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .client-row {
+        cursor: pointer;
+      }
+
+      .client-row:hover {
+        background: var(--clients-primary-soft);
+      }
+
+      .client-name strong {
+        display: block;
+      }
+
+      .client-name small,
+      .client-muted {
+        color: var(--clients-muted);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+
+      .status-pill.active {
+        background: rgba(21, 153, 71, 0.1);
+        color: var(--clients-success);
+      }
+
+      .status-pill.zero {
+        background: rgba(196, 122, 0, 0.12);
+        color: var(--clients-warning);
+      }
+
+      .action-button {
+        width: 34px;
+        height: 34px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid var(--clients-border);
+        border-radius: 7px;
+        background: var(--clients-panel);
+        color: var(--clients-muted);
+      }
+
+      .action-button:hover {
+        color: var(--clients-primary);
+        border-color: var(--clients-primary);
+      }
+
+      .loading-spinner,
+      .no-results {
+        text-align: center;
+        padding: 40px;
+        color: var(--clients-muted);
+      }
+
+      @media (max-width: 900px) {
+        .clients-header,
+        .clients-toolbar {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-tabs {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .clients-table {
+          min-width: 840px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Navigation će biti automatski ubačena ovde -->
+    <div id="navigation-placeholder"></div>
 
-    <div class="container mt-4">
-      <!-- Header -->
-      <div class="firms-header">
-        <h1><i class="fas fa-building me-3"></i>Pregled firmi</h1>
-        <p class="mb-0 fs-5">Upravljanje aktivnim firmama i firmama na nuli</p>
-      </div>
-
-      <!-- Search i filtri -->
-      <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-          <input
-            type="text"
-            id="searchInput"
-            class="form-control search-box"
-            placeholder="🔍 Pretraguj po nazivu, PIB-u ili adresi..."
-          />
-        </div>
-        <div class="col-md-3">
-          <div class="filter-tabs">
-            <button class="tab-btn active" data-filter="all">
-              Sve (<span id="totalCount">0</span>)
-            </button>
-            <button class="tab-btn" data-filter="active">
-              Aktivne (<span id="activeCount">0</span>)
-            </button>
-            <button class="tab-btn" data-filter="zero">
-              Na nuli (<span id="zeroCount">0</span>)
-            </button>
+    <main class="clients-shell">
+      <div class="container-fluid px-3 px-lg-4">
+        <section class="clients-header">
+          <div>
+            <h1>Klijenti i firme</h1>
+            <p>Pregled firmi, statusa i najbrži ulaz u workspace klijenta.</p>
           </div>
-        </div>
-        <div class="col-md-3 text-end">
-          <a href="/dodaj-firmu.html" class="btn btn-success">
+          <a href="/dodaj-firmu.html" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Dodaj firmu
           </a>
+        </section>
+
+        <section class="stats-grid" aria-label="Statistika firmi">
+          <article class="stat-tile">
+            <small>Ukupno firmi</small>
+            <strong id="totalCount">0</strong>
+          </article>
+          <article class="stat-tile">
+            <small>Aktivne firme</small>
+            <strong class="text-success" id="activeCount">0</strong>
+          </article>
+          <article class="stat-tile">
+            <small>Firme na nuli</small>
+            <strong class="text-warning" id="zeroCount">0</strong>
+          </article>
+        </section>
+
+        <section class="clients-toolbar">
+          <div class="client-search">
+            <i class="fas fa-search"></i>
+            <input
+              type="search"
+              id="searchInput"
+              class="form-control"
+              placeholder="Pretražite po nazivu, PIB-u, PDV broju ili adresi..."
+            />
+          </div>
+          <div class="filter-tabs" aria-label="Filter firmi">
+            <button class="tab-btn active" data-filter="all" type="button">
+              Sve
+            </button>
+            <button class="tab-btn" data-filter="active" type="button">
+              Aktivne
+            </button>
+            <button class="tab-btn" data-filter="zero" type="button">
+              Na nuli
+            </button>
+          </div>
+        </section>
+
+        <div class="loading-spinner">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Učitava...</span>
+          </div>
+          <p class="mt-3 mb-0">Učitavam firme...</p>
+        </div>
+
+        <section class="clients-list-panel">
+          <div class="table-responsive">
+            <table class="clients-table">
+              <thead>
+                <tr>
+                  <th>Firma</th>
+                  <th>PIB / PDV</th>
+                  <th>Adresa</th>
+                  <th>Direktor</th>
+                  <th>Status</th>
+                  <th>Akcije</th>
+                </tr>
+              </thead>
+              <tbody id="firmsContainer"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="no-results d-none">
+          <i class="fas fa-search fs-1 mb-3"></i>
+          <h4>Nema rezultata</h4>
+          <p>Pokušajte sa drugim terminima pretrage ili drugim filterom.</p>
         </div>
       </div>
-
-      <!-- Loading spinner -->
-      <div class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Učitava...</span>
-        </div>
-        <p class="mt-3">Učitavam firme...</p>
-      </div>
-
-      <!-- Firme liste -->
-      <div id="firmsContainer">
-        <!-- Firme će biti učitane dinamički -->
-      </div>
-
-      <!-- No results -->
-      <div class="no-results d-none">
-        <i class="fas fa-search fs-1 text-muted mb-3"></i>
-        <h4>Nema rezultata</h4>
-        <p>Pokušajte sa drugim terminima pretrage</p>
-      </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/shared/components/navigation.js"></script>
-    <script src="/shared/script.js"></script>
     <script src="/shared/firme.js"></script>
-    <script></script></script>
-    <script src="/shared/components/navigation.js"></script>
-    <script src="/shared/script.js"></script>
-    <script src="/shared/firme.js"></script>
-    <script></script>
   </body>
 </html>

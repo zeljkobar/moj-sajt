@@ -6,6 +6,35 @@ const { authMiddleware } = require("../middleware/auth");
 // Všechny rute requirují autentifikaciju
 router.use(authMiddleware);
 
+// GET /api/zadaci/otvoreni/sve - Otvoreni zadaci za sve firme korisnika
+router.get("/otvoreni/sve", async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+
+    const zadaci = await executeQuery(
+      `SELECT 
+         fz.id,
+         fz.firma_id,
+         fz.tekst_zadatka,
+         fz.je_zavrsen,
+         fz.datum_kreiran,
+         f.naziv as firma_naziv,
+         f.pib as firma_pib
+       FROM firma_zadaci fz
+       JOIN firme f ON fz.firma_id = f.id
+       WHERE f.user_id = ? AND fz.je_zavrsen = 0
+       ORDER BY fz.datum_kreiran DESC, fz.id DESC
+       LIMIT 50`,
+      [userId]
+    );
+
+    res.json({ success: true, zadaci });
+  } catch (error) {
+    console.error("Greška pri učitavanju otvorenih zadataka:", error);
+    res.status(500).json({ error: "Greška pri učitavanju otvorenih zadataka" });
+  }
+});
+
 // GET /api/zadaci/:firmaId - Učitaj zadatke za firmu
 router.get("/:firmaId", async (req, res) => {
   try {

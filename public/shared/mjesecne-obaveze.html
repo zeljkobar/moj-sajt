@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mjesečne Obaveze | Summa Summarum</title>
+    <link rel="icon" href="/shared/images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/shared/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/shared/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/shared/images/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/shared/site.webmanifest" />
+    <script src="/shared/components/theme-preloader.js"></script>
+    <script src="/shared/components/dynamic-favicon.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+    <style>
+      body {
+        background: #f5f7fb;
+      }
+
+      .obaveze-shell {
+        padding: 28px 24px 48px;
+      }
+
+      .page-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: flex-start;
+        margin-bottom: 22px;
+      }
+
+      .page-top h1 {
+        color: #172033;
+        font-size: 30px;
+        font-weight: 760;
+        margin: 0 0 6px;
+      }
+
+      .page-top p {
+        color: #667085;
+        margin: 0;
+      }
+
+      .primary-action {
+        border: 0;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        padding: 12px 18px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+      }
+
+      .month-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+
+      .month-strip.is-hidden {
+        display: none;
+      }
+
+      .detail-header {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border: 1px solid #dce3ef;
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      }
+
+      .detail-header.is-visible {
+        display: flex;
+      }
+
+      .detail-header h2 {
+        color: #172033;
+        font-size: 22px;
+        font-weight: 760;
+        margin: 0;
+      }
+
+      .detail-header p {
+        color: #667085;
+        margin: 3px 0 0;
+      }
+
+      .month-card {
+        border: 1px solid #dce3ef;
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      }
+
+      .month-card.active {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      }
+
+      .month-card h2 {
+        font-size: 22px;
+        font-weight: 760;
+        color: #172033;
+        margin: 0;
+      }
+
+      .month-meta {
+        color: #667085;
+        font-size: 14px;
+        margin: 3px 0 12px;
+      }
+
+      .month-progress {
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e7edf6;
+        margin: 14px 0 12px;
+      }
+
+      .month-progress > div {
+        height: 100%;
+        background: #2563eb;
+      }
+
+      .month-stats {
+        display: flex;
+        justify-content: space-between;
+        color: #667085;
+        font-size: 14px;
+      }
+
+      .month-metric-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.9fr 0.75fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .month-metric {
+        border: 1px solid #edf1f7;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfcfe;
+      }
+
+      .month-metric-title {
+        color: #667085;
+        font-size: 13px;
+        font-weight: 750;
+        margin-bottom: 8px;
+      }
+
+      .month-metric-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: #667085;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .month-metric-row strong {
+        color: #172033;
+        font-size: 14px;
+      }
+
+      .month-metric.docs {
+        background: #f8fbff;
+      }
+
+      .month-metric.payroll {
+        background: #f8fffb;
+      }
+
+      .month-metric.pdv {
+        background: #fffaf3;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .summary-card {
+        border: 1px solid #dce3ef;
+        background: #fff;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .summary-label {
+        color: #667085;
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .summary-value {
+        color: #172033;
+        font-size: 28px;
+        font-weight: 780;
+      }
+
+      .workspace-card {
+        border: 1px solid #dce3ef;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+      }
+
+      .workspace-card.is-hidden {
+        display: none;
+      }
+
+      .select-month-state {
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        padding: 34px 20px;
+        text-align: center;
+        color: #667085;
+        margin-top: 20px;
+      }
+
+      .workspace-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 16px;
+        border-bottom: 1px solid #edf1f7;
+      }
+
+      .workspace-toolbar input,
+      .workspace-toolbar select {
+        border: 1px solid #d7deea;
+        border-radius: 8px;
+        padding: 10px 12px;
+        background: #fff;
+      }
+
+      .workspace-toolbar input {
+        flex: 1;
+      }
+
+      .status-table-wrap {
+        overflow-x: auto;
+      }
+
+      .status-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+      }
+
+      .status-table th {
+        padding: 12px 10px;
+        border-bottom: 1px solid #edf1f7;
+        color: #667085;
+        font-size: 12px;
+        text-transform: uppercase;
+        text-align: center;
+        background: #fbfcfe;
+      }
+
+      .status-table .group-header th {
+        font-size: 13px;
+        text-align: center;
+        border-bottom: 1px solid #dbe7ff;
+        letter-spacing: 0;
+      }
+
+      .status-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #edf1f7;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .status-table td:first-child {
+        text-align: left;
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 2;
+        min-width: 240px;
+      }
+
+      .status-table th:first-child {
+        text-align: left;
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 4;
+        min-width: 240px;
+      }
+
+      .group-docs,
+      .col-docs {
+        background: #eef5ff !important;
+        text-align: center !important;
+      }
+
+      .col-dobio {
+        width: 88px;
+        min-width: 88px;
+        max-width: 88px;
+        text-align: center !important;
+      }
+
+      .group-docs {
+        color: #1d4ed8 !important;
+      }
+
+      .group-payroll,
+      .col-payroll {
+        background: #f0fdf4 !important;
+        text-align: center !important;
+      }
+
+      .group-payroll {
+        color: #15803d !important;
+      }
+
+      .group-pdv,
+      .col-pdv {
+        background: #fff7ed !important;
+      }
+
+      .group-pdv {
+        color: #c2410c !important;
+      }
+
+      .group-note,
+      .col-note {
+        background: #f8fafc !important;
+      }
+
+      .group-note {
+        color: #475467 !important;
+      }
+
+      .group-progress,
+      .col-progress {
+        background: #f5f3ff !important;
+      }
+
+      .group-progress {
+        color: #6d28d9 !important;
+      }
+
+      .status-table tbody tr:hover td {
+        filter: brightness(0.985);
+      }
+
+      .firm-name {
+        color: #172033;
+        font-weight: 760;
+      }
+
+      .firm-meta {
+        display: block;
+        color: #667085;
+        font-size: 13px;
+        margin-top: 2px;
+      }
+
+      .check-cell {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+      }
+
+      .readonly-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .readonly-status.done {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .readonly-status.pending {
+        background: #f1f5f9;
+        color: #475467;
+      }
+
+      .readonly-status.none {
+        background: #fff7ed;
+        color: #c2410c;
+      }
+
+      .row-progress {
+        min-width: 90px;
+      }
+
+      .mini-progress {
+        height: 7px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e7edf6;
+      }
+
+      .mini-progress > div {
+        height: 100%;
+        background: #2563eb;
+      }
+
+      .note-input {
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        padding: 6px 8px;
+        width: 180px;
+      }
+
+      .note-input:focus {
+        background: #fff;
+        border-color: #93c5fd;
+        outline: 0;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.42);
+        padding: 24px;
+      }
+
+      .modal-content {
+        background: #fff;
+        border: 0;
+        border-radius: 8px;
+        max-width: 460px;
+        margin: 12vh auto 0;
+        box-shadow: 0 22px 70px rgba(15, 23, 42, 0.24);
+      }
+
+      .modal-header,
+      .modal-body {
+        padding: 20px;
+      }
+
+      .modal-header {
+        border-bottom: 1px solid #eef2f7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close {
+        cursor: pointer;
+        font-size: 24px;
+        color: #667085;
+      }
+
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      @media (max-width: 900px) {
+        .page-top,
+        .workspace-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navigation-placeholder"></div>
+
+    <main class="obaveze-shell">
+      <div class="page-top">
+        <div>
+          <h1>Mjesečne Obaveze</h1>
+          <p>Dokumentacija, plate i PDV status po firmama za svaki mjesec</p>
+        </div>
+        <button class="primary-action" type="button" onclick="openCreateModal()">
+          <i class="fas fa-plus"></i>Kreiraj mjesec
+        </button>
+      </div>
+
+      <section id="monthCards" class="month-strip">
+        <div class="summary-card">Učitavam mjesece...</div>
+      </section>
+
+      <section class="detail-header" id="detailHeader">
+        <div>
+          <h2 id="detailTitle">Mjesečne obaveze</h2>
+          <p id="detailSubtitle">Pregled obaveza za izabrani mjesec</p>
+        </div>
+        <button class="btn btn-outline-primary" type="button" onclick="showMonthSelection()">
+          <i class="fas fa-arrow-left me-2"></i>Svi mjeseci
+        </button>
+      </section>
+
+      <section class="summary-grid" id="summaryGrid" style="display: none">
+        <div class="summary-card">
+          <div class="summary-label">Završene firme</div>
+          <div class="summary-value" id="statCompleted">0/0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Dokumentacija vraćena</div>
+          <div class="summary-value" id="statDocs">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Plate predate</div>
+          <div class="summary-value" id="statPayroll">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">PDV predat</div>
+          <div class="summary-value" id="statPdv">0/0</div>
+        </div>
+      </section>
+
+      <div class="select-month-state" id="selectMonthState">
+        <i class="far fa-calendar-check me-2"></i>
+        Izaberite mjesec da otvorite tabelu obaveza.
+      </div>
+
+      <section class="workspace-card is-hidden" id="workspaceCard">
+        <div class="workspace-toolbar">
+          <input id="searchInput" type="search" placeholder="Pretraži firmu ili PIB..." />
+          <select id="statusFilter">
+            <option value="all">Sve firme</option>
+            <option value="unfinished">Nezavršene</option>
+            <option value="finished">Završene</option>
+            <option value="pdv">PDV obveznici</option>
+          </select>
+        </div>
+        <div class="status-table-wrap">
+          <table class="status-table">
+            <thead>
+              <tr class="group-header">
+                <th rowspan="2">Firma</th>
+                <th class="group-docs" colspan="4">Dokumentacija</th>
+                <th class="group-payroll" colspan="2">Plate</th>
+                <th class="group-pdv" rowspan="2">PDV</th>
+                <th class="group-note" rowspan="2">Napomena</th>
+                <th class="group-progress" rowspan="2">Napredak</th>
+              </tr>
+              <tr>
+                <th class="col-docs col-dobio">Dobio</th>
+                <th class="col-docs">Skenirao</th>
+                <th class="col-docs">Proknjižio</th>
+                <th class="col-docs">Vratio</th>
+                <th class="col-payroll">Obračunao</th>
+                <th class="col-payroll">Predao</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td colspan="10" class="text-center py-5">Učitavam...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="createModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="m-0">Kreiraj mjesečne obaveze</h3>
+          <span class="close" onclick="closeCreateModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form onsubmit="createMonth(event)">
+            <label class="form-label" for="newMonth">Mjesec</label>
+            <input class="form-control" id="newMonth" name="mjesec" type="month" required />
+            <div class="form-actions">
+              <button class="btn btn-outline-secondary" type="button" onclick="closeCreateModal()">Odustani</button>
+              <button class="btn btn-primary" type="submit">Kreiraj</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/notifications.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script>
+      const fields = [
+        'dok_dobio',
+        'dok_skenirao',
+        'dok_proknjizio',
+        'dok_vratio',
+        'plate_obracunao',
+        'plate_predao',
+      ];
+
+      let months = [];
+      let selectedMonth = '';
+      let rows = [];
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('searchInput').addEventListener('input', renderRows);
+        document.getElementById('statusFilter').addEventListener('change', renderRows);
+        loadMonths();
+      });
+
+      async function api(url, options = {}) {
+        const response = await fetch(url, {
+          credentials: 'include',
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {}),
+          },
+        });
+        return response.json();
+      }
+
+      async function loadMonths(preferredMonth = '') {
+        const result = await api('/api/mjesecne-obaveze/mjeseci');
+        if (!result.success) {
+          showNotification('Greška pri učitavanju mjesečnih obaveza', 'error');
+          return;
+        }
+
+        months = result.mjeseci || [];
+        selectedMonth = preferredMonth || '';
+        renderMonths();
+        if (selectedMonth) {
+          await loadOverview(selectedMonth);
+        } else {
+          updateStats(null);
+          document.getElementById('workspaceCard').classList.add('is-hidden');
+          document.getElementById('selectMonthState').style.display = 'block';
+          document.getElementById('summaryGrid').style.display = 'none';
+        }
+      }
+
+      async function loadOverview(month) {
+        selectedMonth = month;
+        document.getElementById('workspaceCard').classList.remove('is-hidden');
+        document.getElementById('selectMonthState').style.display = 'none';
+        document.getElementById('summaryGrid').style.display = 'grid';
+        const result = await api(`/api/mjesecne-obaveze?mjesec=${encodeURIComponent(month)}`);
+        if (!result.success) {
+          showNotification('Greška pri učitavanju podataka', 'error');
+          return;
+        }
+        rows = result.firme || [];
+        updateStats(result.statistike);
+        showMonthDetail();
+        renderMonths();
+        renderRows();
+      }
+
+      function showMonthDetail() {
+        document.getElementById('monthCards').classList.add('is-hidden');
+        document.getElementById('detailHeader').classList.add('is-visible');
+        document.getElementById('detailTitle').textContent = `Mjesečne obaveze - ${formatMonth(selectedMonth)}`;
+        document.getElementById('detailSubtitle').textContent = `${rows.length} firmi u kartici`;
+      }
+
+      function showMonthSelection() {
+        selectedMonth = '';
+        rows = [];
+        document.getElementById('monthCards').classList.remove('is-hidden');
+        document.getElementById('detailHeader').classList.remove('is-visible');
+        document.getElementById('workspaceCard').classList.add('is-hidden');
+        document.getElementById('selectMonthState').style.display = 'block';
+        document.getElementById('summaryGrid').style.display = 'none';
+        renderMonths();
+      }
+
+      function renderMonths() {
+        const container = document.getElementById('monthCards');
+        if (months.length === 0) {
+          const fallbackMonth = selectedMonth || getCurrentMonth();
+          container.innerHTML = `
+            <article class="month-card" onclick="loadOverview('${fallbackMonth}')">
+              <h2>${formatMonth(fallbackMonth)}</h2>
+              <div class="month-meta">Još nije kreirana kartica</div>
+              <div class="month-progress"><div style="width: 0%"></div></div>
+              <div class="month-stats"><span>0 završeno</span><span>0%</span></div>
+            </article>
+          `;
+          return;
+        }
+
+        container.innerHTML = months
+          .map(item => {
+            const month = item.mjesec.slice(0, 7);
+            const stats = item.statistike || {};
+            const active = month === selectedMonth ? 'active' : '';
+            return `
+              <article class="month-card ${active}" onclick="loadOverview('${month}')">
+                <h2>${formatMonth(month)}</h2>
+                <div class="month-meta">${stats.ukupno_firmi || 0} firmi u kartici</div>
+                <div class="month-progress"><div style="width: ${stats.procenat || 0}%"></div></div>
+                <div class="month-stats">
+                  <span>${stats.zavrseno_firmi || 0} završeno</span>
+                  <span>${stats.procenat || 0}%</span>
+                </div>
+                <div class="month-metric-grid">
+                  <div class="month-metric docs">
+                    <div class="month-metric-title">Dokumentacija</div>
+                    <div class="month-metric-row"><span>Dobio</span><strong>${stats.dokumentacija?.dobio || 0}/${stats.dokumentacija?.ukupno || 0}</strong></div>
+                    <div class="month-metric-row"><span>Skenirao</span><strong>${stats.dokumentacija?.skenirao || 0}/${stats.dokumentacija?.ukupno || 0}</strong></div>
+                    <div class="month-metric-row"><span>Proknjižio</span><strong>${stats.dokumentacija?.proknjizio || 0}/${stats.dokumentacija?.ukupno || 0}</strong></div>
+                    <div class="month-metric-row"><span>Vratio</span><strong>${stats.dokumentacija?.vratio || 0}/${stats.dokumentacija?.ukupno || 0}</strong></div>
+                  </div>
+                  <div class="month-metric payroll">
+                    <div class="month-metric-title">Plate</div>
+                    <div class="month-metric-row"><span>Obračunao</span><strong>${stats.plate?.obracunao || 0}/${stats.plate?.ukupno || 0}</strong></div>
+                    <div class="month-metric-row"><span>Predao</span><strong>${stats.plate?.predao || 0}/${stats.plate?.ukupno || 0}</strong></div>
+                  </div>
+                  <div class="month-metric pdv">
+                    <div class="month-metric-title">PDV</div>
+                    <div class="month-metric-row"><span>Predat</span><strong>${stats.pdv?.predato || 0}/${stats.pdv?.ukupno || 0}</strong></div>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join('');
+      }
+
+      function updateStats(stats = {}) {
+        stats = stats || {};
+        document.getElementById('statCompleted').textContent = `${stats.zavrseno_firmi || 0}/${stats.ukupno_firmi || 0}`;
+        document.getElementById('statDocs').textContent = stats.dokumentacija?.vratio || 0;
+        document.getElementById('statPayroll').textContent = stats.plate?.predao || 0;
+        document.getElementById('statPdv').textContent = `${stats.pdv?.predato || 0}/${stats.pdv?.ukupno || 0}`;
+      }
+
+      function renderRows() {
+        const tbody = document.getElementById('tableBody');
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const filter = document.getElementById('statusFilter').value;
+
+        const filtered = rows.filter(row => {
+          const matchesSearch =
+            !query ||
+            String(row.naziv || '').toLowerCase().includes(query) ||
+            String(row.pib || '').includes(query);
+          const matchesFilter =
+            filter === 'all' ||
+            (filter === 'unfinished' && !row.progress.zavrseno) ||
+            (filter === 'finished' && row.progress.zavrseno) ||
+            (filter === 'pdv' && row.pdv_obveznik);
+          return matchesSearch && matchesFilter;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="10" class="text-center py-5 text-muted">Nema firmi za prikaz</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(renderRow).join('');
+      }
+
+      function renderRow(row) {
+        return `
+          <tr>
+            <td>
+              <span class="firm-name">${escapeHtml(row.naziv)}</span>
+              <span class="firm-meta">PIB: ${escapeHtml(row.pib || '-')}</span>
+            </td>
+            ${fields.map(field => renderFieldCell(row, field)).join('')}
+            <td class="col-pdv">${renderPdvStatus(row)}</td>
+            <td class="col-note">
+              <input
+                class="note-input"
+                value="${escapeAttribute(row.napomena || '')}"
+                placeholder="Napomena..."
+                onblur="updateStatus(${row.firma_id}, 'napomena', this.value)"
+              />
+            </td>
+            <td class="row-progress col-progress">
+              <strong>${row.progress.procenat}%</strong>
+              <div class="mini-progress"><div style="width: ${row.progress.procenat}%"></div></div>
+            </td>
+          </tr>
+        `;
+      }
+
+      function renderFieldCell(row, field) {
+        const groupClass = field.startsWith('plate_') ? 'col-payroll' : 'col-docs';
+        const fieldClass = field === 'dok_dobio' ? ' col-dobio' : '';
+        return `<td class="${groupClass}${fieldClass}">${renderCheckbox(row, field)}</td>`;
+      }
+
+      function renderCheckbox(row, field) {
+        return `
+          <input
+            class="check-cell"
+            type="checkbox"
+            ${row[field] ? 'checked' : ''}
+            onchange="updateStatus(${row.firma_id}, '${field}', this.checked)"
+          />
+        `;
+      }
+
+      function renderPdvStatus(row) {
+        if (!row.pdv_obveznik) {
+          return '<span class="readonly-status none"><i class="fas fa-minus"></i>Nema PDV</span>';
+        }
+        if (row.pdv_predano) {
+          return '<span class="readonly-status done"><i class="fas fa-check"></i>Predat</span>';
+        }
+        return '<span class="readonly-status pending"><i class="fas fa-clock"></i>Čeka</span>';
+      }
+
+      async function updateStatus(firmaId, field, value) {
+        const result = await api('/api/mjesecne-obaveze/update', {
+          method: 'POST',
+          body: JSON.stringify({
+            firmaId,
+            mjesec: `${selectedMonth}-01`,
+            field,
+            value,
+          }),
+        });
+
+        if (!result.success) {
+          showNotification(result.message || 'Greška pri ažuriranju', 'error');
+          return;
+        }
+
+        await loadOverview(selectedMonth);
+        await refreshMonthStats();
+      }
+
+      async function refreshMonthStats() {
+        const result = await api('/api/mjesecne-obaveze/mjeseci');
+        if (result.success) {
+          months = result.mjeseci || [];
+          renderMonths();
+        }
+      }
+
+      function openCreateModal() {
+        document.getElementById('newMonth').value = selectedMonth || getCurrentMonth();
+        document.getElementById('createModal').style.display = 'block';
+      }
+
+      function closeCreateModal() {
+        document.getElementById('createModal').style.display = 'none';
+      }
+
+      async function createMonth(event) {
+        event.preventDefault();
+        const month = new FormData(event.target).get('mjesec');
+        const result = await api('/api/mjesecne-obaveze/kreiraj', {
+          method: 'POST',
+          body: JSON.stringify({ mjesec: `${month}-01` }),
+        });
+
+        if (result.success) {
+          showNotification(`Kreiran mjesec za ${result.firme_count} firmi`, 'success');
+          closeCreateModal();
+          await loadMonths(month);
+        } else {
+          showNotification(result.message || 'Greška pri kreiranju mjeseca', 'error');
+        }
+      }
+
+      function getCurrentMonth() {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      }
+
+      function formatMonth(month) {
+        const date = new Date(`${month}-01T12:00:00`);
+        return date.toLocaleDateString('sr-Latn-ME', {
+          month: 'long',
+          year: 'numeric',
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      }
+
+      function escapeAttribute(value) {
+        return escapeHtml(value).replaceAll('`', '&#096;');
+      }
+
+      window.onclick = function (event) {
+        const modal = document.getElementById('createModal');
+        if (event.target === modal) closeCreateModal();
+      };
+    </script>
+  </body>
+</html>

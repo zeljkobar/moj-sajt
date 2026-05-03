@@ -66,6 +66,17 @@ class Navigation {
               </li>`
         : '';
 
+    const mjesecneObavezeItem =
+      !isMojradnik && this.userRole !== 'firma'
+        ? `
+              <!-- Mjesečne Obaveze -->
+              <li class="nav-item">
+                <a class="nav-link" href="/shared/mjesecne-obaveze.html">
+                  <i class="fas fa-list-check me-1"></i>Mjesečne Obaveze
+                </a>
+              </li>`
+        : '';
+
     return `
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
         <div class="container-fluid">
@@ -104,6 +115,8 @@ class Navigation {
               ${zavrsniRacuniItem}
 
               ${pdvCalendarItem}
+
+              ${mjesecneObavezeItem}
 
               <!-- Pomoć (samo za mojradnik) -->
               ${

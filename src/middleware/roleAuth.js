@@ -7,7 +7,7 @@ const requireRole = allowedRoles => {
         return res.status(401).json({ msg: 'Korisnik nije autentifikovan' });
       } else {
         // Redirect to access denied page for HTML requests
-        return res.redirect('/access-denied-dynamic.html');
+        return res.redirect('/shared/access-denied-dynamic.html');
       }
     }
 
@@ -36,6 +36,7 @@ const requireRole = allowedRoles => {
               '..',
               '..',
               'public',
+              'shared',
               'access-denied-dynamic.html'
             )
           );

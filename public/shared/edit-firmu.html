@@ -79,15 +79,220 @@
     <link rel="stylesheet" href="/shared/style.css" />
     <link rel="stylesheet" href="/shared/global-components.css" />
     <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      :root {
+        --edit-bg: #f5f7fb;
+        --edit-panel: #ffffff;
+        --edit-border: #dde3ee;
+        --edit-text: #1f2937;
+        --edit-muted: #667085;
+        --edit-primary: #1f5eff;
+        --edit-primary-soft: #e9efff;
+        --edit-success: #159947;
+        --edit-warning: #c47a00;
+        --edit-radius: 8px;
+      }
+
+      [data-theme='dark'] {
+        --edit-bg: #181a1f;
+        --edit-panel: #24272f;
+        --edit-border: #363b47;
+        --edit-text: #f1f4f8;
+        --edit-muted: #a8b0bd;
+        --edit-primary-soft: rgba(60, 115, 255, 0.18);
+      }
+
+      body {
+        background: var(--edit-bg);
+        color: var(--edit-text);
+      }
+
+      .edit-shell {
+        padding: 28px 0 44px;
+      }
+
+      .edit-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 18px;
+      }
+
+      .edit-header h1 {
+        margin: 0 0 6px;
+        font-size: 1.75rem;
+        line-height: 1.15;
+        letter-spacing: 0;
+      }
+
+      .edit-header p {
+        margin: 0;
+        color: var(--edit-muted);
+      }
+
+      .edit-header .btn {
+        border-radius: var(--edit-radius);
+        font-weight: 700;
+      }
+
+      .edit-card {
+        background: var(--edit-panel);
+        border: 1px solid var(--edit-border);
+        border-radius: var(--edit-radius);
+        padding: 20px;
+      }
+
+      .edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 18px;
+        font-size: 1.05rem;
+        font-weight: 750;
+      }
+
+      .edit-section-title i {
+        color: var(--edit-primary);
+      }
+
+      .form-label {
+        color: var(--edit-text);
+        font-weight: 650;
+      }
+
+      .form-control {
+        min-height: 42px;
+        border-color: var(--edit-border);
+        border-radius: var(--edit-radius);
+      }
+
+      .form-control:focus {
+        border-color: var(--edit-primary);
+        box-shadow: 0 0 0 3px rgba(31, 94, 255, 0.12);
+      }
+
+      .form-text {
+        color: var(--edit-muted);
+      }
+
+      .status-card {
+        height: 100%;
+        border: 1px solid var(--edit-border);
+        border-radius: var(--edit-radius);
+        padding: 16px;
+        background: var(--edit-panel);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+      }
+
+      .status-card:hover,
+      .status-card.selected {
+        border-color: var(--edit-primary);
+        background: var(--edit-primary-soft);
+      }
+
+      .status-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: var(--edit-radius);
+        background: rgba(31, 94, 255, 0.08);
+        margin-bottom: 10px;
+      }
+
+      .status-card h5 {
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+
+      .status-card p {
+        color: var(--edit-muted);
+        font-size: 0.9rem;
+      }
+
+      .submit-btn,
+      .cancel-btn {
+        width: 100%;
+        min-height: 46px;
+        border-radius: var(--edit-radius);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-weight: 750;
+      }
+
+      .submit-btn {
+        border: 1px solid var(--edit-primary);
+        background: var(--edit-primary);
+        color: #fff;
+      }
+
+      .submit-btn:hover {
+        background: #1850da;
+        border-color: #1850da;
+      }
+
+      .cancel-btn {
+        border: 1px solid var(--edit-border);
+        background: var(--edit-panel);
+        color: var(--edit-text);
+      }
+
+      .cancel-btn:hover {
+        border-color: var(--edit-primary);
+        color: var(--edit-primary);
+      }
+
+      .loading-message,
+      .success-message,
+      .error-message {
+        background: var(--edit-panel);
+        border: 1px solid var(--edit-border);
+        border-radius: var(--edit-radius);
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .success-message {
+        border-color: rgba(21, 153, 71, 0.35);
+        color: var(--edit-success);
+      }
+
+      .error-message {
+        border-color: rgba(204, 51, 64, 0.35);
+        color: #cc3340;
+      }
+
+      .input-group .btn {
+        border-radius: 0 var(--edit-radius) var(--edit-radius) 0;
+        font-weight: 700;
+      }
+
+      @media (max-width: 768px) {
+        .edit-header {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
     <!-- Navigation će biti automatski ubačena ovde -->
 
-    <div class="container mt-4">
+    <main class="edit-shell">
+    <div class="container">
       <!-- Header -->
-      <div class="form-header">
-        <h1><i class="fas fa-edit me-3"></i>Izmjeni firmu</h1>
-        <p class="mb-0 fs-5">Ažurirajte podatke o firmi</p>
+      <div class="edit-header">
+        <div>
+          <h1>Izmjeni firmu</h1>
+          <p>Ažurirajte osnovne podatke i status firme</p>
+        </div>
+        <a href="/shared/firme.html" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left me-2"></i>Firme
+        </a>
       </div>
 
       <!-- Loading -->
@@ -110,8 +315,11 @@
       </div>
 
       <!-- Form -->
-      <div class="form-container" id="formContainer" style="display: none">
+      <div class="edit-card form-container" id="formContainer" style="display: none">
         <form id="firmForm">
+          <h2 class="edit-section-title">
+            <i class="fas fa-building"></i>Podaci o firmi
+          </h2>
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="naziv" class="form-label">Naziv firme *</label>
@@ -125,15 +333,26 @@
             </div>
             <div class="col-md-6 mb-3">
               <label for="pib" class="form-label">PIB *</label>
-              <input
-                type="text"
-                class="form-control"
-                id="pib"
-                name="pib"
-                required
-                readonly
-              />
-              <div class="form-text">PIB se ne može menjati</div>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pib"
+                  name="pib"
+                  required
+                  readonly
+                />
+                <button
+                  class="btn btn-outline-primary"
+                  type="button"
+                  id="irmsLookupBtn"
+                >
+                  <i class="fas fa-cloud-download-alt me-1"></i>IRMS
+                </button>
+              </div>
+              <div class="form-text" id="irmsLookupStatus">
+                PIB se ne može mijenjati, ali podatke možete osvježiti iz IRMS registra.
+              </div>
             </div>
           </div>
 
@@ -274,6 +493,7 @@
         </form>
       </div>
     </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/shared/components/navigation.js"></script>

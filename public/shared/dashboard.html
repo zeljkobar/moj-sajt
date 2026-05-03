@@ -1,72 +1,11 @@
 <!DOCTYPE html>
 <html lang="sr">
   <head>
-    <!--
-    Google tag (gtag.js) - Ads Conversion Tracking
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=AW-17519789176"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'AW-17519789176');
-    </script>
-
-    Google tag (gtag.js) - Analytics
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-DGZCVVHKXW"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'G-DGZCVVHKXW');
-    </script>
-    -->
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard | Summa Summarum</title>
+    <title>Dashboard Test | Summa Summarum</title>
 
-    <!-- Set dynamic page title based on domain -->
-    <script>
-      (function () {
-        const host = window.location.host;
-        const urlParams = new URLSearchParams(window.location.search);
-        const domain = urlParams.get('domain');
-        const isMojradnik =
-          host.includes('mojradnik.me') || domain === 'mojradnik';
-        const isPrijaviradnika =
-          host.includes('prijaviradnika.com') || domain === 'prijaviradnika';
-
-        // Set appropriate title based on domain
-        let brandName;
-        if (isMojradnik) {
-          brandName = 'Moj Radnik';
-        } else if (isPrijaviradnika) {
-          brandName = 'Prijavi Radnika';
-        } else {
-          brandName = 'Summa Summarum';
-        }
-        document.title = `Dashboard | ${brandName}`;
-      })();
-    </script>
-
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      href="/shared/images/favicon/favicon.ico"
-      type="image/x-icon"
-    />
+    <link rel="icon" href="/shared/images/favicon/favicon.ico" type="image/x-icon" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -85,12 +24,8 @@
       href="/shared/images/favicon/favicon-16x16.png"
     />
     <link rel="manifest" href="/shared/site.webmanifest" />
-
-    <!-- Dynamic Favicon Script - automatski menja putanje na osnovu domena -->
-    <script src="/shared/components/dynamic-favicon.js"></script>
-
-    <!-- Theme Preloader - sprečava bljeskanje dark/light mode -->
     <script src="/shared/components/theme-preloader.js"></script>
+    <script src="/shared/components/dynamic-favicon.js"></script>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -100,1857 +35,1185 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="/shared/style.css" />
     <link rel="stylesheet" href="/shared/global-components.css" />
-    <link rel="stylesheet" href="/shared/cookie-consent.css" />
     <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      :root {
+        --agency-bg: #f5f7fb;
+        --agency-panel: #ffffff;
+        --agency-border: #dde3ee;
+        --agency-text: #1f2937;
+        --agency-muted: #667085;
+        --agency-primary: #1f5eff;
+        --agency-primary-soft: #e9efff;
+        --agency-success: #159947;
+        --agency-warning: #c47a00;
+        --agency-danger: #cc3340;
+        --agency-radius: 8px;
+      }
+
+      [data-theme='dark'] {
+        --agency-bg: #181a1f;
+        --agency-panel: #24272f;
+        --agency-border: #363b47;
+        --agency-text: #f1f4f8;
+        --agency-muted: #a8b0bd;
+        --agency-primary-soft: rgba(60, 115, 255, 0.18);
+      }
+
+      body {
+        background: var(--agency-bg);
+        color: var(--agency-text);
+      }
+
+      .agency-shell {
+        padding: 24px 0 40px;
+      }
+
+      .agency-topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .agency-title h1 {
+        font-size: 1.75rem;
+        line-height: 1.15;
+        margin: 0 0 6px;
+      }
+
+      .agency-title p {
+        color: var(--agency-muted);
+        margin: 0;
+      }
+
+      .ops-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .ops-card,
+      .work-panel,
+      .side-panel {
+        background: var(--agency-panel);
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+      }
+
+      .ops-card {
+        min-height: 108px;
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .ops-card .label {
+        color: var(--agency-muted);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+
+      .ops-card .value {
+        font-size: 2rem;
+        font-weight: 750;
+        line-height: 1;
+      }
+
+      .ops-card .hint {
+        color: var(--agency-muted);
+        font-size: 0.8rem;
+        margin-top: 8px;
+      }
+
+      .ops-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--agency-primary-soft);
+        color: var(--agency-primary);
+        flex: 0 0 auto;
+      }
+
+      .ops-card.danger .ops-icon {
+        background: rgba(204, 51, 64, 0.12);
+        color: var(--agency-danger);
+      }
+
+      .ops-card.warning .ops-icon {
+        background: rgba(196, 122, 0, 0.12);
+        color: var(--agency-warning);
+      }
+
+      .ops-card.success .ops-icon {
+        background: rgba(21, 153, 71, 0.12);
+        color: var(--agency-success);
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.8fr);
+        gap: 16px;
+        align-items: start;
+      }
+
+      .work-panel,
+      .side-panel {
+        padding: 18px;
+        margin-bottom: 16px;
+      }
+
+      .panel-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .panel-heading h2,
+      .panel-heading h3 {
+        font-size: 1.05rem;
+        margin: 0;
+      }
+
+      .panel-heading small {
+        color: var(--agency-muted);
+      }
+
+      .pdv-pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .pipeline-step {
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+        padding: 14px;
+        min-height: 128px;
+      }
+
+      .pipeline-step strong {
+        display: block;
+        font-size: 1.65rem;
+        line-height: 1;
+        margin: 12px 0 8px;
+      }
+
+      .pipeline-step span {
+        color: var(--agency-muted);
+        font-size: 0.85rem;
+      }
+
+      .step-kicker {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--agency-muted);
+        font-weight: 700;
+        font-size: 0.82rem;
+      }
+
+      .attention-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .attention-item {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+        padding: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .attention-item:hover {
+        border-color: var(--agency-primary);
+        color: inherit;
+      }
+
+      .attention-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--agency-primary);
+      }
+
+      .attention-dot.urgent {
+        background: var(--agency-danger);
+      }
+
+      .attention-dot.warning {
+        background: var(--agency-warning);
+      }
+
+      .attention-title {
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+
+      .attention-desc {
+        color: var(--agency-muted);
+        font-size: 0.88rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .quick-tile {
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+        min-height: 76px;
+        padding: 12px;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .quick-tile:hover {
+        border-color: var(--agency-primary);
+        color: inherit;
+      }
+
+      .quick-tile i {
+        color: var(--agency-primary);
+      }
+
+      .tool-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: end;
+      }
+
+      .tool-result {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .calc-switch {
+        display: inline-flex;
+        border: 1px solid var(--agency-primary);
+        border-radius: var(--agency-radius);
+        overflow: hidden;
+      }
+
+      .calc-switch button {
+        border: 0;
+        background: var(--agency-panel);
+        color: var(--agency-primary);
+        padding: 7px 11px;
+        font-weight: 750;
+      }
+
+      .calc-switch button.active {
+        background: var(--agency-primary);
+        color: #fff;
+      }
+
+      .result-box {
+        background: var(--agency-primary-soft);
+        border-radius: var(--agency-radius);
+        padding: 10px;
+      }
+
+      .result-box small {
+        color: var(--agency-muted);
+      }
+
+      .result-box strong {
+        display: block;
+        font-size: 1rem;
+      }
+
+      .admin-panel {
+        display: none;
+      }
+
+      .admin-panel.visible {
+        display: block;
+      }
+
+      .admin-panel.collapsed .admin-content {
+        display: none;
+      }
+
+      .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .admin-stat {
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+        padding: 12px;
+        background: var(--agency-primary-soft);
+      }
+
+      .admin-stat strong {
+        display: block;
+        font-size: 1.25rem;
+        color: var(--agency-primary);
+      }
+
+      .admin-stat small {
+        color: var(--agency-muted);
+      }
+
+      .admin-actions {
+        display: grid;
+        gap: 8px;
+      }
+
+      .admin-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: var(--agency-radius);
+        padding: 11px 12px;
+        text-decoration: none;
+        font-weight: 760;
+        color: #fff;
+      }
+
+      .admin-action:hover {
+        color: #fff;
+        filter: brightness(0.96);
+      }
+
+      .admin-action.payments {
+        background: #f59e0b;
+      }
+
+      .admin-action.mail {
+        background: #06b6d4;
+      }
+
+      .admin-action.users {
+        background: #6b7280;
+      }
+
+      .admin-action.ads {
+        background: #15803d;
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-box input {
+        height: 48px;
+        border-radius: var(--agency-radius);
+        border: 1px solid var(--agency-border);
+        background: var(--agency-panel);
+        color: var(--agency-text);
+        padding-left: 42px;
+      }
+
+      .search-box i {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: var(--agency-muted);
+      }
+
+      @media (max-width: 1100px) {
+        .ops-strip,
+        .pdv-pipeline {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .agency-topbar {
+          grid-template-columns: 1fr;
+        }
+
+        .ops-strip,
+        .pdv-pipeline,
+        .quick-grid,
+        .tool-result {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Navigation će biti automatski ubačena ovde -->
     <div id="navigation-placeholder"></div>
 
-    <!-- Dashboard Header -->
-    <section class="dashboard-header">
-      <div class="container">
-        <div class="welcome-section">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <h1 class="mb-2">
-                Dobrodošli nazad, <span id="userName">Korisnice</span>!
-              </h1>
-              <p class="mb-0 lead">
-                Evo pregleda vaših trenutnih aktivnosti i zadataka
-              </p>
-            </div>
-            <div class="col-md-4 text-end">
-              <div class="d-flex flex-column align-items-end">
-                <h5 class="mb-1">Danas je</h5>
-                <h3 class="mb-0" id="currentDate">22. Jul 2025</h3>
-              </div>
-            </div>
+    <main class="agency-shell">
+      <div class="container-fluid px-3 px-lg-4">
+        <div class="agency-topbar">
+          <div class="agency-title">
+            <h1>Operativni dashboard agencije</h1>
+            <p>
+              <span id="agencyUser">Korisnik</span> ·
+              <span id="currentDate">Danas</span>
+            </p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Quick Search Section -->
-    <div class="container py-3">
-      <div class="search-container">
-        <div style="position: relative">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
           <input
-            type="text"
-            id="quickSearchInput"
-            placeholder="Pretražite firme, radnike, ugovore..."
-            class="quick-search-input"
+            class="form-control"
+            id="agencySearch"
+            type="search"
+            placeholder="Pretražite klijente, radnike i obaveze..."
           />
-          <button
-            id="clearSearch"
-            style="
-              position: absolute;
-              right: 12px;
-              top: 50%;
-              transform: translateY(-50%);
-              background: none;
-              border: none;
-              font-size: 1.2rem;
-              color: #999;
-              cursor: pointer;
-              display: none;
-            "
-          >
-            ×
-          </button>
         </div>
-        <div
-          id="searchResults"
-          class="search-results"
-          style="display: none"
-        ></div>
-      </div>
-    </div>
 
-    <div class="container py-4">
-      <!-- Statistike -->
-      <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-          <a
-            href="/shared/firme.html"
-            class="text-decoration-none"
-            style="color: inherit"
-          >
-            <div
-              class="stat-card"
-              style="
-                cursor: pointer;
-                transition: transform 0.2s, box-shadow 0.2s;
-              "
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,123,255,0.2)'"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
-            >
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <div class="stat-number text-primary">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
+        <section class="ops-strip" aria-label="Ključni pokazatelji">
+          <article class="ops-card danger">
+            <div>
+              <div class="label">Za hitnu pažnju</div>
+              <div class="value" id="urgentCount">0</div>
+              <div class="hint">Rok danas ili kašnjenje</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-triangle-exclamation"></i></div>
+          </article>
+
+          <article class="ops-card warning">
+            <div>
+              <div class="label">Čeka unos</div>
+              <div class="value" id="pendingPdvCount">0</div>
+              <div class="hint">PDV obaveze u toku</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-clock"></i></div>
+          </article>
+
+          <article class="ops-card success">
+            <div>
+              <div class="label">Aktivne firme</div>
+              <div class="value" id="activeCompanies">0</div>
+              <div class="hint"><span id="totalCompanies">0</span> ukupno</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-building"></i></div>
+          </article>
+
+          <article class="ops-card">
+            <div>
+              <div class="label">Aktivni radnici</div>
+              <div class="value" id="activeWorkers">0</div>
+              <div class="hint">Kroz sve klijente</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-users"></i></div>
+          </article>
+        </section>
+
+        <div class="dashboard-grid">
+          <div>
+            <section class="work-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>PDV workflow</h2>
+                  <small>Pregled obaveza po statusu za trenutni period</small>
+                </div>
+                <a class="btn btn-sm btn-outline-primary" href="/shared/pdv-pregled.html">
+                  Otvori kalendar
+                </a>
+              </div>
+
+              <div class="pdv-pipeline">
+                <div class="pipeline-step">
+                  <div class="step-kicker">
+                    <span>Kasni</span>
+                    <i class="fas fa-circle text-danger"></i>
                   </div>
-                  <h6 class="text-muted mb-0">
-                    Ukupno firmi
-                    <i
-                      class="fas fa-external-link-alt ms-1 text-muted"
-                      style="font-size: 0.7rem"
-                    ></i>
-                  </h6>
+                  <strong class="text-danger" id="latePdvCount">0</strong>
+                  <span>Potrebna reakcija odmah</span>
                 </div>
-                <div class="text-primary">
-                  <i class="fas fa-building fa-2x"></i>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <a
-            href="/shared/firme.html?filter=active"
-            class="text-decoration-none"
-            style="color: inherit"
-          >
-            <div
-              class="stat-card warning"
-              style="
-                cursor: pointer;
-                transition: transform 0.2s, box-shadow 0.2s;
-              "
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(255,193,7,0.2)'"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
-            >
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <div class="stat-number text-warning">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
+                <div class="pipeline-step">
+                  <div class="step-kicker">
+                    <span>Čeka unos</span>
+                    <i class="fas fa-circle text-warning"></i>
                   </div>
-                  <h6 class="text-muted mb-0">
-                    Aktivne firme
-                    <i
-                      class="fas fa-external-link-alt ms-1 text-muted"
-                      style="font-size: 0.7rem"
-                    ></i>
-                  </h6>
+                  <strong class="text-warning" id="waitingPdvCount">0</strong>
+                  <span>Firme bez završene prijave</span>
                 </div>
-                <div class="text-warning">
-                  <i class="fas fa-chart-line fa-2x"></i>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <a
-            href="/shared/firme.html?filter=zero"
-            class="text-decoration-none"
-            style="color: inherit"
-          >
-            <div
-              class="stat-card danger"
-              style="
-                cursor: pointer;
-                transition: transform 0.2s, box-shadow 0.2s;
-              "
-              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(220,53,69,0.2)'"
-              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''"
-            >
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  <div class="stat-number text-danger">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
+                <div class="pipeline-step">
+                  <div class="step-kicker">
+                    <span>Spremno</span>
+                    <i class="fas fa-circle text-primary"></i>
                   </div>
-                  <h6 class="text-muted mb-0">
-                    Firme na PDV nuli
-                    <i
-                      class="fas fa-external-link-alt ms-1 text-muted"
-                      style="font-size: 0.7rem"
-                    ></i>
-                  </h6>
+                  <strong class="text-primary" id="readyPdvCount">0</strong>
+                  <span>Može se provjeriti i poslati</span>
                 </div>
-                <div class="text-danger">
-                  <i class="fas fa-exclamation-triangle fa-2x"></i>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <div class="stat-card success">
-            <div class="d-flex align-items-center">
-              <div class="flex-grow-1">
-                <div class="stat-number text-success">
-                  <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Učitavanje...</span>
+                <div class="pipeline-step">
+                  <div class="step-kicker">
+                    <span>Poslato</span>
+                    <i class="fas fa-circle text-success"></i>
                   </div>
-                </div>
-                <h6 class="text-muted mb-0">Aktivnih radnika</h6>
-              </div>
-              <div class="text-success">
-                <i class="fas fa-users fa-2x"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Admin Widget za Uplate (samo za admin) -->
-      <!-- Premešten ispod pozajmica na zahtev korisnika -->
-
-      <div class="row">
-        <!-- Leva kolona -->
-        <div class="col-lg-8">
-          <!-- PDV Rokovi - kompaktno -->
-          <div class="pdv-calendar-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-calendar-check text-primary me-2"></i>
-                PDV Rokovi - Februar 2025
-              </h5>
-              <button class="btn btn-sm btn-primary">
-                <i class="fas fa-calendar-alt me-1"></i>Pogledaj kalendar
-              </button>
-            </div>
-
-            <!-- Kompaktna lista rokova -->
-            <div class="row">
-              <div class="col-md-4">
-                <div class="text-center p-3 bg-light rounded">
-                  <h3 class="text-success mb-1">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
-                  </h3>
-                  <small class="text-muted">Poslano na vreme</small>
+                  <strong class="text-success" id="sentPdvCount">0</strong>
+                  <span>Završeno za period</span>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="text-center p-3 bg-warning bg-opacity-25 rounded">
-                  <h3 class="text-warning mb-1">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
-                  </h3>
-                  <small class="text-muted">Čeka unos</small>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="text-center p-3 bg-danger bg-opacity-25 rounded">
-                  <h3 class="text-danger mb-1">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                      <span class="visually-hidden">Učitavanje...</span>
-                    </div>
-                  </h3>
-                  <small class="text-muted">Zakašnjeno</small>
-                </div>
-              </div>
-            </div>
+            </section>
 
-            <div class="mt-3 d-flex justify-content-center">
-              <a
-                href="/shared/pdv-pregled.html"
-                class="btn btn-outline-primary"
-              >
-                <i class="fas fa-eye me-2"></i>Detaljni PDV kalendar
-              </a>
-            </div>
+            <section class="work-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Firme koje zahtijevaju pažnju</h2>
+                  <small>Najvažnije stavke sortirane po hitnosti</small>
+                </div>
+                <a class="btn btn-sm btn-outline-secondary" href="/shared/firme.html">
+                  Sve firme
+                </a>
+              </div>
+
+              <div class="attention-list" id="attentionList">
+                <div class="text-muted">Učitavanje obaveza...</div>
+              </div>
+            </section>
+
+            <section class="work-panel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Otvoreni zadaci</h2>
+                  <small>Napomene koje čekaju reakciju po firmama</small>
+                </div>
+                <a class="btn btn-sm btn-outline-secondary" href="/shared/firme.html">
+                  Sve firme
+                </a>
+              </div>
+
+              <div class="attention-list" id="taskDashboardList">
+                <div class="text-muted">Učitavanje zadataka...</div>
+              </div>
+            </section>
           </div>
 
-          <!-- Firme koje zahtevaju pažnju -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-              Firme koje zahtevaju pažnju
-            </h5>
-
-            <!-- Loading placeholder -->
-            <div class="notifications-loading text-center py-3">
-              <div
-                class="spinner-border spinner-border-sm text-primary"
-                role="status"
-              >
-                <span class="visually-hidden">Učitavanje...</span>
+          <aside>
+            <section class="side-panel">
+              <div class="panel-heading">
+                <h3>Brze akcije</h3>
               </div>
-              <div class="mt-2 text-muted">Učitavanje notifikacija...</div>
-            </div>
-
-            <!-- Notifikacije će se učitati ovde dinamički -->
-          </div>
-        </div>
-
-        <!-- Desna kolona -->
-        <div class="col-lg-4">
-          <!-- Brze akcije -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-bolt text-primary me-2"></i>
-              Brze akcije
-            </h5>
-
-            <a
-              href="/shared/dodaj-firmu.html"
-              class="btn btn-primary quick-action-btn"
-            >
-              <i class="fas fa-plus me-2"></i>Dodaj novu firmu
-            </a>
-
-            <button
-              onclick="openRadnikModal({ 
-                onSuccess: function(result) { 
-                  console.log('Radnik uspešno dodan:', result); 
-                } 
-              })"
-              class="btn btn-success quick-action-btn"
-            >
-              <i class="fas fa-user-plus me-2"></i>Dodaj radnika i ugovor
-            </button>
-
-            <a
-              href="/pdv_prijava/index.html"
-              class="btn btn-warning quick-action-btn"
-            >
-              <i class="fas fa-receipt me-2"></i>Generiši PDV prijavu
-            </a>
-
-            <a
-              href="/shared/pdv0.html"
-              class="btn btn-success quick-action-btn"
-            >
-              <i class="fas fa-download me-2"></i>Generiši PDV na nuli
-            </a>
-
-            <a
-              href="/shared/obracun-zaliha.html"
-              class="btn btn-primary quick-action-btn"
-            >
-              <i class="fas fa-calculator me-2"></i>Obračun zaliha
-            </a>
-
-            <a
-              href="/shared/obracun-preduzetnika.html"
-              class="btn btn-warning quick-action-btn"
-            >
-              <i class="fas fa-chart-line me-2"></i>Obračun preduzetnika
-            </a>
-
-            <a
-              href="/dobit_prijava/index.html"
-              class="btn btn-info quick-action-btn"
-            >
-              <i class="fas fa-file-export me-2"></i>Generiši poresku prijavu
-            </a>
-          </div>
-
-          <!-- PDV Kalkulator -->
-          <div class="quick-action-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-calculator text-success me-2"></i>
-                PDV Kalkulator
-              </h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="pdv-mode"
-                  id="add-pdv"
-                  value="add"
-                  checked
-                />
-                <label class="btn btn-outline-success" for="add-pdv"
-                  >+ PDV</label
-                >
-
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="pdv-mode"
-                  id="remove-pdv"
-                  value="remove"
-                />
-                <label class="btn btn-outline-warning" for="remove-pdv"
-                  >- PDV</label
-                >
+              <div class="quick-grid">
+                <a class="quick-tile" href="/shared/dodaj-firmu.html">
+                  <i class="fas fa-plus"></i>
+                  <strong>Dodaj firmu</strong>
+                </a>
+                <a class="quick-tile" href="/shared/firme.html">
+                  <i class="fas fa-briefcase"></i>
+                  <strong>Klijenti</strong>
+                </a>
+                <a class="quick-tile" href="/pdv_prijava/index.html">
+                  <i class="fas fa-file-invoice"></i>
+                  <strong>PDV prijava</strong>
+                </a>
+                <a class="quick-tile" href="/dobit_prijava/index.html">
+                  <i class="fas fa-file-export"></i>
+                  <strong>Porez na dobit</strong>
+                </a>
+                <a class="quick-tile" href="/shared/obracun-zaliha.html">
+                  <i class="fas fa-calculator"></i>
+                  <strong>Zalihe</strong>
+                </a>
+                <a class="quick-tile" href="/shared/obracun-preduzetnika.html">
+                  <i class="fas fa-chart-line"></i>
+                  <strong>Obračun preduzetnika</strong>
+                </a>
               </div>
-            </div>
+            </section>
 
-            <div class="row mb-2">
-              <div class="col-8">
-                <label class="form-label small text-muted" id="amount-label"
-                  >Iznos bez PDV-a</label
-                >
-                <div class="input-group input-group-sm">
+            <section class="side-panel">
+              <div class="panel-heading">
+                <h3>PDV kalkulator</h3>
+                <div class="calc-switch" aria-label="PDV režim">
+                  <button class="active" type="button" data-pdv-mode="add">+ PDV</button>
+                  <button type="button" data-pdv-mode="subtract">- PDV</button>
+                </div>
+              </div>
+              <div class="tool-row">
+                <div>
+                  <label class="form-label small text-muted" for="pdvAmount">
+                    <span id="pdvAmountLabel">Iznos bez PDV-a</span>
+                  </label>
                   <input
-                    type="number"
                     class="form-control"
-                    id="pdv-amount"
-                    placeholder="0.00"
+                    id="pdvAmount"
+                    type="number"
+                    min="0"
                     step="0.01"
+                    placeholder="0.00"
                   />
-                  <span class="input-group-text">€</span>
+                </div>
+                <div>
+                  <label class="form-label small text-muted" for="pdvRate">Stopa</label>
+                  <select class="form-select" id="pdvRate">
+                    <option value="21">21%</option>
+                    <option value="15">15%</option>
+                    <option value="7">7%</option>
+                    <option value="0">0%</option>
+                  </select>
                 </div>
               </div>
-              <div class="col-4">
-                <label class="form-label small text-muted">PDV</label>
-                <select class="form-select form-select-sm" id="pdv-rate">
-                  <option value="21">21%</option>
-                  <option value="15">15%</option>
-                  <option value="7">7%</option>
-                  <option value="0">0%</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="row mb-2">
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center">
-                  <div class="small text-muted" id="result-label-1">
-                    PDV iznos
-                  </div>
-                  <div class="h6 text-success mb-0" id="pdv-tax-amount">
-                    0.00 €
-                  </div>
+              <div class="tool-result">
+                <div class="result-box">
+                  <small>PDV iznos</small>
+                  <strong id="pdvTax">0.00 €</strong>
+                </div>
+                <div class="result-box">
+                  <small id="pdvTotalLabel">Ukupno sa PDV</small>
+                  <strong id="pdvTotal">0.00 €</strong>
                 </div>
               </div>
-              <div class="col-6">
-                <div class="bg-primary bg-opacity-10 p-2 rounded text-center">
-                  <div class="small text-muted" id="result-label-2">
-                    Ukupno sa PDV
-                  </div>
-                  <div class="h6 text-primary mb-0" id="pdv-total-amount">
-                    0.00 €
-                  </div>
+            </section>
+
+            <section class="side-panel">
+              <div class="panel-heading">
+                <h3>Obračun zakupa</h3>
+                <div class="calc-switch" aria-label="Zakup režim">
+                  <button class="active" type="button" data-rent-mode="net">Neto</button>
+                  <button type="button" data-rent-mode="gross">Bruto</button>
                 </div>
               </div>
-            </div>
-
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-outline-secondary btn-sm flex-fill"
-                onclick="clearPdvCalculator()"
-              >
-                <i class="fas fa-eraser me-1"></i>Obriši
-              </button>
-              <button
-                class="btn btn-primary btn-sm flex-fill"
-                onclick="copyPdvResult()"
-              >
-                <i class="fas fa-copy me-1"></i>Kopiraj
-              </button>
-            </div>
-          </div>
-
-          <!-- Obračun zakupa -->
-          <div class="quick-action-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-home text-info me-2"></i>
-                Obračun zakupa
-              </h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="zakup-mode"
-                  id="neto-zakup"
-                  value="neto"
-                  checked
-                />
-                <label class="btn btn-outline-info" for="neto-zakup"
-                  >Neto</label
-                >
-
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="zakup-mode"
-                  id="bruto-zakup"
-                  value="bruto"
-                />
-                <label class="btn btn-outline-warning" for="bruto-zakup"
-                  >Bruto</label
-                >
-              </div>
-            </div>
-
-            <div class="row mb-2">
-              <div class="col-8">
-                <label
-                  class="form-label small text-muted"
-                  id="zakup-amount-label"
-                  >Neto iznos</label
-                >
-                <div class="input-group input-group-sm">
+              <div class="tool-row">
+                <div>
+                  <label class="form-label small text-muted" for="rentAmount">
+                    <span id="rentAmountLabel">Neto iznos</span>
+                  </label>
                   <input
-                    type="number"
                     class="form-control"
-                    id="zakup-amount"
-                    placeholder="0.00"
+                    id="rentAmount"
+                    type="number"
+                    min="0"
                     step="0.01"
+                    placeholder="0.00"
                   />
-                  <span class="input-group-text">€</span>
+                </div>
+                <div>
+                  <label class="form-label small text-muted" for="rentCity">Grad</label>
+                  <select class="form-select" id="rentCity">
+                    <option value="podgorica-cetinje">Podgorica/Cetinje</option>
+                    <option value="budva">Budva</option>
+                    <option value="ostali">Ostali gradovi</option>
+                  </select>
                 </div>
               </div>
-              <div class="col-4">
-                <label class="form-label small text-muted">Grad</label>
-                <select class="form-select form-select-sm" id="zakup-grad">
-                  <option value="podgorica-cetinje">Podgorica/Cetinje</option>
-                  <option value="budva">Budva</option>
-                  <option value="ostali">Ostali gradovi</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="row mb-2">
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center">
-                  <div class="small text-muted" id="zakup-result-label-1">
-                    Porez
-                  </div>
-                  <div class="h6 text-info mb-0" id="zakup-porez-amount">
-                    0.00 €
-                  </div>
+              <div class="tool-result">
+                <div class="result-box">
+                  <small>Porez</small>
+                  <strong id="rentTax">0.00 €</strong>
+                </div>
+                <div class="result-box">
+                  <small>Prirez</small>
+                  <strong id="rentSurtax">0.00 €</strong>
                 </div>
               </div>
-              <div class="col-6">
-                <div class="bg-info bg-opacity-10 p-2 rounded text-center">
-                  <div class="small text-muted" id="zakup-result-label-2">
-                    Prirez
-                  </div>
-                  <div class="h6 text-primary mb-0" id="zakup-prirez-amount">
-                    0.00 €
-                  </div>
+              <div class="tool-result">
+                <div class="result-box">
+                  <small>Neto</small>
+                  <strong id="rentNet">0.00 €</strong>
+                </div>
+                <div class="result-box">
+                  <small>Bruto</small>
+                  <strong id="rentGross">0.00 €</strong>
                 </div>
               </div>
-            </div>
+            </section>
 
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-outline-secondary btn-sm flex-fill"
-                onclick="clearZakupCalculator()"
-              >
-                <i class="fas fa-eraser me-1"></i>Obriši
-              </button>
-              <button
-                class="btn btn-info btn-sm flex-fill"
-                onclick="copyZakupResult()"
-              >
-                <i class="fas fa-copy me-1"></i>Kopiraj
-              </button>
-            </div>
-          </div>
-
-          <!-- Pozajmice pregled -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-coins text-warning me-2"></i>
-              Aktivne pozajmice
-            </h5>
-
-            <!-- Loading placeholder -->
-            <div class="pozajmice-loading text-center py-3">
-              <div
-                class="spinner-border spinner-border-sm text-warning"
-                role="status"
-              >
-                <span class="visually-hidden">Učitavanje...</span>
+            <section class="side-panel">
+              <div class="panel-heading">
+                <h3>Preporučeni fokus</h3>
               </div>
-              <div class="mt-2 text-muted">Učitavanje pozajmica...</div>
-            </div>
+              <ol class="mb-0 ps-3 text-muted">
+                <li>Prvo riješiti stavke označene kao hitne.</li>
+                <li>Zatim završiti firme koje čekaju unos.</li>
+                <li>Na kraju provjeriti spremne prijave prije slanja.</li>
+              </ol>
+            </section>
 
-            <!-- Pozajmice će se učitati ovde dinamički -->
-
-            <div class="d-grid">
-              <button class="btn btn-outline-warning">
-                <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
-              </button>
-            </div>
-          </div>
-
-          <!-- Admin Widget za Uplate (samo za admin) - Sada collapsible -->
-          <div
-            class="quick-action-card"
-            id="adminPaymentsWidget"
-            style="display: none"
-          >
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-crown text-warning me-2"></i>
-                Admin Panel
-              </h5>
-              <button
-                class="btn btn-sm btn-outline-warning"
-                id="toggleAdminWidget"
-                onclick="toggleAdminWidget()"
-                data-collapsed="true"
-              >
-                <i class="fas fa-eye"></i>
-                <span class="ms-1">Prikaži</span>
-              </button>
-            </div>
-
-            <!-- Admin sadržaj - skriveno po default-u -->
-            <div id="adminPaymentsContent" style="display: none">
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
-                    <h6 class="text-primary mb-1" id="adminTotalPayments">
-                      <div
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                      >
-                        <span class="visually-hidden">Učitavanje...</span>
-                      </div>
-                    </h6>
-                    <small class="text-muted">Ukupno uplate</small>
+            <section class="side-panel admin-panel" id="adminPanel">
+              <div class="panel-heading">
+                <h3><i class="fas fa-crown text-warning me-2"></i>Admin Panel</h3>
+                <button class="btn btn-sm btn-warning fw-bold" type="button" id="adminToggleBtn" onclick="toggleAdminPanel()">
+                  <i class="fas fa-eye me-1"></i>Prikaži
+                </button>
+              </div>
+              <div class="admin-content">
+                <div class="admin-stats">
+                  <div class="admin-stat">
+                    <strong id="adminTotalPayments">0.00€</strong>
+                    <small>Ukupno uplate</small>
+                  </div>
+                  <div class="admin-stat">
+                    <strong id="adminMonthlyPayments">0.00€</strong>
+                    <small>Ovaj mjesec</small>
+                  </div>
+                  <div class="admin-stat">
+                    <strong id="adminPaymentCount">0</strong>
+                    <small>Broj uplata</small>
+                  </div>
+                  <div class="admin-stat">
+                    <strong id="adminPendingPayments">0</strong>
+                    <small>Pending uplate</small>
                   </div>
                 </div>
-                <div class="col-md-6">
-                  <div class="text-center p-3 bg-success bg-opacity-10 rounded">
-                    <h6 class="text-success mb-1" id="adminMonthlyPayments">
-                      <div
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                      >
-                        <span class="visually-hidden">Učitavanje...</span>
-                      </div>
-                    </h6>
-                    <small class="text-muted">Ovaj mesec</small>
-                  </div>
+                <div class="admin-actions">
+                  <a class="admin-action payments" href="/admin-uplate.html">
+                    <i class="fas fa-euro-sign"></i>Upravljanje Uplatama
+                  </a>
+                  <a class="admin-action mail" href="/admin-dodavanje-mailova.html">
+                    <i class="fas fa-envelope-open-text"></i>Dodavanje Mailova
+                  </a>
+                  <a class="admin-action users" href="/admin-users.html">
+                    <i class="fas fa-users"></i>Upravljanje Korisnicima
+                  </a>
+                  <a class="admin-action ads" href="/admin-oglasi.html">
+                    <i class="fas fa-clipboard-list"></i>Upravljanje Oglasima
+                  </a>
                 </div>
               </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <div class="text-center p-3 bg-info bg-opacity-10 rounded">
-                    <h6 class="text-info mb-1" id="adminPaymentCount">
-                      <div
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                      >
-                        <span class="visually-hidden">Učitavanje...</span>
-                      </div>
-                    </h6>
-                    <small class="text-muted">Broj uplata</small>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
-                    <h6 class="text-warning mb-1" id="adminPendingPayments">
-                      <div
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                      >
-                        <span class="visually-hidden">Učitavanje...</span>
-                      </div>
-                    </h6>
-                    <small class="text-muted">Pending uplate</small>
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-grid gap-2">
-                <a href="/shared/admin-uplate.html" class="btn btn-warning">
-                  <i class="fas fa-euro-sign me-2"></i>Upravljanje Uplatama
-                </a>
-                <a
-                  href="/shared/admin-dodavanje-mailova.html"
-                  class="btn btn-info"
-                >
-                  <i class="fas fa-envelope-open-text me-2"></i>Dodavanje
-                  Mailova
-                </a>
-                <a href="/shared/admin-users.html" class="btn btn-secondary">
-                  <i class="fas fa-users me-2"></i>Upravljanje Korisnicima
-                </a>
-                <a href="/shared/admin-oglasi.html" class="btn btn-success">
-                  <i class="fas fa-clipboard-list me-2"></i>Upravljanje Oglasima
-                </a>
-              </div>
-            </div>
-          </div>
+            </section>
+          </aside>
         </div>
       </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/shared/components/navigation.js"></script>
-    <script src="/shared/script.js"></script>
-    <script src="/shared/radnik-modal.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // Postavi trenutni datum
-        const today = new Date();
-        const options = {
+      const numberFormatter = new Intl.NumberFormat('sr-Latn-RS');
+      const notificationsCacheKey = 'summaDashboardNotifications:v1';
+      const notificationsCacheTtl = 60 * 1000;
+      let pdvMode = 'add';
+      let rentMode = 'net';
+      let currentNotifications = [];
+
+      document.addEventListener('DOMContentLoaded', () => {
+        setCurrentDate();
+        loadUser();
+        loadStats();
+        loadPdv();
+        loadNotifications();
+        loadOpenTasks();
+        setupPdvCalculator();
+        setupRentCalculator();
+      });
+
+      function setCurrentDate() {
+        const date = new Date().toLocaleDateString('sr-Latn-RS', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
-        };
-        // Koristi sr-Latn-RS za latinični prikaz
-        document.getElementById('currentDate').textContent =
-          today.toLocaleDateString('sr-Latn-RS', options);
-
-        // Učitavanje korisničkih podataka
-        loadUserData();
-        loadDashboardStats();
-
-        console.log('Dashboard učitan');
-
-        // Setup quick search
-        setupQuickSearch();
-
-        // Inicijalizuj PDV kalkulator
-        initPdvCalculator();
-
-        // Inicijalizuj Obračun zakupa kalkulator
-        initZakupCalculator();
-
-        // Učitaj admin widget ako je korisnik admin
-        loadAdminPaymentsWidget();
-      });
-
-      // Funkcije za učitavanje podataka
-      async function loadUserData() {
-        try {
-          console.log('Učitavam korisničke podatke...');
-          const response = await fetch('/api/users/current', {
-            method: 'GET',
-            credentials: 'include',
-          });
-
-          console.log('Response status:', response.status);
-
-          if (response.ok) {
-            const userData = await response.json();
-            console.log('Učitani korisnički podaci:', userData);
-
-            // Update imena u dashboard header-u
-            document.getElementById('userName').textContent =
-              userData.ime + ' ' + userData.prezime;
-
-            // Provjeri da li je korisnik firma bez podataka
-            if (userData.role === 'firma') {
-              console.log(
-                "🔍 Korisnik ima rolu 'firma', provjeravam podatke firme..."
-              );
-              await checkCompanyDataAndRedirect();
-              return; // Prekini izvršavanje ako je preusmjereno
-            }
-
-            // Update imena u navigaciji se radi automatski preko navigation.js
-          } else {
-            console.error(
-              'Greška pri učitavanju korisničkih podataka:',
-              response.status
-            );
-            const errorData = await response.text();
-            console.error('Error response:', errorData);
-            document.getElementById('userName').textContent = 'Korisnice';
-          }
-        } catch (error) {
-          console.error('Greška pri povezivanju sa API:', error);
-          document.getElementById('userName').textContent = 'Korisnice';
-        }
-      }
-
-      // Funkcija za provjeru podataka firme i preusmjeravanje
-      async function checkCompanyDataAndRedirect() {
-        try {
-          console.log('🔍 Počinje provjera podataka firme...');
-
-          const response = await fetch('/api/firme/my-company', {
-            credentials: 'include',
-          });
-
-          console.log('📡 API response status:', response.status);
-
-          if (response.status === 404) {
-            // Firma ne postoji za ovog korisnika - preusmjeri na onboarding stranicu
-            console.log(
-              '❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html'
-            );
-            window.location.href = 'company-onboarding.html';
-            return;
-          }
-
-          if (!response.ok) {
-            // Neki drugi error - pretpostavi da nema firmu
-            console.log(
-              '❌ API error (' +
-                response.status +
-                '), preusmjeravam na company-onboarding.html'
-            );
-            window.location.href = 'company-onboarding.html';
-            return;
-          }
-
-          // API je uspešan (200) - firma postoji, preusmjeri na dashboard-firma.html
-          console.log(
-            '✅ Korisnik ima firmu, preusmjeravam na dashboard-firma.html'
-          );
-          window.location.href = 'dashboard-firma.html';
-        } catch (error) {
-          // U slučaju greške, pretpostavi da nema firmu
-          console.error('💥 Greška pri provjeri podataka firme:', error);
-          window.location.href = 'company-onboarding.html';
-        }
-      }
-
-      function loadDashboardStats() {
-        // Ajax poziv za statistike dashboard-a
-        fetch('/api/dashboard-stats', {
-          credentials: 'include',
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('API poziv neuspešan');
-            }
-            return response.json();
-          })
-          .then(data => {
-            console.log('Dashboard stats API response:', data);
-            updateDashboardStats(data);
-          })
-          .catch(error => {
-            console.error('Greška pri učitavanju statistika:', error);
-            // Postavi default vrednosti u slučaju greške
-            updateDashboardStats({
-              total: 0,
-              aktivne: 0,
-              naNuli: 0,
-              aktivniRadnici: 0,
-            });
-          });
-      }
-
-      // Funkcija za ažuriranje statistika na stranici
-      function updateDashboardStats(stats) {
-        // Ukupno firmi
-        const ukupnoFirmi = document.querySelector('.stat-number.text-primary');
-        if (ukupnoFirmi) {
-          ukupnoFirmi.innerHTML = stats.total || 0;
-        }
-
-        // Aktivne firme
-        const aktivneFirme = document.querySelector(
-          '.stat-number.text-warning'
-        );
-        if (aktivneFirme) {
-          aktivneFirme.innerHTML = stats.aktivne || 0;
-        }
-
-        // Firme na PDV nuli
-        const firmeNaNuli = document.querySelector('.stat-number.text-danger');
-        if (firmeNaNuli) {
-          firmeNaNuli.innerHTML = stats.naNuli || 0;
-        }
-
-        // Aktivnih radnika
-        const aktivniRadnici = document.querySelector(
-          '.stat-number.text-success'
-        );
-        if (aktivniRadnici) {
-          aktivniRadnici.innerHTML = stats.aktivniRadnici || 0;
-        }
-      }
-
-      // Funkcija za učitavanje PDV podataka
-      async function loadPDVData() {
-        try {
-          const response = await fetch('/api/pdv', {
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('PDV API response:', data);
-            updatePDVSection(data);
-          } else {
-            console.error('Greška pri učitavanju PDV podataka');
-          }
-        } catch (error) {
-          console.error('Greška pri povezivanju sa PDV API:', error);
-        }
-      }
-
-      // Funkcija za ažuriranje PDV sekcije
-      function updatePDVSection(pdvData) {
-        console.log('Updating PDV section with:', pdvData);
-
-        // Funkcija za formatiranje meseca (ista kao u pdv-pregled.html)
-        function formatMonth(dateString) {
-          const date = new Date(dateString);
-          return date.toLocaleDateString('sr-Latn-RS', {
-            year: 'numeric',
-            month: 'long',
-          });
-        }
-
-        // Ažuriraj naslov sa stvarnim mesecоm i rokom
-        const naslov = document.querySelector('.pdv-calendar-card h5');
-        if (naslov && pdvData.rok_info) {
-          const mesecNaziv = formatMonth(pdvData.rok_info.trenutni_mjesec);
-          naslov.innerHTML = `
-            <i class="fas fa-calendar-check text-primary me-2"></i>
-            PDV Rokovi - ${mesecNaziv}
-          `;
-
-          // Ažuriraj dugme sa danima do roka
-          const dugme = document.querySelector(
-            '.pdv-calendar-card .btn-primary, .pdv-calendar-card .btn-warning, .pdv-calendar-card .btn-danger'
-          );
-          if (dugme) {
-            const danaDoRoka = pdvData.rok_info.dana_do_roka;
-            dugme.innerHTML = `
-              <i class="fas fa-calendar-alt me-1"></i>
-              ${danaDoRoka > 0 ? danaDoRoka + ' dana do roka' : 'Rok prošao'}
-            `;
-
-            // Promeni boju dugmeta na osnovu roka
-            dugme.className =
-              danaDoRoka <= 5
-                ? 'btn btn-sm btn-danger'
-                : danaDoRoka <= 10
-                ? 'btn btn-sm btn-warning'
-                : 'btn btn-sm btn-primary';
-          }
-        }
-
-        // Izračunaj statistike iz firmi
-        const stats = {
-          poslano: 0,
-          na_cekanju: 0,
-          zakasnjeno: 0,
-        };
-
-        if (pdvData.firme) {
-          pdvData.firme.forEach(firma => {
-            if (firma.status === 'predano') {
-              stats.poslano++;
-            } else if (firma.status === 'kasni') {
-              stats.zakasnjeno++;
-            } else {
-              stats.na_cekanju++;
-            }
-          });
-        }
-
-        // Ažuriraj brojeve u karticama
-        const kartice = document.querySelectorAll(
-          '.pdv-calendar-card .text-center'
-        );
-
-        if (kartice[0]) {
-          // Poslano na vreme
-          kartice[0].querySelector('h3').innerHTML = stats.poslano;
-        }
-
-        if (kartice[1]) {
-          // Na čekanju
-          kartice[1].querySelector('h3').innerHTML = stats.na_cekanju;
-          if (pdvData.rok_info) {
-            kartice[1].querySelector(
-              'small'
-            ).textContent = `Čeka unos (rok za ${pdvData.rok_info.dana_do_roka} dana)`;
-          }
-        }
-
-        if (kartice[2]) {
-          // Zakašnjeno
-          kartice[2].querySelector('h3').innerHTML = stats.zakasnjeno;
-        }
-      }
-
-      // Funkcija za učitavanje aktivnosti iz baze
-      async function loadActivities() {
-        // Funkcija uklonjena - aktivnosti se više ne prikazuju na dashboard-u
-      }
-
-      // Funkcija za učitavanje pozajmica iz baze
-      async function loadPozajmice() {
-        try {
-          const response = await fetch('/api/pozajmnice', {
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Pozajmice API response:', data);
-            updatePozajmiceSection(data.pozajmice);
-          } else {
-            console.error('Greška pri učitavanju pozajmica');
-          }
-        } catch (error) {
-          console.error('Greška pri povezivanju sa pozajmice API:', error);
-        }
-      }
-
-      // Funkcija za ažuriranje sekcije sa pozajmicama
-      function updatePozajmiceSection(pozajmice) {
-        const container = document
-          .querySelector('.quick-action-card h5 i.fa-coins')
-          .closest('.quick-action-card');
-
-        // Sakrij loader
-        const loader = container.querySelector('.pozajmice-loading');
-        if (loader) {
-          loader.style.display = 'none';
-        }
-
-        // Filtruj aktivne pozajmice (preostalo_dugovanje > 0 ili status === 'aktivna')
-        const aktivnePozajmice = pozajmice.filter(
-          p =>
-            p.status === 'aktivna' &&
-            (p.preostalo_dugovanje === undefined || p.preostalo_dugovanje > 0)
-        );
-
-        if (aktivnePozajmice.length === 0) {
-          // Prikaži poruku da nema aktivnih pozajmica
-          const noPozajmice = document.createElement('div');
-          noPozajmice.className = 'text-center py-3 text-muted mb-3';
-          noPozajmice.innerHTML = `
-            <i class="fas fa-piggy-bank fa-2x mb-2 text-warning"></i>
-            <div>Nema aktivnih pozajmica</div>
-          `;
-          container.insertBefore(
-            noPozajmice,
-            container.querySelector('.d-grid')
-          );
-          return;
-        }
-
-        // Prikaži samo prvih 3 pozajmice
-        const pozajmiceZaPrikaz = aktivnePozajmice.slice(0, 3);
-
-        // Dodaj stvarne pozajmice
-        pozajmiceZaPrikaz.forEach(pozajmica => {
-          const pozajmicaElement = createPozajmicaElement(pozajmica);
-          container.insertBefore(
-            pozajmicaElement,
-            container.querySelector('.d-grid')
-          );
         });
+        document.getElementById('currentDate').textContent = date;
       }
 
-      // Kreiranje HTML elementa za pozajmicu
-      function createPozajmicaElement(pozajmica) {
-        const div = document.createElement('div');
+      async function loadUser() {
+        try {
+          const response = await fetch('/api/users/current', {
+            credentials: 'include',
+          });
+          if (!response.ok) return;
+          const user = await response.json();
+          const fullName = [user.ime, user.prezime].filter(Boolean).join(' ');
+          document.getElementById('agencyUser').textContent =
+            fullName || user.username || 'Korisnik';
 
-        // Formatiranje datuma
-        const datumOdobrenja = new Date(
-          pozajmica.datum_izdavanja
-        ).toLocaleDateString('sr-Latn-RS');
-
-        // Koristim različite kolone ovisno o tome šta postoji
-        const ukupanIznos = pozajmica.ukupni_iznos || pozajmica.iznos || 0;
-        const preostaloIznos =
-          pozajmica.preostalo_dugovanje !== undefined
-            ? pozajmica.preostalo_dugovanje
-            : ukupanIznos;
-        const vraćenoIznos =
-          pozajmica.ukupno_vraceno || ukupanIznos - preostaloIznos;
-
-        // Određivanje boje na osnovu statusa
-        let borderClass = 'border-primary';
-        let statusClass = 'text-success';
-        let statusText = 'Aktivna';
-
-        if (preostaloIznos > 0 && vraćenoIznos > 0) {
-          // Izračunaj procenat vraćenog
-          const vraćeniProcenat = (vraćenoIznos / ukupanIznos) * 100;
-
-          if (vraćeniProcenat > 50) {
-            borderClass = 'border-info';
-            statusClass = 'text-info';
-            statusText = 'U toku vraćanja';
-          } else if (vraćeniProcenat < 20) {
-            borderClass = 'border-warning';
-            statusClass = 'text-warning';
-            statusText = 'Početak vraćanja';
+          if (user.role === 'admin') {
+            showAdminPanel();
+            loadAdminStats();
           }
+        } catch (error) {
+          console.error('Greška pri učitavanju korisnika:', error);
         }
-
-        div.className = `mb-3 p-3 border ${borderClass} rounded`;
-
-        // Određuj tip pozajmioca i ime
-        let pozajmilacIme = 'Nepoznato';
-        let pozajmilacTip = '';
-
-        if (
-          pozajmica.pozajmilac_tip === 'zajmodavac' ||
-          pozajmica.zajmodavac_ime
-        ) {
-          // Zajmodavac
-          const zajmodavacIme = pozajmica.zajmodavac_ime || 'N/A';
-          const zajmodavacPrezime = pozajmica.zajmodavac_prezime || '';
-          pozajmilacIme = `${zajmodavacIme} ${zajmodavacPrezime}`.trim();
-          pozajmilacTip =
-            '<span class="badge bg-secondary me-1">Zajmodavac</span>';
-        } else if (pozajmica.radnik_ime) {
-          // Radnik
-          const radnikIme = pozajmica.radnik_ime || 'N/A';
-          const radnikPrezime = pozajmica.radnik_prezime || '';
-          pozajmilacIme = `${radnikIme} ${radnikPrezime}`.trim();
-          pozajmilacTip = '<span class="badge bg-primary me-1">Radnik</span>';
-        }
-
-        div.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-              ${pozajmilacTip}<strong>${pozajmilacIme}</strong>
-              <br /><small class="text-muted">${
-                pozajmica.firma_naziv || 'Nepoznata firma'
-              }</small>
-            </div>
-            <div class="text-end">
-              <h6 class="text-primary mb-0">${preostaloIznos}€</h6>
-              <small class="${statusClass}">${statusText}</small>
-            </div>
-          </div>
-          <small class="text-muted">Datum odobrenja: ${datumOdobrenja}</small>
-          ${
-            vraćenoIznos > 0 && ukupanIznos !== preostaloIznos
-              ? `<br><small class="text-info">Vraćeno: ${vraćenoIznos}€ od ${ukupanIznos}€</small>`
-              : ''
-          }
-        `;
-
-        return div;
       }
 
-      // Funkcija za učitavanje notifikacija iz baze
+      async function loadAdminStats() {
+        try {
+          const response = await fetch('/api/admin/payments/statistics', {
+            credentials: 'include',
+          });
+          if (!response.ok) return;
+          const data = await response.json();
+          if (!data.success) return;
+
+          setText('adminTotalPayments', `${data.statistics.totalAmount || '0.00'}€`);
+          setText('adminMonthlyPayments', `${data.statistics.monthlyAmount || '0.00'}€`);
+          setText('adminPaymentCount', data.statistics.totalCount || 0);
+          setText('adminPendingPayments', data.statistics.pendingCount || 0);
+        } catch (error) {
+          console.error('Greška pri učitavanju admin statistike:', error);
+        }
+      }
+
+      function showAdminPanel() {
+        const panel = document.getElementById('adminPanel');
+        if (panel) {
+          panel.classList.add('visible', 'collapsed');
+          updateAdminToggleButton(false);
+        }
+      }
+
+      function toggleAdminPanel() {
+        const panel = document.getElementById('adminPanel');
+        if (!panel) return;
+        const willCollapse = !panel.classList.contains('collapsed');
+        panel.classList.toggle('collapsed', willCollapse);
+        updateAdminToggleButton(!willCollapse);
+      }
+
+      function updateAdminToggleButton(isExpanded) {
+        const button = document.getElementById('adminToggleBtn');
+        if (!button) return;
+        button.innerHTML = isExpanded
+          ? '<i class="fas fa-eye-slash me-1"></i>Sakrij'
+          : '<i class="fas fa-eye me-1"></i>Prikaži';
+      }
+
+      async function loadStats() {
+        try {
+          const response = await fetch('/api/dashboard-stats', {
+            credentials: 'include',
+          });
+          if (!response.ok) throw new Error('Stats API nije dostupan');
+          const stats = await response.json();
+
+          setText('totalCompanies', stats.total || 0);
+          setText('activeCompanies', stats.aktivne || 0);
+          setText('activeWorkers', stats.aktivniRadnici || 0);
+        } catch (error) {
+          console.error('Greška pri učitavanju statistika:', error);
+        }
+      }
+
+      async function loadPdv() {
+        try {
+          const response = await fetch('/api/pdv', { credentials: 'include' });
+          if (!response.ok) throw new Error('PDV API nije dostupan');
+          const data = await response.json();
+          const firme = Array.isArray(data.firme) ? data.firme : [];
+          const stats = firme.reduce(
+            (acc, firma) => {
+              if (firma.status === 'predano') acc.sent += 1;
+              else if (firma.status === 'kasni') acc.late += 1;
+              else if (firma.status === 'spremno') acc.ready += 1;
+              else acc.waiting += 1;
+              return acc;
+            },
+            { sent: 0, late: 0, ready: 0, waiting: 0 }
+          );
+
+          setText('latePdvCount', stats.late);
+          setText('waitingPdvCount', stats.waiting);
+          setText('readyPdvCount', stats.ready);
+          setText('sentPdvCount', stats.sent);
+          setText('pendingPdvCount', stats.waiting + stats.ready);
+          updateUrgentCount();
+        } catch (error) {
+          console.error('Greška pri učitavanju PDV podataka:', error);
+        }
+      }
+
       async function loadNotifications() {
+        const container = document.getElementById('attentionList');
+        const cachedNotifications = getCachedNotifications();
+
+        if (cachedNotifications) {
+          renderNotifications(cachedNotifications.notifications);
+          updateUrgentCount(cachedNotifications.notifications);
+
+          if (Date.now() - cachedNotifications.createdAt < notificationsCacheTtl) {
+            return;
+          }
+        }
+
         try {
           const response = await fetch('/api/notifications', {
             credentials: 'include',
           });
+          if (!response.ok) throw new Error('Notifications API nije dostupan');
+          const data = await response.json();
+          const notifications = Array.isArray(data.notifications)
+            ? data.notifications
+            : [];
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Notifications API response:', data);
-            updateNotificationsSection(data.notifications);
-          } else {
-            console.error('Greška pri učitavanju notifikacija');
-          }
+          renderNotifications(notifications);
+          updateUrgentCount(notifications);
+          cacheNotifications(notifications);
         } catch (error) {
-          console.error('Greška pri povezivanju sa serverom:', error);
+          console.error('Greška pri učitavanju obaveza:', error);
+          if (cachedNotifications) return;
+          container.innerHTML =
+            '<div class="text-muted">Nema dostupnih obaveza za prikaz.</div>';
         }
       }
 
-      // Funkcija za ažuriranje sekcije sa notifikacijama
-      function updateNotificationsSection(notifications) {
-        const container = document
-          .querySelector('.quick-action-card h5 i.fa-exclamation-triangle')
-          .closest('.quick-action-card');
-
-        // Sakrij loader
-        const loader = container.querySelector('.notifications-loading');
-        if (loader) {
-          loader.style.display = 'none';
+      function getCachedNotifications() {
+        try {
+          const raw = localStorage.getItem(notificationsCacheKey);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.notifications)) return null;
+          return parsed;
+        } catch (error) {
+          localStorage.removeItem(notificationsCacheKey);
+          return null;
         }
+      }
 
-        // Očisti postojeće fiksne notifikacije
-        const existingItems = container.querySelectorAll('.firma-card');
-        existingItems.forEach(item => item.remove());
+      function cacheNotifications(notifications) {
+        try {
+          localStorage.setItem(
+            notificationsCacheKey,
+            JSON.stringify({
+              createdAt: Date.now(),
+              notifications,
+            })
+          );
+        } catch (error) {
+          console.warn('Dashboard cache nije dostupan:', error);
+        }
+      }
 
-        if (notifications.length === 0) {
-          // Prikaži poruku da nema notifikacija
-          const noNotifications = document.createElement('div');
-          noNotifications.className = 'text-center py-3 text-muted';
-          noNotifications.innerHTML = `
-            <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-            <div>Nema hitnih obaveštenja</div>
-          `;
-          container.appendChild(noNotifications);
+      function renderNotifications(notifications) {
+        const container = document.getElementById('attentionList');
+        const list = Array.isArray(notifications) ? notifications : [];
+        currentNotifications = list;
+
+        if (!list.length) {
+          container.innerHTML =
+            '<div class="text-muted">Trenutno nema firmi koje zahtijevaju pažnju.</div>';
           return;
         }
 
-        // Dodaj stvarne notifikacije
-        notifications.forEach(notification => {
-          const notificationElement = createNotificationElement(notification);
-          container.appendChild(notificationElement);
-        });
+        container.innerHTML = list
+          .slice(0, 8)
+          .map(notification => {
+            const typeClass =
+              notification.type === 'urgent'
+                ? 'urgent'
+                : notification.type === 'warning'
+                  ? 'warning'
+                  : '';
+            const action = normalizeAction(notification);
+            return `
+              <a class="attention-item" href="${escapeHtml(action)}">
+                <span class="attention-dot ${typeClass}"></span>
+                <span>
+                  <span class="attention-title">${escapeHtml(notification.title || 'Obaveza')}</span>
+                  <span class="attention-desc">${escapeHtml(notification.description || '')}</span>
+                </span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </a>
+            `;
+          })
+          .join('');
       }
 
-      // Kreiranje HTML elementa za notifikaciju
-      function createNotificationElement(notification) {
-        console.log('Creating notification element for:', notification);
+      async function loadOpenTasks() {
+        const container = document.getElementById('taskDashboardList');
+        if (!container) return;
 
-        const div = document.createElement('div');
+        try {
+          const response = await fetch('/api/zadaci/otvoreni/sve', {
+            credentials: 'include',
+          });
+          if (!response.ok) throw new Error('Zadaci API nije dostupan');
+          const data = await response.json();
+          const tasks = data.success && Array.isArray(data.zadaci)
+            ? data.zadaci
+            : [];
 
-        let badgeClass = 'bg-info';
-        let cardClass = 'info';
-
-        if (notification.type === 'urgent') {
-          badgeClass = 'bg-danger';
-          cardClass = 'danger';
-        } else if (notification.type === 'warning') {
-          badgeClass = 'bg-warning';
-          cardClass = 'warning';
+          renderOpenTasks(tasks);
+        } catch (error) {
+          console.error('Greška pri učitavanju otvorenih zadataka:', error);
+          container.innerHTML =
+            '<div class="text-muted">Nema dostupnih zadataka za prikaz.</div>';
         }
-
-        // Kreiraj pravilnu action URL-u
-        let actionUrl = '';
-
-        // Prvo pokušaj da izvučeš firma_id iz action URL-a ako postoji
-        if (
-          notification.action &&
-          notification.action.includes('firma-detalji.html')
-        ) {
-          console.log('Parsing action URL:', notification.action);
-
-          // Parsuj action URL da izvučeš firma_id
-          try {
-            const urlParts = notification.action.split('?');
-            if (urlParts.length > 1) {
-              const actionParams = new URLSearchParams(urlParts[1]);
-              const firmaIdFromAction = actionParams.get('id');
-
-              console.log('Extracted firma_id from action:', firmaIdFromAction);
-
-              if (
-                firmaIdFromAction &&
-                firmaIdFromAction !== 'undefined' &&
-                firmaIdFromAction !== 'null'
-              ) {
-                actionUrl = `firma-detalji.html?id=${firmaIdFromAction}`;
-
-                // Ako je vezano za radnika, dodaj hash za radnici tab
-                if (
-                  notification.radnik_id ||
-                  notification.id.includes('ugovor_') ||
-                  actionParams.get('radnikId')
-                ) {
-                  actionUrl += '#radnici';
-                }
-              } else {
-                console.log(
-                  'No valid firma_id found in action URL, using fallback'
-                );
-                actionUrl = notification.action;
-              }
-            } else {
-              console.log('No query params in action URL');
-              actionUrl = notification.action;
-            }
-          } catch (error) {
-            console.error('Error parsing action URL:', error);
-            actionUrl = notification.action;
-          }
-        } else if (notification.firma_id) {
-          // Ako imamo direktno firma_id polje, koristi ga
-          actionUrl = `firma-detalji.html?id=${notification.firma_id}`;
-
-          // Ako je vezano za radnika, dodaj hash za radnici tab
-          if (notification.radnik_id || notification.ugovor_id) {
-            actionUrl += '#radnici';
-          }
-        } else if (notification.action) {
-          // Fallback na originalnu action vrednost
-          actionUrl = notification.action;
-        }
-
-        console.log(
-          'Generated action URL:',
-          actionUrl,
-          'from notification:',
-          notification
-        );
-
-        div.className = `firma-card ${cardClass}`;
-        div.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h6 class="mb-1">${notification.title}</h6>
-              <small class="text-muted">${notification.description}</small>
-            </div>
-            <div>
-              <span class="badge ${badgeClass}">${
-          notification.icon || notification.type
-        }</span>
-              ${
-                actionUrl
-                  ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
-                <i class="fas fa-eye"></i>
-              </a>`
-                  : ''
-              }
-            </div>
-          </div>
-        `;
-
-        return div;
       }
 
-      // Učitaj notifikacije, statistike, PDV podatke i pozajmice kada se stranica učita
-      document.addEventListener('DOMContentLoaded', function () {
-        loadNotifications();
-        loadDashboardStats();
-        loadPDVData();
-        loadPozajmice();
-      });
+      function renderOpenTasks(tasks) {
+        const container = document.getElementById('taskDashboardList');
+        const list = Array.isArray(tasks) ? tasks : [];
 
-      // Kalendar interakcija
-      document.querySelectorAll('.calendar-day').forEach(day => {
-        day.addEventListener('click', function () {
-          if (this.textContent.trim()) {
-            console.log('Kliknuto na dan:', this.textContent);
-            // Otvori modal sa detaljima dana
-          }
-        });
-      });
+        if (!list.length) {
+          container.innerHTML =
+            '<div class="text-muted">Trenutno nema otvorenih zadataka.</div>';
+          return;
+        }
 
-      // Quick Search funkcionalnost
-      function setupQuickSearch() {
-        const searchInput = document.getElementById('quickSearchInput');
-        const clearButton = document.getElementById('clearSearch');
-        const searchResults = document.getElementById('searchResults');
-        let searchTimeout;
+        container.innerHTML = list
+          .slice(0, 10)
+          .map(task => {
+            const title = task.tekst_zadatka || 'Otvoren zadatak';
+            const firma = task.firma_naziv || 'Firma';
+            const created = formatShortDate(task.datum_kreiran);
+            return `
+              <a class="attention-item" href="/shared/firma-detalji.html?id=${encodeURIComponent(task.firma_id)}#pregled">
+                <span class="attention-dot warning"></span>
+                <span>
+                  <span class="attention-title">${escapeHtml(firma)}</span>
+                  <span class="attention-desc">${escapeHtml(title)}${created ? ` · ${escapeHtml(created)}` : ''}</span>
+                </span>
+                <i class="fas fa-chevron-right text-muted"></i>
+              </a>
+            `;
+          })
+          .join('');
+      }
 
-        searchInput.addEventListener('input', function () {
-          const query = this.value.trim();
+      function formatShortDate(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('sr-Latn-RS');
+      }
 
-          if (query.length > 0) {
-            clearButton.style.display = 'block';
+      function normalizeAction(notification) {
+        if (notification.action) return notification.action;
+        if (notification.firma_id) return `/firma-detalji.html?id=${notification.firma_id}`;
+        return '/shared/firme.html';
+      }
 
-            // Debounce search
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-              performSearch(query);
-            }, 300);
+      function updateUrgentCount(notifications = currentNotifications) {
+        const list = Array.isArray(notifications) ? notifications : [];
+        const urgentFromNotifications = list.filter(
+          item => item.type === 'urgent'
+        ).length;
+        const latePdv = Number(document.getElementById('latePdvCount').textContent) || 0;
+        setText('urgentCount', urgentFromNotifications + latePdv);
+      }
+
+      function setupPdvCalculator() {
+        const amount = document.getElementById('pdvAmount');
+        const rate = document.getElementById('pdvRate');
+        const calculate = () => {
+          const input = Number(amount.value) || 0;
+          const pdvRate = Number(rate.value) || 0;
+          let base = input;
+          let tax = 0;
+          let total = input;
+
+          if (pdvMode === 'subtract') {
+            base = pdvRate > 0 ? input / (1 + pdvRate / 100) : input;
+            tax = input - base;
+            total = base;
           } else {
-            clearButton.style.display = 'none';
-            searchResults.style.display = 'none';
-          }
-        });
-
-        clearButton.addEventListener('click', function () {
-          searchInput.value = '';
-          this.style.display = 'none';
-          searchResults.style.display = 'none';
-          searchInput.focus();
-        });
-
-        // Hide results when clicking outside
-        document.addEventListener('click', function (e) {
-          if (!e.target.closest('.search-container')) {
-            searchResults.style.display = 'none';
-          }
-        });
-      }
-
-      function performSearch(query) {
-        const searchResults = document.getElementById('searchResults');
-
-        // Show loading
-        searchResults.innerHTML =
-          '<div class="search-item">Pretražujem...</div>';
-        searchResults.style.display = 'block';
-
-        // Try API calls with proper authentication
-        Promise.all([
-          fetch(`/api/firme/search?q=${encodeURIComponent(query)}`, {
-            credentials: 'include',
-          }).catch(() => null),
-          fetch(`/api/radnici/search?q=${encodeURIComponent(query)}`, {
-            credentials: 'include',
-          }).catch(() => null),
-        ])
-          .then(responses => {
-            // Process valid responses
-            const promises = responses.map(r => {
-              if (r && r.ok) {
-                return r.json();
-              } else {
-                return Promise.resolve([]);
-              }
-            });
-            return Promise.all(promises);
-          })
-          .then(([firme, radnici]) => {
-            displaySearchResults(firme || [], radnici || [], query);
-          })
-          .catch(error => {
-            console.error('Search error:', error);
-            displaySearchResults([], [], query);
-          });
-      }
-
-      function displaySearchResults(firme, radnici, query) {
-        const searchResults = document.getElementById('searchResults');
-        let html = '';
-
-        const totalResults = firme.length + radnici.length;
-
-        if (totalResults === 0) {
-          html = `<div class="search-item">
-            <div class="search-title">Nema rezultata za "${query}"</div>
-          </div>`;
-        } else {
-          // Firme results
-          if (firme.length > 0) {
-            firme.slice(0, 3).forEach(firma => {
-              html += `<div class="search-item" onclick="navigateToResult('firma', ${
-                firma.id
-              }, '${firma.naziv}')">
-                <div class="search-category">Firma</div>
-                <div class="search-title">${firma.naziv}</div>
-                <div class="search-subtitle">${firma.grad || 'N/A'} • ${
-                firma.aktivna ? 'Aktivna' : 'Neaktivna'
-              }</div>
-              </div>`;
-            });
+            tax = base * (pdvRate / 100);
+            total = base + tax;
           }
 
-          // Radnici results
-          if (radnici.length > 0) {
-            radnici.slice(0, 3).forEach(radnik => {
-              html += `<div class="search-item" onclick="navigateToResult('radnik', ${
-                radnik.id
-              }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ''})">
-                <div class="search-category">Radnik</div>
-                <div class="search-title">${radnik.ime} ${radnik.prezime}</div>
-                <div class="search-subtitle">${radnik.pozicija} • ${
-                radnik.firma
-              }</div>
-              </div>`;
-            });
-          }
-
-          // Show more results if needed
-          if (totalResults > 6) {
-            html += `<div class="search-item" onclick="showAllResults('${query}')">
-              <div class="search-title text-primary">Prikaži sve rezultate (${totalResults})</div>
-            </div>`;
-          }
-        }
-
-        searchResults.innerHTML = html;
-        searchResults.style.display = 'block';
-      }
-
-      // Navigacija na rezultat pretrage
-      function navigateToResult(type, id, title = '', firmaId = '') {
-        const searchResults = document.getElementById('searchResults');
-        searchResults.style.display = 'none';
-
-        switch (type) {
-          case 'firma':
-            // Otvori firma detalji stranicu
-            window.location.href = `/firma-detalji.html?id=${id}`;
-            break;
-          case 'radnik':
-            // Za radnika, otvori radnik modal sa podacima
-            if (firmaId && firmaId !== '') {
-              // Idi na firmu sa radnici tabom i automatski otvori modal za radnika
-              window.location.href = `/firma-detalji.html?id=${firmaId}&radnikId=${id}#radnici`;
-            } else {
-              // Fallback: idi na firmu detalje sa radnici tabom
-              console.warn(
-                'Nema firmaId za radnika, fallback na firme stranicu'
-              );
-              window.location.href = `/firme.html`;
-            }
-            break;
-          default:
-            console.log('Unknown result type:', type);
-        }
-      }
-
-      function showAllResults(query) {
-        // Umesto da idemo na nepostojećcu search-results.html stranicu,
-        // možemo ići na firme.html ili firma-detalji.html stranice sa pretraživanjem
-        // ili jednostavno proširiti trenutni prikaz rezultata
-        console.log('Prikaži sve rezultate za:', query);
-
-        // Za sada ćemo ići na firme stranicu koja ima pretragu
-        window.location.href = `/firme.html?search=${encodeURIComponent(
-          query
-        )}`;
-      }
-
-      // Dashboard koristi centralizovani radnik-modal.js komponent
-
-      // PDV Kalkulator funkcije
-      function initPdvCalculator() {
-        const amountInput = document.getElementById('pdv-amount');
-        const rateSelect = document.getElementById('pdv-rate');
-        const modeRadios = document.querySelectorAll('input[name="pdv-mode"]');
-
-        // Event listeneri za real-time kalkulaciju
-        amountInput.addEventListener('input', calculatePdv);
-        rateSelect.addEventListener('change', calculatePdv);
-        modeRadios.forEach(radio => {
-          radio.addEventListener('change', function () {
-            updateLabels();
-            calculatePdv();
+          setText('pdvTax', `${tax.toFixed(2)} €`);
+          setText('pdvTotal', `${total.toFixed(2)} €`);
+        };
+        amount.addEventListener('input', calculate);
+        rate.addEventListener('change', calculate);
+        document.querySelectorAll('[data-pdv-mode]').forEach(button => {
+          button.addEventListener('click', () => {
+            pdvMode = button.dataset.pdvMode;
+            document
+              .querySelectorAll('[data-pdv-mode]')
+              .forEach(item => item.classList.toggle('active', item === button));
+            setText(
+              'pdvAmountLabel',
+              pdvMode === 'subtract' ? 'Iznos sa PDV-a' : 'Iznos bez PDV-a'
+            );
+            setText('pdvTotalLabel', pdvMode === 'subtract' ? 'Osnovica bez PDV' : 'Ukupno sa PDV');
+            calculate();
           });
         });
-
-        // Inicijalna kalkulacija
-        updateLabels();
-        calculatePdv();
       }
 
-      function updateLabels() {
-        const mode = document.querySelector(
-          'input[name="pdv-mode"]:checked'
-        ).value;
-        const amountLabel = document.getElementById('amount-label');
-        const resultLabel1 = document.getElementById('result-label-1');
-        const resultLabel2 = document.getElementById('result-label-2');
+      function setupRentCalculator() {
+        const amount = document.getElementById('rentAmount');
+        const city = document.getElementById('rentCity');
+        const surtaxRates = {
+          'podgorica-cetinje': 15,
+          budva: 10,
+          ostali: 13,
+        };
+        const netTaxCoefficient = 0.117318;
+        const grossTaxCoefficient = 0.105;
 
-        if (mode === 'add') {
-          amountLabel.textContent = 'Iznos bez PDV-a';
-          resultLabel1.textContent = 'PDV iznos';
-          resultLabel2.textContent = 'Ukupno sa PDV';
-        } else {
-          amountLabel.textContent = 'Iznos sa PDV-om';
-          resultLabel1.textContent = 'PDV iznos';
-          resultLabel2.textContent = 'Iznos bez PDV';
-        }
-      }
+        const calculate = () => {
+          const input = Number(amount.value) || 0;
+          const surtaxRate = surtaxRates[city.value] || surtaxRates.ostali;
+          let net = input;
+          let tax = 0;
+          let surtax = 0;
+          let gross = input;
 
-      function calculatePdv() {
-        const amount =
-          parseFloat(document.getElementById('pdv-amount').value) || 0;
-        const rate =
-          parseFloat(document.getElementById('pdv-rate').value) || 21;
-        const mode = document.querySelector(
-          'input[name="pdv-mode"]:checked'
-        ).value;
+          if (rentMode === 'gross') {
+            tax = input * grossTaxCoefficient;
+            surtax = tax * (surtaxRate / 100);
+            net = input - tax - surtax;
+            gross = input;
+          } else {
+            tax = input * netTaxCoefficient;
+            surtax = tax * (surtaxRate / 100);
+            net = input;
+            gross = net + tax + surtax;
+          }
 
-        let pdvAmount, totalAmount;
-
-        if (mode === 'add') {
-          // Dodavanje PDV-a na iznos bez PDV-a
-          pdvAmount = amount * (rate / 100);
-          totalAmount = amount + pdvAmount;
-        } else {
-          // Oduzimanje PDV-a od iznosa sa PDV-om
-          const baseAmount = amount / (1 + rate / 100);
-          pdvAmount = amount - baseAmount;
-          totalAmount = baseAmount;
-        }
-
-        // Ažuriranje prikaza
-        document.getElementById('pdv-tax-amount').textContent =
-          pdvAmount.toFixed(2) + ' €';
-        document.getElementById('pdv-total-amount').textContent =
-          totalAmount.toFixed(2) + ' €';
-      }
-
-      function clearPdvCalculator() {
-        document.getElementById('pdv-amount').value = '';
-        document.getElementById('pdv-rate').value = '21';
-        document.querySelector(
-          'input[name="pdv-mode"][value="add"]'
-        ).checked = true;
-        updateLabels();
-        calculatePdv();
-      }
-
-      function copyPdvResult() {
-        const mode = document.querySelector(
-          'input[name="pdv-mode"]:checked'
-        ).value;
-        const amount = document.getElementById('pdv-amount').value;
-        const rate = document.getElementById('pdv-rate').value;
-        const pdvAmount = document.getElementById('pdv-tax-amount').textContent;
-        const totalAmount =
-          document.getElementById('pdv-total-amount').textContent;
-
-        let textToCopy;
-        if (mode === 'add') {
-          textToCopy = `PDV Kalkulacija (+${rate}%):
-Iznos bez PDV: ${amount} €
-PDV iznos: ${pdvAmount}
-Ukupno sa PDV: ${totalAmount}`;
-        } else {
-          textToCopy = `PDV Kalkulacija (-${rate}%):
-Iznos sa PDV: ${amount} €
-PDV iznos: ${pdvAmount}
-Iznos bez PDV: ${totalAmount}`;
-        }
-
-        navigator.clipboard
-          .writeText(textToCopy)
-          .then(() => {
-            // Kreiraj toast notification
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed top-0 end-0 p-3';
-            toast.style.zIndex = '1056';
-            toast.innerHTML = `
-            <div class="toast show" role="alert">
-              <div class="toast-header">
-                <i class="fas fa-check-circle text-success me-2"></i>
-                <strong class="me-auto">Uspešno</strong>
-              </div>
-              <div class="toast-body">
-                Rezultat je kopiran u clipboard!
-              </div>
-            </div>
-          `;
-
-            document.body.appendChild(toast);
-
-            // Ukloni toast nakon 3 sekunde
-            setTimeout(() => {
-              document.body.removeChild(toast);
-            }, 3000);
-          })
-          .catch(err => {
-            console.error('Greška pri kopiranju:', err);
-            alert('Greška pri kopiranju u clipboard');
-          });
-      }
-
-      // Obračun zakupa funkcije
-      function initZakupCalculator() {
-        const amountInput = document.getElementById('zakup-amount');
-        const gradSelect = document.getElementById('zakup-grad');
-        const modeRadios = document.querySelectorAll(
-          'input[name="zakup-mode"]'
-        );
-
-        // Event listeneri za real-time kalkulaciju
-        amountInput.addEventListener('input', calculateZakup);
-        gradSelect.addEventListener('change', calculateZakup);
-        modeRadios.forEach(radio => {
-          radio.addEventListener('change', function () {
-            updateZakupLabels();
-            calculateZakup();
-          });
-        });
-
-        // Inicijalna kalkulacija
-        updateZakupLabels();
-        calculateZakup();
-      }
-
-      function updateZakupLabels() {
-        const mode = document.querySelector(
-          'input[name="zakup-mode"]:checked'
-        ).value;
-        const amountLabel = document.getElementById('zakup-amount-label');
-        const resultLabel1 = document.getElementById('zakup-result-label-1');
-        const resultLabel2 = document.getElementById('zakup-result-label-2');
-
-        if (mode === 'neto') {
-          amountLabel.textContent = 'Neto iznos';
-          resultLabel1.textContent = 'Porez';
-          resultLabel2.textContent = 'Prirez';
-        } else {
-          amountLabel.textContent = 'Bruto iznos';
-          resultLabel1.textContent = 'Porez';
-          resultLabel2.textContent = 'Prirez';
-        }
-      }
-
-      function calculateZakup() {
-        const amount =
-          parseFloat(document.getElementById('zakup-amount').value) || 0;
-        const grad = document.getElementById('zakup-grad').value;
-        const mode = document.querySelector(
-          'input[name="zakup-mode"]:checked'
-        ).value;
-
-        // Stope prireza po gradovima
-        const prirezStope = {
-          'podgorica-cetinje': 15, // 15%
-          budva: 10, // 10%
-          ostali: 13, // 13%
+          setText('rentTax', `${tax.toFixed(2)} €`);
+          setText('rentSurtax', `${surtax.toFixed(2)} €`);
+          setText('rentNet', `${net.toFixed(2)} €`);
+          setText('rentGross', `${gross.toFixed(2)} €`);
         };
 
-        // Koeficijenti za porez
-        const NETO_KOEFICIJENT = 0.117318; // za neto kalkulaciju
-        const BRUTO_KOEFICIJENT = 0.105; // za bruto kalkulaciju
-
-        const prirezStopa = prirezStope[grad] || prirezStope['ostali'];
-        let porezIznos, prirezIznos, netoIznos;
-
-        if (mode === 'neto') {
-          // Neto → Bruto kalkulacija
-          netoIznos = amount;
-          porezIznos = netoIznos * NETO_KOEFICIJENT;
-          prirezIznos = porezIznos * (prirezStopa / 100);
-        } else {
-          // Bruto → Neto kalkulacija
-          const brutoIznos = amount;
-          // Za bruto: porez = bruto × 0.105
-          porezIznos = brutoIznos * BRUTO_KOEFICIJENT;
-          prirezIznos = porezIznos * (prirezStopa / 100);
-        }
-
-        // Ažuriranje prikaza
-        document.getElementById('zakup-porez-amount').textContent =
-          porezIznos.toFixed(2) + ' €';
-        document.getElementById('zakup-prirez-amount').textContent =
-          prirezIznos.toFixed(2) + ' €';
-      }
-
-      function clearZakupCalculator() {
-        document.getElementById('zakup-amount').value = '';
-        document.getElementById('zakup-grad').value = 'podgorica-cetinje';
-        document.querySelector(
-          'input[name="zakup-mode"][value="neto"]'
-        ).checked = true;
-        updateZakupLabels();
-        calculateZakup();
-      }
-
-      function copyZakupResult() {
-        const mode = document.querySelector(
-          'input[name="zakup-mode"]:checked'
-        ).value;
-        const amount = document.getElementById('zakup-amount').value;
-        const grad = document.getElementById('zakup-grad').value;
-        const gradNaziv =
-          document.getElementById('zakup-grad').options[
-            document.getElementById('zakup-grad').selectedIndex
-          ].text;
-        const porezAmount =
-          document.getElementById('zakup-porez-amount').textContent;
-        const prirezAmount = document.getElementById(
-          'zakup-prirez-amount'
-        ).textContent;
-
-        let textToCopy;
-        if (mode === 'neto') {
-          textToCopy = `Obračun zakupa (Neto → Bruto):
-Grad: ${gradNaziv}
-Neto iznos: ${amount} €
-Porez: ${porezAmount}
-Prirez: ${prirezAmount}
-Ukupno bruto: ${(
-            parseFloat(amount) +
-            parseFloat(porezAmount.replace(' €', '')) +
-            parseFloat(prirezAmount.replace(' €', ''))
-          ).toFixed(2)} €`;
-        } else {
-          textToCopy = `Obračun zakupa (Bruto → Neto):
-Grad: ${gradNaziv}
-Bruto iznos: ${amount} €
-Porez: ${porezAmount}
-Prirez: ${prirezAmount}
-Neto iznos: ${(
-            parseFloat(amount) -
-            parseFloat(porezAmount.replace(' €', '')) -
-            parseFloat(prirezAmount.replace(' €', ''))
-          ).toFixed(2)} €`;
-        }
-
-        navigator.clipboard
-          .writeText(textToCopy)
-          .then(() => {
-            // Kreiraj toast notification
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed top-0 end-0 p-3';
-            toast.style.zIndex = '1056';
-            toast.innerHTML = `
-            <div class="toast show" role="alert">
-              <div class="toast-header">
-                <i class="fas fa-check-circle text-success me-2"></i>
-                <strong class="me-auto">Uspešno</strong>
-              </div>
-              <div class="toast-body">
-                Rezultat obračuna zakupa je kopiran u clipboard!
-              </div>
-            </div>
-          `;
-
-            document.body.appendChild(toast);
-
-            // Ukloni toast nakon 3 sekunde
-            setTimeout(() => {
-              document.body.removeChild(toast);
-            }, 3000);
-          })
-          .catch(err => {
-            console.error('Greška pri kopiranju:', err);
-            alert('Greška pri kopiranju u clipboard');
+        amount.addEventListener('input', calculate);
+        city.addEventListener('change', calculate);
+        document.querySelectorAll('[data-rent-mode]').forEach(button => {
+          button.addEventListener('click', () => {
+            rentMode = button.dataset.rentMode;
+            document
+              .querySelectorAll('[data-rent-mode]')
+              .forEach(item => item.classList.toggle('active', item === button));
+            setText('rentAmountLabel', rentMode === 'gross' ? 'Bruto iznos' : 'Neto iznos');
+            calculate();
           });
+        });
       }
 
-      // Admin Payments Widget
-      async function loadAdminPaymentsWidget() {
-        try {
-          // Proverava da li je korisnik admin
-          const userResponse = await fetch('/api/users/current', {
-            credentials: 'include',
-          });
-
-          if (userResponse.ok) {
-            const userData = await userResponse.json();
-            if (userData.role === 'admin' || userData.username === 'admin') {
-              // Prikaži widget
-              document.getElementById('adminPaymentsWidget').style.display =
-                'block';
-
-              // Učitaj statistike
-              const statsResponse = await fetch(
-                '/api/admin/payments/statistics',
-                {
-                  credentials: 'include',
-                }
-              );
-
-              if (statsResponse.ok) {
-                const statsData = await statsResponse.json();
-                if (statsData.success) {
-                  const stats = statsData.statistics;
-                  document.getElementById(
-                    'adminTotalPayments'
-                  ).textContent = `${stats.totalAmount}€`;
-                  document.getElementById(
-                    'adminMonthlyPayments'
-                  ).textContent = `${stats.monthlyAmount}€`;
-                  document.getElementById('adminPaymentCount').textContent =
-                    stats.totalCount;
-                  document.getElementById('adminPendingPayments').textContent =
-                    stats.pendingCount;
-                }
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Greška pri učitavanju admin widget-a:', error);
-        }
+      function setText(id, value) {
+        const element = document.getElementById(id);
+        if (!element) return;
+        element.textContent =
+          typeof value === 'number' ? numberFormatter.format(value) : value;
       }
 
-      // Toggle Admin Widget funkcija
-      function toggleAdminWidget() {
-        const content = document.getElementById('adminPaymentsContent');
-        const button = document.getElementById('toggleAdminWidget');
-        const icon = button.querySelector('i');
-        const text = button.querySelector('span');
-        const isCollapsed = button.getAttribute('data-collapsed') === 'true';
-
-        if (isCollapsed) {
-          // Prikaži sadržaj
-          content.style.display = 'block';
-          icon.className = 'fas fa-eye-slash';
-          text.textContent = 'Sakrij';
-          button.setAttribute('data-collapsed', 'false');
-        } else {
-          // Sakrij sadržaj
-          content.style.display = 'none';
-          icon.className = 'fas fa-eye';
-          text.textContent = 'Prikaži';
-          button.setAttribute('data-collapsed', 'true');
-        }
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
       }
     </script>
-    <script src="/shared/cookie-consent.js"></script>
   </body>
 </html>

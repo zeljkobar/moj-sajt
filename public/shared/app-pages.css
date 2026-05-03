@@ -633,6 +633,21 @@
   color: var(--text-color);
 }
 
+.irms-status-success {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.irms-status-error {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.irms-status-loading {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
 /* =================================================================
    FIRMA DETALJI STRANICA
    ================================================================= */
