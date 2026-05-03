@@ -38,8 +38,9 @@
       "url": "/shared/dashboard.html",
       "icons": [
         {
-          "src": "/shared/images/favicon/favicon-96x96.png",
-          "sizes": "96x96"
+          "src": "/shared/images/favicon/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
         }
       ]
     },
@@ -50,8 +51,9 @@
       "url": "/shared/prijava.html",
       "icons": [
         {
-          "src": "/shared/images/favicon/favicon-96x96.png",
-          "sizes": "96x96"
+          "src": "/shared/images/favicon/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
         }
       ]
     },
@@ -62,8 +64,9 @@
       "url": "/shared/pdv0.html",
       "icons": [
         {
-          "src": "/shared/images/favicon/favicon-96x96.png",
-          "sizes": "96x96"
+          "src": "/shared/images/favicon/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
         }
       ]
     }

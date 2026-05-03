@@ -152,6 +152,48 @@ router.get('/firme.html', authMiddleware, subscriptionMiddleware, (req, res) => 
   res.sendFile(ROOT_DIR + '/public/shared/firme.html');
 });
 
+const protectedSharedPages = [
+  'dashboard.html',
+  'firme.html',
+  'firma-detalji.html',
+  'dodaj-firmu.html',
+  'edit-firmu.html',
+  'pdv-pregled.html',
+  'mjesecne-obaveze.html',
+  'zavrsni-racuni.html',
+  'obracun-zaliha.html',
+  'obracun-preduzetnika.html',
+  'godisnji-odmori.html',
+  'plan-godisnjeg-odmora.html',
+  'istek-ugovora.html',
+  'pozicije.html',
+  'ugovor-o-radu.html',
+  'ugovor-o-zajmu-novca.html',
+  'odluka-raspored-radnog-vremena.html',
+  'odluka-o-povracaju.html',
+  'resenje-porodiljsko-odsustvo.html',
+  'sedmicni-odmor.html',
+  'jpr-korica.html',
+  'jpr-dodatak-a.html',
+  'jpr-dodatak-b.html',
+  'jpr-dodatak-c.html',
+  'mobing.html',
+  'potvrda-zaposlenja.html',
+  'aneks-zastita-na-radu.html',
+  'aneks-promena-radnog-vremena.html',
+  'aneks-promena-radnog-mesta.html',
+  'resenje-godisnji-odmor.html',
+  'ovlascenje-knjigovodja.html',
+  'crps-zahtjev.html',
+  'poreska-prijava.html',
+];
+
+protectedSharedPages.forEach(pageName => {
+  router.get(`/shared/${pageName}`, authMiddleware, subscriptionMiddleware, (req, res) => {
+    res.sendFile(path.join(ROOT_DIR, 'public', 'shared', pageName));
+  });
+});
+
 // Zaštićena ruta za dodavanje firmi
 router.get(
   '/dodaj-firmu.html',
