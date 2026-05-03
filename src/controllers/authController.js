@@ -166,7 +166,13 @@ const authController = {
         // Ukloni password iz user objekta pre čuvanja u sesiju
         const { password: _, ...userForSession } = user;
         req.session.user = userForSession;
-        res.json({ success: true, user: userForSession });
+        req.session.save(err => {
+          if (err) {
+            console.error('❌ Session save error during login:', err);
+            return res.status(500).json({ message: 'Greška servera' });
+          }
+          res.json({ success: true, user: userForSession });
+        });
       } else {
         res
           .status(401)

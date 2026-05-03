@@ -37,31 +37,34 @@ const path = require('path');
 // Pokušaj da učitaš Redis pakete
 let redisClient = null;
 let RedisStore = null;
+const useRedisSessions = process.env.USE_REDIS_SESSIONS === 'true';
 try {
-  const redis = require('redis');
-  RedisStore = require('connect-redis').default;
+  if (useRedisSessions) {
+    const redis = require('redis');
+    RedisStore = require('connect-redis').default;
 
-  redisClient = redis.createClient({
-    socket: {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-    },
-  });
+    redisClient = redis.createClient({
+      socket: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379,
+      },
+    });
 
-  redisClient.on('error', err => {
-    console.error('Redis Client Error', err);
-    redisClient = null; // Fallback na MemoryStore
-  });
+    redisClient.on('error', err => {
+      console.error('Redis Client Error', err);
+      redisClient = null; // Fallback na MemoryStore
+    });
 
-  redisClient.on('connect', () => {
-    console.log('✅ Connected to Redis');
-  });
+    redisClient.on('connect', () => {
+      console.log('✅ Connected to Redis');
+    });
 
-  // Konektuj se na Redis
-  /*redisClient.connect().catch(err => {
-    console.error('Failed to connect to Redis:', err);
-    redisClient = null;
-  });*/
+    // Konektuj se na Redis
+    redisClient.connect().catch(err => {
+      console.error('Failed to connect to Redis:', err);
+      redisClient = null;
+    });
+  }
 } catch (error) {
   console.warn('⚠️  Redis packages not found, using MemoryStore');
   redisClient = null;
@@ -149,6 +152,7 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'vanesa3007-change-in-production',
   resave: false,
   saveUninitialized: false,
+  proxy: process.env.NODE_ENV === 'production',
   name: 'summa.sid', // Custom session name
   store:
     redisClient && RedisStore
@@ -158,7 +162,7 @@ const sessionConfig = {
         })
       : undefined,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production' ? 'auto' : false,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 sata
     sameSite: 'lax', // CSRF protection
@@ -170,6 +174,9 @@ if (sessionConfig.store) {
 } else {
   console.warn('⚠️  Using MemoryStore for sessions');
   console.warn('   Sessions will be lost on server restart.');
+  if (useRedisSessions) {
+    console.warn('   Set USE_REDIS_SESSIONS=true only when Redis is reachable.');
+  }
 }
 
 app.use(session(sessionConfig));
