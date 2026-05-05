@@ -6,6 +6,11 @@ class Navigation {
     this.darkModeInitialized = false;
     this.themeToggleHandler = null;
     this.initialized = false;
+    this.navbarSearchState = {
+      query: '',
+      firme: [],
+      radnici: [],
+    };
   }
 
   // Generiše HTML za navigaciju
@@ -15,7 +20,8 @@ class Navigation {
     const urlParams = new URLSearchParams(window.location.search);
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
-    const isPrijaviradnika = host.includes('prijaviradnika.com') || domain === 'prijaviradnika';
+    const isPrijaviradnika =
+      host.includes('prijaviradnika.com') || domain === 'prijaviradnika';
 
     // Domain detection completed
 
@@ -33,15 +39,18 @@ class Navigation {
     }
 
     // Domain-specific paths
-    const dashboardPath = (isMojradnik || isPrijaviradnika)
-      ? '/mojradnik/dashboard.html'
-      : '/shared/dashboard.html';
-    const firmePath = (isMojradnik || isPrijaviradnika)
-      ? 'javascript:void(0)' // JavaScript funkcija za mojradnik i prijaviradnika
-      : '/shared/firme.html';
-    const pdvPath = (isMojradnik || isPrijaviradnika)
-      ? '/mojradnik/dashboard.html'
-      : '/shared/pdv-pregled.html';
+    const dashboardPath =
+      isMojradnik || isPrijaviradnika
+        ? '/mojradnik/dashboard.html'
+        : '/shared/dashboard.html';
+    const firmePath =
+      isMojradnik || isPrijaviradnika
+        ? 'javascript:void(0)' // JavaScript funkcija za mojradnik i prijaviradnika
+        : '/shared/firme.html';
+    const pdvPath =
+      isMojradnik || isPrijaviradnika
+        ? '/mojradnik/dashboard.html'
+        : '/shared/pdv-pregled.html';
 
     // Različita navigacija za različne tipove korisnika i domene
     const zavrsniRacuniItem =
@@ -104,10 +113,12 @@ class Navigation {
               <!-- Firme/Firma -->
               <li class="nav-item">
                 <a class="nav-link" href="${firmePath}" ${
-      (isMojradnik || isPrijaviradnika) ? 'onclick="navigateToFirmaDetalji(); return false;"' : ''
-    }>
+                  isMojradnik || isPrijaviradnika
+                    ? 'onclick="navigateToFirmaDetalji(); return false;"'
+                    : ''
+                }>
                   <i class="fas fa-building me-1"></i>${
-                    (isMojradnik || isPrijaviradnika) ? 'Firma' : 'Firme'
+                    isMojradnik || isPrijaviradnika ? 'Firma' : 'Firme'
                   }
                 </a>
               </li>
@@ -387,6 +398,40 @@ class Navigation {
       if (e.key === 'Escape') {
         searchResults.style.display = 'none';
         searchInput.blur();
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+
+        const query = searchInput.value.trim();
+        const firstFirma = this.navbarSearchState.firme[0];
+        const firstRadnik = this.navbarSearchState.radnici[0];
+
+        if (firstFirma) {
+          window.navigateToNavbarResult(
+            'firma',
+            firstFirma.id,
+            firstFirma.naziv
+          );
+          return;
+        }
+
+        if (firstRadnik) {
+          const fullName =
+            `${firstRadnik.ime || ''} ${firstRadnik.prezime || ''}`.trim();
+          window.navigateToNavbarResult(
+            'radnik',
+            firstRadnik.id,
+            fullName,
+            firstRadnik.firma_id || ''
+          );
+          return;
+        }
+
+        if (query.length >= 2) {
+          window.showAllNavbarResults(query);
+        }
       }
     });
   }
@@ -433,6 +478,12 @@ class Navigation {
 
     if (!searchResults) return;
 
+    this.navbarSearchState = {
+      query,
+      firme: Array.isArray(firme) ? firme : [],
+      radnici: Array.isArray(radnici) ? radnici : [],
+    };
+
     let html = '';
     const totalResults = firme.length + radnici.length;
 
@@ -450,8 +501,8 @@ class Navigation {
             <div class="navbar-search-category">Firma</div>
             <div class="navbar-search-title">${firma.naziv}</div>
             <div class="navbar-search-subtitle">${firma.grad || 'N/A'} • ${
-            firma.aktivna ? 'Aktivna' : 'Neaktivna'
-          }</div>
+              firma.aktivna ? 'Aktivna' : 'Neaktivna'
+            }</div>
           </div>`;
         });
       }
@@ -464,11 +515,11 @@ class Navigation {
           }, '${radnik.ime} ${radnik.prezime}', ${radnik.firma_id || ''})">
             <div class="navbar-search-category">Radnik</div>
             <div class="navbar-search-title">${radnik.ime} ${
-            radnik.prezime
-          }</div>
+              radnik.prezime
+            }</div>
             <div class="navbar-search-subtitle">${radnik.pozicija || 'N/A'} • ${
-            radnik.firma || 'N/A'
-          }</div>
+              radnik.firma || 'N/A'
+            }</div>
           </div>`;
         });
       }

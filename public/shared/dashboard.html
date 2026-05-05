@@ -1,11 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Test | Summa Summarum</title>
 
-    <link rel="icon" href="/shared/images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -433,14 +437,69 @@
         border: 1px solid var(--agency-border);
         background: var(--agency-panel);
         color: var(--agency-text);
-        padding-left: 42px;
+        padding-left: 52px;
       }
 
       .search-box i {
         position: absolute;
         top: 50%;
-        left: 15px;
+        left: 26px;
         transform: translateY(-50%);
+        color: var(--agency-muted);
+        pointer-events: none;
+      }
+
+      .search-results {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: var(--agency-panel);
+        border: 1px solid var(--agency-border);
+        border-radius: var(--agency-radius);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+        max-height: 340px;
+        overflow-y: auto;
+        display: none;
+      }
+
+      .search-result-item {
+        display: block;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--agency-border);
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .search-result-item:last-child {
+        border-bottom: 0;
+      }
+
+      .search-result-item:hover {
+        background: var(--agency-primary-soft);
+        color: inherit;
+      }
+
+      .search-result-type {
+        font-size: 0.72rem;
+        color: var(--agency-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .search-result-title {
+        font-weight: 700;
+        margin: 2px 0;
+      }
+
+      .search-result-subtitle {
+        color: var(--agency-muted);
+        font-size: 0.84rem;
+      }
+
+      .search-empty {
+        padding: 12px;
         color: var(--agency-muted);
       }
 
@@ -492,6 +551,11 @@
             type="search"
             placeholder="Pretražite klijente, radnike i obaveze..."
           />
+          <div
+            id="dashboardSearchResults"
+            class="search-results"
+            aria-live="polite"
+          ></div>
         </div>
 
         <section class="ops-strip" aria-label="Ključni pokazatelji">
@@ -501,7 +565,9 @@
               <div class="value" id="urgentCount">0</div>
               <div class="hint">Rok danas ili kašnjenje</div>
             </div>
-            <div class="ops-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="ops-icon">
+              <i class="fas fa-triangle-exclamation"></i>
+            </div>
           </article>
 
           <article class="ops-card warning">
@@ -540,7 +606,10 @@
                   <h2>PDV workflow</h2>
                   <small>Pregled obaveza po statusu za trenutni period</small>
                 </div>
-                <a class="btn btn-sm btn-outline-primary" href="/shared/pdv-pregled.html">
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  href="/shared/pdv-pregled.html"
+                >
                   Otvori kalendar
                 </a>
               </div>
@@ -587,7 +656,10 @@
                   <h2>Firme koje zahtijevaju pažnju</h2>
                   <small>Najvažnije stavke sortirane po hitnosti</small>
                 </div>
-                <a class="btn btn-sm btn-outline-secondary" href="/shared/firme.html">
+                <a
+                  class="btn btn-sm btn-outline-secondary"
+                  href="/shared/firme.html"
+                >
                   Sve firme
                 </a>
               </div>
@@ -603,7 +675,10 @@
                   <h2>Otvoreni zadaci</h2>
                   <small>Napomene koje čekaju reakciju po firmama</small>
                 </div>
-                <a class="btn btn-sm btn-outline-secondary" href="/shared/firme.html">
+                <a
+                  class="btn btn-sm btn-outline-secondary"
+                  href="/shared/firme.html"
+                >
                   Sve firme
                 </a>
               </div>
@@ -651,7 +726,9 @@
               <div class="panel-heading">
                 <h3>PDV kalkulator</h3>
                 <div class="calc-switch" aria-label="PDV režim">
-                  <button class="active" type="button" data-pdv-mode="add">+ PDV</button>
+                  <button class="active" type="button" data-pdv-mode="add">
+                    + PDV
+                  </button>
                   <button type="button" data-pdv-mode="subtract">- PDV</button>
                 </div>
               </div>
@@ -670,7 +747,9 @@
                   />
                 </div>
                 <div>
-                  <label class="form-label small text-muted" for="pdvRate">Stopa</label>
+                  <label class="form-label small text-muted" for="pdvRate"
+                    >Stopa</label
+                  >
                   <select class="form-select" id="pdvRate">
                     <option value="21">21%</option>
                     <option value="15">15%</option>
@@ -695,7 +774,9 @@
               <div class="panel-heading">
                 <h3>Obračun zakupa</h3>
                 <div class="calc-switch" aria-label="Zakup režim">
-                  <button class="active" type="button" data-rent-mode="net">Neto</button>
+                  <button class="active" type="button" data-rent-mode="net">
+                    Neto
+                  </button>
                   <button type="button" data-rent-mode="gross">Bruto</button>
                 </div>
               </div>
@@ -714,7 +795,9 @@
                   />
                 </div>
                 <div>
-                  <label class="form-label small text-muted" for="rentCity">Grad</label>
+                  <label class="form-label small text-muted" for="rentCity"
+                    >Grad</label
+                  >
                   <select class="form-select" id="rentCity">
                     <option value="podgorica-cetinje">Podgorica/Cetinje</option>
                     <option value="budva">Budva</option>
@@ -757,8 +840,15 @@
 
             <section class="side-panel admin-panel" id="adminPanel">
               <div class="panel-heading">
-                <h3><i class="fas fa-crown text-warning me-2"></i>Admin Panel</h3>
-                <button class="btn btn-sm btn-warning fw-bold" type="button" id="adminToggleBtn" onclick="toggleAdminPanel()">
+                <h3>
+                  <i class="fas fa-crown text-warning me-2"></i>Admin Panel
+                </h3>
+                <button
+                  class="btn btn-sm btn-warning fw-bold"
+                  type="button"
+                  id="adminToggleBtn"
+                  onclick="toggleAdminPanel()"
+                >
                   <i class="fas fa-eye me-1"></i>Prikaži
                 </button>
               </div>
@@ -785,7 +875,10 @@
                   <a class="admin-action payments" href="/admin-uplate.html">
                     <i class="fas fa-euro-sign"></i>Upravljanje Uplatama
                   </a>
-                  <a class="admin-action mail" href="/admin-dodavanje-mailova.html">
+                  <a
+                    class="admin-action mail"
+                    href="/admin-dodavanje-mailova.html"
+                  >
                     <i class="fas fa-envelope-open-text"></i>Dodavanje Mailova
                   </a>
                   <a class="admin-action users" href="/admin-users.html">
@@ -819,9 +912,135 @@
         loadPdv();
         loadNotifications();
         loadOpenTasks();
+        setupDashboardSearch();
         setupPdvCalculator();
         setupRentCalculator();
       });
+
+      function setupDashboardSearch() {
+        const input = document.getElementById('agencySearch');
+        const resultsBox = document.getElementById('dashboardSearchResults');
+        if (!input || !resultsBox) return;
+
+        let debounceTimer = null;
+        let currentResults = [];
+
+        const hideResults = () => {
+          resultsBox.style.display = 'none';
+        };
+
+        const showResults = () => {
+          resultsBox.style.display = 'block';
+        };
+
+        const buildResultUrl = result => {
+          if (result.type === 'firma') {
+            return `/shared/firma-detalji.html?id=${encodeURIComponent(result.id)}`;
+          }
+          if (result.type === 'radnik') {
+            if (result.firmaId) {
+              return `/shared/firma-detalji.html?id=${encodeURIComponent(result.firmaId)}&radnikId=${encodeURIComponent(result.id)}#radnici`;
+            }
+            return '/shared/firme.html';
+          }
+          return '/shared/firme.html';
+        };
+
+        const renderResults = (results, query) => {
+          currentResults = results;
+
+          if (!results.length) {
+            resultsBox.innerHTML = `<div class="search-empty">Nema rezultata za "${escapeHtml(query)}".</div>`;
+            showResults();
+            return;
+          }
+
+          resultsBox.innerHTML = results
+            .slice(0, 10)
+            .map(result => {
+              const href = buildResultUrl(result);
+              const typeLabel = result.category || result.type || 'Rezultat';
+              const title = result.title || 'Bez naziva';
+              const subtitle = result.subtitle || '';
+              return `
+                <a class="search-result-item" href="${escapeHtml(href)}">
+                  <div class="search-result-type">${escapeHtml(typeLabel)}</div>
+                  <div class="search-result-title">${escapeHtml(title)}</div>
+                  <div class="search-result-subtitle">${escapeHtml(subtitle)}</div>
+                </a>
+              `;
+            })
+            .join('');
+          showResults();
+        };
+
+        const search = async query => {
+          if (query.length < 2) {
+            currentResults = [];
+            hideResults();
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              `/api/search?q=${encodeURIComponent(query)}`,
+              { credentials: 'include' }
+            );
+
+            if (!response.ok) {
+              throw new Error('Search API nije dostupan');
+            }
+
+            const data = await response.json();
+            const results = Array.isArray(data.results) ? data.results : [];
+            renderResults(results, query);
+          } catch (error) {
+            console.error('Greška pri pretrazi:', error);
+            resultsBox.innerHTML =
+              '<div class="search-empty">Greška pri pretrazi. Pokušajte ponovo.</div>';
+            showResults();
+          }
+        };
+
+        input.addEventListener('input', event => {
+          const query = event.target.value.trim();
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => search(query), 220);
+        });
+
+        input.addEventListener('focus', () => {
+          if (resultsBox.innerHTML.trim()) {
+            showResults();
+          }
+        });
+
+        input.addEventListener('keydown', event => {
+          if (event.key === 'Escape') {
+            hideResults();
+            return;
+          }
+
+          if (event.key === 'Enter') {
+            const query = input.value.trim();
+            if (currentResults.length > 0) {
+              event.preventDefault();
+              window.location.href = buildResultUrl(currentResults[0]);
+              return;
+            }
+
+            if (query.length >= 2) {
+              event.preventDefault();
+              window.location.href = `/shared/firme.html?search=${encodeURIComponent(query)}`;
+            }
+          }
+        });
+
+        document.addEventListener('click', event => {
+          if (!resultsBox.contains(event.target) && event.target !== input) {
+            hideResults();
+          }
+        });
+      }
 
       function setCurrentDate() {
         const date = new Date().toLocaleDateString('sr-Latn-RS', {
@@ -861,8 +1080,14 @@
           const data = await response.json();
           if (!data.success) return;
 
-          setText('adminTotalPayments', `${data.statistics.totalAmount || '0.00'}€`);
-          setText('adminMonthlyPayments', `${data.statistics.monthlyAmount || '0.00'}€`);
+          setText(
+            'adminTotalPayments',
+            `${data.statistics.totalAmount || '0.00'}€`
+          );
+          setText(
+            'adminMonthlyPayments',
+            `${data.statistics.monthlyAmount || '0.00'}€`
+          );
           setText('adminPaymentCount', data.statistics.totalCount || 0);
           setText('adminPendingPayments', data.statistics.pendingCount || 0);
         } catch (error) {
@@ -946,7 +1171,10 @@
           renderNotifications(cachedNotifications.notifications);
           updateUrgentCount(cachedNotifications.notifications);
 
-          if (Date.now() - cachedNotifications.createdAt < notificationsCacheTtl) {
+          if (
+            Date.now() - cachedNotifications.createdAt <
+            notificationsCacheTtl
+          ) {
             return;
           }
         }
@@ -1044,9 +1272,8 @@
           });
           if (!response.ok) throw new Error('Zadaci API nije dostupan');
           const data = await response.json();
-          const tasks = data.success && Array.isArray(data.zadaci)
-            ? data.zadaci
-            : [];
+          const tasks =
+            data.success && Array.isArray(data.zadaci) ? data.zadaci : [];
 
           renderOpenTasks(tasks);
         } catch (error) {
@@ -1095,7 +1322,8 @@
 
       function normalizeAction(notification) {
         if (notification.action) return notification.action;
-        if (notification.firma_id) return `/firma-detalji.html?id=${notification.firma_id}`;
+        if (notification.firma_id)
+          return `/firma-detalji.html?id=${notification.firma_id}`;
         return '/shared/firme.html';
       }
 
@@ -1104,7 +1332,8 @@
         const urgentFromNotifications = list.filter(
           item => item.type === 'urgent'
         ).length;
-        const latePdv = Number(document.getElementById('latePdvCount').textContent) || 0;
+        const latePdv =
+          Number(document.getElementById('latePdvCount').textContent) || 0;
         setText('urgentCount', urgentFromNotifications + latePdv);
       }
 
@@ -1137,12 +1366,17 @@
             pdvMode = button.dataset.pdvMode;
             document
               .querySelectorAll('[data-pdv-mode]')
-              .forEach(item => item.classList.toggle('active', item === button));
+              .forEach(item =>
+                item.classList.toggle('active', item === button)
+              );
             setText(
               'pdvAmountLabel',
               pdvMode === 'subtract' ? 'Iznos sa PDV-a' : 'Iznos bez PDV-a'
             );
-            setText('pdvTotalLabel', pdvMode === 'subtract' ? 'Osnovica bez PDV' : 'Ukupno sa PDV');
+            setText(
+              'pdvTotalLabel',
+              pdvMode === 'subtract' ? 'Osnovica bez PDV' : 'Ukupno sa PDV'
+            );
             calculate();
           });
         });
@@ -1192,8 +1426,13 @@
             rentMode = button.dataset.rentMode;
             document
               .querySelectorAll('[data-rent-mode]')
-              .forEach(item => item.classList.toggle('active', item === button));
-            setText('rentAmountLabel', rentMode === 'gross' ? 'Bruto iznos' : 'Neto iznos');
+              .forEach(item =>
+                item.classList.toggle('active', item === button)
+              );
+            setText(
+              'rentAmountLabel',
+              rentMode === 'gross' ? 'Bruto iznos' : 'Neto iznos'
+            );
             calculate();
           });
         });

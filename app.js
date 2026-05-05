@@ -76,9 +76,7 @@ const {
   globalErrorHandler,
   handleNotFound,
 } = require('./src/middleware/errorHandler');
-const {
-  smartRateLimiter,
-} = require('./src/middleware/rateLimiting');
+const { smartRateLimiter } = require('./src/middleware/rateLimiting');
 
 // parsiranje JSON i form-data
 const allowedOrigins = [
@@ -175,7 +173,9 @@ if (sessionConfig.store) {
   console.warn('⚠️  Using MemoryStore for sessions');
   console.warn('   Sessions will be lost on server restart.');
   if (useRedisSessions) {
-    console.warn('   Set USE_REDIS_SESSIONS=true only when Redis is reachable.');
+    console.warn(
+      '   Set USE_REDIS_SESSIONS=true only when Redis is reachable.'
+    );
   }
 }
 
@@ -400,16 +400,20 @@ app.get('/api/firme/id/:id', authMiddleware, async (req, res) => {
     const firmaId = req.params.id;
     const userId = req.session.user.id;
     const isAdmin = req.session.user.role === 'admin';
-    
-    console.log('[app.js /api/firme/id/:id] ID:', firmaId, 'User:', userId, 'IsAdmin:', isAdmin);
+
+    console.log(
+      '[app.js /api/firme/id/:id] ID:',
+      firmaId,
+      'User:',
+      userId,
+      'IsAdmin:',
+      isAdmin
+    );
 
     let firma;
     if (isAdmin) {
       // Admin može vidjeti bilo koju firmu
-      firma = await executeQuery(
-        'SELECT * FROM firme WHERE id = ?',
-        [firmaId]
-      );
+      firma = await executeQuery('SELECT * FROM firme WHERE id = ?', [firmaId]);
     } else {
       // Obični korisnik samo svoje firme
       firma = await executeQuery(
@@ -654,7 +658,11 @@ app.get('/api/dashboard-stats', authMiddleware, async (req, res) => {
     const monthStart = `${now.getFullYear()}-${String(
       now.getMonth() + 1
     ).padStart(2, '0')}-01`;
-    const nextMonthStartDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const nextMonthStartDate = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1
+    );
     const nextMonthStart = `${nextMonthStartDate.getFullYear()}-${String(
       nextMonthStartDate.getMonth() + 1
     ).padStart(2, '0')}-01`;

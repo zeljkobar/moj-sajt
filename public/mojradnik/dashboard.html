@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <!--
@@ -308,452 +308,464 @@
 
     <main class="agency-shell">
       <div class="container-fluid px-3 px-lg-4">
-      <!-- Informacije o firmi -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card">
-            <div
-              class="card-header d-flex justify-content-between align-items-center py-2"
-            >
-              <h6 class="mb-0">
-                <i class="fas fa-building text-primary me-2"></i>
-                Moja firma
-              </h6>
-              <button class="btn btn-primary btn-sm" id="viewFirmaDetails">
-                <i class="fas fa-eye me-1"></i>Detalji
-              </button>
+        <!-- Informacije o firmi -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div
+                class="card-header d-flex justify-content-between align-items-center py-2"
+              >
+                <h6 class="mb-0">
+                  <i class="fas fa-building text-primary me-2"></i>
+                  Moja firma
+                </h6>
+                <button class="btn btn-primary btn-sm" id="viewFirmaDetails">
+                  <i class="fas fa-eye me-1"></i>Detalji
+                </button>
+              </div>
+              <div class="card-body py-3">
+                <!-- Loading placeholder -->
+                <div class="firma-loading text-center py-3">
+                  <div
+                    class="spinner-border spinner-border-sm text-primary"
+                    role="status"
+                  >
+                    <span class="visually-hidden">Učitavanje...</span>
+                  </div>
+                  <div class="mt-2 text-muted">
+                    Učitavanje podataka firme...
+                  </div>
+                </div>
+
+                <!-- Podaci o firmi će se učitati ovde -->
+                <div id="firmaDetails" style="display: none">
+                  <!-- Kompaktni prikaz u 2 reda -->
+                  <div class="row g-2">
+                    <!-- Prvi red - osnovi podaci -->
+                    <div class="col-md-3">
+                      <h6 class="text-muted mb-1 small">Naziv</h6>
+                      <p class="mb-2 fw-bold small" id="firmaNaziv">-</p>
+                    </div>
+                    <div class="col-md-2">
+                      <h6 class="text-muted mb-1 small">PIB</h6>
+                      <p class="mb-2 small" id="firmaPib">-</p>
+                    </div>
+                    <div class="col-md-2">
+                      <h6 class="text-muted mb-1 small">PDV Broj</h6>
+                      <p class="mb-2 small" id="firmaPdvBroj">-</p>
+                    </div>
+                    <div class="col-md-2">
+                      <h6 class="text-muted mb-1 small">Status</h6>
+                      <span class="badge badge-sm" id="firmaStatus">-</span>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted mb-1 small">Direktor</h6>
+                      <p class="mb-2 fw-bold small" id="direktorImePrezime">
+                        -
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Drugi red - kontakt i lokacija -->
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <h6 class="text-muted mb-1 small">Adresa</h6>
+                      <p class="mb-2 small" id="firmaAdresa">-</p>
+                    </div>
+                    <div class="col-md-2">
+                      <h6 class="text-muted mb-1 small">Grad</h6>
+                      <p class="mb-2 small" id="firmaGrad">-</p>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted mb-1 small">Telefon</h6>
+                      <p class="mb-2 small" id="firmaTelefon">-</p>
+                    </div>
+                    <div class="col-md-3">
+                      <h6 class="text-muted mb-1 small">Email</h6>
+                      <p class="mb-2 small" id="firmaEmail">-</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-body py-3">
+          </div>
+        </div>
+
+        <section class="ops-strip" aria-label="Ključni pokazatelji">
+          <article class="ops-card warning">
+            <div>
+              <div class="label">Obaveštenja</div>
+              <div class="value" id="kpiAlerts">0</div>
+              <div class="hint">Stavke koje čekaju akciju</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-bell"></i></div>
+          </article>
+
+          <article class="ops-card success">
+            <div>
+              <div class="label">Aktivne pozajmice</div>
+              <div class="value" id="kpiLoans">0</div>
+              <div class="hint">Trenutno otvorene pozajmice</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-coins"></i></div>
+          </article>
+
+          <article class="ops-card">
+            <div>
+              <div class="label">Preostalo zaduženje</div>
+              <div class="value" id="kpiLoanAmount">0€</div>
+              <div class="hint">Ukupan iznos aktivnih pozajmica</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-wallet"></i></div>
+          </article>
+
+          <article class="ops-card danger">
+            <div>
+              <div class="label">Aktivni radnici</div>
+              <div class="value" id="kpiWorkers">0</div>
+              <div class="hint">Broj radnika u firmi</div>
+            </div>
+            <div class="ops-icon"><i class="fas fa-users"></i></div>
+          </article>
+        </section>
+
+        <div class="row">
+          <!-- Leva kolona -->
+          <div class="col-lg-8">
+            <!-- Obaveštenja o radnicima -->
+            <div class="quick-action-card">
+              <h5 class="mb-3">
+                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                Obaveštenja
+              </h5>
+
               <!-- Loading placeholder -->
-              <div class="firma-loading text-center py-3">
+              <div class="notifications-loading text-center py-3">
                 <div
                   class="spinner-border spinner-border-sm text-primary"
                   role="status"
                 >
                   <span class="visually-hidden">Učitavanje...</span>
                 </div>
-                <div class="mt-2 text-muted">Učitavanje podataka firme...</div>
+                <div class="mt-2 text-muted">Učitavanje obaveštenja...</div>
               </div>
 
-              <!-- Podaci o firmi će se učitati ovde -->
-              <div id="firmaDetails" style="display: none">
-                <!-- Kompaktni prikaz u 2 reda -->
-                <div class="row g-2">
-                  <!-- Prvi red - osnovi podaci -->
-                  <div class="col-md-3">
-                    <h6 class="text-muted mb-1 small">Naziv</h6>
-                    <p class="mb-2 fw-bold small" id="firmaNaziv">-</p>
-                  </div>
-                  <div class="col-md-2">
-                    <h6 class="text-muted mb-1 small">PIB</h6>
-                    <p class="mb-2 small" id="firmaPib">-</p>
-                  </div>
-                  <div class="col-md-2">
-                    <h6 class="text-muted mb-1 small">PDV Broj</h6>
-                    <p class="mb-2 small" id="firmaPdvBroj">-</p>
-                  </div>
-                  <div class="col-md-2">
-                    <h6 class="text-muted mb-1 small">Status</h6>
-                    <span class="badge badge-sm" id="firmaStatus">-</span>
-                  </div>
-                  <div class="col-md-3">
-                    <h6 class="text-muted mb-1 small">Direktor</h6>
-                    <p class="mb-2 fw-bold small" id="direktorImePrezime">-</p>
-                  </div>
-                </div>
-
-                <!-- Drugi red - kontakt i lokacija -->
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <h6 class="text-muted mb-1 small">Adresa</h6>
-                    <p class="mb-2 small" id="firmaAdresa">-</p>
-                  </div>
-                  <div class="col-md-2">
-                    <h6 class="text-muted mb-1 small">Grad</h6>
-                    <p class="mb-2 small" id="firmaGrad">-</p>
-                  </div>
-                  <div class="col-md-3">
-                    <h6 class="text-muted mb-1 small">Telefon</h6>
-                    <p class="mb-2 small" id="firmaTelefon">-</p>
-                  </div>
-                  <div class="col-md-3">
-                    <h6 class="text-muted mb-1 small">Email</h6>
-                    <p class="mb-2 small" id="firmaEmail">-</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <section class="ops-strip" aria-label="Ključni pokazatelji">
-        <article class="ops-card warning">
-          <div>
-            <div class="label">Obaveštenja</div>
-            <div class="value" id="kpiAlerts">0</div>
-            <div class="hint">Stavke koje čekaju akciju</div>
-          </div>
-          <div class="ops-icon"><i class="fas fa-bell"></i></div>
-        </article>
-
-        <article class="ops-card success">
-          <div>
-            <div class="label">Aktivne pozajmice</div>
-            <div class="value" id="kpiLoans">0</div>
-            <div class="hint">Trenutno otvorene pozajmice</div>
-          </div>
-          <div class="ops-icon"><i class="fas fa-coins"></i></div>
-        </article>
-
-        <article class="ops-card">
-          <div>
-            <div class="label">Preostalo zaduženje</div>
-            <div class="value" id="kpiLoanAmount">0€</div>
-            <div class="hint">Ukupan iznos aktivnih pozajmica</div>
-          </div>
-          <div class="ops-icon"><i class="fas fa-wallet"></i></div>
-        </article>
-
-        <article class="ops-card danger">
-          <div>
-            <div class="label">Aktivni radnici</div>
-            <div class="value" id="kpiWorkers">0</div>
-            <div class="hint">Broj radnika u firmi</div>
-          </div>
-          <div class="ops-icon"><i class="fas fa-users"></i></div>
-        </article>
-      </section>
-
-      <div class="row">
-        <!-- Leva kolona -->
-        <div class="col-lg-8">
-          <!-- Obaveštenja o radnicima -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-              Obaveštenja
-            </h5>
-
-            <!-- Loading placeholder -->
-            <div class="notifications-loading text-center py-3">
-              <div
-                class="spinner-border spinner-border-sm text-primary"
-                role="status"
-              >
-                <span class="visually-hidden">Učitavanje...</span>
-              </div>
-              <div class="mt-2 text-muted">Učitavanje obaveštenja...</div>
+              <!-- Obaveštenja će se učitati ovde dinamički -->
             </div>
 
-            <!-- Obaveštenja će se učitati ovde dinamički -->
-          </div>
-
-          <!-- Aktivne pozajmice -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-coins text-warning me-2"></i>
-              Aktivne pozajmice
-            </h5>
-
-            <!-- Loading placeholder -->
-            <div class="pozajmice-loading text-center py-3">
-              <div
-                class="spinner-border spinner-border-sm text-warning"
-                role="status"
-              >
-                <span class="visually-hidden">Učitavanje...</span>
-              </div>
-              <div class="mt-2 text-muted">Učitavanje pozajmica...</div>
-            </div>
-
-            <!-- Pozajmice će se učitati ovde dinamički -->
-
-            <div class="d-grid">
-              <button class="btn btn-outline-warning" id="viewAllPozajmice">
-                <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Desna kolona -->
-        <div class="col-lg-4">
-          <!-- Brze akcije -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-bolt text-primary me-2"></i>
-              Brze akcije
-            </h5>
-
-            <div class="quick-grid">
-              <a class="quick-tile" href="#" id="quickFirmaLink">
-                <i class="fas fa-building"></i>
-                <strong>Firma</strong>
-              </a>
-
-              <button
-                type="button"
-                class="quick-tile text-start"
-                onclick="openRadnikModal({ 
-                  onSuccess: function(result) { 
-                    console.log('Radnik uspešno dodan:', result); 
-                  } 
-                })"
-              >
-                <i class="fas fa-user-plus"></i>
-                <strong>Dodaj radnika</strong>
-              </button>
-
-              <a class="quick-tile" href="#" id="createPozajmica">
-                <i class="fas fa-money-bill-wave"></i>
-                <strong>Kreiraj pozajmicu</strong>
-              </a>
-
-              <a href="/shared/obracun-zaliha.html" class="quick-tile">
-                <i class="fas fa-calculator"></i>
-                <strong>Obračun zaliha</strong>
-              </a>
-
-              <a href="/shared/obracun-preduzetnika.html" class="quick-tile">
-                <i class="fas fa-chart-line"></i>
-                <strong>Obračun preduzetnika</strong>
-              </a>
-            </div>
-          </div>
-
-          <!-- Oglasi za Poslove -->
-          <div class="quick-action-card">
-            <h5 class="mb-3">
-              <i class="fas fa-bullhorn text-success me-2"></i>
-              Oglasi za Poslove
-            </h5>
-
-            <a
-              href="/shared/objavi-oglas.html"
-              class="btn btn-success quick-action-btn"
-            >
-              <i class="fas fa-plus me-2"></i>Objavi novi oglas
-            </a>
-
-            <button
-              onclick="window.open('/mojradnik/oglasi-poslovi.html', '_blank')"
-              class="btn btn-outline-primary quick-action-btn"
-            >
-              <i class="fas fa-eye me-2"></i>Pogledaj sve oglase
-            </button>
-
-            <button
-              id="mojiOglasiBtn"
-              class="btn btn-outline-secondary quick-action-btn"
-            >
-              <i class="fas fa-list me-2"></i>Moji oglasi (<span
-                id="oglasiCount"
-                >...</span
-              >)
-            </button>
-          </div>
-
-          <!-- PDV Kalkulator -->
-          <div class="quick-action-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-calculator text-success me-2"></i>
-                PDV Kalkulator
+            <!-- Aktivne pozajmice -->
+            <div class="quick-action-card">
+              <h5 class="mb-3">
+                <i class="fas fa-coins text-warning me-2"></i>
+                Aktivne pozajmice
               </h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="pdv-mode"
-                  id="add-pdv"
-                  value="add"
-                  checked
-                />
-                <label class="btn btn-outline-success" for="add-pdv"
-                  >+ PDV</label
+
+              <!-- Loading placeholder -->
+              <div class="pozajmice-loading text-center py-3">
+                <div
+                  class="spinner-border spinner-border-sm text-warning"
+                  role="status"
                 >
-
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="pdv-mode"
-                  id="remove-pdv"
-                  value="remove"
-                />
-                <label class="btn btn-outline-warning" for="remove-pdv"
-                  >- PDV</label
-                >
-              </div>
-            </div>
-
-            <div class="row mb-2">
-              <div class="col-8">
-                <label class="form-label small text-muted" id="amount-label"
-                  >Iznos bez PDV-a</label
-                >
-                <div class="input-group input-group-sm">
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="pdv-amount"
-                    placeholder="0.00"
-                    step="0.01"
-                  />
-                  <span class="input-group-text">€</span>
+                  <span class="visually-hidden">Učitavanje...</span>
                 </div>
+                <div class="mt-2 text-muted">Učitavanje pozajmica...</div>
               </div>
-              <div class="col-4">
-                <label class="form-label small text-muted">PDV</label>
-                <select class="form-select form-select-sm" id="pdv-rate">
-                  <option value="21">21%</option>
-                  <option value="15">15%</option>
-                  <option value="7">7%</option>
-                  <option value="0">0%</option>
-                </select>
-              </div>
-            </div>
 
-            <div class="row mb-2">
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center">
-                  <div class="small text-muted" id="result-label-1">
-                    PDV iznos
-                  </div>
-                  <div class="h6 text-success mb-0" id="pdv-tax-amount">
-                    0.00 €
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="bg-primary bg-opacity-10 p-2 rounded text-center">
-                  <div class="small text-muted" id="result-label-2">
-                    Ukupno sa PDV
-                  </div>
-                  <div class="h6 text-primary mb-0" id="pdv-total-amount">
-                    0.00 €
-                  </div>
-                </div>
-              </div>
-            </div>
+              <!-- Pozajmice će se učitati ovde dinamički -->
 
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-outline-secondary btn-sm flex-fill"
-                onclick="clearPdvCalculator()"
-              >
-                <i class="fas fa-eraser me-1"></i>Obriši
-              </button>
-              <button
-                class="btn btn-primary btn-sm flex-fill"
-                onclick="copyPdvResult()"
-              >
-                <i class="fas fa-copy me-1"></i>Kopiraj
-              </button>
+              <div class="d-grid">
+                <button class="btn btn-outline-warning" id="viewAllPozajmice">
+                  <i class="fas fa-eye me-2"></i>Pogledaj sve pozajmice
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Obračun zakupa -->
-          <div class="quick-action-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0">
-                <i class="fas fa-home text-info me-2"></i>
-                Obračun zakupa
+          <!-- Desna kolona -->
+          <div class="col-lg-4">
+            <!-- Brze akcije -->
+            <div class="quick-action-card">
+              <h5 class="mb-3">
+                <i class="fas fa-bolt text-primary me-2"></i>
+                Brze akcije
               </h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="zakup-mode"
-                  id="neto-zakup"
-                  value="neto"
-                  checked
-                />
-                <label class="btn btn-outline-info" for="neto-zakup"
-                  >Neto</label
-                >
 
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="zakup-mode"
-                  id="bruto-zakup"
-                  value="bruto"
-                />
-                <label class="btn btn-outline-warning" for="bruto-zakup"
-                  >Bruto</label
+              <div class="quick-grid">
+                <a class="quick-tile" href="#" id="quickFirmaLink">
+                  <i class="fas fa-building"></i>
+                  <strong>Firma</strong>
+                </a>
+
+                <button
+                  type="button"
+                  class="quick-tile text-start"
+                  onclick="
+                    openRadnikModal({
+                      onSuccess: function (result) {
+                        console.log('Radnik uspešno dodan:', result);
+                      },
+                    })
+                  "
                 >
+                  <i class="fas fa-user-plus"></i>
+                  <strong>Dodaj radnika</strong>
+                </button>
+
+                <a class="quick-tile" href="#" id="createPozajmica">
+                  <i class="fas fa-money-bill-wave"></i>
+                  <strong>Kreiraj pozajmicu</strong>
+                </a>
+
+                <a href="/shared/obracun-zaliha.html" class="quick-tile">
+                  <i class="fas fa-calculator"></i>
+                  <strong>Obračun zaliha</strong>
+                </a>
+
+                <a href="/shared/obracun-preduzetnika.html" class="quick-tile">
+                  <i class="fas fa-chart-line"></i>
+                  <strong>Obračun preduzetnika</strong>
+                </a>
               </div>
             </div>
 
-            <div class="row mb-2">
-              <div class="col-8">
-                <label
-                  class="form-label small text-muted"
-                  id="zakup-amount-label"
-                  >Neto iznos</label
-                >
-                <div class="input-group input-group-sm">
+            <!-- Oglasi za Poslove -->
+            <div class="quick-action-card">
+              <h5 class="mb-3">
+                <i class="fas fa-bullhorn text-success me-2"></i>
+                Oglasi za Poslove
+              </h5>
+
+              <a
+                href="/shared/objavi-oglas.html"
+                class="btn btn-success quick-action-btn"
+              >
+                <i class="fas fa-plus me-2"></i>Objavi novi oglas
+              </a>
+
+              <button
+                onclick="
+                  window.open('/mojradnik/oglasi-poslovi.html', '_blank')
+                "
+                class="btn btn-outline-primary quick-action-btn"
+              >
+                <i class="fas fa-eye me-2"></i>Pogledaj sve oglase
+              </button>
+
+              <button
+                id="mojiOglasiBtn"
+                class="btn btn-outline-secondary quick-action-btn"
+              >
+                <i class="fas fa-list me-2"></i>Moji oglasi (<span
+                  id="oglasiCount"
+                  >...</span
+                >)
+              </button>
+            </div>
+
+            <!-- PDV Kalkulator -->
+            <div class="quick-action-card">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h5 class="mb-0">
+                  <i class="fas fa-calculator text-success me-2"></i>
+                  PDV Kalkulator
+                </h5>
+                <div class="btn-group btn-group-sm" role="group">
                   <input
-                    type="number"
-                    class="form-control"
-                    id="zakup-amount"
-                    placeholder="0.00"
-                    step="0.01"
+                    type="radio"
+                    class="btn-check"
+                    name="pdv-mode"
+                    id="add-pdv"
+                    value="add"
+                    checked
                   />
-                  <span class="input-group-text">€</span>
+                  <label class="btn btn-outline-success" for="add-pdv"
+                    >+ PDV</label
+                  >
+
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="pdv-mode"
+                    id="remove-pdv"
+                    value="remove"
+                  />
+                  <label class="btn btn-outline-warning" for="remove-pdv"
+                    >- PDV</label
+                  >
                 </div>
               </div>
-              <div class="col-4">
-                <label class="form-label small text-muted">Grad</label>
-                <select class="form-select form-select-sm" id="zakup-grad">
-                  <option value="podgorica-cetinje">Podgorica/Cetinje</option>
-                  <option value="budva">Budva</option>
-                  <option value="ostali">Ostali gradovi</option>
-                </select>
+
+              <div class="row mb-2">
+                <div class="col-8">
+                  <label class="form-label small text-muted" id="amount-label"
+                    >Iznos bez PDV-a</label
+                  >
+                  <div class="input-group input-group-sm">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="pdv-amount"
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                    <span class="input-group-text">€</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <label class="form-label small text-muted">PDV</label>
+                  <select class="form-select form-select-sm" id="pdv-rate">
+                    <option value="21">21%</option>
+                    <option value="15">15%</option>
+                    <option value="7">7%</option>
+                    <option value="0">0%</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row mb-2">
+                <div class="col-6">
+                  <div class="bg-light p-2 rounded text-center">
+                    <div class="small text-muted" id="result-label-1">
+                      PDV iznos
+                    </div>
+                    <div class="h6 text-success mb-0" id="pdv-tax-amount">
+                      0.00 €
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="bg-primary bg-opacity-10 p-2 rounded text-center">
+                    <div class="small text-muted" id="result-label-2">
+                      Ukupno sa PDV
+                    </div>
+                    <div class="h6 text-primary mb-0" id="pdv-total-amount">
+                      0.00 €
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-outline-secondary btn-sm flex-fill"
+                  onclick="clearPdvCalculator()"
+                >
+                  <i class="fas fa-eraser me-1"></i>Obriši
+                </button>
+                <button
+                  class="btn btn-primary btn-sm flex-fill"
+                  onclick="copyPdvResult()"
+                >
+                  <i class="fas fa-copy me-1"></i>Kopiraj
+                </button>
               </div>
             </div>
 
-            <div class="row mb-2">
-              <div class="col-6">
-                <div class="bg-light p-2 rounded text-center">
-                  <div class="small text-muted" id="zakup-result-label-1">
-                    Porez
-                  </div>
-                  <div class="h6 text-info mb-0" id="zakup-porez-amount">
-                    0.00 €
-                  </div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="bg-info bg-opacity-10 p-2 rounded text-center">
-                  <div class="small text-muted" id="zakup-result-label-2">
-                    Prirez
-                  </div>
-                  <div class="h6 text-primary mb-0" id="zakup-prirez-amount">
-                    0.00 €
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Obračun zakupa -->
+            <div class="quick-action-card">
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <h5 class="mb-0">
+                  <i class="fas fa-home text-info me-2"></i>
+                  Obračun zakupa
+                </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="zakup-mode"
+                    id="neto-zakup"
+                    value="neto"
+                    checked
+                  />
+                  <label class="btn btn-outline-info" for="neto-zakup"
+                    >Neto</label
+                  >
 
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-outline-secondary btn-sm flex-fill"
-                onclick="clearZakupCalculator()"
-              >
-                <i class="fas fa-eraser me-1"></i>Obriši
-              </button>
-              <button
-                class="btn btn-info btn-sm flex-fill"
-                onclick="copyZakupResult()"
-              >
-                <i class="fas fa-copy me-1"></i>Kopiraj
-              </button>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="zakup-mode"
+                    id="bruto-zakup"
+                    value="bruto"
+                  />
+                  <label class="btn btn-outline-warning" for="bruto-zakup"
+                    >Bruto</label
+                  >
+                </div>
+              </div>
+
+              <div class="row mb-2">
+                <div class="col-8">
+                  <label
+                    class="form-label small text-muted"
+                    id="zakup-amount-label"
+                    >Neto iznos</label
+                  >
+                  <div class="input-group input-group-sm">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="zakup-amount"
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                    <span class="input-group-text">€</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <label class="form-label small text-muted">Grad</label>
+                  <select class="form-select form-select-sm" id="zakup-grad">
+                    <option value="podgorica-cetinje">Podgorica/Cetinje</option>
+                    <option value="budva">Budva</option>
+                    <option value="ostali">Ostali gradovi</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row mb-2">
+                <div class="col-6">
+                  <div class="bg-light p-2 rounded text-center">
+                    <div class="small text-muted" id="zakup-result-label-1">
+                      Porez
+                    </div>
+                    <div class="h6 text-info mb-0" id="zakup-porez-amount">
+                      0.00 €
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="bg-info bg-opacity-10 p-2 rounded text-center">
+                    <div class="small text-muted" id="zakup-result-label-2">
+                      Prirez
+                    </div>
+                    <div class="h6 text-primary mb-0" id="zakup-prirez-amount">
+                      0.00 €
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-outline-secondary btn-sm flex-fill"
+                  onclick="clearZakupCalculator()"
+                >
+                  <i class="fas fa-eraser me-1"></i>Obriši
+                </button>
+                <button
+                  class="btn btn-info btn-sm flex-fill"
+                  onclick="copyZakupResult()"
+                >
+                  <i class="fas fa-copy me-1"></i>Kopiraj
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </main>
 
@@ -860,10 +872,7 @@
         }
 
         if (firmaLink) {
-          firmaLink.setAttribute(
-            'href',
-            buildFirmaDetaljiUrl(currentFirma.id)
-          );
+          firmaLink.setAttribute('href', buildFirmaDetaljiUrl(currentFirma.id));
         }
 
         if (pozajmicaLink) {
@@ -911,10 +920,15 @@
             loadWorkersCount(firma.id);
           } else if (response.status === 404) {
             // Korisnik nema firmu - preusmjeri na onboarding stranicu
-            console.log('❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html');
+            console.log(
+              '❌ Korisnik nema firmu (404), preusmjeravam na company-onboarding.html'
+            );
             window.location.href = '/shared/company-onboarding.html';
           } else {
-            console.error('Greška pri učitavanju podataka firme:', response.status);
+            console.error(
+              'Greška pri učitavanju podataka firme:',
+              response.status
+            );
             // Za ostale greške, prikaži error umjesto spinnera
             document.querySelector('.firma-loading').innerHTML = `
               <div class="alert alert-warning">
@@ -1074,8 +1088,8 @@
             </div>
             <div>
               <span class="badge ${badgeClass}">${
-          notification.icon || notification.type
-        }</span>
+                notification.icon || notification.type
+              }</span>
               ${
                 actionUrl
                   ? `<a href="${actionUrl}" class="btn btn-sm btn-outline-primary ms-2">
@@ -1204,8 +1218,8 @@
           <div class="d-flex justify-content-between align-items-center mb-2">
             <div>
               <strong>${pozajmica.radnik_ime} ${
-          pozajmica.radnik_prezime
-        }</strong>
+                pozajmica.radnik_prezime
+              }</strong>
             </div>
             <div class="text-end">
               <h6 class="text-primary mb-0">${preostaloIznos}€</h6>
@@ -1290,9 +1304,8 @@
       function clearPdvCalculator() {
         document.getElementById('pdv-amount').value = '';
         document.getElementById('pdv-rate').value = '21';
-        document.querySelector(
-          'input[name="pdv-mode"][value="add"]'
-        ).checked = true;
+        document.querySelector('input[name="pdv-mode"][value="add"]').checked =
+          true;
         updateLabels();
         calculatePdv();
       }
@@ -1573,14 +1586,14 @@ Neto iznos: ${(
               oglas.status === 'aktivan'
                 ? 'success'
                 : oglas.status === 'neaktivan'
-                ? 'secondary'
-                : 'warning';
+                  ? 'secondary'
+                  : 'warning';
             const statusText =
               oglas.status === 'aktivan'
                 ? 'Aktivan'
                 : oglas.status === 'neaktivan'
-                ? 'Neaktivan'
-                : 'Istekao';
+                  ? 'Neaktivan'
+                  : 'Istekao';
 
             const datumObjave = new Date(oglas.datum_objave).toLocaleDateString(
               'sr-RS'
@@ -1606,8 +1619,8 @@ Neto iznos: ${(
                   </p>
                   <p class="card-text small text-muted mb-2">
                     ${oglas.opis.substring(0, 100)}${
-              oglas.opis.length > 100 ? '...' : ''
-            }
+                      oglas.opis.length > 100 ? '...' : ''
+                    }
                   </p>
                   <div class="small text-muted">
                     <i class="fas fa-calendar me-1"></i>Objavljeno: ${datumObjave} | 

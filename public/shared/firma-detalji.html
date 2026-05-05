@@ -1,11 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Firma Workspace Test | Summa Summarum</title>
 
-    <link rel="icon" href="/shared/images/favicon/favicon.ico" type="image/x-icon" />
+    <link
+      rel="icon"
+      href="/shared/images/favicon/favicon.ico"
+      type="image/x-icon"
+    />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -582,7 +586,11 @@
               <a class="btn btn-outline-secondary" id="editFirmaBtn" href="#">
                 <i class="fas fa-pen me-2"></i>Uredi
               </a>
-              <button class="btn btn-primary" type="button" onclick="openAddWorker()">
+              <button
+                class="btn btn-primary"
+                type="button"
+                onclick="openAddWorker()"
+              >
                 <i class="fas fa-user-plus me-2"></i>Dodaj radnika
               </button>
             </div>
@@ -658,7 +666,10 @@
                     <h2>Otvorene obaveze</h2>
                     <small>Najvažnije stvari za ovu firmu</small>
                   </div>
-                  <a class="btn btn-sm btn-outline-secondary" href="/shared/dashboard.html">
+                  <a
+                    class="btn btn-sm btn-outline-secondary"
+                    href="/shared/dashboard.html"
+                  >
                     Dashboard
                   </a>
                 </div>
@@ -673,7 +684,11 @@
                     <h2>Radnici u fokusu</h2>
                     <small>Aktivni radnici i ugovori koji se prate</small>
                   </div>
-                  <button class="btn btn-sm btn-outline-primary" type="button" data-switch-tab="radnici">
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    type="button"
+                    data-switch-tab="radnici"
+                  >
                     Svi radnici
                   </button>
                 </div>
@@ -704,7 +719,11 @@
                   <h3>Brze akcije</h3>
                 </div>
                 <div class="quick-grid">
-                  <button class="quick-tile" type="button" onclick="openAddWorker()">
+                  <button
+                    class="quick-tile"
+                    type="button"
+                    onclick="openAddWorker()"
+                  >
                     <i class="fas fa-user-plus"></i>
                     <strong>Dodaj radnika</strong>
                   </button>
@@ -712,7 +731,11 @@
                     <i class="fas fa-coins"></i>
                     <strong>Nova pozajmica</strong>
                   </button>
-                  <button class="quick-tile" type="button" onclick="openShiftSchedule()">
+                  <button
+                    class="quick-tile"
+                    type="button"
+                    onclick="openShiftSchedule()"
+                  >
                     <i class="fas fa-clock"></i>
                     <strong>Raspored smjena</strong>
                   </button>
@@ -733,9 +756,18 @@
                     id="newTask"
                     type="text"
                     placeholder="Dodaj napomenu..."
-                    onkeydown="if (event.key === 'Enter') { event.preventDefault(); addTask(); }"
+                    onkeydown="
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        addTask();
+                      }
+                    "
                   />
-                  <button class="btn btn-primary" type="button" onclick="addTask()">
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    onclick="addTask()"
+                  >
                     <i class="fas fa-plus"></i>
                   </button>
                 </div>
@@ -754,7 +786,11 @@
                 <h2>Radnici i ugovori</h2>
                 <small>Pregled aktivnih i bivših radnika</small>
               </div>
-              <button class="btn btn-primary btn-sm" type="button" onclick="openAddWorker()">
+              <button
+                class="btn btn-primary btn-sm"
+                type="button"
+                onclick="openAddWorker()"
+              >
                 <i class="fas fa-user-plus me-2"></i>Dodaj radnika
               </button>
             </div>
@@ -769,7 +805,11 @@
                 />
               </div>
               <div class="status-filter" aria-label="Filter radnika">
-                <button class="active" type="button" data-worker-filter="active">
+                <button
+                  class="active"
+                  type="button"
+                  data-worker-filter="active"
+                >
                   Aktivni <span id="countActiveWorkers">0</span>
                 </button>
                 <button type="button" data-worker-filter="former">
@@ -812,7 +852,11 @@
                 <h2>Pozajmice</h2>
                 <small>Otvorene i zatvorene pozajmice firme</small>
               </div>
-              <button class="btn btn-success btn-sm" type="button" onclick="openLoan()">
+              <button
+                class="btn btn-success btn-sm"
+                type="button"
+                onclick="openLoan()"
+              >
                 <i class="fas fa-plus me-2"></i>Nova pozajmica
               </button>
             </div>
@@ -846,7 +890,10 @@
                 <h2>Mjesečni pregled</h2>
                 <small>Dokumentacija, plate i PDV status za ovu firmu</small>
               </div>
-              <a class="btn btn-sm btn-outline-primary" href="/shared/mjesecne-obaveze.html">
+              <a
+                class="btn btn-sm btn-outline-primary"
+                href="/shared/mjesecne-obaveze.html"
+              >
                 Sve mjesečne obaveze
               </a>
             </div>
@@ -888,17 +935,38 @@
               </div>
             </div>
             <div class="docs-grid">
-              <a class="doc-tile" href="#" onclick="openAddWorker(); return false;">
+              <a
+                class="doc-tile"
+                href="#"
+                onclick="
+                  openAddWorker();
+                  return false;
+                "
+              >
                 <i class="fas fa-file-signature"></i>
                 <strong>Ugovor o radu</strong>
                 <small>Kreira se kroz unos radnika</small>
               </a>
-              <a class="doc-tile" href="#" onclick="openShiftSchedule(); return false;">
+              <a
+                class="doc-tile"
+                href="#"
+                onclick="
+                  openShiftSchedule();
+                  return false;
+                "
+              >
                 <i class="fas fa-clock"></i>
                 <strong>Odluka o rasporedu radnog vremena</strong>
                 <small>Raspored smjena za sve radnike firme</small>
               </a>
-              <a class="doc-tile" href="#" onclick="openMaternityLeaveModal(); return false;">
+              <a
+                class="doc-tile"
+                href="#"
+                onclick="
+                  openMaternityLeaveModal();
+                  return false;
+                "
+              >
                 <i class="fas fa-baby"></i>
                 <strong>Rješenje o porodiljskom odsustvu</strong>
                 <small>Službeno rješenje za porodiljsko odsustvo</small>
@@ -1027,7 +1095,9 @@
         });
 
         document.querySelectorAll('[data-switch-tab]').forEach(button => {
-          button.addEventListener('click', () => switchTab(button.dataset.switchTab));
+          button.addEventListener('click', () =>
+            switchTab(button.dataset.switchTab)
+          );
         });
       }
 
@@ -1041,7 +1111,11 @@
           switchTab('pregled');
           return;
         }
-        if (['pregled', 'radnici', 'pozajmice', 'mjesecne', 'dokumenti'].includes(hash)) {
+        if (
+          ['pregled', 'radnici', 'pozajmice', 'mjesecne', 'dokumenti'].includes(
+            hash
+          )
+        ) {
           switchTab(hash);
         }
       }
@@ -1053,21 +1127,44 @@
 
         document
           .querySelectorAll('.workspace-tabs button')
-          .forEach(button => button.classList.toggle('active', button.dataset.tab === tabName));
+          .forEach(button =>
+            button.classList.toggle('active', button.dataset.tab === tabName)
+          );
         document
           .querySelectorAll('.tab-pane-custom')
-          .forEach(panel => panel.classList.toggle('active', panel.id === `tab-${tabName}`));
-        history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${tabName}`);
+          .forEach(panel =>
+            panel.classList.toggle('active', panel.id === `tab-${tabName}`)
+          );
+        history.replaceState(
+          null,
+          '',
+          `${window.location.pathname}${window.location.search}#${tabName}`
+        );
       }
 
       function setupStaticLinks() {
         setHref('editFirmaBtn', `/shared/edit-firmu.html?id=${currentFirmaId}`);
         setHref('docPdv', `/pdv_prijava/index.html?firmaId=${currentFirmaId}`);
-        setHref('docDobit', `/dobit_prijava/index.html?firmaId=${currentFirmaId}`);
-        setHref('docCrps', `/shared/crps-zahtjev.html?firmaId=${currentFirmaId}`);
-        setHref('vacationLink', `/shared/godisnji-odmori.html?firma_id=${currentFirmaId}`);
-        setHref('docJpr', `/shared/jpr-korica.html?firmaId=${currentFirmaId}&context=dokumenti`);
-        setHref('docOvlascenje', `/shared/ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`);
+        setHref(
+          'docDobit',
+          `/dobit_prijava/index.html?firmaId=${currentFirmaId}`
+        );
+        setHref(
+          'docCrps',
+          `/shared/crps-zahtjev.html?firmaId=${currentFirmaId}`
+        );
+        setHref(
+          'vacationLink',
+          `/shared/godisnji-odmori.html?firma_id=${currentFirmaId}`
+        );
+        setHref(
+          'docJpr',
+          `/shared/jpr-korica.html?firmaId=${currentFirmaId}&context=dokumenti`
+        );
+        setHref(
+          'docOvlascenje',
+          `/shared/ovlascenje-knjigovodja.html?firmaId=${currentFirmaId}`
+        );
       }
 
       function setupWorkerControls() {
@@ -1084,7 +1181,9 @@
             workerFilter = button.dataset.workerFilter;
             document
               .querySelectorAll('[data-worker-filter]')
-              .forEach(item => item.classList.toggle('active', item === button));
+              .forEach(item =>
+                item.classList.toggle('active', item === button)
+              );
             renderWorkers();
           });
         });
@@ -1100,7 +1199,8 @@
           renderCompany(currentFirma);
         } catch (error) {
           console.error('Greška pri učitavanju firme:', error);
-          document.getElementById('firmaNaziv').textContent = 'Firma nije pronađena';
+          document.getElementById('firmaNaziv').textContent =
+            'Firma nije pronađena';
         }
       }
 
@@ -1140,9 +1240,12 @@
 
       async function loadLoans() {
         try {
-          const response = await fetch(`/api/pozajmnice/firma/${currentFirmaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/pozajmnice/firma/${currentFirmaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           if (!response.ok) throw new Error('Pozajmice nijesu dostupne');
           const data = await response.json();
           currentLoans = data.pozajmice || [];
@@ -1171,16 +1274,23 @@
 
       async function loadMonthlyObligations() {
         try {
-          const response = await fetch(`/api/mjesecne-obaveze/firma/${currentFirmaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/mjesecne-obaveze/firma/${currentFirmaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           if (!response.ok) throw new Error('Mjesečne obaveze nijesu dostupne');
           const data = await response.json();
           currentMonthlyObligations = data.success ? data.obaveze || [] : [];
           renderMonthlyObligations();
         } catch (error) {
           console.error('Greška pri učitavanju mjesečnih obaveza:', error);
-          renderTableMessage('monthlyTable', 9, 'Nema dostupnih mjesečnih obaveza.');
+          renderTableMessage(
+            'monthlyTable',
+            9,
+            'Nema dostupnih mjesečnih obaveza.'
+          );
         }
       }
 
@@ -1189,10 +1299,19 @@
         setText('firmaPIB', firma.pib || '-');
         setText('firmaPDV', firma.pdv_broj || firma.pdvBroj || '-');
         setText('firmaAdresa', firma.adresa || '-');
-        setText('firmaDirektor', firma.direktor || firma.direktor_ime_prezime || '-');
-        setText('firmaJMBGDirektora', firma.jmbg_direktora || firma.direktor_jmbg || '-');
+        setText(
+          'firmaDirektor',
+          firma.direktor || firma.direktor_ime_prezime || '-'
+        );
+        setText(
+          'firmaJMBGDirektora',
+          firma.jmbg_direktora || firma.direktor_jmbg || '-'
+        );
         setText('firmaZiro', firma.ziro_racun || '-');
-        setText('firmaStatus', firma.status === 'nula' ? 'PDV nula' : 'Aktivna');
+        setText(
+          'firmaStatus',
+          firma.status === 'nula' ? 'PDV nula' : 'Aktivna'
+        );
         const editParam = firma.pib
           ? `pib=${encodeURIComponent(firma.pib)}`
           : `id=${encodeURIComponent(currentFirmaId)}`;
@@ -1201,12 +1320,16 @@
       }
 
       function renderWorkers() {
-        const activeWorkers = currentWorkers.filter(worker => !currentOtkaziMap[worker.id]);
+        const activeWorkers = currentWorkers.filter(
+          worker => !currentOtkaziMap[worker.id]
+        );
         const expiringWorkers = activeWorkers.filter(worker => {
           const days = daysUntil(worker.datum_prestanka);
           return days > 0 && days <= 30;
         });
-        const formerWorkers = currentWorkers.filter(worker => currentOtkaziMap[worker.id]);
+        const formerWorkers = currentWorkers.filter(
+          worker => currentOtkaziMap[worker.id]
+        );
 
         setText('statAktivniRadnici', activeWorkers.length);
         setText('statIsticu', expiringWorkers.length);
@@ -1222,12 +1345,15 @@
           all: currentWorkers,
         };
 
-        const filteredWorkers = (workersByFilter[workerFilter] || activeWorkers).filter(
-          worker => workerMatchesSearch(worker)
-        );
+        const filteredWorkers = (
+          workersByFilter[workerFilter] || activeWorkers
+        ).filter(worker => workerMatchesSearch(worker));
 
         const rows = filteredWorkers.map(worker => workerRow(worker)).join('');
-        const previewRows = activeWorkers.slice(0, 5).map(worker => workerPreviewRow(worker)).join('');
+        const previewRows = activeWorkers
+          .slice(0, 5)
+          .map(worker => workerPreviewRow(worker))
+          .join('');
 
         document.getElementById('workersTable').innerHTML =
           rows || emptyRow(6, 'Nema radnika za izabrani filter.');
@@ -1236,9 +1362,12 @@
       }
 
       function renderLoans() {
-        const openLoans = currentLoans.filter(loan => loan.status !== 'zatvorena');
+        const openLoans = currentLoans.filter(
+          loan => loan.status !== 'zatvorena'
+        );
         const openAmount = openLoans.reduce(
-          (sum, loan) => sum + Number(loan.preostalo_dugovanje || loan.iznos || 0),
+          (sum, loan) =>
+            sum + Number(loan.preostalo_dugovanje || loan.iznos || 0),
           0
         );
 
@@ -1273,7 +1402,8 @@
                 </div>
               `
             )
-            .join('') || '<div class="text-muted">Nema otvorenih zadataka.</div>';
+            .join('') ||
+          '<div class="text-muted">Nema otvorenih zadataka.</div>';
 
         renderWorkList();
       }
@@ -1281,7 +1411,10 @@
       function renderWorkList() {
         const items = [];
         const expiring = currentWorkers
-          .filter(worker => worker.datum_prestanka && daysUntil(worker.datum_prestanka) <= 30)
+          .filter(
+            worker =>
+              worker.datum_prestanka && daysUntil(worker.datum_prestanka) <= 30
+          )
           .slice(0, 3);
 
         expiring.forEach(worker => {
@@ -1299,7 +1432,12 @@
           .forEach(task => {
             items.push({
               icon: 'fa-list-check',
-              title: task.tekst_zadatka || task.tekst || task.naziv || task.opis || 'Otvoren zadatak',
+              title:
+                task.tekst_zadatka ||
+                task.tekst ||
+                task.naziv ||
+                task.opis ||
+                'Otvoren zadatak',
               desc: 'Napomena za ovu firmu',
               href: '#pregled',
             });
@@ -1332,11 +1470,14 @@
                 </a>
               `
             )
-            .join('') || '<div class="empty-state">Trenutno nema otvorenih obaveza za ovu firmu.</div>';
+            .join('') ||
+          '<div class="empty-state">Trenutno nema otvorenih obaveza za ovu firmu.</div>';
       }
 
       function renderMonthlyObligations() {
-        const rows = currentMonthlyObligations.map(item => monthlyRow(item)).join('');
+        const rows = currentMonthlyObligations
+          .map(item => monthlyRow(item))
+          .join('');
 
         document.getElementById('monthlyTable').innerHTML =
           rows || emptyRow(9, 'Nema kreiranih mjesečnih obaveza za ovu firmu.');
@@ -1362,7 +1503,9 @@
       }
 
       function monthlyFieldCell(item, field) {
-        const groupClass = field.startsWith('plate_') ? 'col-payroll' : 'col-docs';
+        const groupClass = field.startsWith('plate_')
+          ? 'col-payroll'
+          : 'col-docs';
         return `
           <td class="${groupClass}">
             <input
@@ -1500,9 +1643,12 @@
       function loanRow(loan) {
         const lender =
           [loan.radnik_ime, loan.radnik_prezime].filter(Boolean).join(' ') ||
-          [loan.zajmodavac_ime, loan.zajmodavac_prezime].filter(Boolean).join(' ') ||
+          [loan.zajmodavac_ime, loan.zajmodavac_prezime]
+            .filter(Boolean)
+            .join(' ') ||
           '-';
-        const isClosed = loan.status === 'vraćena' || loan.status === 'zatvorena';
+        const isClosed =
+          loan.status === 'vraćena' || loan.status === 'zatvorena';
 
         return `
           <tr>
@@ -1571,7 +1717,10 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ firma_id: currentFirmaId, tekst_zadatka: value }),
+            body: JSON.stringify({
+              firma_id: currentFirmaId,
+              tekst_zadatka: value,
+            }),
           });
           if (!response.ok) throw new Error('Zadatak nije sačuvan');
           input.value = '';
@@ -1606,15 +1755,21 @@
           await loadWorkers();
         }
 
-        document.getElementById('odlukaDecisionDate').value = toInputDate(today);
+        document.getElementById('odlukaDecisionDate').value =
+          toInputDate(today);
         document.getElementById('odlukaPeriodStart').value = toInputDate(today);
-        document.getElementById('odlukaPeriodEnd').value = toInputDate(sixMonthsLater);
+        document.getElementById('odlukaPeriodEnd').value =
+          toInputDate(sixMonthsLater);
         document.getElementById('odlukaFirstShift').value = '07:00 do 14:00h';
         document.getElementById('odlukaSecondShift').value = '14:00 do 20:00h';
         document.getElementById('odlukaAlternate').checked = true;
-        document.getElementById('odlukaManualAssignment').classList.add('d-none');
+        document
+          .getElementById('odlukaManualAssignment')
+          .classList.add('d-none');
 
-        new bootstrap.Modal(document.getElementById('odlukaRasporedModal')).show();
+        new bootstrap.Modal(
+          document.getElementById('odlukaRasporedModal')
+        ).show();
       }
 
       function openMaternityLeaveModal() {
@@ -1665,7 +1820,9 @@
         currentWorkers.forEach(worker => {
           const option = document.createElement('option');
           option.value = worker.id;
-          option.textContent = `${worker.ime || ''} ${worker.prezime || ''}`.trim() || `Radnik ${worker.id}`;
+          option.textContent =
+            `${worker.ime || ''} ${worker.prezime || ''}`.trim() ||
+            `Radnik ${worker.id}`;
           select.appendChild(option);
         });
 
@@ -1674,14 +1831,22 @@
         document.getElementById('maternityDecisionDate').value = today;
 
         const modalElement = document.getElementById('maternityLeaveModal');
-        modalElement.addEventListener('hidden.bs.modal', () => modalElement.remove(), { once: true });
+        modalElement.addEventListener(
+          'hidden.bs.modal',
+          () => modalElement.remove(),
+          { once: true }
+        );
         bootstrap.Modal.getOrCreateInstance(modalElement).show();
       }
 
       function confirmMaternityLeave() {
-        const workerId = document.getElementById('maternityWorkerSelect')?.value;
+        const workerId = document.getElementById(
+          'maternityWorkerSelect'
+        )?.value;
         const startDate = document.getElementById('maternityStartDate')?.value;
-        const decisionDate = document.getElementById('maternityDecisionDate')?.value;
+        const decisionDate = document.getElementById(
+          'maternityDecisionDate'
+        )?.value;
 
         if (!workerId) {
           alert('Molimo izaberite radnika.');
@@ -1696,7 +1861,9 @@
           `/shared/resenje-porodiljsko-odsustvo.html?radnikId=${workerId}&firmaId=${currentFirmaId}&datumPocetka=${encodeURIComponent(startDate)}&datumDonosenja=${encodeURIComponent(decisionDate)}`,
           '_blank'
         );
-        bootstrap.Modal.getInstance(document.getElementById('maternityLeaveModal'))?.hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById('maternityLeaveModal')
+        )?.hide();
       }
 
       function toInputDate(date) {
@@ -1717,7 +1884,9 @@
         const workerList = document.getElementById('odlukaWorkerList');
         if (!workerList) return;
 
-        const activeWorkers = currentWorkers.filter(worker => !currentOtkaziMap[worker.id]);
+        const activeWorkers = currentWorkers.filter(
+          worker => !currentOtkaziMap[worker.id]
+        );
         const days = ['P', 'U', 'S', 'C', 'P', 'S', 'N'];
         workerList.innerHTML =
           activeWorkers
@@ -1763,7 +1932,9 @@
       function getShiftFreeDays() {
         const freeDays = {};
         document
-          .querySelectorAll('#odlukaWorkerList input[data-free-day-worker-id]:checked')
+          .querySelectorAll(
+            '#odlukaWorkerList input[data-free-day-worker-id]:checked'
+          )
           .forEach(input => {
             const workerId = input.dataset.freeDayWorkerId;
             if (!freeDays[workerId]) freeDays[workerId] = [];
@@ -1773,11 +1944,14 @@
       }
 
       function generateShiftSchedule() {
-        const decisionDate = document.getElementById('odlukaDecisionDate').value;
+        const decisionDate =
+          document.getElementById('odlukaDecisionDate').value;
         const periodStart = document.getElementById('odlukaPeriodStart').value;
         const periodEnd = document.getElementById('odlukaPeriodEnd').value;
-        const firstShiftTime = document.getElementById('odlukaFirstShift').value;
-        const secondShiftTime = document.getElementById('odlukaSecondShift').value;
+        const firstShiftTime =
+          document.getElementById('odlukaFirstShift').value;
+        const secondShiftTime =
+          document.getElementById('odlukaSecondShift').value;
         const assignmentType = document.querySelector(
           'input[name="odlukaShiftAssignment"]:checked'
         ).value;
@@ -1799,9 +1973,11 @@
 
         if (assignmentType === 'manual') {
           const workerAssignments = {};
-          document.querySelectorAll('#odlukaWorkerList select').forEach(select => {
-            workerAssignments[select.dataset.workerId] = select.value;
-          });
+          document
+            .querySelectorAll('#odlukaWorkerList select')
+            .forEach(select => {
+              workerAssignments[select.dataset.workerId] = select.value;
+            });
           params.append('workerAssignments', JSON.stringify(workerAssignments));
           params.append('workerFreeDays', JSON.stringify(getShiftFreeDays()));
         }
@@ -1833,7 +2009,8 @@
           ]);
 
           const datumInput = document.getElementById('datum_izdavanja');
-          if (datumInput) datumInput.value = new Date().toISOString().split('T')[0];
+          if (datumInput)
+            datumInput.value = new Date().toISOString().split('T')[0];
 
           const nextBrojResponse = await fetch(
             `/api/pozajmnice/next-broj/${currentFirmaId}`,
@@ -1889,18 +2066,21 @@
 
       async function loadZajmodavceForPozajmiceModal() {
         try {
-          const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/firme/${currentFirmaId}/zajmodavci`,
+            {
+              credentials: 'include',
+            }
+          );
           if (!response.ok) return;
           const result = await response.json();
           const select = document.getElementById('zajmodavac_id');
           if (!select) return;
 
-          select.innerHTML = '<option value="">Izaberite zajmodavca...</option>';
-          const zajmodavci = result.success && Array.isArray(result.data)
-            ? result.data
-            : [];
+          select.innerHTML =
+            '<option value="">Izaberite zajmodavca...</option>';
+          const zajmodavci =
+            result.success && Array.isArray(result.data) ? result.data : [];
           zajmodavci.forEach(zajmodavac => {
             const name = `${zajmodavac.ime || ''} ${
               zajmodavac.prezime || ''
@@ -1913,14 +2093,19 @@
             );
           });
         } catch (error) {
-          console.error('Greška pri učitavanju zajmodavaca za pozajmice:', error);
+          console.error(
+            'Greška pri učitavanju zajmodavaca za pozajmice:',
+            error
+          );
         }
       }
 
       function togglePozajmilacSelector() {
         const pozajmilacTip = document.getElementById('pozajmilac_tip').value;
         const radnikSelector = document.getElementById('radnik_selector');
-        const zajmodavacSelector = document.getElementById('zajmodavac_selector');
+        const zajmodavacSelector = document.getElementById(
+          'zajmodavac_selector'
+        );
         const radnikSelect = document.getElementById('radnik_id');
         const zajmodavacSelect = document.getElementById('zajmodavac_id');
 
@@ -2006,7 +2191,9 @@
       }
 
       function findLoan(pozajmicaId) {
-        return currentLoans.find(loan => Number(loan.id) === Number(pozajmicaId));
+        return currentLoans.find(
+          loan => Number(loan.id) === Number(pozajmicaId)
+        );
       }
 
       function viewPozajmicaDetalji(pozajmicaId) {
@@ -2017,7 +2204,9 @@
         }
 
         const lender =
-          [pozajmica.radnik_ime, pozajmica.radnik_prezime].filter(Boolean).join(' ') ||
+          [pozajmica.radnik_ime, pozajmica.radnik_prezime]
+            .filter(Boolean)
+            .join(' ') ||
           [pozajmica.zajmodavac_ime, pozajmica.zajmodavac_prezime]
             .filter(Boolean)
             .join(' ') ||
@@ -2038,7 +2227,9 @@
         document.getElementById('modalPozajmicaStatus').innerHTML =
           loanStatusBadge(pozajmica.status || 'aktivna');
 
-        new bootstrap.Modal(document.getElementById('pozajmicaDetaljModal')).show();
+        new bootstrap.Modal(
+          document.getElementById('pozajmicaDetaljModal')
+        ).show();
       }
 
       function dodajPovracaj(pozajmicaId) {
@@ -2054,7 +2245,9 @@
 
       async function submitPovracaj() {
         try {
-          const formData = new FormData(document.getElementById('povracajForm'));
+          const formData = new FormData(
+            document.getElementById('povracajForm')
+          );
           const povracajData = {
             pozajmica_id: formData.get('pozajmica_id'),
             datum_povracaja: formData.get('datum_povracaja'),
@@ -2103,9 +2296,12 @@
 
       async function loadPovracajeForPozajmica(pozajmicaId) {
         try {
-          const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/povracaji/pozajmica/${pozajmicaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           const data = await response.json();
           renderPovracajeList(
             pozajmicaId,
@@ -2150,7 +2346,9 @@
       }
 
       async function obrisiPovracaj(povracajId) {
-        if (!confirm('Da li ste sigurni da želite da obrišete ovaj povraćaj?')) {
+        if (
+          !confirm('Da li ste sigurni da želite da obrišete ovaj povraćaj?')
+        ) {
           return;
         }
 
@@ -2178,13 +2376,15 @@
 
       async function kreirajOdlukuPovracaj(pozajmicaId) {
         try {
-          const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/povracaji/pozajmica/${pozajmicaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           const data = await response.json();
-          const povracaji = data.success && Array.isArray(data.povracaji)
-            ? data.povracaji
-            : [];
+          const povracaji =
+            data.success && Array.isArray(data.povracaji) ? data.povracaji : [];
 
           if (!povracaji.length) {
             alert(
@@ -2298,23 +2498,33 @@
       }
 
       function openWorkerDetails(workerId) {
-        const worker = currentWorkers.find(item => String(item.id) === String(workerId));
+        const worker = currentWorkers.find(
+          item => String(item.id) === String(workerId)
+        );
         if (!worker) {
           alert('Radnik nije pronađen.');
           return;
         }
 
         const modalElement = ensureWorkerDetailsModal();
-        const fullName = `${worker.ime || ''} ${worker.prezime || ''}`.trim() || '-';
+        const fullName =
+          `${worker.ime || ''} ${worker.prezime || ''}`.trim() || '-';
         const contractStatus = getContractStatus(worker);
         const workerPosition = worker.pozicija_naziv || worker.pozicija || '-';
-        const salary = worker.visina_zarade || worker.zarada || worker.plata || worker.salary;
+        const salary =
+          worker.visina_zarade ||
+          worker.zarada ||
+          worker.plata ||
+          worker.salary;
         currentDetailsWorkerId = worker.id;
         const workingTimeMap = {
           puno_8h: 'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)',
-          skraceno_6h: 'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)',
-          skraceno_4h: 'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)',
-          skraceno_2h: 'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)',
+          skraceno_6h:
+            'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)',
+          skraceno_4h:
+            'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)',
+          skraceno_2h:
+            'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)',
           puno: 'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)',
           nepuno: 'Nepuno radno vrijeme',
           skraceno: 'Skraćeno radno vrijeme',
@@ -2325,7 +2535,10 @@
         setText('workerDetailsJmbg', worker.jmbg || 'Nije uneseno');
         setText('workerDetailsAddress', worker.adresa || 'Nije unesena');
         setText('workerDetailsPosition', workerPosition);
-        setText('workerDetailsSalary', salary ? formatMoney(salary) : 'Nije unesena');
+        setText(
+          'workerDetailsSalary',
+          salary ? formatMoney(salary) : 'Nije unesena'
+        );
         setText(
           'workerDetailsWorkingTime',
           workingTimeMap[worker.tip_radnog_vremena] ||
@@ -2333,11 +2546,25 @@
             worker.radno_vrijeme ||
             'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)'
         );
-        setText('workerDetailsCompany', currentFirma?.naziv || document.getElementById('firmaNaziv')?.textContent || '-');
-        setText('workerDetailsStartDate', formatDate(worker.datum_zaposlenja) || 'Nije uneseno');
+        setText(
+          'workerDetailsCompany',
+          currentFirma?.naziv ||
+            document.getElementById('firmaNaziv')?.textContent ||
+            '-'
+        );
+        setText(
+          'workerDetailsStartDate',
+          formatDate(worker.datum_zaposlenja) || 'Nije uneseno'
+        );
         setText('workerDetailsContractType', contractStatus.type);
-        setText('workerDetailsEndDate', formatDate(worker.datum_prestanka) || '-');
-        setText('workerDetailsNotes', worker.napomene || worker.notes || 'Nema dodatnih napomena');
+        setText(
+          'workerDetailsEndDate',
+          formatDate(worker.datum_prestanka) || '-'
+        );
+        setText(
+          'workerDetailsNotes',
+          worker.napomene || worker.notes || 'Nema dodatnih napomena'
+        );
         setText(
           'workerDetailsJobDescription',
           worker.opis_poslova ||
@@ -2443,7 +2670,9 @@
       }
 
       function getCurrentDetailsWorker() {
-        return currentWorkers.find(item => String(item.id) === String(currentDetailsWorkerId));
+        return currentWorkers.find(
+          item => String(item.id) === String(currentDetailsWorkerId)
+        );
       }
 
       function generateWorkerContractFromDetails() {
@@ -2455,13 +2684,19 @@
       function openMobingFromDetails() {
         const worker = getCurrentDetailsWorker();
         if (!worker) return;
-        window.open(`/shared/mobing.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`, '_blank');
+        window.open(
+          `/shared/mobing.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`,
+          '_blank'
+        );
       }
 
       function openSafetyAnnexFromDetails() {
         const worker = getCurrentDetailsWorker();
         if (!worker) return;
-        window.open(`/shared/aneks-zastita-na-radu.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`, '_blank');
+        window.open(
+          `/shared/aneks-zastita-na-radu.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`,
+          '_blank'
+        );
       }
 
       function openWeeklyRestModalFromDetails() {
@@ -2514,25 +2749,34 @@
         );
 
         const modalElement = document.getElementById('weeklyRestModal');
-        modalElement.addEventListener('hidden.bs.modal', () => modalElement.remove(), { once: true });
+        modalElement.addEventListener(
+          'hidden.bs.modal',
+          () => modalElement.remove(),
+          { once: true }
+        );
         bootstrap.Modal.getOrCreateInstance(modalElement).show();
       }
 
       function confirmWeeklyRest(workerId) {
         const specificDate = document.getElementById('weeklyRestDate')?.value;
-        const selectedDay = document.getElementById('weeklyRestDay')?.value || '';
+        const selectedDay =
+          document.getElementById('weeklyRestDay')?.value || '';
         const restDay = specificDate ? formatDate(specificDate) : selectedDay;
         window.open(
           `/shared/sedmicni-odmor.html?radnikId=${workerId}&firmaId=${currentFirmaId}&danOdmora=${encodeURIComponent(restDay)}`,
           '_blank'
         );
-        bootstrap.Modal.getInstance(document.getElementById('weeklyRestModal'))?.hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById('weeklyRestModal')
+        )?.hide();
       }
 
       function openConfirmationModalFromDetails() {
         const worker = getCurrentDetailsWorker();
         if (!worker) return;
-        const existingModal = document.getElementById('employmentConfirmationModal');
+        const existingModal = document.getElementById(
+          'employmentConfirmationModal'
+        );
         if (existingModal) existingModal.remove();
 
         document.body.insertAdjacentHTML(
@@ -2563,13 +2807,21 @@
           `
         );
 
-        const modalElement = document.getElementById('employmentConfirmationModal');
-        modalElement.addEventListener('hidden.bs.modal', () => modalElement.remove(), { once: true });
+        const modalElement = document.getElementById(
+          'employmentConfirmationModal'
+        );
+        modalElement.addEventListener(
+          'hidden.bs.modal',
+          () => modalElement.remove(),
+          { once: true }
+        );
         bootstrap.Modal.getOrCreateInstance(modalElement).show();
       }
 
       function confirmEmploymentConfirmation(workerId) {
-        const reason = document.getElementById('confirmationReason')?.value.trim();
+        const reason = document
+          .getElementById('confirmationReason')
+          ?.value.trim();
         if (!reason) {
           alert('Unesite razlog izdavanja potvrde.');
           return;
@@ -2578,7 +2830,9 @@
           `/shared/potvrda-zaposlenja.html?radnikId=${workerId}&firmaId=${currentFirmaId}&razlog=${encodeURIComponent(reason)}`,
           '_blank'
         );
-        bootstrap.Modal.getInstance(document.getElementById('employmentConfirmationModal'))?.hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById('employmentConfirmationModal')
+        )?.hide();
       }
 
       async function openWorkingTimeAnnexModalFromDetails() {
@@ -2587,10 +2841,14 @@
         ensureWorkingTimeAnnexModal();
 
         setText('currentWorkingTimeLabel', getWorkerWorkingTimeText(worker));
-        document.getElementById('workingTimeChangeDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('workingTimeChangeDate').value = new Date()
+          .toISOString()
+          .split('T')[0];
         document.getElementById('newWorkingTime').value = '';
         document.getElementById('workingTimeChangeReason').value = '';
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('workingTimeAnnexModal')).show();
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById('workingTimeAnnexModal')
+        ).show();
       }
 
       function ensureWorkingTimeAnnexModal() {
@@ -2649,9 +2907,12 @@
 
       async function generateWorkingTimeAnnex() {
         const worker = getCurrentDetailsWorker();
-        const changeDate = document.getElementById('workingTimeChangeDate')?.value;
+        const changeDate = document.getElementById(
+          'workingTimeChangeDate'
+        )?.value;
         const newWorkingTime = document.getElementById('newWorkingTime')?.value;
-        const reason = document.getElementById('workingTimeChangeReason')?.value || '';
+        const reason =
+          document.getElementById('workingTimeChangeReason')?.value || '';
         if (!worker || !changeDate || !newWorkingTime) {
           alert('Molimo unesite datum i novo radno vrijeme.');
           return;
@@ -2662,7 +2923,9 @@
           tip_radnog_vremena: mapWorkingTimeToCode(newWorkingTime),
         });
 
-        bootstrap.Modal.getInstance(document.getElementById('workingTimeAnnexModal'))?.hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById('workingTimeAnnexModal')
+        )?.hide();
         const params = new URLSearchParams({
           radnikId: worker.id,
           firmaId: currentFirmaId,
@@ -2671,7 +2934,10 @@
           staroRadnoVreme: getWorkerWorkingTimeText(worker),
           razlogPromene: reason,
         });
-        window.open(`/aneks-promena-radnog-vremena.html?${params.toString()}`, '_blank');
+        window.open(
+          `/aneks-promena-radnog-vremena.html?${params.toString()}`,
+          '_blank'
+        );
         await loadWorkers();
       }
 
@@ -2680,16 +2946,26 @@
         if (!worker) return;
         ensureWorkplaceAnnexModal();
 
-        setText('currentWorkplaceLabel', worker.pozicija_naziv || worker.pozicija || 'Nespecifikovano');
-        document.getElementById('workplaceChangeDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('newWorkplace').innerHTML = '<option value="">Izaberi radno mjesto</option>';
+        setText(
+          'currentWorkplaceLabel',
+          worker.pozicija_naziv || worker.pozicija || 'Nespecifikovano'
+        );
+        document.getElementById('workplaceChangeDate').value = new Date()
+          .toISOString()
+          .split('T')[0];
+        document.getElementById('newWorkplace').innerHTML =
+          '<option value="">Izaberi radno mjesto</option>';
         document.getElementById('workplaceChangeReason').value = '';
 
         try {
-          const response = await fetch('/api/pozicije', { credentials: 'include' });
+          const response = await fetch('/api/pozicije', {
+            credentials: 'include',
+          });
           if (!response.ok) throw new Error('Pozicije nijesu dostupne');
           const data = await response.json();
-          const positions = Array.isArray(data) ? data : data.pozicije || data.data || [];
+          const positions = Array.isArray(data)
+            ? data
+            : data.pozicije || data.data || [];
           const select = document.getElementById('newWorkplace');
           positions.forEach(position => {
             if (String(position.id) === String(worker.pozicija_id)) return;
@@ -2704,7 +2980,9 @@
           return;
         }
 
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('workplaceAnnexModal')).show();
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById('workplaceAnnexModal')
+        ).show();
       }
 
       function ensureWorkplaceAnnexModal() {
@@ -2758,9 +3036,12 @@
 
       async function generateWorkplaceAnnex() {
         const worker = getCurrentDetailsWorker();
-        const changeDate = document.getElementById('workplaceChangeDate')?.value;
+        const changeDate = document.getElementById(
+          'workplaceChangeDate'
+        )?.value;
         const newPositionId = document.getElementById('newWorkplace')?.value;
-        const reason = document.getElementById('workplaceChangeReason')?.value || '';
+        const reason =
+          document.getElementById('workplaceChangeReason')?.value || '';
         if (!worker || !changeDate || !newPositionId) {
           alert('Molimo unesite datum i novo radno mjesto.');
           return;
@@ -2768,11 +3049,14 @@
 
         const select = document.getElementById('newWorkplace');
         const newWorkplace = select.options[select.selectedIndex]?.text || '';
-        const oldWorkplace = worker.pozicija_naziv || worker.pozicija || 'Nespecifikovano';
+        const oldWorkplace =
+          worker.pozicija_naziv || worker.pozicija || 'Nespecifikovano';
 
         await updateWorker(worker.id, { pozicija_id: newPositionId });
 
-        bootstrap.Modal.getInstance(document.getElementById('workplaceAnnexModal'))?.hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById('workplaceAnnexModal')
+        )?.hide();
         const params = new URLSearchParams({
           radnikId: worker.id,
           firmaId: currentFirmaId,
@@ -2781,13 +3065,19 @@
           staroRadnoMesto: oldWorkplace,
           razlogPromene: reason,
         });
-        window.open(`/shared/aneks-promena-radnog-mesta.html?${params.toString()}`, '_blank');
+        window.open(
+          `/shared/aneks-promena-radnog-mesta.html?${params.toString()}`,
+          '_blank'
+        );
         await loadWorkers();
       }
 
       async function updateWorker(workerId, changes) {
-        const response = await fetch(`/api/radnici/id/${workerId}`, { credentials: 'include' });
-        if (!response.ok) throw new Error('Greška pri dohvatanju podataka radnika');
+        const response = await fetch(`/api/radnici/id/${workerId}`, {
+          credentials: 'include',
+        });
+        if (!response.ok)
+          throw new Error('Greška pri dohvatanju podataka radnika');
         const worker = await response.json();
         const payload = {
           ime: worker.ime,
@@ -2825,9 +3115,12 @@
       function getWorkerWorkingTimeText(worker) {
         const workingTimeMap = {
           puno_8h: 'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)',
-          skraceno_6h: 'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)',
-          skraceno_4h: 'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)',
-          skraceno_2h: 'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)',
+          skraceno_6h:
+            'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)',
+          skraceno_4h:
+            'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)',
+          skraceno_2h:
+            'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)',
           puno: 'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)',
           nepuno: 'Nepuno radno vrijeme',
           skraceno: 'Skraćeno radno vrijeme',
@@ -2844,15 +3137,20 @@
       function mapWorkingTimeToCode(value) {
         const map = {
           'Puno radno vrijeme (8 sati dnevno / 40 sati nedeljno)': 'puno_8h',
-          'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)': 'skraceno_6h',
-          'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)': 'skraceno_4h',
-          'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)': 'skraceno_2h',
+          'Skraćeno radno vrijeme (6 sati dnevno / 30 sati nedeljno)':
+            'skraceno_6h',
+          'Skraćeno radno vrijeme (4 sata dnevno / 20 sati nedeljno)':
+            'skraceno_4h',
+          'Skraćeno radno vrijeme (2 sata dnevno / 10 sati nedeljno)':
+            'skraceno_2h',
         };
         return map[value] || value;
       }
 
       async function openEditWorkerModal(workerId) {
-        const worker = currentWorkers.find(item => String(item.id) === String(workerId));
+        const worker = currentWorkers.find(
+          item => String(item.id) === String(workerId)
+        );
         if (!worker) {
           alert('Radnik nije pronađen.');
           return;
@@ -2862,7 +3160,9 @@
         fillEditWorkerForm(worker);
         await loadEditWorkerSelectOptions(worker);
         toggleEditWorkerEndDate();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('editWorkerModal')).show();
+        bootstrap.Modal.getOrCreateInstance(
+          document.getElementById('editWorkerModal')
+        ).show();
       }
 
       function ensureEditWorkerModal() {
@@ -2981,19 +3281,28 @@
         document.getElementById('edit_jmbg').value = worker.jmbg || '';
         document.getElementById('edit_grad').value = worker.grad || '';
         document.getElementById('edit_adresa').value = worker.adresa || '';
-        document.getElementById('edit_datum_zaposlenja').value = toInputDate(worker.datum_zaposlenja);
-        document.getElementById('edit_visina_zarade').value = normalizeNumber(worker.visina_zarade || worker.zarada || worker.plata || '');
-        document.getElementById('edit_tip_radnog_vremena').value = worker.tip_radnog_vremena || 'puno_8h';
+        document.getElementById('edit_datum_zaposlenja').value = toInputDate(
+          worker.datum_zaposlenja
+        );
+        document.getElementById('edit_visina_zarade').value = normalizeNumber(
+          worker.visina_zarade || worker.zarada || worker.plata || ''
+        );
+        document.getElementById('edit_tip_radnog_vremena').value =
+          worker.tip_radnog_vremena || 'puno_8h';
         document.getElementById('edit_subota').checked = Boolean(worker.subota);
-        document.getElementById('edit_tip_ugovora').value = worker.tip_ugovora || 'na_neodredjeno';
-        document.getElementById('edit_datum_prestanka').value = toInputDate(worker.datum_prestanka);
+        document.getElementById('edit_tip_ugovora').value =
+          worker.tip_ugovora || 'na_neodredjeno';
+        document.getElementById('edit_datum_prestanka').value = toInputDate(
+          worker.datum_prestanka
+        );
         document.getElementById('edit_napomene').value = worker.napomene || '';
       }
 
       async function loadEditWorkerSelectOptions(worker) {
         const positionsSelect = document.getElementById('edit_pozicija_id');
         const firmsSelect = document.getElementById('edit_firma_id');
-        positionsSelect.innerHTML = '<option value="">Izaberite poziciju</option>';
+        positionsSelect.innerHTML =
+          '<option value="">Izaberite poziciju</option>';
         firmsSelect.innerHTML = '<option value="">Izaberite firmu</option>';
 
         try {
@@ -3038,7 +3347,8 @@
       function toggleEditWorkerEndDate() {
         const type = document.getElementById('edit_tip_ugovora')?.value;
         const group = document.getElementById('edit_datum_prestanka_group');
-        if (group) group.style.display = type === 'na_odredjeno' ? 'block' : 'none';
+        if (group)
+          group.style.display = type === 'na_odredjeno' ? 'block' : 'none';
       }
 
       async function submitEditWorker() {
@@ -3076,7 +3386,9 @@
             throw new Error(result.message || 'Radnik nije sačuvan');
           }
 
-          bootstrap.Modal.getInstance(document.getElementById('editWorkerModal'))?.hide();
+          bootstrap.Modal.getInstance(
+            document.getElementById('editWorkerModal')
+          )?.hide();
           await loadWorkers();
         } catch (error) {
           console.error('Greška pri ažuriranju radnika:', error);
@@ -3139,19 +3451,24 @@
         document.body.appendChild(menu);
         const modal = new bootstrap.Modal(menu);
         menu.addEventListener('hidden.bs.modal', () => menu.remove());
-        menu.querySelector('[data-action="termination"]').addEventListener('click', () => {
-          modal.hide();
-          openTerminationModal(workerId);
-        });
+        menu
+          .querySelector('[data-action="termination"]')
+          .addEventListener('click', () => {
+            modal.hide();
+            openTerminationModal(workerId);
+          });
         modal.show();
       }
 
       function loanRow(loan) {
         const lender =
           [loan.radnik_ime, loan.radnik_prezime].filter(Boolean).join(' ') ||
-          [loan.zajmodavac_ime, loan.zajmodavac_prezime].filter(Boolean).join(' ') ||
+          [loan.zajmodavac_ime, loan.zajmodavac_prezime]
+            .filter(Boolean)
+            .join(' ') ||
           '-';
-        const isClosed = loan.status === 'vraćena' || loan.status === 'zatvorena';
+        const isClosed =
+          loan.status === 'vraćena' || loan.status === 'zatvorena';
 
         return `
           <tr>
@@ -3291,18 +3608,21 @@
 
       async function loadZajmodavceForPozajmiceModal() {
         try {
-          const response = await fetch(`/api/firme/${currentFirmaId}/zajmodavci`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/firme/${currentFirmaId}/zajmodavci`,
+            {
+              credentials: 'include',
+            }
+          );
           if (!response.ok) return;
           const result = await response.json();
           const select = document.getElementById('zajmodavac_id');
           if (!select) return;
 
-          select.innerHTML = '<option value="">Izaberite zajmodavca...</option>';
-          const zajmodavci = result.success && Array.isArray(result.data)
-            ? result.data
-            : [];
+          select.innerHTML =
+            '<option value="">Izaberite zajmodavca...</option>';
+          const zajmodavci =
+            result.success && Array.isArray(result.data) ? result.data : [];
           zajmodavci.forEach(zajmodavac => {
             const name = `${zajmodavac.ime || ''} ${
               zajmodavac.prezime || ''
@@ -3315,14 +3635,19 @@
             );
           });
         } catch (error) {
-          console.error('Greška pri učitavanju zajmodavaca za pozajmice:', error);
+          console.error(
+            'Greška pri učitavanju zajmodavaca za pozajmice:',
+            error
+          );
         }
       }
 
       function togglePozajmilacSelector() {
         const pozajmilacTip = document.getElementById('pozajmilac_tip').value;
         const radnikSelector = document.getElementById('radnik_selector');
-        const zajmodavacSelector = document.getElementById('zajmodavac_selector');
+        const zajmodavacSelector = document.getElementById(
+          'zajmodavac_selector'
+        );
         const radnikSelect = document.getElementById('radnik_id');
         const zajmodavacSelect = document.getElementById('zajmodavac_id');
 
@@ -3408,7 +3733,9 @@
       }
 
       function findLoan(pozajmicaId) {
-        return currentLoans.find(loan => Number(loan.id) === Number(pozajmicaId));
+        return currentLoans.find(
+          loan => Number(loan.id) === Number(pozajmicaId)
+        );
       }
 
       function viewPozajmicaDetalji(pozajmicaId) {
@@ -3419,7 +3746,9 @@
         }
 
         const lender =
-          [pozajmica.radnik_ime, pozajmica.radnik_prezime].filter(Boolean).join(' ') ||
+          [pozajmica.radnik_ime, pozajmica.radnik_prezime]
+            .filter(Boolean)
+            .join(' ') ||
           [pozajmica.zajmodavac_ime, pozajmica.zajmodavac_prezime]
             .filter(Boolean)
             .join(' ') ||
@@ -3440,7 +3769,9 @@
         document.getElementById('modalPozajmicaStatus').innerHTML =
           loanStatusBadge(pozajmica.status || 'aktivna');
 
-        new bootstrap.Modal(document.getElementById('pozajmicaDetaljModal')).show();
+        new bootstrap.Modal(
+          document.getElementById('pozajmicaDetaljModal')
+        ).show();
       }
 
       function dodajPovracaj(pozajmicaId) {
@@ -3456,7 +3787,9 @@
 
       async function submitPovracaj() {
         try {
-          const formData = new FormData(document.getElementById('povracajForm'));
+          const formData = new FormData(
+            document.getElementById('povracajForm')
+          );
           const povracajData = {
             pozajmica_id: formData.get('pozajmica_id'),
             datum_povracaja: formData.get('datum_povracaja'),
@@ -3505,9 +3838,12 @@
 
       async function loadPovracajeForPozajmica(pozajmicaId) {
         try {
-          const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/povracaji/pozajmica/${pozajmicaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           const data = await response.json();
           renderPovracajeList(
             pozajmicaId,
@@ -3552,7 +3888,9 @@
       }
 
       async function obrisiPovracaj(povracajId) {
-        if (!confirm('Da li ste sigurni da želite da obrišete ovaj povraćaj?')) {
+        if (
+          !confirm('Da li ste sigurni da želite da obrišete ovaj povraćaj?')
+        ) {
           return;
         }
 
@@ -3580,13 +3918,15 @@
 
       async function kreirajOdlukuPovracaj(pozajmicaId) {
         try {
-          const response = await fetch(`/api/povracaji/pozajmica/${pozajmicaId}`, {
-            credentials: 'include',
-          });
+          const response = await fetch(
+            `/api/povracaji/pozajmica/${pozajmicaId}`,
+            {
+              credentials: 'include',
+            }
+          );
           const data = await response.json();
-          const povracaji = data.success && Array.isArray(data.povracaji)
-            ? data.povracaji
-            : [];
+          const povracaji =
+            data.success && Array.isArray(data.povracaji) ? data.povracaji : [];
 
           if (!povracaji.length) {
             alert(
@@ -3691,7 +4031,9 @@
 
           const result = await response.json();
           if (!response.ok || !result.success) {
-            throw new Error(result.message || result.error || 'Otkaz nije kreiran');
+            throw new Error(
+              result.message || result.error || 'Otkaz nije kreiran'
+            );
           }
 
           const modal = bootstrap.Modal.getInstance(
@@ -3780,7 +4122,8 @@
       }
 
       function showMissingCompany() {
-        document.getElementById('firmaNaziv').textContent = 'Nedostaje ID firme';
+        document.getElementById('firmaNaziv').textContent =
+          'Nedostaje ID firme';
         document.getElementById('workList').innerHTML =
           '<div class="empty-state">Otvorite stranicu sa parametrom ?id=ID_FIRME.</div>';
       }
@@ -3812,7 +4155,8 @@
 
       function formatMonthLabel(value) {
         const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return String(value || '-').slice(0, 7);
+        if (Number.isNaN(date.getTime()))
+          return String(value || '-').slice(0, 7);
         return date.toLocaleDateString('sr-Latn-ME', {
           month: 'long',
           year: 'numeric',
@@ -3947,7 +4291,8 @@
         <div class="modal-content">
           <div class="modal-header bg-success text-white">
             <h5 class="modal-title">
-              <i class="fas fa-clock me-2"></i>Konfiguracija rasporeda radnog vremena
+              <i class="fas fa-clock me-2"></i>Konfiguracija rasporeda radnog
+              vremena
             </h5>
             <button
               type="button"
@@ -3958,16 +4303,37 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label" for="odlukaDecisionDate">Datum odluke:</label>
-                <input class="form-control" id="odlukaDecisionDate" type="date" required />
+                <label class="form-label" for="odlukaDecisionDate"
+                  >Datum odluke:</label
+                >
+                <input
+                  class="form-control"
+                  id="odlukaDecisionDate"
+                  type="date"
+                  required
+                />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label" for="odlukaPeriodStart">Period od:</label>
-                <input class="form-control" id="odlukaPeriodStart" type="date" required />
+                <label class="form-label" for="odlukaPeriodStart"
+                  >Period od:</label
+                >
+                <input
+                  class="form-control"
+                  id="odlukaPeriodStart"
+                  type="date"
+                  required
+                />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label" for="odlukaPeriodEnd">Period do:</label>
-                <input class="form-control" id="odlukaPeriodEnd" type="date" required />
+                <label class="form-label" for="odlukaPeriodEnd"
+                  >Period do:</label
+                >
+                <input
+                  class="form-control"
+                  id="odlukaPeriodEnd"
+                  type="date"
+                  required
+                />
               </div>
             </div>
 
@@ -3982,7 +4348,11 @@
                 <label class="form-label" for="odlukaSecondShift">
                   Druga smjena (vrijeme):
                 </label>
-                <input class="form-control" id="odlukaSecondShift" type="text" />
+                <input
+                  class="form-control"
+                  id="odlukaSecondShift"
+                  type="text"
+                />
               </div>
             </div>
 
@@ -3999,7 +4369,8 @@
                   onchange="handleShiftAssignmentChange(this.value)"
                 />
                 <label class="form-check-label" for="odlukaAlternate">
-                  Automatski naizmjenično (jedan dan prva, drugi dan druga smjena - nedelja slobodna)
+                  Automatski naizmjenično (jedan dan prva, drugi dan druga
+                  smjena - nedelja slobodna)
                 </label>
               </div>
               <div class="form-check">
@@ -4040,10 +4411,18 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
               <i class="fas fa-times me-1"></i>Otkaži
             </button>
-            <button type="button" class="btn btn-success" onclick="generateShiftSchedule()">
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="generateShiftSchedule()"
+            >
               <i class="fas fa-file-alt me-1"></i>Generiši odluku
             </button>
           </div>
@@ -4051,24 +4430,38 @@
       </div>
     </div>
 
-    <div class="modal fade" id="pozajmicaModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="pozajmicaModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">
               <i class="fas fa-plus-circle me-2"></i>Nova pozajmica
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <form
             id="pozajmicaForm"
-            onsubmit="event.preventDefault(); submitPozajmica();"
+            onsubmit="
+              event.preventDefault();
+              submitPozajmica();
+            "
           >
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="broj_ugovora" class="form-label">Broj ugovora*</label>
+                    <label for="broj_ugovora" class="form-label"
+                      >Broj ugovora*</label
+                    >
                     <input
                       type="text"
                       class="form-control"
@@ -4132,7 +4525,11 @@
               </div>
 
               <div class="row">
-                <div class="col-md-6" id="radnik_selector" style="display: none">
+                <div
+                  class="col-md-6"
+                  id="radnik_selector"
+                  style="display: none"
+                >
                   <div class="mb-3">
                     <label for="radnik_id" class="form-label">
                       Zaposlenik (radnik)*
@@ -4159,7 +4556,9 @@
                     >
                       <option value="">Izaberite zajmodavca...</option>
                     </select>
-                    <div class="form-text">Vanjska osoba koja daje pozajmicu</div>
+                    <div class="form-text">
+                      Vanjska osoba koja daje pozajmicu
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4167,8 +4566,15 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
-                    <label for="svrha" class="form-label">Svrha pozajmice*</label>
-                    <select class="form-select" id="svrha" name="svrha" required>
+                    <label for="svrha" class="form-label"
+                      >Svrha pozajmice*</label
+                    >
+                    <select
+                      class="form-select"
+                      id="svrha"
+                      name="svrha"
+                      required
+                    >
                       <option value="">Izaberite svrhu</option>
                       <option value="obaveze_zarade">Obaveze za zarade</option>
                       <option value="obaveze_dobavljaci">
@@ -4207,7 +4613,11 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
                 Otkaži
               </button>
               <button type="submit" class="btn btn-primary">
@@ -4226,11 +4636,18 @@
             <h5 class="modal-title">
               <i class="fas fa-hand-holding-usd me-2"></i>Dodaj povraćaj
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <form
             id="povracajForm"
-            onsubmit="event.preventDefault(); submitPovracaj();"
+            onsubmit="
+              event.preventDefault();
+              submitPovracaj();
+            "
           >
             <div class="modal-body">
               <input type="hidden" id="pozajmica_id" name="pozajmica_id" />
@@ -4272,7 +4689,11 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
                 Otkaži
               </button>
               <button type="submit" class="btn btn-success">
@@ -4284,34 +4705,68 @@
       </div>
     </div>
 
-    <div class="modal fade" id="pozajmicaDetaljModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="pozajmicaDetaljModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">
               <i class="fas fa-file-contract me-2"></i>Detalji pozajmice
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="row">
               <div class="col-md-6">
                 <h6 class="text-primary mb-3">Osnovni podaci</h6>
-                <p><strong>Broj ugovora:</strong> <span id="modalPozajmicaBroj">-</span></p>
-                <p><strong>Pozajmilac:</strong> <span id="modalPozajmicaRadnik">-</span></p>
-                <p><strong>Datum pozajmice:</strong> <span id="modalPozajmicaDatum">-</span></p>
-                <p><strong>Iznos:</strong> <span id="modalPozajmicaIznos">-</span></p>
-                <p><strong>Svrha:</strong> <span id="modalPozajmicaSvrha">-</span></p>
+                <p>
+                  <strong>Broj ugovora:</strong>
+                  <span id="modalPozajmicaBroj">-</span>
+                </p>
+                <p>
+                  <strong>Pozajmilac:</strong>
+                  <span id="modalPozajmicaRadnik">-</span>
+                </p>
+                <p>
+                  <strong>Datum pozajmice:</strong>
+                  <span id="modalPozajmicaDatum">-</span>
+                </p>
+                <p>
+                  <strong>Iznos:</strong>
+                  <span id="modalPozajmicaIznos">-</span>
+                </p>
+                <p>
+                  <strong>Svrha:</strong>
+                  <span id="modalPozajmicaSvrha">-</span>
+                </p>
               </div>
               <div class="col-md-6">
                 <h6 class="text-primary mb-3">Status</h6>
-                <p><strong>Trenutni status:</strong> <span id="modalPozajmicaStatus">-</span></p>
-                <p><strong>Preostalo dugovanje:</strong> <span id="modalPozajmicaPreostalo">-</span></p>
+                <p>
+                  <strong>Trenutni status:</strong>
+                  <span id="modalPozajmicaStatus">-</span>
+                </p>
+                <p>
+                  <strong>Preostalo dugovanje:</strong>
+                  <span id="modalPozajmicaPreostalo">-</span>
+                </p>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
               Zatvori
             </button>
           </div>
@@ -4319,14 +4774,23 @@
       </div>
     </div>
 
-    <div class="modal fade" id="terminationModal" tabindex="-1" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="terminationModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">
               <i class="fas fa-handshake me-2"></i>Otkaz radnika
             </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <input type="hidden" id="terminationWorkerId" />
@@ -4344,8 +4808,15 @@
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label" for="terminationDate">Datum otkaza</label>
-              <input class="form-control" id="terminationDate" type="date" required />
+              <label class="form-label" for="terminationDate"
+                >Datum otkaza</label
+              >
+              <input
+                class="form-control"
+                id="terminationDate"
+                type="date"
+                required
+              />
             </div>
             <div class="mb-3">
               <label class="form-label" for="terminationReason">Razlog</label>
@@ -4358,10 +4829,18 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
               Otkaži
             </button>
-            <button type="button" class="btn btn-danger" onclick="submitTermination()">
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="submitTermination()"
+            >
               Kreiraj otkaz
             </button>
           </div>
