@@ -1,8 +1,8 @@
-const rateLimit = require("express-rate-limit");
-const { logWarning } = require("../utils/logger");
+const rateLimit = require('express-rate-limit');
+const { logWarning } = require('../utils/logger');
 
 function getSessionCookieKey(req) {
-  const cookieHeader = req.headers?.cookie || "";
+  const cookieHeader = req.headers?.cookie || '';
   const match = cookieHeader.match(/(?:^|;\s*)summa\.sid=([^;]+)/);
   if (match && match[1]) {
     return `sid:${match[1]}`;
@@ -16,15 +16,15 @@ const generalLimiter = rateLimit({
   max: 1000, // maksimalno 1000 zahteva po IP adresi
   message: {
     success: false,
-    message: "Previše zahteva sa ove IP adrese, pokušajte ponovo za 15 minuta.",
+    message: 'Previše zahteva sa ove IP adrese, pokušajte ponovo za 15 minuta.',
     retryAfter: 15 * 60, // sekunde
   },
   standardHeaders: true, // Vrati rate limit info u `RateLimit-*` headers
   legacyHeaders: false, // Onemogući `X-RateLimit-*` headers
   handler: (req, res) => {
-    logWarning("Rate limit exceeded - General", {
+    logWarning('Rate limit exceeded - General', {
       ip: req.ip,
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
     });
@@ -32,7 +32,7 @@ const generalLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message:
-        "Previše zahteva sa ove IP adrese, pokušajte ponovo za 15 minuta.",
+        'Previše zahteva sa ove IP adrese, pokušajte ponovo za 15 minuta.',
       retryAfter: 15 * 60,
     });
   },
@@ -44,14 +44,14 @@ const authLimiter = rateLimit({
   max: 15, // maksimalno 15 pokušaja prijave po IP adresi (povećano sa 5)
   message: {
     success: false,
-    message: "Previše pokušaja prijave. Pokušajte ponovo za 15 minuta.",
+    message: 'Previše pokušaja prijave. Pokušajte ponovo za 15 minuta.',
     retryAfter: 15 * 60,
   },
   skipSuccessfulRequests: true, // Ne računaj uspešne zahteve
   handler: (req, res) => {
-    logWarning("Rate limit exceeded - Auth", {
+    logWarning('Rate limit exceeded - Auth', {
       ip: req.ip,
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
       email: req.body?.email,
@@ -59,7 +59,7 @@ const authLimiter = rateLimit({
 
     res.status(429).json({
       success: false,
-      message: "Previše pokušaja prijave. Pokušajte ponovo za 15 minuta.",
+      message: 'Previše pokušaja prijave. Pokušajte ponovo za 15 minuta.',
       retryAfter: 15 * 60,
     });
   },
@@ -72,14 +72,14 @@ const apiWriteLimiter = rateLimit({
   keyGenerator: getSessionCookieKey,
   message: {
     success: false,
-    message: "Previše izmena podataka. Pokušajte ponovo za 5 minuta.",
+    message: 'Previše izmena podataka. Pokušajte ponovo za 5 minuta.',
     retryAfter: 5 * 60,
   },
-  skip: (req) => req.method === "GET", // Preskoči GET zahteve
+  skip: req => req.method === 'GET', // Preskoči GET zahteve
   handler: (req, res) => {
-    logWarning("Rate limit exceeded - API Write", {
+    logWarning('Rate limit exceeded - API Write', {
       ip: req.ip,
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
       userId: req.user ? req.user.id : null,
@@ -87,7 +87,36 @@ const apiWriteLimiter = rateLimit({
 
     res.status(429).json({
       success: false,
-      message: "Previše izmena podataka. Pokušajte ponovo za 5 minuta.",
+      message: 'Previše izmena podataka. Pokušajte ponovo za 5 minuta.',
+      retryAfter: 5 * 60,
+    });
+  },
+});
+
+// Poseban veći limit za batch čekiranje mjesecnih obaveza
+const mjesecneObavezeUpdateLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minuta
+  max: 2000, // omogućava veliki broj checkbox izmjena u kratkom periodu
+  keyGenerator: getSessionCookieKey,
+  message: {
+    success: false,
+    message: 'Previše izmena mjesecnih obaveza. Pokušajte ponovo za 5 minuta.',
+    retryAfter: 5 * 60,
+  },
+  skip: req => req.method !== 'POST',
+  handler: (req, res) => {
+    logWarning('Rate limit exceeded - Mjesecne Obaveze Update', {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      url: req.url,
+      method: req.method,
+      userId: req.user ? req.user.id : null,
+    });
+
+    res.status(429).json({
+      success: false,
+      message:
+        'Previše izmena mjesecnih obaveza. Pokušajte ponovo za 5 minuta.',
       retryAfter: 5 * 60,
     });
   },
@@ -99,13 +128,13 @@ const uploadLimiter = rateLimit({
   max: 10, // maksimalno 10 upload-a po IP adresi
   message: {
     success: false,
-    message: "Previše upload operacija. Pokušajte ponovo za 1 sat.",
+    message: 'Previše upload operacija. Pokušajte ponovo za 1 sat.',
     retryAfter: 60 * 60,
   },
   handler: (req, res) => {
-    logWarning("Rate limit exceeded - Upload", {
+    logWarning('Rate limit exceeded - Upload', {
       ip: req.ip,
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
       userId: req.user ? req.user.id : null,
@@ -113,7 +142,7 @@ const uploadLimiter = rateLimit({
 
     res.status(429).json({
       success: false,
-      message: "Previše upload operacija. Pokušajte ponovo za 1 sat.",
+      message: 'Previše upload operacija. Pokušajte ponovo za 1 sat.',
       retryAfter: 60 * 60,
     });
   },
@@ -126,14 +155,14 @@ const apiReadLimiter = rateLimit({
   keyGenerator: getSessionCookieKey,
   message: {
     success: false,
-    message: "Previše zahteva za čitanje. Pokušajte ponovo za 1 minut.",
+    message: 'Previše zahteva za čitanje. Pokušajte ponovo za 1 minut.',
     retryAfter: 1 * 60,
   },
-  skip: (req) => req.method !== "GET", // Samo GET zahtevi
+  skip: req => req.method !== 'GET', // Samo GET zahtevi
   handler: (req, res) => {
-    logWarning("Rate limit exceeded - API Read", {
+    logWarning('Rate limit exceeded - API Read', {
       ip: req.ip,
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       url: req.url,
       method: req.method,
       userId: req.user ? req.user.id : null,
@@ -141,7 +170,7 @@ const apiReadLimiter = rateLimit({
 
     res.status(429).json({
       success: false,
-      message: "Previše zahteva za čitanje. Pokušajte ponovo za 1 minut.",
+      message: 'Previše zahteva za čitanje. Pokušajte ponovo za 1 minut.',
       retryAfter: 1 * 60,
     });
   },
@@ -152,27 +181,32 @@ const smartRateLimiter = (req, res, next) => {
   const path = req.path.toLowerCase();
 
   // Preskoči rate limiting za browser well-known rute
-  if (path.includes("/.well-known/") || path.includes("/favicon.ico")) {
+  if (path.includes('/.well-known/') || path.includes('/favicon.ico')) {
     return next();
   }
 
   // Auth rute
-  if (path.includes("/login") || path.includes("/register")) {
+  if (path.includes('/login') || path.includes('/register')) {
     return authLimiter(req, res, next);
   }
 
   // Upload rute
-  if (path.includes("/upload") || path.includes("/file")) {
+  if (path.includes('/upload') || path.includes('/file')) {
     return uploadLimiter(req, res, next);
   }
 
+  // Mjesecne obaveze update - visok limit zbog masovnog čekiranja
+  if (path === '/api/mjesecne-obaveze/update' && req.method === 'POST') {
+    return mjesecneObavezeUpdateLimiter(req, res, next);
+  }
+
   // API write operacije
-  if (["POST", "PUT", "DELETE", "PATCH"].includes(req.method)) {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
     return apiWriteLimiter(req, res, next);
   }
 
   // API read operacije
-  if (req.method === "GET" && path.startsWith("/api/")) {
+  if (req.method === 'GET' && path.startsWith('/api/')) {
     return apiReadLimiter(req, res, next);
   }
 
@@ -184,6 +218,7 @@ module.exports = {
   general: generalLimiter,
   auth: authLimiter,
   api: apiWriteLimiter,
+  mjesecneObavezeUpdate: mjesecneObavezeUpdateLimiter,
   read: apiReadLimiter,
   upload: uploadLimiter,
   smart: smartRateLimiter,
@@ -191,6 +226,7 @@ module.exports = {
   generalLimiter,
   authLimiter,
   apiWriteLimiter,
+  mjesecneObavezeUpdateLimiter,
   uploadLimiter,
   apiReadLimiter,
   smartRateLimiter,
