@@ -1,6 +1,15 @@
 const rateLimit = require("express-rate-limit");
 const { logWarning } = require("../utils/logger");
 
+function getSessionCookieKey(req) {
+  const cookieHeader = req.headers?.cookie || "";
+  const match = cookieHeader.match(/(?:^|;\s*)summa\.sid=([^;]+)/);
+  if (match && match[1]) {
+    return `sid:${match[1]}`;
+  }
+  return `ip:${req.ip}`;
+}
+
 // Osnovni rate limiter za sve zahteve
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minuta
@@ -60,6 +69,7 @@ const authLimiter = rateLimit({
 const apiWriteLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minuta
   max: 50, // maksimalno 50 POST/PUT/DELETE zahteva po IP adresi
+  keyGenerator: getSessionCookieKey,
   message: {
     success: false,
     message: "Previše izmena podataka. Pokušajte ponovo za 5 minuta.",
@@ -113,6 +123,7 @@ const uploadLimiter = rateLimit({
 const apiReadLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minut
   max: 100, // maksimalno 100 GET zahteva po IP adresi
+  keyGenerator: getSessionCookieKey,
   message: {
     success: false,
     message: "Previše zahteva za čitanje. Pokušajte ponovo za 1 minut.",
