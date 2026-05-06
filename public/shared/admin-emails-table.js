@@ -21,6 +21,8 @@ const state = {
   visibleRows: [],
   updateJobId: null,
   updatePollingTimer: null,
+  addPibsJobId: null,
+  addPibsPollingTimer: null,
 };
 
 const UPDATE_FIELD_LABELS = {
@@ -82,11 +84,23 @@ function setProgressVisibility(visible) {
   box.style.display = visible ? 'block' : 'none';
 }
 
+function setAddPibsProgressVisibility(visible) {
+  const box = document.getElementById('addPibsProgressBox');
+  box.style.display = visible ? 'block' : 'none';
+}
+
 function updateProgressBar(progress = 0, text = 'Spremno.') {
   const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
   document.getElementById('irmsProgressFill').style.width = `${safeProgress}%`;
   document.getElementById('irmsProgressPercent').textContent = `${safeProgress.toFixed(1)}%`;
   document.getElementById('irmsProgressText').textContent = text;
+}
+
+function updateAddPibsProgressBar(progress = 0, text = 'Spremno.') {
+  const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
+  document.getElementById('addPibsProgressFill').style.width = `${safeProgress}%`;
+  document.getElementById('addPibsProgressPercent').textContent = `${safeProgress.toFixed(1)}%`;
+  document.getElementById('addPibsProgressText').textContent = text;
 }
 
 function stopUpdatePolling() {
@@ -96,11 +110,28 @@ function stopUpdatePolling() {
   }
 }
 
+function stopAddPibsPolling() {
+  if (state.addPibsPollingTimer) {
+    clearInterval(state.addPibsPollingTimer);
+    state.addPibsPollingTimer = null;
+  }
+}
+
 function restoreUpdateButton() {
   const button = document.getElementById('updateSelectedBtn');
   button.disabled = state.selectedPibs.size === 0;
   button.innerHTML = '<i class="fas fa-cloud-arrow-up me-1"></i>Update selektovanih (IRMS)';
   const cancelBtn = document.getElementById('cancelIrmsUpdateBtn');
+  if (cancelBtn) {
+    cancelBtn.disabled = true;
+  }
+}
+
+function restoreAddPibsButton() {
+  const button = document.getElementById('addPibsBtn');
+  button.disabled = false;
+  button.innerHTML = '<i class="fas fa-plus me-1"></i>Dodaj PIB-ove';
+  const cancelBtn = document.getElementById('cancelAddPibsBtn');
   if (cancelBtn) {
     cancelBtn.disabled = true;
   }
@@ -186,6 +217,195 @@ async function pollUpdateStatus() {
     restoreUpdateButton();
     updateProgressBar(0, error.message || 'Greška pri praćenju napretka.');
     alert(error.message || 'Greška pri praćenju napretka update-a');
+  }
+}
+
+async function pollAddPibsStatus() {
+  if (!state.addPibsJobId) return;
+
+  try {
+    const response = await fetch(
+      `/api/email-admin/table/add-pibs/status/${encodeURIComponent(state.addPibsJobId)}`,
+      { credentials: 'include' }
+    );
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Greška pri čitanju statusa dodavanja PIB-ova');
+    }
+
+    const job = result.job || {};
+    const summary = job.summary || {};
+    updateAddPibsProgressBar(
+      Number(job.progress || 0),
+      `Obrađeno ${job.processed || 0}/${job.total || 0} PIB-ova${job.currentPib ? ` (trenutni: ${job.currentPib})` : ''}`
+    );
+
+    if (job.status === 'completed') {
+      stopAddPibsPolling();
+      state.addPibsJobId = null;
+      restoreAddPibsButton();
+
+      alert(
+        `Dodavanje firmi završeno.\n` +
+          `PIB-ova obrađeno: ${summary.uniquePibs || 0}\n` +
+          `Ubačenih novih firmi: ${summary.insertedCompanies || 0}\n` +
+          `Ažuriranih postojećih redova: ${summary.updatedExistingRows || 0}\n` +
+          `Nije nađeno u IRMS: ${summary.irmsNotFound || 0}\n` +
+          `Nevalidnih PIB-ova: ${summary.invalidPibs || 0}\n` +
+          `Greške: ${summary.errors || 0}`
+      );
+
+      await loadTable();
+      setTimeout(() => {
+        setAddPibsProgressVisibility(false);
+      }, 1200);
+      return;
+    }
+
+    if (job.status === 'cancelled') {
+      stopAddPibsPolling();
+      state.addPibsJobId = null;
+      restoreAddPibsButton();
+      updateAddPibsProgressBar(Number(job.progress || 0), 'Dodavanje je otkazano od strane korisnika.');
+      alert('Dodavanje PIB-ova je uspešno otkazano.');
+      await loadTable();
+      setTimeout(() => {
+        setAddPibsProgressVisibility(false);
+      }, 1200);
+      return;
+    }
+
+    if (job.status === 'failed') {
+      stopAddPibsPolling();
+      state.addPibsJobId = null;
+      restoreAddPibsButton();
+      updateAddPibsProgressBar(Number(job.progress || 0), 'Dodavanje je prekinuto greškom.');
+      alert('Dodavanje PIB-ova je prekinuto greškom. Pokušajte ponovo.');
+    }
+  } catch (error) {
+    console.error('Polling add PIBs status error:', error);
+    stopAddPibsPolling();
+    state.addPibsJobId = null;
+    restoreAddPibsButton();
+    updateAddPibsProgressBar(0, error.message || 'Greška pri praćenju napretka.');
+    alert(error.message || 'Greška pri praćenju napretka dodavanja PIB-ova');
+  }
+}
+
+function normalizePibInput(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.length === 7) return `0${digits}`;
+  return digits;
+}
+
+function parsePibList(text) {
+  return [...new Set(
+    String(text || '')
+      .split(/[\s,;]+/)
+      .map(normalizePibInput)
+      .filter(pib => /^\d{8}$/.test(pib))
+  )];
+}
+
+function showAddPibsModal() {
+  const modalElement = document.getElementById('addPibsModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+  modal.show();
+}
+
+async function startAddPibsFromIrms(pibs) {
+  if (!Array.isArray(pibs) || pibs.length === 0) {
+    alert('Unesite bar jedan validan PIB.');
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Da li želite dodavanje/azuriranje ${pibs.length} PIB-ova iz IRMS-a?`
+  );
+  if (!confirmed) return;
+
+  const button = document.getElementById('addPibsBtn');
+  button.disabled = true;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Dodavanje u toku...';
+
+  const cancelBtn = document.getElementById('cancelAddPibsBtn');
+  cancelBtn.disabled = true;
+
+  setAddPibsProgressVisibility(true);
+  updateAddPibsProgressBar(0, 'Pokretanje dodavanja PIB-ova...');
+
+  try {
+    const response = await fetch('/api/email-admin/table/add-pibs', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pibs }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Greška pri pokretanju dodavanja PIB-ova');
+    }
+
+    state.addPibsJobId = result.job?.id || null;
+    if (!state.addPibsJobId) {
+      throw new Error('Dodavanje nije pokrenuto ispravno');
+    }
+
+    cancelBtn.disabled = false;
+    stopAddPibsPolling();
+    await pollAddPibsStatus();
+    state.addPibsPollingTimer = setInterval(() => {
+      pollAddPibsStatus();
+    }, 1000);
+  } catch (error) {
+    console.error('Add PIBs error:', error);
+    alert(error.message || 'Greška pri dodavanju PIB-ova');
+    setAddPibsProgressVisibility(false);
+    cancelBtn.disabled = true;
+    restoreAddPibsButton();
+  }
+}
+
+async function cancelAddPibsJob() {
+  if (!state.addPibsJobId) {
+    alert('Nema aktivnog dodavanja za cancel.');
+    return;
+  }
+
+  const confirmed = window.confirm('Da li želite da prekinete aktivno dodavanje PIB-ova?');
+  if (!confirmed) return;
+
+  const cancelBtn = document.getElementById('cancelAddPibsBtn');
+  cancelBtn.disabled = true;
+
+  try {
+    const response = await fetch(
+      `/api/email-admin/table/add-pibs/cancel/${encodeURIComponent(state.addPibsJobId)}`,
+      {
+        method: 'POST',
+        credentials: 'include',
+      }
+    );
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Greška pri otkazivanju dodavanja PIB-ova');
+    }
+
+    updateAddPibsProgressBar(
+      Number(result.job?.progress || 0),
+      'Zahtev za otkazivanje je poslat. Čekam potvrdu...'
+    );
+  } catch (error) {
+    console.error('Cancel add PIBs error:', error);
+    alert(error.message || 'Greška pri otkazivanju dodavanja PIB-ova');
+  } finally {
+    if (state.addPibsJobId) {
+      cancelBtn.disabled = false;
+    }
   }
 }
 
@@ -570,6 +790,29 @@ function setupSelectionControls() {
 
   document.getElementById('cancelIrmsUpdateBtn').addEventListener('click', () => {
     cancelRunningUpdate();
+  });
+
+  document.getElementById('addPibsBtn').addEventListener('click', () => {
+    showAddPibsModal();
+  });
+
+  document.getElementById('confirmAddPibsBtn').addEventListener('click', () => {
+    const text = document.getElementById('addPibsTextarea').value;
+    const pibs = parsePibList(text);
+
+    if (!pibs.length) {
+      alert('Unesite bar jedan validan PIB (8 cifara).');
+      return;
+    }
+
+    const modalElement = document.getElementById('addPibsModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.hide();
+    startAddPibsFromIrms(pibs);
+  });
+
+  document.getElementById('cancelAddPibsBtn').addEventListener('click', () => {
+    cancelAddPibsJob();
   });
 }
 

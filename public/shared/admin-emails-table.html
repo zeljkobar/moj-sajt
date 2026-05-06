@@ -144,6 +144,9 @@
           <span class="ms-3"><strong>Selektovano PIB-ova:</strong> <span id="selectedCount">0</span></span>
         </div>
         <div class="pagination-controls">
+          <button id="addPibsBtn" class="btn btn-sm btn-success">
+            <i class="fas fa-plus me-1"></i>Dodaj PIB-ove
+          </button>
           <button id="selectCurrentPageBtn" class="btn btn-sm btn-outline-success">
             <i class="fas fa-check-double me-1"></i>Selektuj trenutnu stranu
           </button>
@@ -179,6 +182,55 @@
           <button id="cancelIrmsUpdateBtn" class="btn btn-sm btn-outline-danger" disabled>
             <i class="fas fa-stop me-1"></i>Cancel
           </button>
+        </div>
+      </div>
+
+      <div id="addPibsProgressBox" class="progress-box mb-3" style="display: none">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong><i class="fas fa-building-circle-check me-2"></i>Dodavanje firmi iz IRMS-a</strong>
+          <span id="addPibsProgressPercent" class="text-success">0%</span>
+        </div>
+        <div class="progress-track mb-2">
+          <div id="addPibsProgressFill" class="progress-fill"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <div id="addPibsProgressText" class="text-muted small">Spremno.</div>
+          <button id="cancelAddPibsBtn" class="btn btn-sm btn-outline-danger" disabled>
+            <i class="fas fa-stop me-1"></i>Cancel
+          </button>
+        </div>
+      </div>
+
+      <div class="modal fade" id="addPibsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <i class="fas fa-list-check me-2"></i>Dodavanje firmi po PIB-u
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-muted mb-2">
+                Unesi više PIB-ova odjednom (svaki u novom redu, ili odvojeno zarezom).
+              </p>
+              <textarea
+                id="addPibsTextarea"
+                class="form-control"
+                rows="10"
+                placeholder="npr.&#10;02825767&#10;03797236&#10;..."
+              ></textarea>
+              <div class="form-text">
+                Povlači se: naziv firme, email, telefon i šifra djelatnosti (KD).
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
+              <button type="button" class="btn btn-success" id="confirmAddPibsBtn">
+                <i class="fas fa-play me-1"></i>Pokreni dodavanje
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

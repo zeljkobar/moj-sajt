@@ -9,6 +9,7 @@ email-lists/
 
 # CSV fajlovi sa PIB-ovima i email-ima (osetljivi podaci)
 *.csv
+pib-podgorica.csv
 bad-emails.csv
 pogresnipibovi.csv
 rezultati*.csv

@@ -147,6 +147,20 @@ function createIrmsSummary(requestedPibs, uniquePibs, selectedFields, overwriteE
   };
 }
 
+function createIrmsAddSummary(requestedPibs, uniquePibs) {
+  return {
+    requestedPibs,
+    uniquePibs,
+    invalidPibs: 0,
+    irmsFound: 0,
+    irmsNotFound: 0,
+    insertedCompanies: 0,
+    updatedExistingRows: 0,
+    skippedNoData: 0,
+    errors: 0,
+  };
+}
+
 function serializeJob(job) {
   const progress = job.total > 0 ? Number(((job.processed / job.total) * 100).toFixed(1)) : 0;
   return {
@@ -290,6 +304,106 @@ async function processIrmsUpdateJob(job) {
       job.summary.errors += 1;
       job.processed += 1;
       console.error(`IRMS update greška za PIB ${pib}:`, error.message);
+    }
+  }
+
+  job.status = 'completed';
+  job.finishedAt = new Date().toISOString();
+  job.currentPib = null;
+}
+
+async function processIrmsAddPibsJob(job) {
+  for (const pib of job.pibs) {
+    if (job.cancelRequested) {
+      job.status = 'cancelled';
+      job.finishedAt = new Date().toISOString();
+      job.currentPib = null;
+      return;
+    }
+
+    job.currentPib = pib;
+
+    try {
+      if (!/^\d{8}$/.test(pib)) {
+        job.summary.invalidPibs += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      const irmsData = await searchByPIB(pib, {
+        includeDirectors: false,
+        includeOwners: false,
+      });
+
+      if (!irmsData) {
+        job.summary.irmsNotFound += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      job.summary.irmsFound += 1;
+
+      const naziv = normalizeText(irmsData.name || irmsData.legalName);
+      const email = normalizeText(irmsData.email);
+      const telefon = normalizeText(irmsData.phone);
+      const kd = normalizeKd(irmsData.activity);
+      const grad = normalizeCity(irmsData.city);
+
+      if (!naziv && !email && !telefon && !kd && !grad) {
+        job.summary.skippedNoData += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      const existingRows = await executeQuery(
+        `SELECT COUNT(*) AS total FROM emails WHERE TRIM(pib) = ?`,
+        [pib]
+      );
+
+      const exists = Number(existingRows?.[0]?.total || 0) > 0;
+
+      if (exists) {
+        const updateResult = await executeQuery(
+          `
+            UPDATE emails
+            SET
+              naziv = CASE WHEN (naziv IS NULL OR TRIM(naziv) = '') AND ? <> '' THEN ? ELSE naziv END,
+              email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
+              telefon = CASE WHEN (telefon IS NULL OR TRIM(telefon) = '') AND ? <> '' THEN ? ELSE telefon END,
+              kd = CASE WHEN (kd IS NULL OR TRIM(kd) = '') AND ? <> '' THEN ? ELSE kd END,
+              grad = CASE WHEN (grad IS NULL OR TRIM(grad) = '') AND ? <> '' THEN ? ELSE grad END,
+              updated_at = NOW()
+            WHERE TRIM(pib) = ?
+          `,
+          [naziv, naziv, email, email, telefon, telefon, kd, kd, grad, grad, pib]
+        );
+
+        job.summary.updatedExistingRows += Number(updateResult?.affectedRows || 0);
+      } else {
+        await executeQuery(
+          `
+            INSERT INTO emails (
+              pib,
+              naziv,
+              grad,
+              kd,
+              email,
+              telefon,
+              created_at,
+              updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+          `,
+          [pib, naziv || null, grad || null, kd || null, email || null, telefon || null]
+        );
+
+        job.summary.insertedCompanies += 1;
+      }
+
+      job.processed += 1;
+    } catch (error) {
+      job.summary.errors += 1;
+      job.processed += 1;
+      console.error(`IRMS add PIB greška za ${pib}:`, error.message);
     }
   }
 
@@ -937,6 +1051,148 @@ router.post(
       res.status(500).json({
         success: false,
         message: 'Greška pri otkazivanju update-a',
+      });
+    }
+  }
+);
+
+// Dodaj firme po listi PIB-ova (bulk) preko IRMS
+router.post(
+  '/api/email-admin/table/add-pibs',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const inputPibs = Array.isArray(req.body?.pibs) ? req.body.pibs : [];
+      const uniquePibs = [
+        ...new Set(
+          inputPibs
+            .map(pib => normalizeText(pib).replace(/\D/g, ''))
+            .map(pib => (pib.length === 7 ? `0${pib}` : pib))
+            .filter(Boolean)
+        ),
+      ];
+
+      if (!uniquePibs.length) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nema PIB-ova za dodavanje',
+        });
+      }
+
+      if (uniquePibs.length > 5000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Maksimalno 5000 PIB-ova po jednom pokretanju',
+        });
+      }
+
+      const jobId = `irms-add-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const job = {
+        id: jobId,
+        status: 'running',
+        cancelRequested: false,
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        processed: 0,
+        total: uniquePibs.length,
+        pibs: uniquePibs,
+        currentPib: null,
+        summary: createIrmsAddSummary(inputPibs.length, uniquePibs.length),
+      };
+
+      irmsUpdateJobs.set(jobId, job);
+
+      processIrmsAddPibsJob(job).catch(error => {
+        job.status = 'failed';
+        job.finishedAt = new Date().toISOString();
+        job.currentPib = null;
+        job.summary.errors += 1;
+        console.error('Email table add PIBs background job error:', error);
+      });
+
+      res.json({
+        success: true,
+        message: 'Dodavanje PIB-ova je pokrenuto',
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table add PIBs error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri pokretanju dodavanja PIB-ova',
+      });
+    }
+  }
+);
+
+// Cancel add PIBs job-a
+router.post(
+  '/api/email-admin/table/add-pibs/cancel/:jobId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const jobId = String(req.params.jobId || '').trim();
+      const job = irmsUpdateJobs.get(jobId);
+
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job nije pronađen',
+        });
+      }
+
+      if (job.status !== 'running') {
+        return res.status(400).json({
+          success: false,
+          message: 'Job nije aktivan i ne može se otkazati',
+        });
+      }
+
+      job.cancelRequested = true;
+
+      res.json({
+        success: true,
+        message: 'Zahtev za prekid je prihvaćen',
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table add PIBs cancel error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri otkazivanju dodavanja PIB-ova',
+      });
+    }
+  }
+);
+
+// Status add PIBs job-a
+router.get(
+  '/api/email-admin/table/add-pibs/status/:jobId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const jobId = String(req.params.jobId || '').trim();
+      const job = irmsUpdateJobs.get(jobId);
+
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job nije pronađen',
+        });
+      }
+
+      res.json({
+        success: true,
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table add PIBs status error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri čitanju statusa dodavanja PIB-ova',
       });
     }
   }
