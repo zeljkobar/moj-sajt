@@ -248,6 +248,8 @@ router.post('/search', requireRole([ROLES.ADMIN]), async (req, res) => {
       businessCodes = [],
       employeeRange = [0, 1000],
       revenueRange = [0, 100000000],
+      includeEmployeeFilter = true,
+      includeRevenueFilter = true,
       onlyNeverEmailed = false,
       onlyWithEmail = true,
     } = req.body;
@@ -270,13 +272,13 @@ router.post('/search', requireRole([ROLES.ADMIN]), async (req, res) => {
     }
 
     // Filter by employee range
-    if (employeeRange && employeeRange.length === 2) {
+    if (includeEmployeeFilter && employeeRange && employeeRange.length === 2) {
       whereConditions.push(`CAST(broj_zaposlenih AS UNSIGNED) BETWEEN ? AND ?`);
       queryParams.push(employeeRange[0], employeeRange[1]);
     }
 
     // Filter by revenue range
-    if (revenueRange && revenueRange.length === 2) {
+    if (includeRevenueFilter && revenueRange && revenueRange.length === 2) {
       whereConditions.push(`CAST(prihod AS DECIMAL(15,2)) BETWEEN ? AND ?`);
       queryParams.push(revenueRange[0], revenueRange[1]);
     }
@@ -335,6 +337,8 @@ router.post('/search', requireRole([ROLES.ADMIN]), async (req, res) => {
         businessCodes,
         employeeRange,
         revenueRange,
+        includeEmployeeFilter,
+        includeRevenueFilter,
         onlyNeverEmailed,
         onlyWithEmail,
       },

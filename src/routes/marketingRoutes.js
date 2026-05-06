@@ -6,9 +6,297 @@ const { executeQuery } = require('../config/database');
 const { authMiddleware } = require('../middleware/auth');
 const { requireRole, ROLES } = require('../middleware/roleAuth');
 const MarketingEmailService = require('../../marketing-email');
+const { searchByPIB } = require('../services/irmsApiClient');
 
 const router = express.Router();
 const ROOT_DIR = path.join(__dirname, '..', '..');
+const irmsUpdateJobs = new Map();
+
+const EMAIL_TABLE_FILTER_FIELDS = [
+  'id',
+  'pib',
+  'naziv',
+  'grad',
+  'kd',
+  'email',
+  'telefon',
+  'broj_zaposlenih',
+  'prihod',
+  'created_at',
+  'updated_at',
+];
+
+function buildEmailTableWhereClause(source = {}, options = {}) {
+  const prefix = options.prefix || 'filter_';
+  const whereConditions = [];
+  const queryParams = [];
+
+  EMAIL_TABLE_FILTER_FIELDS.forEach(field => {
+    const prefixed = source[`${prefix}${field}`];
+    const direct = source[field];
+    const rawValue = prefixed !== undefined ? prefixed : direct;
+    const value = String(rawValue || '').trim();
+
+    if (!value) return;
+
+    if (value.toLowerCase() === '=prazno') {
+      whereConditions.push(
+        `(${field} IS NULL OR TRIM(CAST(${field} AS CHAR)) = '')`
+      );
+      return;
+    }
+
+    if (field === 'id') {
+      whereConditions.push('CAST(id AS CHAR) LIKE ?');
+      queryParams.push(`%${value}%`);
+      return;
+    }
+
+    whereConditions.push(`COALESCE(CAST(${field} AS CHAR), '') LIKE ?`);
+    queryParams.push(`%${value}%`);
+  });
+
+  const whereClause =
+    whereConditions.length > 0
+      ? `WHERE ${whereConditions.join(' AND ')}`
+      : '';
+
+  return { whereClause, queryParams };
+}
+
+function normalizeText(value) {
+  return String(value || '').trim();
+}
+
+function normalizeCity(cityRaw) {
+  const city = normalizeText(cityRaw);
+  if (!city) return '';
+  return city.split(',')[0].trim();
+}
+
+function normalizeKd(activityRaw) {
+  const activity = normalizeText(activityRaw);
+  if (!activity) return '';
+
+  const leadingCode = activity.match(/^(\d{3,6})\b/);
+  if (leadingCode) return leadingCode[1];
+
+  return activity.split(',')[0].trim();
+}
+
+const IRMS_UPDATABLE_FIELDS = {
+  naziv: {
+    extractValue: irmsData => normalizeText(irmsData.name || irmsData.legalName),
+  },
+  grad: {
+    extractValue: irmsData => normalizeCity(irmsData.city),
+  },
+  kd: {
+    extractValue: irmsData => normalizeKd(irmsData.activity),
+  },
+  email: {
+    extractValue: irmsData => normalizeText(irmsData.email),
+  },
+  telefon: {
+    extractValue: irmsData => normalizeText(irmsData.phone),
+  },
+  broj_zaposlenih: {
+    extractValue: irmsData =>
+      normalizeText(
+        irmsData.rawData?.numberOfEmployees ||
+          irmsData.rawData?.employeesNumber ||
+          irmsData.rawData?.employees ||
+          irmsData.rawData?.employeeCount ||
+          irmsData.numberOfEmployees
+      ),
+  },
+  prihod: {
+    extractValue: irmsData =>
+      normalizeText(
+        irmsData.rawData?.revenue ||
+          irmsData.rawData?.annualRevenue ||
+          irmsData.rawData?.totalRevenue ||
+          irmsData.rawData?.income ||
+          irmsData.rawData?.annualIncome ||
+          irmsData.revenue
+      ),
+  },
+};
+
+function createIrmsSummary(requestedPibs, uniquePibs, selectedFields, overwriteExisting) {
+  const fieldUpdates = {};
+  selectedFields.forEach(field => {
+    fieldUpdates[field] = 0;
+  });
+
+  return {
+    requestedPibs,
+    uniquePibs,
+    selectedFields,
+    overwriteExisting: Boolean(overwriteExisting),
+    invalidPibs: 0,
+    irmsFound: 0,
+    irmsNotFound: 0,
+    updatedPibs: 0,
+    updatedRows: 0,
+    fieldUpdates,
+    updatedGradRows: 0,
+    updatedKdRows: 0,
+    noChange: 0,
+    errors: 0,
+  };
+}
+
+function serializeJob(job) {
+  const progress = job.total > 0 ? Number(((job.processed / job.total) * 100).toFixed(1)) : 0;
+  return {
+    id: job.id,
+    status: job.status,
+    cancelRequested: Boolean(job.cancelRequested),
+    processed: job.processed,
+    total: job.total,
+    progress,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
+    summary: job.summary,
+    currentPib: job.currentPib || null,
+  };
+}
+
+async function processIrmsUpdateJob(job) {
+  for (const pib of job.pibs) {
+    if (job.cancelRequested) {
+      job.status = 'cancelled';
+      job.finishedAt = new Date().toISOString();
+      job.currentPib = null;
+      return;
+    }
+
+    job.currentPib = pib;
+
+    try {
+      if (!/^\d{8}$/.test(pib)) {
+        job.summary.invalidPibs += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      const irmsData = await searchByPIB(pib, {
+        includeDirectors: false,
+        includeOwners: false,
+      });
+      if (!irmsData) {
+        job.summary.irmsNotFound += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      job.summary.irmsFound += 1;
+
+      const fieldValues = {};
+      for (const field of job.selectedFields) {
+        const config = IRMS_UPDATABLE_FIELDS[field];
+        if (!config) continue;
+
+        const value = normalizeText(config.extractValue(irmsData));
+        if (value) {
+          fieldValues[field] = value;
+        }
+      }
+
+      const valueEntries = Object.entries(fieldValues);
+      if (!valueEntries.length) {
+        job.summary.noChange += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      const countParts = [];
+      const countParams = [];
+      valueEntries.forEach(([field, value]) => {
+        if (job.overwriteExisting) {
+          countParts.push(
+            `SUM(CASE WHEN ? <> '' AND COALESCE(TRIM(CAST(${field} AS CHAR)), '') <> ? THEN 1 ELSE 0 END) AS ${field}`
+          );
+          countParams.push(value, value);
+        } else {
+          countParts.push(
+            `SUM(CASE WHEN ? <> '' AND (${field} IS NULL OR TRIM(CAST(${field} AS CHAR)) = '') THEN 1 ELSE 0 END) AS ${field}`
+          );
+          countParams.push(value);
+        }
+      });
+
+      const counts = await executeQuery(
+        `
+          SELECT ${countParts.join(', ')}
+          FROM emails
+          WHERE pib = ?
+        `,
+        [...countParams, pib]
+      );
+
+      const fieldCounts = {};
+      let totalCellUpdates = 0;
+      valueEntries.forEach(([field]) => {
+        const count = Number(counts?.[0]?.[field] || 0);
+        fieldCounts[field] = count;
+        totalCellUpdates += count;
+      });
+
+      if (totalCellUpdates === 0) {
+        job.summary.noChange += 1;
+        job.processed += 1;
+        continue;
+      }
+
+      const updateParts = [];
+      const updateParams = [];
+      valueEntries.forEach(([field, value]) => {
+        if (job.overwriteExisting) {
+          updateParts.push(
+            `${field} = CASE WHEN ? <> '' THEN ? ELSE ${field} END`
+          );
+          updateParams.push(value, value);
+        } else {
+          updateParts.push(
+            `${field} = CASE WHEN (${field} IS NULL OR TRIM(CAST(${field} AS CHAR)) = '') AND ? <> '' THEN ? ELSE ${field} END`
+          );
+          updateParams.push(value, value);
+        }
+      });
+
+      const updateResult = await executeQuery(
+        `
+          UPDATE emails
+          SET ${updateParts.join(', ')}
+          WHERE pib = ?
+        `,
+        [...updateParams, pib]
+      );
+
+      job.summary.updatedPibs += 1;
+      job.summary.updatedRows += Number(updateResult?.affectedRows || 0);
+      valueEntries.forEach(([field]) => {
+        const count = Number(fieldCounts[field] || 0);
+        if (!count) return;
+
+        job.summary.fieldUpdates[field] = Number(job.summary.fieldUpdates[field] || 0) + count;
+        if (field === 'grad') job.summary.updatedGradRows += count;
+        if (field === 'kd') job.summary.updatedKdRows += count;
+      });
+      job.processed += 1;
+    } catch (error) {
+      job.summary.errors += 1;
+      job.processed += 1;
+      console.error(`IRMS update greška za PIB ${pib}:`, error.message);
+    }
+  }
+
+  job.status = 'completed';
+  job.finishedAt = new Date().toISOString();
+  job.currentPib = null;
+}
 
 // Marketing Email API endpoints (samo za administratore)
 const upload = multer({
@@ -372,6 +660,315 @@ router.get(
     } catch (error) {
       console.error('Email stats error:', error);
       res.status(500).json({ success: false, message: error.message });
+    }
+  }
+);
+
+// Pregled emails tabele sa filterima po kolonama (admin)
+router.get(
+  '/api/email-admin/table',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const toInt = (value, fallback) => {
+        const n = Number.parseInt(value, 10);
+        return Number.isFinite(n) && n > 0 ? n : fallback;
+      };
+
+      const page = toInt(req.query.page, 1);
+      const pageSizeRaw = toInt(req.query.pageSize, 100);
+      const pageSize = Math.min(pageSizeRaw, 500);
+      const offset = (page - 1) * pageSize;
+
+      const allowedSort = {
+        id: 'id',
+        pib: 'pib',
+        naziv: 'naziv',
+        grad: 'grad',
+        kd: 'kd',
+        email: 'email',
+        telefon: 'telefon',
+        broj_zaposlenih: 'broj_zaposlenih',
+        prihod: 'prihod',
+        created_at: 'created_at',
+        updated_at: 'updated_at',
+      };
+
+      const sortBy = allowedSort[req.query.sortBy] || 'updated_at';
+      const sortDir = String(req.query.sortDir || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+      const { whereClause, queryParams } = buildEmailTableWhereClause(
+        req.query,
+        { prefix: 'filter_' }
+      );
+
+      const countQuery = `
+        SELECT COUNT(*) as total
+        FROM emails
+        ${whereClause}
+      `;
+
+      const dataQuery = `
+        SELECT
+          id,
+          pib,
+          naziv,
+          grad,
+          kd,
+          email,
+          telefon,
+          broj_zaposlenih,
+          prihod,
+          opted_in,
+          created_at,
+          updated_at
+        FROM emails
+        ${whereClause}
+        ORDER BY ${sortBy} ${sortDir}
+        LIMIT ? OFFSET ?
+      `;
+
+      const [countRows, dataRows] = await Promise.all([
+        executeQuery(countQuery, queryParams),
+        executeQuery(dataQuery, [...queryParams, pageSize, offset]),
+      ]);
+
+      const total = Number(countRows?.[0]?.total || 0);
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+      res.json({
+        success: true,
+        data: {
+          rows: dataRows || [],
+          pagination: {
+            page,
+            pageSize,
+            total,
+            totalPages,
+          },
+          sort: {
+            sortBy,
+            sortDir: sortDir.toLowerCase(),
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Email table query error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri učitavanju emails tabele',
+      });
+    }
+  }
+);
+
+// Selektuj sve PIB-ove iz trenutnog filter rezultata
+router.post(
+  '/api/email-admin/table/select-all',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const filters = req.body?.filters || {};
+      const { whereClause, queryParams } = buildEmailTableWhereClause(filters, {
+        prefix: '',
+      });
+
+      const countQuery = `
+        SELECT COUNT(*) as totalRows
+        FROM emails
+        ${whereClause}
+      `;
+
+      const pibsQuery = `
+        SELECT DISTINCT TRIM(pib) as pib
+        FROM emails
+        ${whereClause}
+      `;
+
+      const [countRows, pibRows] = await Promise.all([
+        executeQuery(countQuery, queryParams),
+        executeQuery(pibsQuery, queryParams),
+      ]);
+
+      const totalRows = Number(countRows?.[0]?.totalRows || 0);
+      const allPibs = (pibRows || [])
+        .map(row => normalizeText(row.pib))
+        .filter(Boolean);
+
+      res.json({
+        success: true,
+        data: {
+          totalRows,
+          pibs: allPibs,
+          uniquePibs: allPibs.length,
+        },
+      });
+    } catch (error) {
+      console.error('Email table select-all error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri selektovanju filter rezultata',
+      });
+    }
+  }
+);
+
+// IRMS update za selektovane PIB-ove
+router.post(
+  '/api/email-admin/table/update-irms',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const inputPibs = Array.isArray(req.body?.pibs) ? req.body.pibs : [];
+      const uniquePibs = [...new Set(inputPibs.map(pib => normalizeText(pib)).filter(Boolean))];
+      const inputFields = Array.isArray(req.body?.fields) ? req.body.fields : [];
+      const selectedFields = [
+        ...new Set(
+          inputFields
+            .map(field => normalizeText(field))
+            .filter(field => field && Object.prototype.hasOwnProperty.call(IRMS_UPDATABLE_FIELDS, field))
+        ),
+      ];
+      const overwriteExisting = Boolean(req.body?.overwriteExisting);
+
+      if (!uniquePibs.length) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nema selektovanih PIB-ova za update',
+        });
+      }
+
+      if (!selectedFields.length) {
+        return res.status(400).json({
+          success: false,
+          message: 'Izaberite bar jedno polje za ažuriranje',
+        });
+      }
+
+      if (uniquePibs.length > 5000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Maksimalno 5000 PIB-ova po jednom update-u',
+        });
+      }
+
+      const jobId = `irms-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const job = {
+        id: jobId,
+        status: 'running',
+        cancelRequested: false,
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        processed: 0,
+        total: uniquePibs.length,
+        pibs: uniquePibs,
+        selectedFields,
+        overwriteExisting,
+        currentPib: null,
+        summary: createIrmsSummary(
+          inputPibs.length,
+          uniquePibs.length,
+          selectedFields,
+          overwriteExisting
+        ),
+      };
+
+      irmsUpdateJobs.set(jobId, job);
+
+      processIrmsUpdateJob(job).catch(error => {
+        job.status = 'failed';
+        job.finishedAt = new Date().toISOString();
+        job.currentPib = null;
+        job.summary.errors += 1;
+        console.error('Email table IRMS background job error:', error);
+      });
+
+      res.json({
+        success: true,
+        message: 'IRMS update je pokrenut',
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table IRMS update error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri IRMS update-u selektovanih redova',
+      });
+    }
+  }
+);
+
+// Cancel IRMS update job-a
+router.post(
+  '/api/email-admin/table/update-irms/cancel/:jobId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const jobId = String(req.params.jobId || '').trim();
+      const job = irmsUpdateJobs.get(jobId);
+
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job nije pronađen',
+        });
+      }
+
+      if (job.status !== 'running') {
+        return res.status(400).json({
+          success: false,
+          message: 'Job nije aktivan i ne može se otkazati',
+        });
+      }
+
+      job.cancelRequested = true;
+
+      res.json({
+        success: true,
+        message: 'Zahtev za prekid je prihvaćen',
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table IRMS cancel error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri otkazivanju update-a',
+      });
+    }
+  }
+);
+
+// Status IRMS update job-a
+router.get(
+  '/api/email-admin/table/update-irms/status/:jobId',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const jobId = String(req.params.jobId || '').trim();
+      const job = irmsUpdateJobs.get(jobId);
+
+      if (!job) {
+        return res.status(404).json({
+          success: false,
+          message: 'Job nije pronađen',
+        });
+      }
+
+      res.json({
+        success: true,
+        job: serializeJob(job),
+      });
+    } catch (error) {
+      console.error('Email table IRMS status error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri čitanju statusa update-a',
+      });
     }
   }
 );

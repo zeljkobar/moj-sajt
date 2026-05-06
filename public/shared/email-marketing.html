@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
@@ -958,7 +958,15 @@
             <div class="col-md-12 mb-3">
               <div class="additional-filters">
                 <label class="checkbox-filter">
-                  <input type="checkbox" id="onlyWithEmail" checked />
+                  <input type="checkbox" id="includeEmployeeFilter" />
+                  👥 Filtriraj po broju zaposlenih
+                </label>
+                <label class="checkbox-filter">
+                  <input type="checkbox" id="includeRevenueFilter" />
+                  💰 Filtriraj po prihodu
+                </label>
+                <label class="checkbox-filter">
+                  <input type="checkbox" id="onlyWithEmail" />
                   📧 Samo sa email adresom
                 </label>
                 <label class="checkbox-filter">
@@ -1662,7 +1670,8 @@
 
       let selectedFile = null;
       let selectedTemplate =
-        localStorage.getItem('selectedTemplate') || 'izvodi-automatizacija.html';
+        localStorage.getItem('selectedTemplate') ||
+        'izvodi-automatizacija.html';
 
       // Template management functions
       function openTemplateSelector() {
@@ -1675,7 +1684,8 @@
 
       function updateTemplatePreviewFromStorage() {
         const templateName =
-          localStorage.getItem('selectedTemplate') || 'izvodi-automatizacija.html';
+          localStorage.getItem('selectedTemplate') ||
+          'izvodi-automatizacija.html';
         selectedTemplate = templateName;
         updateTemplatePreview(templateName);
       }
@@ -2070,7 +2080,7 @@
             formData.append('senderName', campaignSenderName);
           if (campaignEmailSubject)
             formData.append('subject', campaignEmailSubject);
-          
+
           // Dodaj template koji se koristi
           formData.append('template', selectedTemplate);
           console.log('📧 Template koji se koristi:', selectedTemplate);
@@ -2208,7 +2218,10 @@
         // If completed
         if (status === 'completed') {
           document.getElementById('cancelCampaignBtn').disabled = true;
-          addLog('success', `Kampanja završena! Poslato: ${sent}, Neuspešno: ${failed}`);
+          addLog(
+            'success',
+            `Kampanja završena! Poslato: ${sent}, Neuspešno: ${failed}`
+          );
           stopProgressMonitoring();
         }
       }
@@ -2224,12 +2237,17 @@
       }
 
       async function startProgressMonitoring(campaignId) {
-        console.log('🎯 startProgressMonitoring called for campaign:', campaignId);
+        console.log(
+          '🎯 startProgressMonitoring called for campaign:',
+          campaignId
+        );
         addLog('info', 'Praćenje progresa pokrenuto...');
 
         // Odmah pozovi progress jednom pre polling-a
         try {
-          const response = await fetch(`/api/marketing/campaign-progress/${campaignId}`);
+          const response = await fetch(
+            `/api/marketing/campaign-progress/${campaignId}`
+          );
           if (response.ok) {
             const data = await response.json();
             console.log('📊 Initial progress data:', data);
@@ -2552,9 +2570,8 @@
 
           if (result.success) {
             displayCampaigns(result.campaigns);
-            document.getElementById(
-              'campaignsCount'
-            ).textContent = `${result.campaigns.length} kampanja`;
+            document.getElementById('campaignsCount').textContent =
+              `${result.campaigns.length} kampanja`;
           } else {
             showCampaignsError('Greška pri učitavanju kampanja');
           }
@@ -2630,8 +2647,8 @@
                   successRate >= 90
                     ? 'bg-success'
                     : successRate >= 70
-                    ? 'bg-warning'
-                    : 'bg-danger'
+                      ? 'bg-warning'
+                      : 'bg-danger'
                 }">
                   ${successRate}%
                 </span>
@@ -2641,11 +2658,11 @@
                   openRate >= 25
                     ? 'bg-success'
                     : openRate >= 15
-                    ? 'bg-warning'
-                    : 'bg-danger'
+                      ? 'bg-warning'
+                      : 'bg-danger'
                 }" title="${campaign.emails_opened} od ${
-              campaign.emails_sent
-            } otvoreno">
+                  campaign.emails_sent
+                } otvoreno">
                   ${openRate}%
                 </span>
               </td>
@@ -2841,8 +2858,8 @@
                         email.status === 'sent'
                           ? '<span class="badge bg-success">Poslato</span>'
                           : email.status === 'failed'
-                          ? '<span class="badge bg-danger">Neuspešno</span>'
-                          : '<span class="badge bg-warning">Pending</span>';
+                            ? '<span class="badge bg-danger">Neuspešno</span>'
+                            : '<span class="badge bg-warning">Pending</span>';
 
                       const openedBadge = email.opened_at
                         ? `<span class="badge bg-info" title="Otvoren: ${openedDate}">${openedDate}</span>`
@@ -2895,9 +2912,11 @@
         businessCodes: [],
         employeeRange: [0, 1000],
         revenueRange: [0, 100000000],
+        includeEmployeeFilter: false,
+        includeRevenueFilter: false,
         emailSentRange: [0, 20],
         onlyNeverEmailed: false,
-        onlyWithEmail: true,
+        onlyWithEmail: false,
       };
 
       // Load filter data when page loads
@@ -3040,6 +3059,12 @@
         document
           .getElementById('onlyNeverEmailed')
           .addEventListener('change', updateFilters);
+        document
+          .getElementById('includeEmployeeFilter')
+          .addEventListener('change', updateFilters);
+        document
+          .getElementById('includeRevenueFilter')
+          .addEventListener('change', updateFilters);
 
         // Buttons
         document
@@ -3062,6 +3087,15 @@
       function updateFilters() {
         console.log('🔄 Updating filters...');
 
+        selectedFilters.includeEmployeeFilter = document.getElementById(
+          'includeEmployeeFilter'
+        ).checked;
+        selectedFilters.includeRevenueFilter = document.getElementById(
+          'includeRevenueFilter'
+        ).checked;
+
+        syncRangeFilterStates();
+
         // Get selected cities
         selectedFilters.cities = Array.from(
           document.querySelectorAll(
@@ -3079,20 +3113,28 @@
         // Get range values
         const employeeMin = document.querySelector('#employeeRange .range-min');
         const employeeMax = document.querySelector('#employeeRange .range-max');
-        if (employeeMin && employeeMax) {
+        if (
+          selectedFilters.includeEmployeeFilter &&
+          employeeMin &&
+          employeeMax
+        ) {
           selectedFilters.employeeRange = [
             parseInt(employeeMin.value),
             parseInt(employeeMax.value),
           ];
+        } else {
+          selectedFilters.employeeRange = null;
         }
 
         const revenueMin = document.querySelector('#revenueRange .range-min');
         const revenueMax = document.querySelector('#revenueRange .range-max');
-        if (revenueMin && revenueMax) {
+        if (selectedFilters.includeRevenueFilter && revenueMin && revenueMax) {
           selectedFilters.revenueRange = [
             parseInt(revenueMin.value),
             parseInt(revenueMax.value),
           ];
+        } else {
+          selectedFilters.revenueRange = null;
         }
 
         const emailMin = document.querySelector('#emailSentRange .range-min');
@@ -3116,6 +3158,31 @@
         // Auto-search after short delay
         clearTimeout(window.searchTimeout);
         window.searchTimeout = setTimeout(performSearch, 500);
+      }
+
+      function syncRangeFilterStates() {
+        const employeeRange = document.getElementById('employeeRange');
+        const revenueRange = document.getElementById('revenueRange');
+
+        if (employeeRange) {
+          const employeeInputs = employeeRange.querySelectorAll('input');
+          employeeInputs.forEach(input => {
+            input.disabled = !selectedFilters.includeEmployeeFilter;
+          });
+          employeeRange.style.opacity = selectedFilters.includeEmployeeFilter
+            ? '1'
+            : '0.5';
+        }
+
+        if (revenueRange) {
+          const revenueInputs = revenueRange.querySelectorAll('input');
+          revenueInputs.forEach(input => {
+            input.disabled = !selectedFilters.includeRevenueFilter;
+          });
+          revenueRange.style.opacity = selectedFilters.includeRevenueFilter
+            ? '1'
+            : '0.5';
+        }
       }
 
       // Update dropdown display texts
@@ -3188,9 +3255,8 @@
                 1
               )
             : '0';
-        document.getElementById(
-          'percentageFiltered'
-        ).textContent = `${percentage}%`;
+        document.getElementById('percentageFiltered').textContent =
+          `${percentage}%`;
 
         // Sample emails
         const sampleContainer = document.getElementById('sampleEmails');
@@ -3242,8 +3308,10 @@
         });
 
         // Reset main checkboxes
-        document.getElementById('onlyWithEmail').checked = true;
+        document.getElementById('onlyWithEmail').checked = false;
         document.getElementById('onlyNeverEmailed').checked = false;
+        document.getElementById('includeEmployeeFilter').checked = false;
+        document.getElementById('includeRevenueFilter').checked = false;
 
         // Update filters and search
         updateFilters();
@@ -3547,26 +3615,34 @@
             if (result.campaign) {
               const campaign = result.campaign;
               console.log('🔄 Pronađena aktivna kampanja:', campaign);
-              
+
               // Postavi activeCampaignId
               activeCampaignId = campaign.id;
-              
+
               // Prikaži progress bar
               showProgressBar(true);
-              
+
               // Učitaj trenutni progres
-              const progressResponse = await fetch(`/api/marketing/campaign-progress/${campaign.id}`);
+              const progressResponse = await fetch(
+                `/api/marketing/campaign-progress/${campaign.id}`
+              );
               if (progressResponse.ok) {
                 const progressData = await progressResponse.json();
                 updateProgressBar(progressData);
               }
-              
+
               // Pokreni monitoring
-              addLog('info', `🔄 Nastavljeno praćenje kampanje #${campaign.id}: ${campaign.name}`);
+              addLog(
+                'info',
+                `🔄 Nastavljeno praćenje kampanje #${campaign.id}: ${campaign.name}`
+              );
               startProgressMonitoring(campaign.id);
-              
+
               // Prikaži poruku korisniku
-              showResult('info', `🔄 Nastavlja se kampanja "${campaign.name}" - ${campaign.name}`);
+              showResult(
+                'info',
+                `🔄 Nastavlja se kampanja "${campaign.name}" - ${campaign.name}`
+              );
             }
           }
         } catch (error) {
@@ -3585,7 +3661,7 @@
 
         // Check for saved email list
         checkSavedList();
-        
+
         // Check for running campaign
         checkForRunningCampaign();
       });

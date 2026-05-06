@@ -151,6 +151,7 @@ class Navigation {
                   <li><a class="dropdown-item" href="/admin-uplate.html"><i class="fas fa-credit-card me-2"></i>Uplate</a></li>
                   <li><a class="dropdown-item" href="/admin-pretplate.html"><i class="fas fa-subscription me-2"></i>Pretplate</a></li>
                   <li><a class="dropdown-item" href="/admin-database.html"><i class="fas fa-database me-2"></i>Baza podataka</a></li>
+                  <li><a class="dropdown-item" href="/admin-emails-table.html"><i class="fas fa-table me-2"></i>Emails tabela</a></li>
                   <li><a class="dropdown-item" href="/email-admin.html"><i class="fas fa-envelope-open-text me-2"></i>Email Admin</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="/shared/email-marketing.html"><i class="fas fa-bullhorn me-2"></i>Marketing Email</a></li>

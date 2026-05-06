@@ -485,6 +485,16 @@ router.get(
   }
 );
 
+// Zaštićena ruta za admin emails tabelu - SAMO ADMIN
+router.get(
+  '/admin-emails-table.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(ROOT_DIR + '/public/shared/admin-emails-table.html');
+  }
+);
+
 // Zaštićena ruta za admin users panel - SAMO ADMIN
 router.get(
   '/admin-users.html',
