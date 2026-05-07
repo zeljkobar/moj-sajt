@@ -4,8 +4,8 @@ const axios = require('axios');
 function parseArgs() {
   const args = process.argv.slice(2);
   const out = {
-    legalStatusId: 5,
-    municipalityId: 4,
+    legalStatusId: 1,
+    municipalityId: 24,
     taxpayerStatusId: 11,
     startPage: 1,
     perPage: 100,

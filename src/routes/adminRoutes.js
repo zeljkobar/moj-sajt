@@ -6,6 +6,9 @@ const path = require('path');
 const mysqldump = require('mysqldump');
 const { authMiddleware } = require('../middleware/auth');
 const { pool, executeQuery } = require('../config/database');
+const {
+  runContractExpiryReminderJob,
+} = require('../services/contractReminderService');
 
 // Middleware za proveru admin pristupa
 const adminMiddleware = (req, res, next) => {
@@ -1127,6 +1130,37 @@ router.post('/subscription/cleanup', async (req, res) => {
   } catch (error) {
     console.error('Greška pri cleanup-u pretplata:', error);
     res.status(500).json({ error: 'Greška pri ažuriranju isteklih pretplata' });
+  }
+});
+
+// POST /api/admin/contracts/reminders/run - Ručno pokretanje podsjetnika za isticanje ugovora
+router.post('/contracts/reminders/run', async (req, res) => {
+  try {
+    const daysBeforeRaw = Number(req.body?.daysBefore);
+    const daysBefore = Number.isFinite(daysBeforeRaw) && daysBeforeRaw > 0
+      ? daysBeforeRaw
+      : 10;
+    const dryRun = Boolean(req.body?.dryRun);
+
+    const summary = await runContractExpiryReminderJob({
+      daysBefore,
+      dryRun,
+      triggeredByAdminId: req.user?.id || null,
+    });
+
+    res.json({
+      success: true,
+      message: dryRun
+        ? 'Dry-run završen za podsjetnike ugovora'
+        : 'Podsjetnici za ugovore su obrađeni',
+      summary,
+    });
+  } catch (error) {
+    console.error('Greška pri pokretanju podsjetnika ugovora:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Greška pri pokretanju podsjetnika ugovora',
+    });
   }
 });
 

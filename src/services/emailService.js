@@ -552,6 +552,62 @@ class EmailService {
       return { success: false, error: error.message };
     }
   }
+
+  // Podsjetnik firmi da ugovor radnika ističe za N dana
+  async sendContractExpiryReminder(data) {
+    try {
+      const {
+        toEmail,
+        firmaNaziv,
+        radnikIme,
+        radnikPrezime,
+        daysLeft = 10,
+        contractEndDate,
+      } = data;
+
+      const workerFullName = `${radnikIme || ''} ${radnikPrezime || ''}`.trim();
+      const formattedDate = contractEndDate
+        ? new Date(contractEndDate).toLocaleDateString('sr-RS')
+        : 'nije dostupan';
+
+      const htmlContent = this.createEmailTemplate(
+        'Podsjetnik o isteku ugovora o radu',
+        `
+        <p>Poštovani ${firmaNaziv || 'korisniče'},</p>
+
+        <p>
+          Obavještavamo Vas da Vašem radniku <strong>${workerFullName || 'radniku'}</strong>
+          ugovor o radu ističe za <strong>${daysLeft} dana</strong>.
+        </p>
+
+        <p><strong>Datum isteka ugovora:</strong> ${formattedDate}</p>
+
+        <p>
+          Molimo Vas da ugovor produžite na vrijeme kako biste izbjegli eventualne kazne
+          i probleme u evidenciji.
+        </p>
+        `,
+        `
+        <p style="margin: 0;">
+          Ovo je automatska poruka sistema SummaSummarum.
+        </p>
+        `
+      );
+
+      const result = await this.transporter.sendMail({
+        from: `"SummaSummarum Sistem" <${this.getEmailAddress('support')}>`,
+        to: toEmail,
+        subject: `⏰ Ugovor ističe za ${daysLeft} dana - ${firmaNaziv || 'Firma'}`,
+        html: htmlContent,
+      });
+
+      console.log('✅ Email podsjetnik za ugovor poslat:', result.messageId);
+      return { success: true, messageId: result.messageId };
+    } catch (error) {
+      console.error('❌ Greška pri slanju podsjetnika za ugovor:', error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 module.exports = new EmailService();

@@ -30,6 +30,9 @@ const { requireRole, ROLES } = require('./src/middleware/roleAuth');
 const { subscriptionMiddleware } = require('./src/middleware/subscription');
 const { domainMiddleware } = require('./src/middleware/domain');
 const InventoryService = require('./src/services/inventoryService');
+const {
+  runContractExpiryReminderJob,
+} = require('./src/services/contractReminderService');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
@@ -908,6 +911,44 @@ app.use(handleNotFound);
 app.use(globalErrorHandler);
 
 let server;
+let contractReminderInterval = null;
+
+async function runAutomaticContractReminders() {
+  try {
+    const daysBefore = Math.max(
+      1,
+      Number(process.env.CONTRACT_REMINDER_DAYS_BEFORE || 10)
+    );
+
+    const summary = await runContractExpiryReminderJob({ daysBefore });
+    logInfo('Contract reminder job finished', { summary });
+  } catch (error) {
+    logError('Contract reminder job failed', error);
+  }
+}
+
+function startContractReminderScheduler() {
+  const remindersEnabled =
+    String(process.env.ENABLE_CONTRACT_EXPIRY_REMINDERS || 'true').toLowerCase() !==
+    'false';
+
+  if (!remindersEnabled) {
+    return;
+  }
+
+  const intervalMs = Math.max(
+    60 * 60 * 1000,
+    Number(process.env.CONTRACT_REMINDER_INTERVAL_MS || 6 * 60 * 60 * 1000)
+  );
+
+  runAutomaticContractReminders();
+  contractReminderInterval = setInterval(runAutomaticContractReminders, intervalMs);
+
+  logInfo('Contract reminder scheduler started', {
+    intervalMs,
+    daysBefore: Number(process.env.CONTRACT_REMINDER_DAYS_BEFORE || 10),
+  });
+}
 
 if (require.main === module) {
   // Listen on all interfaces, not just localhost
@@ -919,11 +960,18 @@ if (require.main === module) {
       logInfo('Server started', { environment: 'development', port });
       console.log(`🚀 Server radi na http://0.0.0.0:${port}`);
     }
+
+    startContractReminderScheduler();
   });
 
   // PRODUCTION: Graceful shutdown
   const shutdownGracefully = async () => {
     console.log('\n⚠️  Shutting down gracefully...');
+
+    if (contractReminderInterval) {
+      clearInterval(contractReminderInterval);
+      contractReminderInterval = null;
+    }
 
     server.close(() => {
       logInfo('Process terminated');
