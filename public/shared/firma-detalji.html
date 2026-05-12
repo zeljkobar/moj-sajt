@@ -1588,6 +1588,9 @@
         const otkazDocument = otkaz
           ? `<li><a class="dropdown-item" href="${getTerminationDocumentUrl(otkaz.id, otkaz.tip_otkaza, worker.id)}" target="_blank"><i class="fas fa-file-lines me-2"></i>Pregled otkaza</a></li>`
           : '';
+        const deleteOtkazAction = otkaz
+          ? `<li><button class="dropdown-item text-danger" type="button" onclick="deleteOtkaz(${otkaz.id})"><i class="fas fa-trash me-2"></i>Obriši otkaz</button></li>`
+          : '';
         const createOtkaz = !otkaz
           ? `<li><button class="dropdown-item text-danger" type="button" onclick="openTerminationModal(${worker.id})"><i class="fas fa-handshake me-2"></i>Otkaz radnika</button></li>`
           : '';
@@ -1609,12 +1612,40 @@
               <li><a class="dropdown-item" href="${contractUrl}" target="_blank"><i class="fas fa-file-signature me-2"></i>Ugovor</a></li>
               <li><a class="dropdown-item" href="${jprUrl}" target="_blank"><i class="fas fa-file-contract me-2"></i>JPR obrazac</a></li>
               ${otkazDocument}
+              ${deleteOtkazAction}
               ${createOtkaz}
               <li><hr class="dropdown-divider"></li>
               <li><button class="dropdown-item text-danger" type="button" onclick="deleteWorker(${worker.id})"><i class="fas fa-trash me-2"></i>Obriši radnika</button></li>
             </ul>
           </div>
         `;
+      }
+
+      async function deleteOtkaz(otkazId) {
+        const confirmed = confirm(
+          'Da li ste sigurni da želite da obrišete otkaz i vratite radnika u aktivne?'
+        );
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`/api/otkazi/${otkazId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
+
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(
+              result.message || result.error || 'Greška pri brisanju otkaza.'
+            );
+          }
+
+          await loadWorkers();
+          alert('Otkaz je obrisan i radnik je vraćen u aktivne.');
+        } catch (error) {
+          console.error('Greška pri brisanju otkaza:', error);
+          alert(error.message || 'Greška pri brisanju otkaza.');
+        }
       }
 
       function workerPreviewRow(worker) {
@@ -4253,6 +4284,7 @@
         confirmMaternityLeave,
         confirmWeeklyRest,
         deletePozajmica,
+        deleteOtkaz,
         deleteWorker,
         dodajPovracaj,
         generateShiftSchedule,
