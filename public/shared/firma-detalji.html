@@ -1583,7 +1583,7 @@
         const workerLastName = encodeURIComponent(worker.prezime || '');
         const workerJmbg = encodeURIComponent(worker.jmbg || '');
         const detailsUrl = `/shared/firma-detalji.html?id=${currentFirmaId}&radnikId=${worker.id}#radnici`;
-        const contractUrl = `/shared/ugovor-o-radu.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`;
+        const contractUrl = getWorkerContractUrl(worker);
         const jprUrl = `/shared/jpr-korica.html?firmaId=${currentFirmaId}&context=radnik&radnikIme=${workerName}&radnikPrezime=${workerLastName}&radnikJmbg=${workerJmbg}`;
         const otkazDocument = otkaz
           ? `<li><a class="dropdown-item" href="${getTerminationDocumentUrl(otkaz.id, otkaz.tip_otkaza, worker.id)}" target="_blank"><i class="fas fa-file-lines me-2"></i>Pregled otkaza</a></li>`
@@ -1663,7 +1663,7 @@
             </td>
             <td>${formatDate(worker.datum_prestanka) || 'Neodređeno'}</td>
             <td>
-              <a class="icon-button" href="/shared/ugovor-o-radu.html?radnikId=${worker.id}&firmaId=${currentFirmaId}" title="Ugovor">
+              <a class="icon-button" href="${getWorkerContractUrl(worker)}" title="Ugovor">
                 <i class="fas fa-file-signature"></i>
               </a>
             </td>
@@ -3444,7 +3444,7 @@
         if (!worker) return;
 
         const detailsUrl = `/shared/firma-detalji.html?id=${currentFirmaId}&radnikId=${worker.id}#radnici`;
-        const contractUrl = `/shared/ugovor-o-radu.html?radnikId=${worker.id}&firmaId=${currentFirmaId}`;
+        const contractUrl = getWorkerContractUrl(worker);
         const workerName = encodeURIComponent(worker.ime || '');
         const workerLastName = encodeURIComponent(worker.prezime || '');
         const workerJmbg = encodeURIComponent(worker.jmbg || '');
