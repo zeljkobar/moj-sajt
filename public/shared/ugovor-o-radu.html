@@ -224,6 +224,7 @@
           Zaposleni zasniva radni odnos na radnom mjestu
           <span id="pozicija-naziv">rukovalac građevi</span> u prostorijama
           poslodavca.<br />
+          Opština zaposlenja: <span id="opstina-zaposlenja">Bar</span><br />
           U obavljanju poslova iz prethodnog stava zaposleni:
         </p>
         <div id="pozicija-opis">
@@ -637,6 +638,7 @@
             firma_naziv: firma.naziv,
             firma_pib: firma.pib,
             firma_adresa: firma.adresa,
+            firma_grad: firma.grad,
             direktor_ime_prezime: firma.direktor_ime_prezime,
             radnik_ime: radnik.ime,
             radnik_prezime: radnik.prezime,
@@ -776,6 +778,13 @@
         if (direktorImeElement)
           direktorImeElement.textContent =
             ugovor.direktor_ime_prezime || 'SPIČANOVIĆ VOJIN';
+
+        const opstinaZaposlenjaElement =
+          document.getElementById('opstina-zaposlenja');
+        if (opstinaZaposlenjaElement) {
+          opstinaZaposlenjaElement.textContent =
+            ugovor.firma_grad || ugovor.grad || 'Bar';
+        }
 
         // Popuni podatke o radniku
         const radnikImePrezime = `${ugovor.radnik_prezime} ${ugovor.radnik_ime}`;
