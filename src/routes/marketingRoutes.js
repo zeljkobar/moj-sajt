@@ -86,6 +86,37 @@ function normalizeKd(activityRaw) {
   return activity.split(',')[0].trim();
 }
 
+function normalizePibValue(value) {
+  const digitsOnly = normalizeText(value).replace(/\D/g, '');
+  if (!digitsOnly) return '';
+  return digitsOnly.length === 7 ? `0${digitsOnly}` : digitsOnly;
+}
+
+async function findExistingEmailPibs(pibs = []) {
+  if (!Array.isArray(pibs) || pibs.length === 0) return new Set();
+
+  const existing = new Set();
+  const chunkSize = 500;
+
+  for (let i = 0; i < pibs.length; i += chunkSize) {
+    const chunk = pibs.slice(i, i + chunkSize);
+    if (!chunk.length) continue;
+
+    const placeholders = chunk.map(() => '?').join(', ');
+    const rows = await executeQuery(
+      `SELECT DISTINCT TRIM(pib) AS pib FROM emails WHERE TRIM(pib) IN (${placeholders})`,
+      chunk
+    );
+
+    rows.forEach(row => {
+      const normalized = normalizePibValue(row?.pib);
+      if (normalized) existing.add(normalized);
+    });
+  }
+
+  return existing;
+}
+
 function normalizeOrganizationType(legalStatusRaw) {
   const raw = normalizeText(legalStatusRaw);
   if (!raw) return '';
@@ -236,10 +267,12 @@ function createIrmsSummary(requestedPibs, uniquePibs, selectedFields, overwriteE
   };
 }
 
-function createIrmsAddSummary(requestedPibs, uniquePibs) {
+function createIrmsAddSummary(requestedPibs, uniquePibs, sentToIrms = uniquePibs, existingInDatabase = 0) {
   return {
     requestedPibs,
     uniquePibs,
+    sentToIrms,
+    existingInDatabase,
     invalidPibs: 0,
     irmsFound: 0,
     irmsNotFound: 0,
@@ -1206,11 +1239,11 @@ router.post(
   async (req, res) => {
     try {
       const inputPibs = Array.isArray(req.body?.pibs) ? req.body.pibs : [];
+      const skipExistingBeforeIrms = req.body?.skipExistingBeforeIrms !== false;
       const uniquePibs = [
         ...new Set(
           inputPibs
-            .map(pib => normalizeText(pib).replace(/\D/g, ''))
-            .map(pib => (pib.length === 7 ? `0${pib}` : pib))
+            .map(pib => normalizePibValue(pib))
             .filter(Boolean)
         ),
       ];
@@ -1229,7 +1262,41 @@ router.post(
         });
       }
 
+      const existingPibs = skipExistingBeforeIrms
+        ? await findExistingEmailPibs(uniquePibs)
+        : new Set();
+      const pibsForIrms = uniquePibs.filter(pib => !existingPibs.has(pib));
+
       const jobId = `irms-add-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+      if (!pibsForIrms.length) {
+        const completedJob = {
+          id: jobId,
+          status: 'completed',
+          cancelRequested: false,
+          startedAt: new Date().toISOString(),
+          finishedAt: new Date().toISOString(),
+          processed: 0,
+          total: 0,
+          pibs: [],
+          currentPib: null,
+          summary: createIrmsAddSummary(
+            inputPibs.length,
+            uniquePibs.length,
+            0,
+            existingPibs.size
+          ),
+        };
+
+        irmsUpdateJobs.set(jobId, completedJob);
+
+        return res.json({
+          success: true,
+          message: 'Svi poslati PIB-ovi već postoje u bazi. Nema IRMS poziva.',
+          job: serializeJob(completedJob),
+        });
+      }
+
       const job = {
         id: jobId,
         status: 'running',
@@ -1237,10 +1304,15 @@ router.post(
         startedAt: new Date().toISOString(),
         finishedAt: null,
         processed: 0,
-        total: uniquePibs.length,
-        pibs: uniquePibs,
+        total: pibsForIrms.length,
+        pibs: pibsForIrms,
         currentPib: null,
-        summary: createIrmsAddSummary(inputPibs.length, uniquePibs.length),
+        summary: createIrmsAddSummary(
+          inputPibs.length,
+          uniquePibs.length,
+          pibsForIrms.length,
+          existingPibs.size
+        ),
       };
 
       irmsUpdateJobs.set(jobId, job);

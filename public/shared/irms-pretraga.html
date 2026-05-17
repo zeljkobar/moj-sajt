@@ -500,7 +500,9 @@
             });
             alert(
               `Dodavanje firmi završeno.\n` +
-                `PIB-ova obrađeno: ${summary.uniquePibs || 0}\n` +
+                `PIB-ova poslato: ${summary.sentToIrms || total || 0}\n` +
+                `PIB-ova već u bazi (preskočeno): ${summary.existingInDatabase || 0}\n` +
+                `PIB-ova obrađeno: ${processed || 0}\n` +
                 `Ubačenih novih firmi: ${summary.insertedCompanies || 0}\n` +
                 `Ažuriranih postojećih redova: ${summary.updatedExistingRows || 0}\n` +
                 `Nije nađeno u IRMS: ${summary.irmsNotFound || 0}\n` +
