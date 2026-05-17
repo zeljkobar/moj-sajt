@@ -33,6 +33,10 @@ const InventoryService = require('./src/services/inventoryService');
 const {
   runContractExpiryReminderJob,
 } = require('./src/services/contractReminderService');
+const {
+  runAutomaticIrmsImportForPreviousDay,
+  getPreviousDayYmd,
+} = require('./src/services/irmsDailyImportService');
 const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
@@ -912,6 +916,9 @@ app.use(globalErrorHandler);
 
 let server;
 let contractReminderInterval = null;
+let irmsDailyImportInterval = null;
+let irmsDailyImportRunning = false;
+let irmsDailyImportLastRunDate = '';
 
 async function runAutomaticContractReminders() {
   try {
@@ -950,6 +957,65 @@ function startContractReminderScheduler() {
   });
 }
 
+async function runAutomaticIrmsDailyImport() {
+  if (irmsDailyImportRunning) {
+    return;
+  }
+
+  const now = new Date();
+  const runHour = Math.max(0, Math.min(23, Number(process.env.IRMS_DAILY_IMPORT_HOUR || 3)));
+  const todayKey = now.toISOString().slice(0, 10);
+
+  if (now.getHours() < runHour) {
+    return;
+  }
+
+  if (irmsDailyImportLastRunDate === todayKey) {
+    return;
+  }
+
+  irmsDailyImportRunning = true;
+
+  try {
+    const summary = await runAutomaticIrmsImportForPreviousDay();
+    irmsDailyImportLastRunDate = todayKey;
+
+    logInfo('IRMS daily import finished', {
+      summary,
+      runHour,
+      executedAt: now.toISOString(),
+      importedDate: summary.registrationDate || getPreviousDayYmd(now),
+    });
+  } catch (error) {
+    logError('IRMS daily import failed', error);
+  } finally {
+    irmsDailyImportRunning = false;
+  }
+}
+
+function startIrmsDailyImportScheduler() {
+  const importEnabled =
+    String(process.env.ENABLE_IRMS_DAILY_IMPORT || 'true').toLowerCase() !== 'false';
+
+  if (!importEnabled) {
+    return;
+  }
+
+  const intervalMs = Math.max(
+    10 * 60 * 1000,
+    Number(process.env.IRMS_DAILY_IMPORT_CHECK_INTERVAL_MS || 30 * 60 * 1000)
+  );
+
+  runAutomaticIrmsDailyImport();
+  irmsDailyImportInterval = setInterval(runAutomaticIrmsDailyImport, intervalMs);
+
+  logInfo('IRMS daily import scheduler started', {
+    intervalMs,
+    runHour: Math.max(0, Math.min(23, Number(process.env.IRMS_DAILY_IMPORT_HOUR || 3))),
+    importsPreviousDay: true,
+  });
+}
+
 if (require.main === module) {
   // Listen on all interfaces, not just localhost
   server = app.listen(port, '0.0.0.0', () => {
@@ -962,6 +1028,7 @@ if (require.main === module) {
     }
 
     startContractReminderScheduler();
+    startIrmsDailyImportScheduler();
   });
 
   // PRODUCTION: Graceful shutdown
@@ -971,6 +1038,11 @@ if (require.main === module) {
     if (contractReminderInterval) {
       clearInterval(contractReminderInterval);
       contractReminderInterval = null;
+    }
+
+    if (irmsDailyImportInterval) {
+      clearInterval(irmsDailyImportInterval);
+      irmsDailyImportInterval = null;
     }
 
     server.close(() => {
