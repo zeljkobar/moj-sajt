@@ -155,6 +155,7 @@ router.get('/firme.html', authMiddleware, subscriptionMiddleware, (req, res) => 
 const protectedSharedPages = [
   'dashboard.html',
   'firme.html',
+  'irms-pretraga.html',
   'firma-detalji.html',
   'dodaj-firmu.html',
   'edit-firmu.html',

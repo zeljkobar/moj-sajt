@@ -144,6 +144,9 @@
           <span class="ms-3"><strong>Selektovano PIB-ova:</strong> <span id="selectedCount">0</span></span>
         </div>
         <div class="pagination-controls">
+          <a href="/shared/irms-pretraga.html" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-arrow-up-right-from-square me-1"></i>IRMS pretraga
+          </a>
           <button id="addPibsBtn" class="btn btn-sm btn-success">
             <i class="fas fa-plus me-1"></i>Dodaj PIB-ove
           </button>
@@ -258,6 +261,12 @@
                 </div>
                 <div class="col-6">
                   <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="updateField" value="oblik_organizacije" id="updateFieldOblikOrganizacije" checked />
+                    <label class="form-check-label" for="updateFieldOblikOrganizacije">Oblik organizacije</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="updateField" value="grad" id="updateFieldGrad" checked />
                     <label class="form-check-label" for="updateFieldGrad">Grad</label>
                   </div>
@@ -266,6 +275,12 @@
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="updateField" value="kd" id="updateFieldKd" checked />
                     <label class="form-check-label" for="updateFieldKd">KD</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="updateField" value="datum_registracije" id="updateFieldDatumRegistracije" />
+                    <label class="form-check-label" for="updateFieldDatumRegistracije">Datum registracije</label>
                   </div>
                 </div>
                 <div class="col-6">
@@ -318,12 +333,14 @@
               <th class="col-select"></th>
               <th><input data-filter="pib" class="form-control form-control-sm filter-input" placeholder="Filter PIB" /></th>
               <th><input data-filter="naziv" class="form-control form-control-sm filter-input" placeholder="Filter Naziv" /></th>
+              <th><input data-filter="oblik_organizacije" class="form-control form-control-sm filter-input" placeholder="Filter Oblik" /></th>
               <th><input data-filter="grad" class="form-control form-control-sm filter-input" placeholder="Filter Grad" /></th>
               <th><input data-filter="kd" class="form-control form-control-sm filter-input" placeholder="Filter KD" /></th>
               <th><input data-filter="email" class="form-control form-control-sm filter-input" placeholder="Filter Email" /></th>
               <th><input data-filter="telefon" class="form-control form-control-sm filter-input" placeholder="Filter Telefon" /></th>
               <th><input data-filter="broj_zaposlenih" class="form-control form-control-sm filter-input" placeholder="Filter Zaposleni" /></th>
               <th><input data-filter="prihod" class="form-control form-control-sm filter-input" placeholder="Filter Prihod" /></th>
+              <th><input data-filter="datum_registracije" class="form-control form-control-sm filter-input" placeholder="Filter Datum reg." /></th>
               <th><input data-filter="created_at" class="form-control form-control-sm filter-input" placeholder="Filter Kreiran" /></th>
               <th><input data-filter="updated_at" class="form-control form-control-sm filter-input" placeholder="Filter Ažuriran" /></th>
             </tr>
@@ -331,19 +348,21 @@
               <th class="col-select"><input id="selectPageCheckbox" type="checkbox" /></th>
               <th class="sortable" data-sort="pib">PIB <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="naziv">Naziv <i class="fas fa-sort"></i></th>
+              <th class="sortable" data-sort="oblik_organizacije">Oblik <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="grad">Grad <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="kd">KD <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="email">Email <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="telefon">Telefon <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="broj_zaposlenih">Zaposleni <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="prihod">Prihod <i class="fas fa-sort"></i></th>
+              <th class="sortable" data-sort="datum_registracije">Datum reg. <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="created_at">Kreiran <i class="fas fa-sort"></i></th>
               <th class="sortable" data-sort="updated_at">Ažuriran <i class="fas fa-sort"></i></th>
             </tr>
           </thead>
           <tbody id="emailsTableBody">
             <tr>
-              <td colspan="11" class="text-center text-muted py-4">Učitavanje...</td>
+              <td colspan="13" class="text-center text-muted py-4">Učitavanje...</td>
             </tr>
           </tbody>
         </table>

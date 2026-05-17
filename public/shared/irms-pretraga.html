@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IRMS Pretraga</title>
+
+    <script src="/shared/components/dynamic-favicon.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="/shared/style.css" rel="stylesheet" />
+    <link href="/shared/global-components.css" rel="stylesheet" />
+    <link href="/shared/app-pages.css" rel="stylesheet" />
+
+    <style>
+      .search-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+      }
+
+      .results-wrap {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: auto;
+        max-height: 65vh;
+        background: #fff;
+      }
+
+      .results-table {
+        min-width: 1200px;
+        margin-bottom: 0;
+      }
+
+      .results-table th {
+        position: sticky;
+        top: 0;
+        background: #f8fafc;
+        z-index: 2;
+        white-space: nowrap;
+      }
+
+      .results-table td {
+        white-space: nowrap;
+      }
+
+      .small-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navigation-placeholder"></div>
+
+    <div class="container-fluid mt-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <h1 class="h3 mb-1">
+            <i class="fas fa-magnifying-glass-chart me-2"></i>IRMS pretraga subjekata
+          </h1>
+          <p class="text-muted mb-0">
+            Biraj vrijednosti po nazivu (npr. Podgorica, DOO), sistem automatski prevodi na IRMS ID.
+          </p>
+        </div>
+      </div>
+
+      <div class="search-card p-3 mb-3">
+        <form id="irmsSearchForm" class="row g-3">
+          <div class="col-md-3">
+            <label for="tradeClassificationCode" class="form-label">Sifra djelatnosti (KD)</label>
+            <input type="text" class="form-control" id="tradeClassificationCode" placeholder="npr. 6920" />
+          </div>
+
+          <div class="col-md-3">
+            <label for="legalStatus" class="form-label">Oblik organizacije</label>
+            <select id="legalStatus" class="form-select">
+              <option value="">Svi oblici</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="municipality" class="form-label">Opstina</label>
+            <select id="municipality" class="form-select">
+              <option value="">Sve opstine</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="taxpayerStatus" class="form-label">Status drustva</label>
+            <select id="taxpayerStatus" class="form-select">
+              <option value="">Svi statusi</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="registrationDate" class="form-label">Datum osnivanja</label>
+            <input type="date" class="form-control" id="registrationDate" />
+          </div>
+
+          <div class="col-md-3">
+            <label for="companyName" class="form-label">Naziv drustva</label>
+            <input type="text" class="form-control" id="companyName" placeholder="npr. SUMMA" />
+          </div>
+
+          <div class="col-md-3">
+            <label for="identificationNumber" class="form-label">PIB / Maticni broj</label>
+            <input type="text" class="form-control" id="identificationNumber" placeholder="8 cifara" />
+          </div>
+
+          <div class="col-md-3">
+            <label for="registrationNumber" class="form-label">Registracioni broj</label>
+            <input type="text" class="form-control" id="registrationNumber" placeholder="npr. 5-0136540/001" />
+          </div>
+
+          <div class="col-md-2">
+            <label for="perPage" class="form-label">Po strani</label>
+            <select id="perPage" class="form-select">
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label for="page" class="form-label">Strana</label>
+            <input type="number" min="1" value="1" class="form-control" id="page" />
+          </div>
+
+          <div class="col-md-8 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search me-1"></i>Pretraga
+            </button>
+            <button type="button" id="addSelectedBtn" class="btn btn-success" disabled>
+              <i class="fas fa-plus me-1"></i>Dodaj selektovane PIB-ove
+            </button>
+            <button type="button" id="addCurrentPageBtn" class="btn btn-outline-success" disabled>
+              <i class="fas fa-layer-group me-1"></i>Dodaj sve sa trenutne strane
+            </button>
+            <button type="button" id="addAllResultsBtn" class="btn btn-outline-success" disabled>
+              <i class="fas fa-database me-1"></i>Dodaj sve iz pretrage
+            </button>
+            <button type="button" id="resetBtn" class="btn btn-outline-secondary">
+              <i class="fas fa-rotate-left me-1"></i>Reset
+            </button>
+            <span id="selectedCountText" class="text-muted"></span>
+            <span id="statusText" class="text-muted"></span>
+            <span id="pagesText" class="text-muted"></span>
+          </div>
+
+          <div class="col-12">
+            <div id="progressWrap" class="d-none">
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span id="progressLabel"></span>
+                <span id="progressValue"></span>
+              </div>
+              <div class="progress" style="height: 8px">
+                <div
+                  id="progressBar"
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  style="width: 0%"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="mb-2">
+        <div class="small text-muted">Poslati IRMS upit:</div>
+        <div id="appliedQuery" class="small-mono text-break"></div>
+      </div>
+
+      <div class="results-wrap">
+        <table class="table table-sm table-striped table-hover results-table">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 40px">
+                <input id="selectAllRows" type="checkbox" />
+              </th>
+              <th>Reg. broj</th>
+              <th>Promjena</th>
+              <th>PIB/Maticni broj</th>
+              <th>Naziv drustva</th>
+              <th>Oblik organizacije</th>
+              <th>Sifra djelatnosti</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">Nema podataka.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navigation.js"></script>
+    <script>
+      const els = {
+        form: document.getElementById('irmsSearchForm'),
+        tradeClassificationCode: document.getElementById('tradeClassificationCode'),
+        legalStatus: document.getElementById('legalStatus'),
+        municipality: document.getElementById('municipality'),
+        taxpayerStatus: document.getElementById('taxpayerStatus'),
+        registrationDate: document.getElementById('registrationDate'),
+        companyName: document.getElementById('companyName'),
+        identificationNumber: document.getElementById('identificationNumber'),
+        registrationNumber: document.getElementById('registrationNumber'),
+        perPage: document.getElementById('perPage'),
+        page: document.getElementById('page'),
+        addSelectedBtn: document.getElementById('addSelectedBtn'),
+        addCurrentPageBtn: document.getElementById('addCurrentPageBtn'),
+        addAllResultsBtn: document.getElementById('addAllResultsBtn'),
+        selectedCountText: document.getElementById('selectedCountText'),
+        resetBtn: document.getElementById('resetBtn'),
+        selectAllRows: document.getElementById('selectAllRows'),
+        statusText: document.getElementById('statusText'),
+        pagesText: document.getElementById('pagesText'),
+        progressWrap: document.getElementById('progressWrap'),
+        progressLabel: document.getElementById('progressLabel'),
+        progressValue: document.getElementById('progressValue'),
+        progressBar: document.getElementById('progressBar'),
+        appliedQuery: document.getElementById('appliedQuery'),
+        resultsBody: document.getElementById('resultsBody'),
+      };
+
+      const state = {
+        selectedPibs: new Set(),
+        visibleRows: [],
+        addPibsJobId: null,
+        addPibsPollingTimer: null,
+        lastSearchPayload: null,
+        lastSearchData: null,
+        totalPages: 0,
+      };
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function setStatus(message, isError) {
+        els.statusText.textContent = message || '';
+        els.statusText.className = isError ? 'text-danger' : 'text-muted';
+      }
+
+      function setPagesText(message) {
+        els.pagesText.textContent = message || '';
+      }
+
+      function setProgress({ label = '', value = '', percent = 0, animated = true, visible = true }) {
+        const normalizedPercent = Math.max(0, Math.min(100, Number(percent) || 0));
+
+        if (visible) {
+          els.progressWrap.classList.remove('d-none');
+        } else {
+          els.progressWrap.classList.add('d-none');
+        }
+
+        els.progressLabel.textContent = label;
+        els.progressValue.textContent = value || `${normalizedPercent.toFixed(1)}%`;
+        els.progressBar.style.width = `${normalizedPercent}%`;
+        els.progressBar.setAttribute('aria-valuenow', String(normalizedPercent));
+
+        if (animated) {
+          els.progressBar.classList.add('progress-bar-animated');
+        } else {
+          els.progressBar.classList.remove('progress-bar-animated');
+        }
+      }
+
+      function hideProgress() {
+        setProgress({ label: '', value: '', percent: 0, visible: false, animated: false });
+      }
+
+      function normalizePib(value) {
+        return String(value || '').replace(/\D/g, '').trim();
+      }
+
+      function stopAddPibsPolling() {
+        if (!state.addPibsPollingTimer) return;
+        clearInterval(state.addPibsPollingTimer);
+        state.addPibsPollingTimer = null;
+      }
+
+      function getVisiblePibs() {
+        return state.visibleRows
+          .map(row => normalizePib(row.identificationNumber))
+          .filter(Boolean);
+      }
+
+      function setActionButtonsBusy(isBusy) {
+        const visibleCount = getVisiblePibs().length;
+
+        els.addSelectedBtn.disabled = isBusy || state.selectedPibs.size === 0;
+        els.addCurrentPageBtn.disabled = isBusy || visibleCount === 0;
+        els.addAllResultsBtn.disabled =
+          isBusy || !state.lastSearchPayload || Number(state.totalPages || 0) === 0;
+
+        els.addSelectedBtn.innerHTML = isBusy
+          ? '<i class="fas fa-spinner fa-spin me-1"></i>Dodavanje...'
+          : '<i class="fas fa-plus me-1"></i>Dodaj selektovane PIB-ove';
+
+        els.addCurrentPageBtn.innerHTML = isBusy
+          ? '<i class="fas fa-spinner fa-spin me-1"></i>Dodavanje...'
+          : '<i class="fas fa-layer-group me-1"></i>Dodaj sve sa trenutne strane';
+
+        els.addAllResultsBtn.innerHTML = isBusy
+          ? '<i class="fas fa-spinner fa-spin me-1"></i>Skupljam PIB-ove...'
+          : '<i class="fas fa-database me-1"></i>Dodaj sve iz pretrage';
+      }
+
+      function updateSelectionUi() {
+        const count = state.selectedPibs.size;
+        els.selectedCountText.textContent = count > 0 ? `Selektovano PIB-ova: ${count}` : '';
+
+        const visiblePibs = getVisiblePibs();
+
+        const selectedVisibleCount = visiblePibs.filter(pib => state.selectedPibs.has(pib)).length;
+        els.selectAllRows.checked =
+          visiblePibs.length > 0 && selectedVisibleCount === visiblePibs.length;
+        els.selectAllRows.indeterminate =
+          selectedVisibleCount > 0 && selectedVisibleCount < visiblePibs.length;
+
+        if (!state.addPibsJobId) {
+          setActionButtonsBusy(false);
+        }
+      }
+
+      function renderRows(rows) {
+        state.visibleRows = Array.isArray(rows) ? rows : [];
+
+        if (!Array.isArray(rows) || !rows.length) {
+          els.resultsBody.innerHTML =
+            '<tr><td colspan="7" class="text-center text-muted py-4">Nema podataka.</td></tr>';
+          updateSelectionUi();
+          return;
+        }
+
+        els.resultsBody.innerHTML = rows
+          .map(
+            row => `
+            <tr>
+              <td class="text-center">
+                <input class="row-select" type="checkbox" data-pib="${escapeHtml(
+                  normalizePib(row.identificationNumber)
+                )}" ${state.selectedPibs.has(normalizePib(row.identificationNumber)) ? 'checked' : ''} />
+              </td>
+              <td>${escapeHtml(row.registrationNumber)}</td>
+              <td>${escapeHtml(row.version)}</td>
+              <td>${escapeHtml(row.identificationNumber)}</td>
+              <td>${escapeHtml(row.fullName)}</td>
+              <td>${escapeHtml(row.legalStatus)}</td>
+              <td>${escapeHtml(row.mainActivity)}</td>
+            </tr>
+          `
+          )
+          .join('');
+
+        els.resultsBody.querySelectorAll('.row-select').forEach(input => {
+          input.addEventListener('change', event => {
+            const pib = normalizePib(event.target.getAttribute('data-pib'));
+            if (!pib) return;
+
+            if (event.target.checked) {
+              state.selectedPibs.add(pib);
+            } else {
+              state.selectedPibs.delete(pib);
+            }
+
+            updateSelectionUi();
+          });
+        });
+
+        updateSelectionUi();
+      }
+
+      function appendOptions(selectEl, items) {
+        (items || []).forEach(item => {
+          const option = document.createElement('option');
+          option.value = String(item.id);
+          option.textContent = item.name;
+          selectEl.appendChild(option);
+        });
+      }
+
+      async function loadLookups() {
+        const response = await fetch('/api/irms/lookups', { credentials: 'include' });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Nije moguće učitati lookup podatke');
+        }
+
+        const data = result.data || {};
+        appendOptions(els.legalStatus, data.legalStatuses || []);
+        appendOptions(els.municipality, data.municipalities || []);
+
+        const uniqueStatuses = [];
+        const seen = new Set();
+        (data.taxpayerStatuses || []).forEach(item => {
+          const key = String(item.id);
+          if (seen.has(key)) return;
+          seen.add(key);
+          uniqueStatuses.push(item);
+        });
+        appendOptions(els.taxpayerStatus, uniqueStatuses);
+      }
+
+      function collectPayload() {
+        return {
+          tradeClassificationCode: els.tradeClassificationCode.value.trim(),
+          legalStatusId: els.legalStatus.value,
+          municipalityId: els.municipality.value,
+          taxpayerStatusId: els.taxpayerStatus.value,
+          registrationDate: els.registrationDate.value,
+          companyName: els.companyName.value.trim(),
+          identificationNumber: els.identificationNumber.value.trim(),
+          registrationNumber: els.registrationNumber.value.trim(),
+          page: Number(els.page.value || 1),
+          perPage: Number(els.perPage.value || 100),
+        };
+      }
+
+      function resetForm() {
+        els.form.reset();
+        els.perPage.value = '100';
+        els.page.value = '1';
+        els.appliedQuery.textContent = '';
+        state.selectedPibs.clear();
+        state.visibleRows = [];
+        state.lastSearchPayload = null;
+        state.lastSearchData = null;
+        state.totalPages = 0;
+        stopAddPibsPolling();
+        state.addPibsJobId = null;
+        renderRows([]);
+        setStatus('');
+        setPagesText('');
+        hideProgress();
+        updateSelectionUi();
+      }
+
+      async function pollAddPibsStatus() {
+        if (!state.addPibsJobId) return;
+
+        try {
+          const response = await fetch(
+            `/api/email-admin/table/add-pibs/status/${encodeURIComponent(state.addPibsJobId)}`,
+            {
+              credentials: 'include',
+            }
+          );
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Greška pri čitanju statusa dodavanja PIB-ova');
+          }
+
+          const job = result.job || {};
+          const summary = job.summary || {};
+          const processed = Number(job.processed || 0);
+          const total = Number(job.total || 0);
+          const progress = Number(job.progress || 0);
+
+          setProgress({
+            label: `Dodavanje PIB-ova: ${processed}/${total}`,
+            value: `${progress.toFixed(1)}%`,
+            percent: progress,
+            visible: true,
+            animated: job.status === 'running',
+          });
+
+          if (job.status === 'completed') {
+            stopAddPibsPolling();
+            state.addPibsJobId = null;
+            setActionButtonsBusy(false);
+            setProgress({
+              label: `Dodavanje završeno: ${processed}/${total}`,
+              value: '100%',
+              percent: 100,
+              visible: true,
+              animated: false,
+            });
+            alert(
+              `Dodavanje firmi završeno.\n` +
+                `PIB-ova obrađeno: ${summary.uniquePibs || 0}\n` +
+                `Ubačenih novih firmi: ${summary.insertedCompanies || 0}\n` +
+                `Ažuriranih postojećih redova: ${summary.updatedExistingRows || 0}\n` +
+                `Nije nađeno u IRMS: ${summary.irmsNotFound || 0}\n` +
+                `Greške: ${summary.errors || 0}`
+            );
+            return;
+          }
+
+          if (job.status === 'cancelled' || job.status === 'failed') {
+            stopAddPibsPolling();
+            state.addPibsJobId = null;
+            setActionButtonsBusy(false);
+            alert('Dodavanje PIB-ova je prekinuto. Pokušaj ponovo.');
+          }
+        } catch (error) {
+          stopAddPibsPolling();
+          state.addPibsJobId = null;
+          setActionButtonsBusy(false);
+          setStatus(error.message || 'Greška pri praćenju dodavanja PIB-ova', true);
+        }
+      }
+
+      async function startAddPibsJob(pibs, description) {
+        if (!Array.isArray(pibs) || pibs.length === 0) {
+          alert('Nema PIB-ova za dodavanje.');
+          return;
+        }
+
+        const confirmed = window.confirm(
+          `Da li želiš da dodaš/ažuriraš ${pibs.length} PIB-ova (${description}) kroz postojeći IRMS sistem?`
+        );
+        if (!confirmed) return;
+
+        setActionButtonsBusy(true);
+        setProgress({
+          label: `Pokretanje dodavanja (${description})...`,
+          value: '0%',
+          percent: 0,
+          visible: true,
+          animated: true,
+        });
+
+        try {
+          const response = await fetch('/api/email-admin/table/add-pibs', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ pibs }),
+          });
+
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Greška pri pokretanju dodavanja PIB-ova');
+          }
+
+          state.addPibsJobId = result.job?.id || null;
+          if (!state.addPibsJobId) {
+            throw new Error('Dodavanje nije pokrenuto ispravno');
+          }
+
+          setStatus(`Dodavanje pokrenuto za ${pibs.length} PIB-ova (${description})...`, false);
+
+          stopAddPibsPolling();
+          await pollAddPibsStatus();
+          state.addPibsPollingTimer = setInterval(() => {
+            pollAddPibsStatus();
+          }, 1200);
+        } catch (error) {
+          state.addPibsJobId = null;
+          setActionButtonsBusy(false);
+          setStatus(error.message || 'Greška pri dodavanju PIB-ova', true);
+        }
+      }
+
+      async function addSelectedPibsToDatabase() {
+        if (state.selectedPibs.size === 0) {
+          alert('Nema selektovanih PIB-ova.');
+          return;
+        }
+
+        const pibs = Array.from(state.selectedPibs);
+        await startAddPibsJob(pibs, 'selektovani redovi');
+      }
+
+      async function addCurrentPagePibsToDatabase() {
+        const pibs = [...new Set(getVisiblePibs())];
+        if (!pibs.length) {
+          alert('Na trenutnoj strani nema PIB-ova za dodavanje.');
+          return;
+        }
+
+        await startAddPibsJob(pibs, 'trenutna strana');
+      }
+
+      async function collectAllSearchResultPibs() {
+        if (!state.lastSearchPayload) {
+          throw new Error('Prvo pokreni pretragu.');
+        }
+
+        let totalPages = Number(state.totalPages || 0);
+        if (totalPages <= 0) {
+          totalPages = await estimateTotalPages(state.lastSearchPayload, state.lastSearchData || {});
+          state.totalPages = totalPages;
+        }
+
+        const uniquePibs = new Set();
+        for (let page = 1; page <= totalPages; page++) {
+          setStatus(`Priprema svih rezultata: strana ${page}/${totalPages}...`, false);
+
+          let pageData;
+          if (page === Number(state.lastSearchData?.page || 0)) {
+            pageData = state.lastSearchData || {};
+          } else {
+            pageData = await requestPageMeta(state.lastSearchPayload, page);
+          }
+
+          const pageRows = Array.isArray(pageData?.results) ? pageData.results : [];
+          pageRows
+            .map(row => normalizePib(row?.identificationNumber))
+            .filter(Boolean)
+            .forEach(pib => uniquePibs.add(pib));
+
+          setProgress({
+            label: `Priprema svih rezultata (${uniquePibs.size} PIB-ova)`,
+            value: `${page}/${totalPages} strana`,
+            percent: (page / totalPages) * 100,
+            visible: true,
+            animated: page < totalPages,
+          });
+        }
+
+        return Array.from(uniquePibs);
+      }
+
+      async function addAllSearchResultPibsToDatabase() {
+        try {
+          setActionButtonsBusy(true);
+          const pibs = await collectAllSearchResultPibs();
+          setActionButtonsBusy(false);
+
+          await startAddPibsJob(pibs, 'sve stranice rezultata pretrage');
+        } catch (error) {
+          state.addPibsJobId = null;
+          setActionButtonsBusy(false);
+          setStatus(error.message || 'Greška pri pripremi svih rezultata', true);
+        }
+      }
+
+      async function requestPageMeta(basePayload, page) {
+        const payload = {
+          ...basePayload,
+          page,
+        };
+
+        const response = await fetch('/api/irms/search-entities', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Greška pri paginaciji');
+        }
+
+        return result.data || {};
+      }
+
+      async function estimateTotalPages(basePayload, firstPageData) {
+        const currentPage = Number(firstPageData?.page || basePayload.page || 1);
+
+        if (Number(firstPageData?.totalPage || 0) > 0) {
+          return Number(firstPageData.totalPage);
+        }
+
+        const firstResults = Array.isArray(firstPageData?.results)
+          ? firstPageData.results.length
+          : 0;
+        if (firstResults === 0) {
+          return 0;
+        }
+
+        if (!firstPageData?.hasNext) {
+          return currentPage;
+        }
+
+        let low = currentPage;
+        let high = currentPage;
+        let probes = 0;
+
+        // Exponential search to find an upper bound where hasNext becomes false.
+        while (probes < 8) {
+          probes += 1;
+          high *= 2;
+          const data = await requestPageMeta(basePayload, high);
+          if (!data?.hasNext) {
+            break;
+          }
+          low = high;
+        }
+
+        if (high === low) {
+          return high;
+        }
+
+        // Binary search for the first page where hasNext is false (last page).
+        let left = low + 1;
+        let right = high;
+        let answer = high;
+
+        while (left <= right) {
+          const mid = Math.floor((left + right) / 2);
+          const data = await requestPageMeta(basePayload, mid);
+          if (data?.hasNext) {
+            left = mid + 1;
+          } else {
+            answer = mid;
+            right = mid - 1;
+          }
+        }
+
+        return answer;
+      }
+
+      async function runSearch() {
+        const payload = collectPayload();
+        setStatus('Pretražujem IRMS...', false);
+        setPagesText('');
+        hideProgress();
+
+        const response = await fetch('/api/irms/search-entities', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Greška pri IRMS pretrazi');
+        }
+
+        const data = result.data || {};
+        const rows = Array.isArray(data.results) ? data.results : [];
+        renderRows(rows);
+
+        state.lastSearchPayload = {
+          ...payload,
+          page: 1,
+        };
+        state.lastSearchData = data;
+
+        const query = new URLSearchParams(result.appliedFilters || {}).toString();
+        els.appliedQuery.textContent =
+          'https://irms.tax.gov.me/public/search-register/business-entities?' + query;
+
+        setStatus(`Pronađeno redova: ${rows.length}`, false);
+
+        setPagesText('Ukupno strana: računam...');
+        try {
+          const totalPages = await estimateTotalPages(payload, data);
+          state.totalPages = totalPages;
+          setPagesText(`Ukupno strana: ${totalPages}`);
+        } catch (_) {
+          state.totalPages = 0;
+          setPagesText('Ukupno strana: nedostupno');
+        }
+
+        updateSelectionUi();
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        try {
+          await loadLookups();
+        } catch (error) {
+          setStatus(error.message || 'Greška pri učitavanju lookup podataka', true);
+        }
+
+        els.form.addEventListener('submit', async event => {
+          event.preventDefault();
+          try {
+            await runSearch();
+          } catch (error) {
+            setStatus(error.message || 'Greška pri IRMS pretrazi', true);
+            renderRows([]);
+          }
+        });
+
+        els.selectAllRows.addEventListener('change', event => {
+          const checked = Boolean(event.target.checked);
+          const visiblePibs = state.visibleRows
+            .map(row => normalizePib(row.identificationNumber))
+            .filter(Boolean);
+
+          visiblePibs.forEach(pib => {
+            if (checked) state.selectedPibs.add(pib);
+            else state.selectedPibs.delete(pib);
+          });
+
+          renderRows(state.visibleRows);
+        });
+
+        els.addSelectedBtn.addEventListener('click', async () => {
+          await addSelectedPibsToDatabase();
+        });
+
+        els.addCurrentPageBtn.addEventListener('click', async () => {
+          await addCurrentPagePibsToDatabase();
+        });
+
+        els.addAllResultsBtn.addEventListener('click', async () => {
+          await addAllSearchResultPibsToDatabase();
+        });
+
+        els.resetBtn.addEventListener('click', () => {
+          resetForm();
+        });
+
+        updateSelectionUi();
+      });
+    </script>
+  </body>
+</html>

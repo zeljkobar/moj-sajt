@@ -16,12 +16,14 @@ const EMAIL_TABLE_FILTER_FIELDS = [
   'id',
   'pib',
   'naziv',
+  'oblik_organizacije',
   'grad',
   'kd',
   'email',
   'telefon',
   'broj_zaposlenih',
   'prihod',
+  'datum_registracije',
   'created_at',
   'updated_at',
 ];
@@ -84,9 +86,88 @@ function normalizeKd(activityRaw) {
   return activity.split(',')[0].trim();
 }
 
+function normalizeOrganizationType(legalStatusRaw) {
+  const raw = normalizeText(legalStatusRaw);
+  if (!raw) return '';
+
+  const normalized = raw
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (normalized === 'doo') return 'DOO';
+  if (normalized === 'ad') return 'AD';
+
+  if (
+    normalized.includes('drustvo sa ogranicenom odgovornoscu') ||
+    normalized.includes('drustvo s ogranicenom odgovornoscu') ||
+    normalized.includes('drustvo sa ogranicenom odgovornoscu doo') ||
+    normalized.includes('drustvo s ogranicenom odgovornoscu doo')
+  ) {
+    return 'DOO';
+  }
+
+  if (
+    normalized.includes('akcionarsko drustvo') ||
+    normalized.includes('akcionarsko društvo')
+  ) {
+    return 'AD';
+  }
+
+  if (normalized.includes('preduzetnik')) {
+    return 'PREDUZETNIK';
+  }
+
+  if (normalized.includes('ortačko') || normalized.includes('ortacko')) {
+    return 'OD';
+  }
+
+  if (normalized.includes('komanditno')) {
+    return 'KD';
+  }
+
+  return raw.toUpperCase();
+}
+
+function normalizeDateValue(dateRaw) {
+  const raw = normalizeText(dateRaw);
+  if (!raw) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return raw;
+  }
+
+  const dotFormat = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\.?$/);
+  if (dotFormat) {
+    const day = dotFormat[1].padStart(2, '0');
+    const month = dotFormat[2].padStart(2, '0');
+    const year = dotFormat[3];
+    return `${year}-${month}-${day}`;
+  }
+
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+
+  return '';
+}
+
 const IRMS_UPDATABLE_FIELDS = {
   naziv: {
     extractValue: irmsData => normalizeText(irmsData.name || irmsData.legalName),
+  },
+  oblik_organizacije: {
+    extractValue: irmsData =>
+      normalizeOrganizationType(
+        normalizeText(
+          irmsData.legalForm ||
+            irmsData.rawData?.legalStatus ||
+            irmsData.rawData?.legalStatusDisplayName
+        )
+      ),
   },
   grad: {
     extractValue: irmsData => normalizeCity(irmsData.city),
@@ -119,6 +200,14 @@ const IRMS_UPDATABLE_FIELDS = {
           irmsData.rawData?.income ||
           irmsData.rawData?.annualIncome ||
           irmsData.revenue
+      ),
+  },
+  datum_registracije: {
+    extractValue: irmsData =>
+      normalizeDateValue(
+        irmsData.founded ||
+          irmsData.rawData?.registrationDate ||
+          irmsData.rawData?.dateOfRegistration
       ),
   },
 };
@@ -344,12 +433,32 @@ async function processIrmsAddPibsJob(job) {
       job.summary.irmsFound += 1;
 
       const naziv = normalizeText(irmsData.name || irmsData.legalName);
+      const oblikOrganizacije = normalizeOrganizationType(
+        normalizeText(
+          irmsData.legalForm ||
+            irmsData.rawData?.legalStatus ||
+            irmsData.rawData?.legalStatusDisplayName
+        )
+      );
       const email = normalizeText(irmsData.email);
       const telefon = normalizeText(irmsData.phone);
       const kd = normalizeKd(irmsData.activity);
       const grad = normalizeCity(irmsData.city);
+      const datumRegistracije = normalizeDateValue(
+        irmsData.founded ||
+          irmsData.rawData?.registrationDate ||
+          irmsData.rawData?.dateOfRegistration
+      );
 
-      if (!naziv && !email && !telefon && !kd && !grad) {
+      if (
+        !naziv &&
+        !oblikOrganizacije &&
+        !email &&
+        !telefon &&
+        !kd &&
+        !grad &&
+        !datumRegistracije
+      ) {
         job.summary.skippedNoData += 1;
         job.processed += 1;
         continue;
@@ -368,14 +477,32 @@ async function processIrmsAddPibsJob(job) {
             UPDATE emails
             SET
               naziv = CASE WHEN (naziv IS NULL OR TRIM(naziv) = '') AND ? <> '' THEN ? ELSE naziv END,
+              oblik_organizacije = CASE WHEN (oblik_organizacije IS NULL OR TRIM(oblik_organizacije) = '') AND ? <> '' THEN ? ELSE oblik_organizacije END,
               email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
               telefon = CASE WHEN (telefon IS NULL OR TRIM(telefon) = '') AND ? <> '' THEN ? ELSE telefon END,
               kd = CASE WHEN (kd IS NULL OR TRIM(kd) = '') AND ? <> '' THEN ? ELSE kd END,
               grad = CASE WHEN (grad IS NULL OR TRIM(grad) = '') AND ? <> '' THEN ? ELSE grad END,
+              datum_registracije = CASE WHEN datum_registracije IS NULL AND ? <> '' THEN ? ELSE datum_registracije END,
               updated_at = NOW()
             WHERE TRIM(pib) = ?
           `,
-          [naziv, naziv, email, email, telefon, telefon, kd, kd, grad, grad, pib]
+          [
+            naziv,
+            naziv,
+            oblikOrganizacije,
+            oblikOrganizacije,
+            email,
+            email,
+            telefon,
+            telefon,
+            kd,
+            kd,
+            grad,
+            grad,
+            datumRegistracije,
+            datumRegistracije,
+            pib,
+          ]
         );
 
         job.summary.updatedExistingRows += Number(updateResult?.affectedRows || 0);
@@ -385,15 +512,26 @@ async function processIrmsAddPibsJob(job) {
             INSERT INTO emails (
               pib,
               naziv,
+              oblik_organizacije,
               grad,
               kd,
               email,
               telefon,
+              datum_registracije,
               created_at,
               updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
           `,
-          [pib, naziv || null, grad || null, kd || null, email || null, telefon || null]
+          [
+            pib,
+            naziv || null,
+            oblikOrganizacije || null,
+            grad || null,
+            kd || null,
+            email || null,
+            telefon || null,
+            datumRegistracije || null,
+          ]
         );
 
         job.summary.insertedCompanies += 1;
@@ -799,12 +937,14 @@ router.get(
         id: 'id',
         pib: 'pib',
         naziv: 'naziv',
+        oblik_organizacije: 'oblik_organizacije',
         grad: 'grad',
         kd: 'kd',
         email: 'email',
         telefon: 'telefon',
         broj_zaposlenih: 'broj_zaposlenih',
         prihod: 'prihod',
+        datum_registracije: 'datum_registracije',
         created_at: 'created_at',
         updated_at: 'updated_at',
       };
@@ -828,12 +968,14 @@ router.get(
           id,
           pib,
           naziv,
+          oblik_organizacije,
           grad,
           kd,
           email,
           telefon,
           broj_zaposlenih,
           prihod,
+          datum_registracije,
           opted_in,
           created_at,
           updated_at
@@ -1533,7 +1675,7 @@ router.get(
   async (req, res) => {
     try {
       const emails = await executeQuery(`
-        SELECT pib, naziv, grad, email, telefon, web, kd, tip_firme, kategorija_prihoda, 
+        SELECT pib, naziv, oblik_organizacije, grad, email, telefon, web, kd, datum_registracije, tip_firme, kategorija_prihoda, 
                opted_in, created_at, updated_at 
         FROM emails 
         ORDER BY naziv
@@ -1541,13 +1683,17 @@ router.get(
 
       // Generate CSV content
       const csvHeader =
-        'PIB,Naziv,Grad,Email,Telefon,Web,KD,Tip Firme,Kategorija Prihoda,Opted In,Kreiran,Ažuriran\n';
+        'PIB,Naziv,Oblik Organizacije,Grad,Email,Telefon,Web,KD,Datum Registracije,Tip Firme,Kategorija Prihoda,Opted In,Kreiran,Ažuriran\n';
       const csvContent = emails
         .map(
           row =>
-            `"${row.pib}","${row.naziv || ''}","${row.grad || ''}","${
+            `"${row.pib}","${row.naziv || ''}","${
+              row.oblik_organizacije || ''
+            }","${row.grad || ''}","${
               row.email || ''
             }","${row.telefon || ''}","${row.web || ''}","${row.kd || ''}","${
+              row.datum_registracije || ''
+            }","${
               row.tip_firme || ''
             }","${row.kategorija_prihoda || ''}","${row.opted_in}","${
               row.created_at || ''

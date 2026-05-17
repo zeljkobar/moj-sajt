@@ -8,12 +8,14 @@ const state = {
   filters: {
     pib: '',
     naziv: '',
+    oblik_organizacije: '',
     grad: '',
     kd: '',
     email: '',
     telefon: '',
     broj_zaposlenih: '',
     prihod: '',
+    datum_registracije: '',
     created_at: '',
     updated_at: '',
   },
@@ -23,16 +25,20 @@ const state = {
   updatePollingTimer: null,
   addPibsJobId: null,
   addPibsPollingTimer: null,
+  legalStatusMap: {},
+  municipalityMap: {},
 };
 
 const UPDATE_FIELD_LABELS = {
   naziv: 'Naziv ažuriran',
+  oblik_organizacije: 'Oblik organizacije ažuriran',
   grad: 'Grad ažuriran',
   kd: 'KD ažuriran',
   email: 'Email ažuriran',
   telefon: 'Telefon ažuriran',
   broj_zaposlenih: 'Broj zaposlenih ažuriran',
   prihod: 'Prihod ažuriran',
+  datum_registracije: 'Datum registracije ažuriran',
 };
 
 function formatDate(value) {
@@ -53,6 +59,73 @@ function escapeHtml(value) {
 
 function cleanPib(value) {
   return String(value || '').trim();
+}
+
+function normalizeLookupKey(value) {
+  return String(value ?? '').trim();
+}
+
+function displayOrganizationType(value) {
+  const clean = normalizeLookupKey(value);
+  if (!clean) return '';
+
+  if (Object.prototype.hasOwnProperty.call(state.legalStatusMap, clean)) {
+    return state.legalStatusMap[clean];
+  }
+
+  return clean;
+}
+
+function displayMunicipality(value) {
+  const clean = normalizeLookupKey(value);
+  if (!clean) return '';
+
+  if (Object.prototype.hasOwnProperty.call(state.municipalityMap, clean)) {
+    return state.municipalityMap[clean];
+  }
+
+  return clean;
+}
+
+async function loadIrmsLookups() {
+  try {
+    const response = await fetch('/api/irms/lookups', {
+      credentials: 'include',
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      return;
+    }
+
+    const data = result.data || {};
+    const legalStatuses = Array.isArray(data.legalStatuses)
+      ? data.legalStatuses
+      : [];
+    const municipalities = Array.isArray(data.municipalities)
+      ? data.municipalities
+      : [];
+
+    state.legalStatusMap = legalStatuses.reduce((acc, row) => {
+      const id = normalizeLookupKey(row?.id);
+      const name = normalizeLookupKey(row?.name);
+      if (id && name) {
+        acc[id] = name;
+      }
+      return acc;
+    }, {});
+
+    state.municipalityMap = municipalities.reduce((acc, row) => {
+      const id = normalizeLookupKey(row?.id);
+      const name = normalizeLookupKey(row?.name);
+      if (id && name) {
+        acc[id] = name;
+      }
+      return acc;
+    }, {});
+  } catch (_) {
+    // If lookup loading fails, raw DB values are still shown.
+  }
 }
 
 function updateSelectionUI() {
@@ -431,7 +504,7 @@ function renderTable(rows) {
 
   const tbody = document.getElementById('emailsTableBody');
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">Nema rezultata za zadate filtere.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4">Nema rezultata za zadate filtere.</td></tr>';
     updateSelectionUI();
     return;
   }
@@ -446,12 +519,14 @@ function renderTable(rows) {
         <td class="col-select"><input class="row-select" type="checkbox" data-pib="${escapeHtml(pib)}" ${checked} ${pib ? '' : 'disabled'} /></td>
         <td>${escapeHtml(row.pib)}</td>
         <td>${escapeHtml(row.naziv)}</td>
-        <td>${escapeHtml(row.grad)}</td>
+        <td>${escapeHtml(displayOrganizationType(row.oblik_organizacije))}</td>
+        <td>${escapeHtml(displayMunicipality(row.grad))}</td>
         <td>${escapeHtml(row.kd)}</td>
         <td>${escapeHtml(row.email)}</td>
         <td>${escapeHtml(row.telefon)}</td>
         <td>${escapeHtml(row.broj_zaposlenih)}</td>
         <td>${escapeHtml(row.prihod)}</td>
+        <td>${escapeHtml(formatDate(row.datum_registracije))}</td>
         <td>${escapeHtml(formatDate(row.created_at))}</td>
         <td>${escapeHtml(formatDate(row.updated_at))}</td>
       </tr>
@@ -486,7 +561,7 @@ function updatePager() {
 
 async function loadTable() {
   const tbody = document.getElementById('emailsTableBody');
-  tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">Učitavanje...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4">Učitavanje...</td></tr>';
 
   try {
     const response = await fetch(`/api/email-admin/table?${buildQuery()}`, {
@@ -509,7 +584,7 @@ async function loadTable() {
     updatePager();
   } catch (error) {
     console.error('Emails table load error:', error);
-    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger py-4">${escapeHtml(error.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="text-center text-danger py-4">${escapeHtml(error.message)}</td></tr>`;
     state.total = 0;
     state.totalPages = 1;
     updatePager();
@@ -822,5 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPager();
   setupSelectionControls();
   updateSelectionUI();
-  loadTable();
+  loadIrmsLookups().finally(() => {
+    loadTable();
+  });
 });

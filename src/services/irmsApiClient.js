@@ -242,6 +242,33 @@ async function searchByPIB(pib, options = {}) {
   return mapToBusinessEntity(detailsData, directors, owners);
 }
 
+async function searchBusinessEntities(filters = {}) {
+  const params = {
+    page: Number.parseInt(filters.page, 10) || 1,
+    perPage: Number.parseInt(filters.perPage, 10) || 100,
+  };
+
+  const optionalFields = [
+    'tradeClassificationCode',
+    'legalStatusId',
+    'municipalityId',
+    'taxpayerStatusId',
+    'registrationDate',
+    'fullName',
+    'registrationNumber',
+    'identificationNumber',
+  ];
+
+  optionalFields.forEach(field => {
+    const value = normalizeText(filters[field]);
+    if (!value) return;
+    params[field] = value;
+  });
+
+  return getJson('/business-entities', params);
+}
+
 module.exports = {
   searchByPIB,
+  searchBusinessEntities,
 };
