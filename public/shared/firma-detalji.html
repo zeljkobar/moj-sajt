@@ -437,16 +437,32 @@
         background: var(--workspace-primary);
       }
 
-      .actions-dropdown .dropdown-toggle {
-        width: 34px;
-        height: 34px;
+      .worker-actions-inline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        max-width: 340px;
+        padding-bottom: 2px;
+      }
+
+      .worker-actions-inline .btn {
+        width: 32px;
+        height: 32px;
         padding: 0;
         display: inline-grid;
         place-items: center;
+        flex: 0 0 auto;
       }
 
-      .actions-dropdown .dropdown-menu {
-        min-width: 220px;
+      .worker-actions-inline::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .worker-actions-inline::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
       }
 
       .empty-state {
@@ -1582,43 +1598,62 @@
         const workerName = encodeURIComponent(worker.ime || '');
         const workerLastName = encodeURIComponent(worker.prezime || '');
         const workerJmbg = encodeURIComponent(worker.jmbg || '');
-        const detailsUrl = `/shared/firma-detalji.html?id=${currentFirmaId}&radnikId=${worker.id}#radnici`;
         const contractUrl = getWorkerContractUrl(worker);
         const jprUrl = `/shared/jpr-korica.html?firmaId=${currentFirmaId}&context=radnik&radnikIme=${workerName}&radnikPrezime=${workerLastName}&radnikJmbg=${workerJmbg}`;
-        const otkazDocument = otkaz
-          ? `<li><a class="dropdown-item" href="${getTerminationDocumentUrl(otkaz.id, otkaz.tip_otkaza, worker.id)}" target="_blank"><i class="fas fa-file-lines me-2"></i>Pregled otkaza</a></li>`
+        const otkazDocumentBtn = otkaz
+          ? `<a class="btn btn-sm btn-outline-secondary" href="${getTerminationDocumentUrl(
+              otkaz.id,
+              otkaz.tip_otkaza,
+              worker.id
+            )}" target="_blank" rel="noopener" title="Pregled otkaza" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Pregled otkaza" aria-label="Pregled otkaza"><i class="fas fa-file-lines"></i></a>`
           : '';
-        const deleteOtkazAction = otkaz
-          ? `<li><button class="dropdown-item text-danger" type="button" onclick="deleteOtkaz(${otkaz.id})"><i class="fas fa-trash me-2"></i>Obriši otkaz</button></li>`
+        const deleteOtkazBtn = otkaz
+          ? `<button class="btn btn-sm btn-outline-danger" type="button" onclick="deleteOtkaz(${otkaz.id})" title="Obriši otkaz" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Obriši otkaz" aria-label="Obriši otkaz"><i class="fas fa-ban"></i></button>`
           : '';
-        const createOtkaz = !otkaz
-          ? `<li><button class="dropdown-item text-danger" type="button" onclick="openTerminationModal(${worker.id})"><i class="fas fa-handshake me-2"></i>Otkaz radnika</button></li>`
+        const createOtkazBtn = !otkaz
+          ? `<button class="btn btn-sm btn-outline-danger" type="button" onclick="openTerminationModal(${worker.id})" title="Otkaz radnika" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Otkaz radnika" aria-label="Otkaz radnika"><i class="fas fa-handshake"></i></button>`
           : '';
 
         return `
-          <div class="dropdown actions-dropdown">
-            <button
-              class="btn btn-sm btn-outline-secondary dropdown-toggle"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              title="Akcije"
-            >
-              <i class="fas fa-ellipsis"></i>
+          <div class="worker-actions-inline" title="Akcije radnika">
+            <button class="btn btn-sm btn-outline-primary" type="button" onclick="openWorkerDetails(${worker.id})" title="Detalji" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Detalji" aria-label="Detalji">
+              <i class="fas fa-eye"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><button class="dropdown-item" type="button" onclick="openWorkerDetails(${worker.id})"><i class="fas fa-eye me-2"></i>Detalji</button></li>
-              <li><button class="dropdown-item" type="button" onclick="openEditWorkerModal(${worker.id})"><i class="fas fa-pen me-2"></i>Uredi</button></li>
-              <li><a class="dropdown-item" href="${contractUrl}" target="_blank"><i class="fas fa-file-signature me-2"></i>Ugovor</a></li>
-              <li><a class="dropdown-item" href="${jprUrl}" target="_blank"><i class="fas fa-file-contract me-2"></i>JPR obrazac</a></li>
-              ${otkazDocument}
-              ${deleteOtkazAction}
-              ${createOtkaz}
-              <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item text-danger" type="button" onclick="deleteWorker(${worker.id})"><i class="fas fa-trash me-2"></i>Obriši radnika</button></li>
-            </ul>
+            <button class="btn btn-sm btn-outline-warning" type="button" onclick="openEditWorkerModal(${worker.id})" title="Uredi" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Uredi" aria-label="Uredi">
+              <i class="fas fa-pen"></i>
+            </button>
+            <a class="btn btn-sm btn-outline-success" href="${contractUrl}" target="_blank" rel="noopener" title="Ugovor" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Ugovor" aria-label="Ugovor">
+              <i class="fas fa-file-signature"></i>
+            </a>
+            <a class="btn btn-sm btn-outline-info" href="${jprUrl}" target="_blank" rel="noopener" title="JPR obrazac" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="JPR obrazac" aria-label="JPR obrazac">
+              <i class="fas fa-file-contract"></i>
+            </a>
+            ${otkazDocumentBtn}
+            ${deleteOtkazBtn}
+            ${createOtkazBtn}
+            <button class="btn btn-sm btn-outline-dark" type="button" onclick="deleteWorker(${worker.id})" title="Obriši radnika" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Obriši radnika" aria-label="Obriši radnika">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
         `;
+      }
+      
+      function initWorkerActionTooltips() {
+        const tooltipElements = document.querySelectorAll(
+          '.worker-actions-inline [data-bs-toggle="tooltip"]'
+        );
+
+        tooltipElements.forEach(el => {
+          const existing = bootstrap.Tooltip.getInstance(el);
+          if (existing) {
+            existing.dispose();
+          }
+
+          new bootstrap.Tooltip(el, {
+            trigger: 'hover focus',
+            container: 'body',
+          });
+        });
       }
 
       async function deleteOtkaz(otkazId) {
@@ -1638,6 +1673,7 @@
             throw new Error(
               result.message || result.error || 'Greška pri brisanju otkaza.'
             );
+            initWorkerActionTooltips();
           }
 
           await loadWorkers();

@@ -48,6 +48,13 @@ function formatDate(value) {
   return d.toLocaleDateString('sr-RS');
 }
 
+function formatDateTime(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString('sr-RS');
+}
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -59,6 +66,142 @@ function escapeHtml(value) {
 
 function cleanPib(value) {
   return String(value || '').trim();
+}
+
+const DETAILS_FIELD_LABELS = {
+  id: 'ID',
+  pib: 'PIB',
+  naziv: 'Naziv',
+  oblik_organizacije: 'Oblik organizacije',
+  grad: 'Grad',
+  kd: 'KD',
+  email: 'Email',
+  telefon: 'Telefon',
+  broj_zaposlenih: 'Broj zaposlenih',
+  prihod: 'Prihod',
+  datum_registracije: 'Datum registracije',
+  web: 'Web',
+  tip_firme: 'Tip firme',
+  kategorija_prihoda: 'Kategorija prihoda',
+  opted_in: 'Opted-in',
+  created_at: 'Kreiran',
+  updated_at: 'Ažuriran',
+};
+
+const DETAILS_PRIMARY_ORDER = [
+  'pib',
+  'naziv',
+  'oblik_organizacije',
+  'grad',
+  'kd',
+  'email',
+  'telefon',
+  'broj_zaposlenih',
+  'prihod',
+  'datum_registracije',
+  'web',
+  'tip_firme',
+  'kategorija_prihoda',
+  'opted_in',
+  'created_at',
+  'updated_at',
+  'id',
+];
+
+function detailsFieldLabel(field) {
+  if (Object.prototype.hasOwnProperty.call(DETAILS_FIELD_LABELS, field)) {
+    return DETAILS_FIELD_LABELS[field];
+  }
+
+  return String(field || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function detailsFieldValue(field, value) {
+  if (value === null || value === undefined || String(value).trim() === '') {
+    return '<span class="text-muted">-</span>';
+  }
+
+  if (field === 'oblik_organizacije') {
+    return escapeHtml(displayOrganizationType(value));
+  }
+
+  if (field === 'grad') {
+    return escapeHtml(displayMunicipality(value));
+  }
+
+  if (field === 'opted_in') {
+    return Number(value) === 1 ? 'Da' : 'Ne';
+  }
+
+  if (field === 'datum_registracije') {
+    return escapeHtml(formatDate(value));
+  }
+
+  if (field === 'created_at' || field === 'updated_at') {
+    return escapeHtml(formatDateTime(value));
+  }
+
+  return escapeHtml(value);
+}
+
+function renderCompanyDetails(company) {
+  const keys = Object.keys(company || {});
+  const orderedKeys = [
+    ...DETAILS_PRIMARY_ORDER.filter(key => keys.includes(key)),
+    ...keys.filter(key => !DETAILS_PRIMARY_ORDER.includes(key)),
+  ];
+
+  const rowsHtml = orderedKeys
+    .map(
+      key => `
+      <tr>
+        <th>${escapeHtml(detailsFieldLabel(key))}</th>
+        <td>${detailsFieldValue(key, company[key])}</td>
+      </tr>
+    `
+    )
+    .join('');
+
+  document.getElementById('companyDetailsBody').innerHTML = rowsHtml;
+  document.getElementById('companyDetailsLoading').style.display = 'none';
+  document.getElementById('companyDetailsContent').style.display = 'block';
+}
+
+async function showCompanyDetails(pib) {
+  const clean = cleanPib(pib);
+  if (!clean) return;
+
+  const modalElement = document.getElementById('companyDetailsModal');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+  document.getElementById('companyDetailsLoading').style.display = 'block';
+  document.getElementById('companyDetailsContent').style.display = 'none';
+  document.getElementById('companyDetailsBody').innerHTML = '';
+  modal.show();
+
+  try {
+    const response = await fetch(
+      `/api/email-admin/table/company/${encodeURIComponent(clean)}`,
+      { credentials: 'include' }
+    );
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Greška pri učitavanju detalja firme');
+    }
+
+    renderCompanyDetails(result.data?.company || {});
+  } catch (error) {
+    document.getElementById('companyDetailsLoading').style.display = 'none';
+    document.getElementById('companyDetailsContent').style.display = 'block';
+    document.getElementById('companyDetailsBody').innerHTML = `
+      <tr>
+        <td colspan="2" class="text-danger py-3">${escapeHtml(error.message || 'Greška pri učitavanju detalja.')}</td>
+      </tr>
+    `;
+  }
 }
 
 function normalizeLookupKey(value) {
@@ -515,7 +658,7 @@ function renderTable(rows) {
       const checked = pib && state.selectedPibs.has(pib) ? 'checked' : '';
 
       return `
-      <tr>
+      <tr class="company-row" data-pib="${escapeHtml(pib)}">
         <td class="col-select"><input class="row-select" type="checkbox" data-pib="${escapeHtml(pib)}" ${checked} ${pib ? '' : 'disabled'} /></td>
         <td>${escapeHtml(row.pib)}</td>
         <td>${escapeHtml(row.naziv)}</td>
@@ -546,6 +689,18 @@ function renderTable(rows) {
       }
 
       updateSelectionUI();
+    });
+  });
+
+  tbody.querySelectorAll('.company-row').forEach(tableRow => {
+    tableRow.addEventListener('click', event => {
+      if (event.target.closest('.row-select')) {
+        return;
+      }
+
+      const pib = cleanPib(tableRow.getAttribute('data-pib'));
+      if (!pib) return;
+      showCompanyDetails(pib);
     });
   });
 

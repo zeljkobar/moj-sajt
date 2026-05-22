@@ -1052,6 +1052,55 @@ router.get(
   }
 );
 
+// Detalji firme po PIB-u (admin)
+router.get(
+  '/api/email-admin/table/company/:pib',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const pib = normalizePibValue(req.params.pib);
+      if (!/^\d{8}$/.test(pib)) {
+        return res.status(400).json({
+          success: false,
+          message: 'PIB mora imati 8 cifara',
+        });
+      }
+
+      const rows = await executeQuery(
+        `
+          SELECT *
+          FROM emails
+          WHERE TRIM(pib) = ?
+          ORDER BY updated_at DESC
+          LIMIT 1
+        `,
+        [pib]
+      );
+
+      if (!rows.length) {
+        return res.status(404).json({
+          success: false,
+          message: 'Firma nije pronađena',
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          company: rows[0],
+        },
+      });
+    } catch (error) {
+      console.error('Email table company details error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Greška pri učitavanju detalja firme',
+      });
+    }
+  }
+);
+
 // Selektuj sve PIB-ove iz trenutnog filter rezultata
 router.post(
   '/api/email-admin/table/select-all',
