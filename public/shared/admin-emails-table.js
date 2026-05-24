@@ -18,6 +18,7 @@ const state = {
     datum_registracije: '',
     created_at: '',
     updated_at: '',
+    mail_knjigovodje: '',
   },
   selectedPibs: new Set(),
   visibleRows: [],
@@ -27,6 +28,7 @@ const state = {
   addPibsPollingTimer: null,
   legalStatusMap: {},
   municipalityMap: {},
+  currentCompany: null,
 };
 
 const UPDATE_FIELD_LABELS = {
@@ -147,6 +149,8 @@ function detailsFieldValue(field, value) {
 }
 
 function renderCompanyDetails(company) {
+  state.currentCompany = company;
+
   const keys = Object.keys(company || {});
   const orderedKeys = [
     ...DETAILS_PRIMARY_ORDER.filter(key => keys.includes(key)),
@@ -167,6 +171,127 @@ function renderCompanyDetails(company) {
   document.getElementById('companyDetailsBody').innerHTML = rowsHtml;
   document.getElementById('companyDetailsLoading').style.display = 'none';
   document.getElementById('companyDetailsContent').style.display = 'block';
+
+  // Reset edit buttons
+  document.getElementById('editCompanyBtn').classList.remove('d-none');
+  document.getElementById('saveCompanyBtn').classList.add('d-none');
+  document.getElementById('cancelEditBtn').classList.add('d-none');
+}
+
+const READONLY_FIELDS = new Set([
+  'id', 'pib', 'created_at', 'updated_at', 'source', 'status',
+  'datum_dodavanja', 'poslednja_aktivnost', 'ukupno_poslato',
+  'ukupno_otvoreno', 'ukupno_kliknuto', 'poslednji_email',
+]);
+
+function enterEditMode() {
+  const company = state.currentCompany;
+  if (!company) return;
+
+  const keys = Object.keys(company);
+  const orderedKeys = [
+    ...DETAILS_PRIMARY_ORDER.filter(key => keys.includes(key)),
+    ...keys.filter(key => !DETAILS_PRIMARY_ORDER.includes(key)),
+  ];
+
+  const rowsHtml = orderedKeys.map(key => {
+    const label = escapeHtml(detailsFieldLabel(key));
+    const val = company[key] ?? '';
+
+    if (READONLY_FIELDS.has(key)) {
+      return `<tr><th>${label}</th><td>${detailsFieldValue(key, company[key])}</td></tr>`;
+    }
+
+    const safeVal = escapeHtml(String(val === null || val === undefined ? '' : val));
+
+    if (key === 'opted_in') {
+      const sel0 = Number(val) !== 1 ? ' selected' : '';
+      const sel1 = Number(val) === 1 ? ' selected' : '';
+      return `<tr><th>${label}</th><td>
+        <select class="form-select form-select-sm" data-field="${key}">
+          <option value="0"${sel0}>Ne</option>
+          <option value="1"${sel1}>Da</option>
+        </select></td></tr>`;
+    }
+
+    if (key === 'napomene') {
+      return `<tr><th>${label}</th><td>
+        <textarea class="form-control form-control-sm" data-field="${key}" rows="2">${safeVal}</textarea>
+        </td></tr>`;
+    }
+
+    const type = key === 'email' || key === 'mail_knjigovodje' ? 'email'
+      : key === 'datum_registracije' ? 'date'
+      : (key === 'broj_zaposlenih' || key === 'prihod') ? 'number'
+      : 'text';
+
+    const dateVal = key === 'datum_registracije' && val
+      ? String(val).slice(0, 10) : safeVal;
+
+    return `<tr><th>${label}</th><td>
+      <input type="${type}" class="form-control form-control-sm" data-field="${key}" value="${dateVal}">
+      </td></tr>`;
+  }).join('');
+
+  document.getElementById('companyDetailsBody').innerHTML = rowsHtml;
+  document.getElementById('editCompanyBtn').classList.add('d-none');
+  document.getElementById('saveCompanyBtn').classList.remove('d-none');
+  document.getElementById('cancelEditBtn').classList.remove('d-none');
+}
+
+function cancelEditMode() {
+  if (state.currentCompany) {
+    renderCompanyDetails(state.currentCompany);
+  }
+}
+
+async function saveCompanyEdit() {
+  const company = state.currentCompany;
+  if (!company) return;
+
+  const pib = cleanPib(company.pib);
+  if (!pib) return;
+
+  const payload = {};
+  document.querySelectorAll('#companyDetailsBody [data-field]').forEach(el => {
+    payload[el.dataset.field] = el.value;
+  });
+
+  const saveBtn = document.getElementById('saveCompanyBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Čuvam...';
+
+  try {
+    const response = await fetch(
+      `/api/email-admin/table/company/${encodeURIComponent(pib)}`,
+      {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    );
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Greška pri čuvanju');
+    }
+
+    // Osvježi podatke iz baze
+    const resp2 = await fetch(
+      `/api/email-admin/table/company/${encodeURIComponent(pib)}`,
+      { credentials: 'include' }
+    );
+    const result2 = await resp2.json();
+    renderCompanyDetails(result2.data?.company || company);
+
+    // Osvježi red u tabeli
+    loadTableData();
+  } catch (error) {
+    alert('Greška: ' + error.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>Sačuvaj';
+  }
 }
 
 async function showCompanyDetails(pib) {
@@ -179,6 +304,10 @@ async function showCompanyDetails(pib) {
   document.getElementById('companyDetailsLoading').style.display = 'block';
   document.getElementById('companyDetailsContent').style.display = 'none';
   document.getElementById('companyDetailsBody').innerHTML = '';
+  document.getElementById('editCompanyBtn').classList.remove('d-none');
+  document.getElementById('saveCompanyBtn').classList.add('d-none');
+  document.getElementById('cancelEditBtn').classList.add('d-none');
+  state.currentCompany = null;
   modal.show();
 
   try {
@@ -272,10 +401,14 @@ async function loadIrmsLookups() {
 }
 
 function updateSelectionUI() {
-  document.getElementById('selectedCount').textContent = state.selectedPibs.size.toLocaleString('sr-RS');
+  document.getElementById('selectedCount').textContent =
+    state.selectedPibs.size.toLocaleString('sr-RS');
 
   const updateBtn = document.getElementById('updateSelectedBtn');
   updateBtn.disabled = state.selectedPibs.size === 0;
+
+  const campaignBtn = document.getElementById('launchCampaignFromTableBtn');
+  if (campaignBtn) campaignBtn.disabled = state.selectedPibs.size === 0;
 
   const pageCheckbox = document.getElementById('selectPageCheckbox');
   if (!pageCheckbox) return;
@@ -290,9 +423,12 @@ function updateSelectionUI() {
     return;
   }
 
-  const selectedVisible = visiblePibs.filter(pib => state.selectedPibs.has(pib)).length;
+  const selectedVisible = visiblePibs.filter(pib =>
+    state.selectedPibs.has(pib)
+  ).length;
   pageCheckbox.checked = selectedVisible === visiblePibs.length;
-  pageCheckbox.indeterminate = selectedVisible > 0 && selectedVisible < visiblePibs.length;
+  pageCheckbox.indeterminate =
+    selectedVisible > 0 && selectedVisible < visiblePibs.length;
 }
 
 function setProgressVisibility(visible) {
@@ -308,14 +444,17 @@ function setAddPibsProgressVisibility(visible) {
 function updateProgressBar(progress = 0, text = 'Spremno.') {
   const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
   document.getElementById('irmsProgressFill').style.width = `${safeProgress}%`;
-  document.getElementById('irmsProgressPercent').textContent = `${safeProgress.toFixed(1)}%`;
+  document.getElementById('irmsProgressPercent').textContent =
+    `${safeProgress.toFixed(1)}%`;
   document.getElementById('irmsProgressText').textContent = text;
 }
 
 function updateAddPibsProgressBar(progress = 0, text = 'Spremno.') {
   const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
-  document.getElementById('addPibsProgressFill').style.width = `${safeProgress}%`;
-  document.getElementById('addPibsProgressPercent').textContent = `${safeProgress.toFixed(1)}%`;
+  document.getElementById('addPibsProgressFill').style.width =
+    `${safeProgress}%`;
+  document.getElementById('addPibsProgressPercent').textContent =
+    `${safeProgress.toFixed(1)}%`;
   document.getElementById('addPibsProgressText').textContent = text;
 }
 
@@ -336,7 +475,8 @@ function stopAddPibsPolling() {
 function restoreUpdateButton() {
   const button = document.getElementById('updateSelectedBtn');
   button.disabled = state.selectedPibs.size === 0;
-  button.innerHTML = '<i class="fas fa-cloud-arrow-up me-1"></i>Update selektovanih (IRMS)';
+  button.innerHTML =
+    '<i class="fas fa-cloud-arrow-up me-1"></i>Update selektovanih (IRMS)';
   const cancelBtn = document.getElementById('cancelIrmsUpdateBtn');
   if (cancelBtn) {
     cancelBtn.disabled = true;
@@ -382,7 +522,9 @@ async function pollUpdateStatus() {
       const fieldUpdates = summary.fieldUpdates || {};
       const dynamicUpdateLines = Object.entries(fieldUpdates)
         .filter(([, count]) => Number(count || 0) > 0)
-        .map(([field, count]) => `${UPDATE_FIELD_LABELS[field] || field}: ${count}`);
+        .map(
+          ([field, count]) => `${UPDATE_FIELD_LABELS[field] || field}: ${count}`
+        );
 
       const fieldSummaryText =
         dynamicUpdateLines.length > 0
@@ -410,7 +552,10 @@ async function pollUpdateStatus() {
       stopUpdatePolling();
       state.updateJobId = null;
       restoreUpdateButton();
-      updateProgressBar(Number(job.progress || 0), 'Update je otkazan od strane korisnika.');
+      updateProgressBar(
+        Number(job.progress || 0),
+        'Update je otkazan od strane korisnika.'
+      );
       alert('IRMS update je uspešno otkazan.');
       await loadTable();
       setTimeout(() => {
@@ -423,7 +568,10 @@ async function pollUpdateStatus() {
       stopUpdatePolling();
       state.updateJobId = null;
       restoreUpdateButton();
-      updateProgressBar(Number(job.progress || 0), 'Update je prekinut greškom.');
+      updateProgressBar(
+        Number(job.progress || 0),
+        'Update je prekinut greškom.'
+      );
       alert('IRMS update je prekinut greškom. Pokušajte ponovo.');
     }
   } catch (error) {
@@ -446,7 +594,9 @@ async function pollAddPibsStatus() {
     );
     const result = await response.json();
     if (!response.ok || !result.success) {
-      throw new Error(result.message || 'Greška pri čitanju statusa dodavanja PIB-ova');
+      throw new Error(
+        result.message || 'Greška pri čitanju statusa dodavanja PIB-ova'
+      );
     }
 
     const job = result.job || {};
@@ -482,7 +632,10 @@ async function pollAddPibsStatus() {
       stopAddPibsPolling();
       state.addPibsJobId = null;
       restoreAddPibsButton();
-      updateAddPibsProgressBar(Number(job.progress || 0), 'Dodavanje je otkazano od strane korisnika.');
+      updateAddPibsProgressBar(
+        Number(job.progress || 0),
+        'Dodavanje je otkazano od strane korisnika.'
+      );
       alert('Dodavanje PIB-ova je uspešno otkazano.');
       await loadTable();
       setTimeout(() => {
@@ -495,7 +648,10 @@ async function pollAddPibsStatus() {
       stopAddPibsPolling();
       state.addPibsJobId = null;
       restoreAddPibsButton();
-      updateAddPibsProgressBar(Number(job.progress || 0), 'Dodavanje je prekinuto greškom.');
+      updateAddPibsProgressBar(
+        Number(job.progress || 0),
+        'Dodavanje je prekinuto greškom.'
+      );
       alert('Dodavanje PIB-ova je prekinuto greškom. Pokušajte ponovo.');
     }
   } catch (error) {
@@ -503,7 +659,10 @@ async function pollAddPibsStatus() {
     stopAddPibsPolling();
     state.addPibsJobId = null;
     restoreAddPibsButton();
-    updateAddPibsProgressBar(0, error.message || 'Greška pri praćenju napretka.');
+    updateAddPibsProgressBar(
+      0,
+      error.message || 'Greška pri praćenju napretka.'
+    );
     alert(error.message || 'Greška pri praćenju napretka dodavanja PIB-ova');
   }
 }
@@ -516,12 +675,14 @@ function normalizePibInput(value) {
 }
 
 function parsePibList(text) {
-  return [...new Set(
-    String(text || '')
-      .split(/[\s,;]+/)
-      .map(normalizePibInput)
-      .filter(pib => /^\d{8}$/.test(pib))
-  )];
+  return [
+    ...new Set(
+      String(text || '')
+        .split(/[\s,;]+/)
+        .map(normalizePibInput)
+        .filter(pib => /^\d{8}$/.test(pib))
+    ),
+  ];
 }
 
 function showAddPibsModal() {
@@ -543,7 +704,8 @@ async function startAddPibsFromIrms(pibs) {
 
   const button = document.getElementById('addPibsBtn');
   button.disabled = true;
-  button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Dodavanje u toku...';
+  button.innerHTML =
+    '<i class="fas fa-spinner fa-spin me-1"></i>Dodavanje u toku...';
 
   const cancelBtn = document.getElementById('cancelAddPibsBtn');
   cancelBtn.disabled = true;
@@ -563,7 +725,9 @@ async function startAddPibsFromIrms(pibs) {
 
     const result = await response.json();
     if (!response.ok || !result.success) {
-      throw new Error(result.message || 'Greška pri pokretanju dodavanja PIB-ova');
+      throw new Error(
+        result.message || 'Greška pri pokretanju dodavanja PIB-ova'
+      );
     }
 
     state.addPibsJobId = result.job?.id || null;
@@ -592,7 +756,9 @@ async function cancelAddPibsJob() {
     return;
   }
 
-  const confirmed = window.confirm('Da li želite da prekinete aktivno dodavanje PIB-ova?');
+  const confirmed = window.confirm(
+    'Da li želite da prekinete aktivno dodavanje PIB-ova?'
+  );
   if (!confirmed) return;
 
   const cancelBtn = document.getElementById('cancelAddPibsBtn');
@@ -608,7 +774,9 @@ async function cancelAddPibsJob() {
     );
     const result = await response.json();
     if (!response.ok || !result.success) {
-      throw new Error(result.message || 'Greška pri otkazivanju dodavanja PIB-ova');
+      throw new Error(
+        result.message || 'Greška pri otkazivanju dodavanja PIB-ova'
+      );
     }
 
     updateAddPibsProgressBar(
@@ -647,7 +815,8 @@ function renderTable(rows) {
 
   const tbody = document.getElementById('emailsTableBody');
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4">Nema rezultata za zadate filtere.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="14" class="text-center text-muted py-4">Nema rezultata za zadate filtere.</td></tr>';
     updateSelectionUI();
     return;
   }
@@ -672,6 +841,7 @@ function renderTable(rows) {
         <td>${escapeHtml(formatDate(row.datum_registracije))}</td>
         <td>${escapeHtml(formatDate(row.created_at))}</td>
         <td>${escapeHtml(formatDate(row.updated_at))}</td>
+        <td>${row.mail_knjigovodje ? `<span class="badge bg-warning text-dark" title="${escapeHtml(row.mail_knjigovodje)}">knjig.</span>` : ''}</td>
       </tr>
     `;
     })
@@ -708,15 +878,19 @@ function renderTable(rows) {
 }
 
 function updatePager() {
-  document.getElementById('totalCount').textContent = state.total.toLocaleString('sr-RS');
-  document.getElementById('pageInfo').textContent = `Strana ${state.page} / ${state.totalPages}`;
+  document.getElementById('totalCount').textContent =
+    state.total.toLocaleString('sr-RS');
+  document.getElementById('pageInfo').textContent =
+    `Strana ${state.page} / ${state.totalPages}`;
   document.getElementById('prevPageBtn').disabled = state.page <= 1;
-  document.getElementById('nextPageBtn').disabled = state.page >= state.totalPages;
+  document.getElementById('nextPageBtn').disabled =
+    state.page >= state.totalPages;
 }
 
 async function loadTable() {
   const tbody = document.getElementById('emailsTableBody');
-  tbody.innerHTML = '<tr><td colspan="13" class="text-center text-muted py-4">Učitavanje...</td></tr>';
+  tbody.innerHTML =
+    '<tr><td colspan="14" class="text-center text-muted py-4">Učitavanje...</td></tr>';
 
   try {
     const response = await fetch(`/api/email-admin/table?${buildQuery()}`, {
@@ -739,7 +913,7 @@ async function loadTable() {
     updatePager();
   } catch (error) {
     console.error('Emails table load error:', error);
-    tbody.innerHTML = `<tr><td colspan="13" class="text-center text-danger py-4">${escapeHtml(error.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="14" class="text-center text-danger py-4">${escapeHtml(error.message)}</td></tr>`;
     state.total = 0;
     state.totalPages = 1;
     updatePager();
@@ -757,13 +931,114 @@ async function selectAllFiltered() {
   renderTable(state.visibleRows);
 }
 
+async function selectAllFromFilter() {
+  const btn = document.getElementById('selectAllFilteredBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Učitavam...';
+
+  try {
+    const filters = { ...state.filters };
+    const response = await fetch('/api/email-admin/table/select-all', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filters }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || 'Greška');
+
+    const pibs = result.data?.pibs || [];
+    pibs.forEach(pib => state.selectedPibs.add(pib));
+    renderTable(state.visibleRows);
+    alert(`Selektovano ${pibs.length.toLocaleString('sr-RS')} PIB-ova.`);
+  } catch (err) {
+    alert('Greška: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-list-check me-1"></i>Selektuj sve rezultate';
+  }
+}
+
+function showCampaignModal() {
+  if (state.selectedPibs.size === 0) {
+    alert('Nema selektovanih PIB-ova.');
+    return;
+  }
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('campaignName').placeholder = `Kampanja ${today}`;
+  document.getElementById('campaignPibCount').textContent =
+    state.selectedPibs.size.toLocaleString('sr-RS');
+  document.getElementById('campaignRecipientEstimate').textContent = 'računam...';
+
+  // Procjena stvarnih primaoca (bez mail_knjigovodje ako je čekirano)
+  const skipBookkeeper = document.getElementById('campaignSkipBookkeeper').checked;
+  const filtered = state.visibleRows.filter(r =>
+    state.selectedPibs.has(cleanPib(r.pib)) && r.email &&
+    (!skipBookkeeper || !r.mail_knjigovodje)
+  ).length;
+  document.getElementById('campaignRecipientEstimate').textContent =
+    `~${filtered} (vidljivi); tačan broj biće izračunat pri pokretanju`;
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('campaignModal')).show();
+}
+
+async function launchCampaign() {
+  const today = new Date().toISOString().split('T')[0];
+  const campaignName =
+    document.getElementById('campaignName').value.trim() || `Kampanja ${today}`;
+  const subject = document.getElementById('campaignSubject').value.trim();
+  const template = document.getElementById('campaignTemplate').value;
+  const senderName = document.getElementById('campaignSenderName').value.trim();
+  const senderEmail = document.getElementById('campaignSenderEmail').value.trim();
+  const skipBookkeeper = document.getElementById('campaignSkipBookkeeper').checked;
+
+  const btn = document.getElementById('launchCampaignBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Pokrećem...';
+
+  try {
+    const response = await fetch('/api/email-admin/table/launch-campaign', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pibs: Array.from(state.selectedPibs),
+        campaignName,
+        subject,
+        template,
+        senderName,
+        senderEmail,
+        skipBookkeeper,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success)
+      throw new Error(result.message || 'Greška pri pokretanju kampanje');
+
+    bootstrap.Modal.getOrCreateInstance(
+      document.getElementById('campaignModal')
+    ).hide();
+    alert(
+      `✅ Kampanja pokrenuta!\n${result.total} primaoca.\nPreusmjeravam na marketing stranicu...`
+    );
+    window.location.href = '/shared/email-marketing.html';
+  } catch (err) {
+    alert('Greška: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Pokreni kampanju';
+  }
+}
+
 async function cancelRunningUpdate() {
   if (!state.updateJobId) {
     alert('Nema aktivnog update-a za cancel.');
     return;
   }
 
-  const confirmed = window.confirm('Da li želite da prekinete aktivni IRMS update?');
+  const confirmed = window.confirm(
+    'Da li želite da prekinete aktivni IRMS update?'
+  );
   if (!confirmed) return;
 
   const cancelBtn = document.getElementById('cancelIrmsUpdateBtn');
@@ -798,9 +1073,9 @@ async function cancelRunningUpdate() {
 }
 
 function getSelectedUpdateFieldsFromModal() {
-  return Array.from(document.querySelectorAll('input[name="updateField"]:checked')).map(
-    checkbox => checkbox.value
-  );
+  return Array.from(
+    document.querySelectorAll('input[name="updateField"]:checked')
+  ).map(checkbox => checkbox.value);
 }
 
 function showUpdateOptionsModal() {
@@ -876,7 +1151,8 @@ async function updateSelectedFromIrms(options = {}) {
       throw new Error('Update job nije pokrenut ispravno');
     }
 
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Update u toku...';
+    button.innerHTML =
+      '<i class="fas fa-spinner fa-spin me-1"></i>Update u toku...';
     cancelBtn.disabled = false;
 
     stopUpdatePolling();
@@ -971,25 +1247,41 @@ function setupPager() {
 }
 
 function setupSelectionControls() {
-  document.getElementById('selectPageCheckbox').addEventListener('change', e => {
-    const checked = e.target.checked;
+  document
+    .getElementById('selectPageCheckbox')
+    .addEventListener('change', e => {
+      const checked = e.target.checked;
 
-    state.visibleRows.forEach(row => {
-      const pib = cleanPib(row.pib);
-      if (!pib) return;
-      if (checked) {
-        state.selectedPibs.add(pib);
-      } else {
-        state.selectedPibs.delete(pib);
-      }
+      state.visibleRows.forEach(row => {
+        const pib = cleanPib(row.pib);
+        if (!pib) return;
+        if (checked) {
+          state.selectedPibs.add(pib);
+        } else {
+          state.selectedPibs.delete(pib);
+        }
+      });
+
+      renderTable(state.visibleRows);
     });
 
-    renderTable(state.visibleRows);
-  });
+  document
+    .getElementById('selectCurrentPageBtn')
+    .addEventListener('click', () => {
+      selectAllFiltered();
+    });
 
-  document.getElementById('selectCurrentPageBtn').addEventListener('click', () => {
-    selectAllFiltered();
-  });
+  document
+    .getElementById('selectAllFilteredBtn')
+    .addEventListener('click', () => {
+      selectAllFromFilter();
+    });
+
+  document
+    .getElementById('launchCampaignFromTableBtn')
+    .addEventListener('click', () => {
+      showCampaignModal();
+    });
 
   document.getElementById('clearSelectionBtn').addEventListener('click', () => {
     state.selectedPibs.clear();
@@ -1000,27 +1292,33 @@ function setupSelectionControls() {
     showUpdateOptionsModal();
   });
 
-  document.getElementById('confirmUpdateOptionsBtn').addEventListener('click', () => {
-    const fields = getSelectedUpdateFieldsFromModal();
-    if (!fields.length) {
-      alert('Izaberi bar jedno polje za ažuriranje.');
-      return;
-    }
+  document
+    .getElementById('confirmUpdateOptionsBtn')
+    .addEventListener('click', () => {
+      const fields = getSelectedUpdateFieldsFromModal();
+      if (!fields.length) {
+        alert('Izaberi bar jedno polje za ažuriranje.');
+        return;
+      }
 
-    const onlyEmpty = document.getElementById('updateOnlyEmptyCheckbox').checked;
-    const modalElement = document.getElementById('updateOptionsModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.hide();
+      const onlyEmpty = document.getElementById(
+        'updateOnlyEmptyCheckbox'
+      ).checked;
+      const modalElement = document.getElementById('updateOptionsModal');
+      const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+      modal.hide();
 
-    updateSelectedFromIrms({
-      fields,
-      overwriteExisting: !onlyEmpty,
+      updateSelectedFromIrms({
+        fields,
+        overwriteExisting: !onlyEmpty,
+      });
     });
-  });
 
-  document.getElementById('cancelIrmsUpdateBtn').addEventListener('click', () => {
-    cancelRunningUpdate();
-  });
+  document
+    .getElementById('cancelIrmsUpdateBtn')
+    .addEventListener('click', () => {
+      cancelRunningUpdate();
+    });
 
   document.getElementById('addPibsBtn').addEventListener('click', () => {
     showAddPibsModal();

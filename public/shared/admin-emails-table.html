@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
   <head>
     <meta charset="UTF-8" />
@@ -141,14 +141,19 @@
     <div id="navigation-placeholder"></div>
 
     <div class="container-fluid mt-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3"
+      >
         <div>
-          <h1 class="h3 mb-1"><i class="fas fa-table me-2"></i>Emails tabela</h1>
+          <h1 class="h3 mb-1">
+            <i class="fas fa-table me-2"></i>Emails tabela
+          </h1>
           <p class="text-muted mb-0">
-            Filter po svakoj koloni kao u bazi: upiši npr. <strong>Bar</strong> u kolonu Grad.
+            Filter po svakoj koloni kao u bazi: upiši npr.
+            <strong>Bar</strong> u kolonu Grad.
           </p>
           <p class="text-muted mb-0">
-            Za prazna polja koristi <strong>=prazno</strong> u filteru kolone.
+            Za prazna polja koristi <strong>=prazno</strong>, za neprazna <strong>=ima</strong> u filteru kolone.
           </p>
           <p class="text-muted mb-0">
             Klik na red firme otvara detalje sa svim dostupnim podacima iz baze.
@@ -159,21 +164,35 @@
         </button>
       </div>
 
-      <div class="summary-box mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div
+        class="summary-box mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2"
+      >
         <div>
           <strong>Ukupno rezultata:</strong>
           <span id="totalCount">0</span>
-          <span class="ms-3"><strong>Selektovano PIB-ova:</strong> <span id="selectedCount">0</span></span>
+          <span class="ms-3"
+            ><strong>Selektovano PIB-ova:</strong>
+            <span id="selectedCount">0</span></span
+          >
         </div>
         <div class="pagination-controls">
-          <a href="/shared/irms-pretraga.html" class="btn btn-sm btn-outline-primary">
+          <a
+            href="/shared/irms-pretraga.html"
+            class="btn btn-sm btn-outline-primary"
+          >
             <i class="fas fa-arrow-up-right-from-square me-1"></i>IRMS pretraga
           </a>
           <button id="addPibsBtn" class="btn btn-sm btn-success">
             <i class="fas fa-plus me-1"></i>Dodaj PIB-ove
           </button>
-          <button id="selectCurrentPageBtn" class="btn btn-sm btn-outline-success">
+          <button
+            id="selectCurrentPageBtn"
+            class="btn btn-sm btn-outline-success"
+          >
             <i class="fas fa-check-double me-1"></i>Selektuj trenutnu stranu
+          </button>
+          <button id="selectAllFilteredBtn" class="btn btn-sm btn-success">
+            <i class="fas fa-list-check me-1"></i>Selektuj sve rezultate
           </button>
           <button id="clearSelectionBtn" class="btn btn-sm btn-outline-dark">
             <i class="fas fa-xmark me-1"></i>Očisti selekciju
@@ -181,22 +200,36 @@
           <button id="updateSelectedBtn" class="btn btn-sm btn-primary">
             <i class="fas fa-cloud-arrow-up me-1"></i>Update selektovanih (IRMS)
           </button>
+          <button id="launchCampaignFromTableBtn" class="btn btn-sm btn-warning" disabled>
+            <i class="fas fa-paper-plane me-1"></i>Pokreni kampanju
+          </button>
           <label for="pageSize" class="mb-0">Redova po strani:</label>
-          <select id="pageSize" class="form-select form-select-sm" style="width: auto">
+          <select
+            id="pageSize"
+            class="form-select form-select-sm"
+            style="width: auto"
+          >
             <option value="50">50</option>
             <option value="100" selected>100</option>
             <option value="200">200</option>
             <option value="500">500</option>
           </select>
-          <button id="prevPageBtn" class="btn btn-sm btn-outline-primary">Prethodna</button>
+          <button id="prevPageBtn" class="btn btn-sm btn-outline-primary">
+            Prethodna
+          </button>
           <span id="pageInfo" class="text-muted">Strana 1 / 1</span>
-          <button id="nextPageBtn" class="btn btn-sm btn-outline-primary">Sledeća</button>
+          <button id="nextPageBtn" class="btn btn-sm btn-outline-primary">
+            Sledeća
+          </button>
         </div>
       </div>
 
       <div id="irmsProgressBox" class="progress-box mb-3" style="display: none">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <strong><i class="fas fa-cloud-arrow-up me-2"></i>IRMS update napredak</strong>
+          <strong
+            ><i class="fas fa-cloud-arrow-up me-2"></i>IRMS update
+            napredak</strong
+          >
           <span id="irmsProgressPercent" class="text-primary">0%</span>
         </div>
         <div class="progress-track mb-2">
@@ -204,15 +237,26 @@
         </div>
         <div class="d-flex justify-content-between align-items-center gap-2">
           <div id="irmsProgressText" class="text-muted small">Spremno.</div>
-          <button id="cancelIrmsUpdateBtn" class="btn btn-sm btn-outline-danger" disabled>
+          <button
+            id="cancelIrmsUpdateBtn"
+            class="btn btn-sm btn-outline-danger"
+            disabled
+          >
             <i class="fas fa-stop me-1"></i>Cancel
           </button>
         </div>
       </div>
 
-      <div id="addPibsProgressBox" class="progress-box mb-3" style="display: none">
+      <div
+        id="addPibsProgressBox"
+        class="progress-box mb-3"
+        style="display: none"
+      >
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <strong><i class="fas fa-building-circle-check me-2"></i>Dodavanje firmi iz IRMS-a</strong>
+          <strong
+            ><i class="fas fa-building-circle-check me-2"></i>Dodavanje firmi iz
+            IRMS-a</strong
+          >
           <span id="addPibsProgressPercent" class="text-success">0%</span>
         </div>
         <div class="progress-track mb-2">
@@ -220,24 +264,39 @@
         </div>
         <div class="d-flex justify-content-between align-items-center gap-2">
           <div id="addPibsProgressText" class="text-muted small">Spremno.</div>
-          <button id="cancelAddPibsBtn" class="btn btn-sm btn-outline-danger" disabled>
+          <button
+            id="cancelAddPibsBtn"
+            class="btn btn-sm btn-outline-danger"
+            disabled
+          >
             <i class="fas fa-stop me-1"></i>Cancel
           </button>
         </div>
       </div>
 
-      <div class="modal fade" id="addPibsModal" tabindex="-1" aria-hidden="true">
+      <div
+        class="modal fade"
+        id="addPibsModal"
+        tabindex="-1"
+        aria-hidden="true"
+      >
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
                 <i class="fas fa-list-check me-2"></i>Dodavanje firmi po PIB-u
               </h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
             <div class="modal-body">
               <p class="text-muted mb-2">
-                Unesi više PIB-ova odjednom (svaki u novom redu, ili odvojeno zarezom).
+                Unesi više PIB-ova odjednom (svaki u novom redu, ili odvojeno
+                zarezom).
               </p>
               <textarea
                 id="addPibsTextarea"
@@ -246,12 +305,23 @@
                 placeholder="npr.&#10;02825767&#10;03797236&#10;..."
               ></textarea>
               <div class="form-text">
-                Povlači se: naziv firme, email, telefon i šifra djelatnosti (KD).
+                Povlači se: naziv firme, email, telefon i šifra djelatnosti
+                (KD).
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
-              <button type="button" class="btn btn-success" id="confirmAddPibsBtn">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                Odustani
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                id="confirmAddPibsBtn"
+              >
                 <i class="fas fa-play me-1"></i>Pokreni dodavanje
               </button>
             </div>
@@ -259,88 +329,195 @@
         </div>
       </div>
 
-      <div class="modal fade" id="updateOptionsModal" tabindex="-1" aria-hidden="true">
+      <div
+        class="modal fade"
+        id="updateOptionsModal"
+        tabindex="-1"
+        aria-hidden="true"
+      >
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
                 <i class="fas fa-sliders me-2"></i>Opcije update-a iz IRMS-a
               </h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
             <div class="modal-body">
               <p class="mb-2 text-muted">
-                Selektovano PIB-ova: <strong id="updateOptionsSelectedCount">0</strong>
+                Selektovano PIB-ova:
+                <strong id="updateOptionsSelectedCount">0</strong>
               </p>
 
-              <label class="form-label fw-semibold mb-2">Polja za ažuriranje (PIB se nikad ne menja):</label>
+              <label class="form-label fw-semibold mb-2"
+                >Polja za ažuriranje (PIB se nikad ne menja):</label
+              >
               <div class="row g-2 mb-3">
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="naziv" id="updateFieldNaziv" />
-                    <label class="form-check-label" for="updateFieldNaziv">Naziv</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="naziv"
+                      id="updateFieldNaziv"
+                    />
+                    <label class="form-check-label" for="updateFieldNaziv"
+                      >Naziv</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="oblik_organizacije" id="updateFieldOblikOrganizacije" checked />
-                    <label class="form-check-label" for="updateFieldOblikOrganizacije">Oblik organizacije</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="oblik_organizacije"
+                      id="updateFieldOblikOrganizacije"
+                      checked
+                    />
+                    <label
+                      class="form-check-label"
+                      for="updateFieldOblikOrganizacije"
+                      >Oblik organizacije</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="grad" id="updateFieldGrad" checked />
-                    <label class="form-check-label" for="updateFieldGrad">Grad</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="grad"
+                      id="updateFieldGrad"
+                      checked
+                    />
+                    <label class="form-check-label" for="updateFieldGrad"
+                      >Grad</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="kd" id="updateFieldKd" checked />
-                    <label class="form-check-label" for="updateFieldKd">KD</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="kd"
+                      id="updateFieldKd"
+                      checked
+                    />
+                    <label class="form-check-label" for="updateFieldKd"
+                      >KD</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="datum_registracije" id="updateFieldDatumRegistracije" />
-                    <label class="form-check-label" for="updateFieldDatumRegistracije">Datum registracije</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="datum_registracije"
+                      id="updateFieldDatumRegistracije"
+                    />
+                    <label
+                      class="form-check-label"
+                      for="updateFieldDatumRegistracije"
+                      >Datum registracije</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="email" id="updateFieldEmail" />
-                    <label class="form-check-label" for="updateFieldEmail">Email</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="email"
+                      id="updateFieldEmail"
+                    />
+                    <label class="form-check-label" for="updateFieldEmail"
+                      >Email</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="telefon" id="updateFieldTelefon" />
-                    <label class="form-check-label" for="updateFieldTelefon">Telefon</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="telefon"
+                      id="updateFieldTelefon"
+                    />
+                    <label class="form-check-label" for="updateFieldTelefon"
+                      >Telefon</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="broj_zaposlenih" id="updateFieldZaposleni" />
-                    <label class="form-check-label" for="updateFieldZaposleni">Broj zaposlenih</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="broj_zaposlenih"
+                      id="updateFieldZaposleni"
+                    />
+                    <label class="form-check-label" for="updateFieldZaposleni"
+                      >Broj zaposlenih</label
+                    >
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="updateField" value="prihod" id="updateFieldPrihod" />
-                    <label class="form-check-label" for="updateFieldPrihod">Prihod</label>
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="updateField"
+                      value="prihod"
+                      id="updateFieldPrihod"
+                    />
+                    <label class="form-check-label" for="updateFieldPrihod"
+                      >Prihod</label
+                    >
                   </div>
                 </div>
               </div>
 
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="updateOnlyEmptyCheckbox" checked />
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="updateOnlyEmptyCheckbox"
+                  checked
+                />
                 <label class="form-check-label" for="updateOnlyEmptyCheckbox">
                   Ažuriraj samo prazna polja (preporučeno)
                 </label>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Odustani</button>
-              <button type="button" class="btn btn-primary" id="confirmUpdateOptionsBtn">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                Odustani
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="confirmUpdateOptionsBtn"
+              >
                 <i class="fas fa-play me-1"></i>Pokreni update
               </button>
             </div>
@@ -348,27 +525,116 @@
         </div>
       </div>
 
-      <div class="modal fade" id="companyDetailsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+      <!-- Campaign Modal -->
+      <div class="modal fade" id="campaignModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="fas fa-paper-plane me-2"></i>Pokreni email kampanju</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info mb-3">
+                Selektovano: <strong id="campaignPibCount">0</strong> PIB-ova &mdash;
+                primaoci: <strong id="campaignRecipientEstimate">...</strong>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Naziv kampanje</label>
+                <input type="text" class="form-control" id="campaignName" placeholder="Kampanja 2026-05-24">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Subject emaila</label>
+                <input type="text" class="form-control" id="campaignSubject" value="📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Template</label>
+                <select class="form-select" id="campaignTemplate">
+                  <option value="marketing-default.html">Marketing Default</option>
+                  <option value="izvodi-automatizacija.html">Izvodi Automatizacija</option>
+                  <option value="promo-specijalna-ponuda.html">Specijalna Ponuda</option>
+                  <option value="newsletter-mesecni.html">Mesečni Newsletter</option>
+                </select>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <label class="form-label fw-semibold">Ime pošaljioca</label>
+                  <input type="text" class="form-control" id="campaignSenderName" placeholder="SummaSummarum">
+                </div>
+                <div class="col">
+                  <label class="form-label fw-semibold">Email pošaljioca</label>
+                  <select class="form-select" id="campaignSenderEmail">
+                    <option value="admin@summasummarum.me">admin@summasummarum.me</option>
+                    <option value="podrska@summasummarum.me">podrska@summasummarum.me</option>
+                    <option value="fakture@summasummarum.me">fakture@summasummarum.me</option>
+                    <option value="admin@mojradnik.me">admin@mojradnik.me</option>
+                    <option value="podrska@mojradnik.me">podrska@mojradnik.me</option>
+                    <option value="fakture@mojradnik.me">fakture@mojradnik.me</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" id="campaignSkipBookkeeper" checked>
+                <label class="form-check-label" for="campaignSkipBookkeeper">
+                  Preskoči firme sa mail_knjigovodje (šalji samo na direktne mailove firme)
+                </label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Otkaži</button>
+              <button type="button" class="btn btn-warning" id="launchCampaignBtn" onclick="launchCampaign()">
+                <i class="fas fa-paper-plane me-1"></i>Pokreni kampanju
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="companyDetailsModal"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <div
+          class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered"
+        >
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">
                 <i class="fas fa-building me-2"></i>Detalji firme
               </h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
             <div class="modal-body">
               <div id="companyDetailsLoading" class="text-muted py-3">
                 <i class="fas fa-spinner fa-spin me-2"></i>Učitavam detalje...
               </div>
               <div id="companyDetailsContent" style="display: none">
-                <table class="table table-sm table-bordered company-details-table mb-0">
+                <table
+                  class="table table-sm table-bordered company-details-table mb-0"
+                >
                   <tbody id="companyDetailsBody"></tbody>
                 </table>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Zatvori</button>
+              <button type="button" class="btn btn-primary" id="editCompanyBtn" onclick="enterEditMode()">
+                <i class="fas fa-pen me-1"></i>Edit
+              </button>
+              <button type="button" class="btn btn-success d-none" id="saveCompanyBtn" onclick="saveCompanyEdit()">
+                <i class="fas fa-save me-1"></i>Sačuvaj
+              </button>
+              <button type="button" class="btn btn-outline-danger d-none" id="cancelEditBtn" onclick="cancelEditMode()">
+                Otkaži
+              </button>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                Zatvori
+              </button>
             </div>
           </div>
         </div>
@@ -379,38 +645,148 @@
           <thead>
             <tr class="filter-row">
               <th class="col-select"></th>
-              <th><input data-filter="pib" class="form-control form-control-sm filter-input" placeholder="Filter PIB" /></th>
-              <th><input data-filter="naziv" class="form-control form-control-sm filter-input" placeholder="Filter Naziv" /></th>
-              <th><input data-filter="oblik_organizacije" class="form-control form-control-sm filter-input" placeholder="Filter Oblik" /></th>
-              <th><input data-filter="grad" class="form-control form-control-sm filter-input" placeholder="Filter Grad" /></th>
-              <th><input data-filter="kd" class="form-control form-control-sm filter-input" placeholder="Filter KD" /></th>
-              <th><input data-filter="email" class="form-control form-control-sm filter-input" placeholder="Filter Email" /></th>
-              <th><input data-filter="telefon" class="form-control form-control-sm filter-input" placeholder="Filter Telefon" /></th>
-              <th><input data-filter="broj_zaposlenih" class="form-control form-control-sm filter-input" placeholder="Filter Zaposleni" /></th>
-              <th><input data-filter="prihod" class="form-control form-control-sm filter-input" placeholder="Filter Prihod" /></th>
-              <th><input data-filter="datum_registracije" class="form-control form-control-sm filter-input" placeholder="Filter Datum reg." /></th>
-              <th><input data-filter="created_at" class="form-control form-control-sm filter-input" placeholder="Filter Kreiran" /></th>
-              <th><input data-filter="updated_at" class="form-control form-control-sm filter-input" placeholder="Filter Ažuriran" /></th>
+              <th>
+                <input
+                  data-filter="pib"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter PIB"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="naziv"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Naziv"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="oblik_organizacije"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Oblik"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="grad"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Grad"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="kd"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter KD"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="email"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Email"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="telefon"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Telefon"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="broj_zaposlenih"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Zaposleni"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="prihod"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Prihod"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="datum_registracije"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Datum reg."
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="created_at"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Kreiran"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="updated_at"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Ažuriran"
+                />
+              </th>
+              <th>
+                <input
+                  data-filter="mail_knjigovodje"
+                  class="form-control form-control-sm filter-input"
+                  placeholder="Filter Mail knjig."
+                />
+              </th>
             </tr>
             <tr class="header-row">
-              <th class="col-select"><input id="selectPageCheckbox" type="checkbox" /></th>
-              <th class="sortable" data-sort="pib">PIB <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="naziv">Naziv <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="oblik_organizacije">Oblik <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="grad">Grad <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="kd">KD <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="email">Email <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="telefon">Telefon <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="broj_zaposlenih">Zaposleni <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="prihod">Prihod <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="datum_registracije">Datum reg. <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="created_at">Kreiran <i class="fas fa-sort"></i></th>
-              <th class="sortable" data-sort="updated_at">Ažuriran <i class="fas fa-sort"></i></th>
+              <th class="col-select">
+                <input id="selectPageCheckbox" type="checkbox" />
+              </th>
+              <th class="sortable" data-sort="pib">
+                PIB <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="naziv">
+                Naziv <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="oblik_organizacije">
+                Oblik <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="grad">
+                Grad <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="kd">
+                KD <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="email">
+                Email <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="telefon">
+                Telefon <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="broj_zaposlenih">
+                Zaposleni <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="prihod">
+                Prihod <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="datum_registracije">
+                Datum reg. <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="created_at">
+                Kreiran <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="updated_at">
+                Ažuriran <i class="fas fa-sort"></i>
+              </th>
+              <th class="sortable" data-sort="mail_knjigovodje">
+                Mail knjig. <i class="fas fa-sort"></i>
+              </th>
             </tr>
           </thead>
           <tbody id="emailsTableBody">
             <tr>
-              <td colspan="13" class="text-center text-muted py-4">Učitavanje...</td>
+              <td colspan="14" class="text-center text-muted py-4">
+                Učitavanje...
+              </td>
             </tr>
           </tbody>
         </table>

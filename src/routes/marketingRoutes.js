@@ -26,6 +26,7 @@ const EMAIL_TABLE_FILTER_FIELDS = [
   'datum_registracije',
   'created_at',
   'updated_at',
+  'mail_knjigovodje',
 ];
 
 function buildEmailTableWhereClause(source = {}, options = {}) {
@@ -48,6 +49,13 @@ function buildEmailTableWhereClause(source = {}, options = {}) {
       return;
     }
 
+    if (value.toLowerCase() === '=ima') {
+      whereConditions.push(
+        `(${field} IS NOT NULL AND TRIM(CAST(${field} AS CHAR)) != '')`
+      );
+      return;
+    }
+
     if (field === 'id') {
       whereConditions.push('CAST(id AS CHAR) LIKE ?');
       queryParams.push(`%${value}%`);
@@ -59,9 +67,7 @@ function buildEmailTableWhereClause(source = {}, options = {}) {
   });
 
   const whereClause =
-    whereConditions.length > 0
-      ? `WHERE ${whereConditions.join(' AND ')}`
-      : '';
+    whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
 
   return { whereClause, queryParams };
 }
@@ -188,7 +194,8 @@ function normalizeDateValue(dateRaw) {
 
 const IRMS_UPDATABLE_FIELDS = {
   naziv: {
-    extractValue: irmsData => normalizeText(irmsData.name || irmsData.legalName),
+    extractValue: irmsData =>
+      normalizeText(irmsData.name || irmsData.legalName),
   },
   oblik_organizacije: {
     extractValue: irmsData =>
@@ -243,7 +250,12 @@ const IRMS_UPDATABLE_FIELDS = {
   },
 };
 
-function createIrmsSummary(requestedPibs, uniquePibs, selectedFields, overwriteExisting) {
+function createIrmsSummary(
+  requestedPibs,
+  uniquePibs,
+  selectedFields,
+  overwriteExisting
+) {
   const fieldUpdates = {};
   selectedFields.forEach(field => {
     fieldUpdates[field] = 0;
@@ -267,7 +279,12 @@ function createIrmsSummary(requestedPibs, uniquePibs, selectedFields, overwriteE
   };
 }
 
-function createIrmsAddSummary(requestedPibs, uniquePibs, sentToIrms = uniquePibs, existingInDatabase = 0) {
+function createIrmsAddSummary(
+  requestedPibs,
+  uniquePibs,
+  sentToIrms = uniquePibs,
+  existingInDatabase = 0
+) {
   return {
     requestedPibs,
     uniquePibs,
@@ -284,7 +301,8 @@ function createIrmsAddSummary(requestedPibs, uniquePibs, sentToIrms = uniquePibs
 }
 
 function serializeJob(job) {
-  const progress = job.total > 0 ? Number(((job.processed / job.total) * 100).toFixed(1)) : 0;
+  const progress =
+    job.total > 0 ? Number(((job.processed / job.total) * 100).toFixed(1)) : 0;
   return {
     id: job.id,
     status: job.status,
@@ -417,7 +435,8 @@ async function processIrmsUpdateJob(job) {
         const count = Number(fieldCounts[field] || 0);
         if (!count) return;
 
-        job.summary.fieldUpdates[field] = Number(job.summary.fieldUpdates[field] || 0) + count;
+        job.summary.fieldUpdates[field] =
+          Number(job.summary.fieldUpdates[field] || 0) + count;
         if (field === 'grad') job.summary.updatedGradRows += count;
         if (field === 'kd') job.summary.updatedKdRows += count;
       });
@@ -538,7 +557,9 @@ async function processIrmsAddPibsJob(job) {
           ]
         );
 
-        job.summary.updatedExistingRows += Number(updateResult?.affectedRows || 0);
+        job.summary.updatedExistingRows += Number(
+          updateResult?.affectedRows || 0
+        );
       } else {
         await executeQuery(
           `
@@ -671,8 +692,14 @@ router.post(
     // Marketing campaign endpoint called
 
     try {
-      const { testMode, campaignName, senderEmail, senderName, subject, template } =
-        req.body;
+      const {
+        testMode,
+        campaignName,
+        senderEmail,
+        senderName,
+        subject,
+        template,
+      } = req.body;
 
       if (!req.file) {
         // No CSV file provided
@@ -683,7 +710,7 @@ router.post(
 
       const MarketingEmailService = require('../../marketing-email');
       const manager = new MarketingEmailService();
-      
+
       // Postavi template ako je prosleđen
       if (template) {
         manager.setTemplate(template);
@@ -728,7 +755,7 @@ router.post(
       const service = new MarketingEmailService();
       const campaignTitle =
         campaignName || `Kampanja ${new Date().toISOString().split('T')[0]}`;
-      
+
       // Kreiraj kampanju ID ODMAH i vrati odgovor
       const campaignId = await service.createCampaign(
         campaignTitle,
@@ -739,9 +766,12 @@ router.post(
 
       // Dodaj sve email adrese u kampanju
       for (const recipient of recipients) {
-        const email = typeof recipient === 'string' ? recipient : recipient.email;
-        const firstName = typeof recipient === 'object' ? recipient.firstName : null;
-        const companyName = typeof recipient === 'object' ? recipient.companyName : null;
+        const email =
+          typeof recipient === 'string' ? recipient : recipient.email;
+        const firstName =
+          typeof recipient === 'object' ? recipient.firstName : null;
+        const companyName =
+          typeof recipient === 'object' ? recipient.companyName : null;
 
         await service.addEmailToCampaign(
           campaignId,
@@ -751,7 +781,9 @@ router.post(
         );
       }
 
-      console.log(`📋 Kampanja kreirana #${campaignId}, pokreće se u pozadini...`);
+      console.log(
+        `📋 Kampanja kreirana #${campaignId}, pokreće se u pozadini...`
+      );
 
       // Obriši privremeni fajl
       fs.unlinkSync(req.file.path);
@@ -768,15 +800,16 @@ router.post(
       });
 
       // Pokreni slanje emailova U POZADINI (ne čekaj rezultat)
-      service.sendBulkMarketingEmailsBackground(
-        recipients,
-        2000,
-        campaignId,
-        senderConfig
-      ).catch(error => {
-        console.error('❌ Greška u pozadinskom slanju:', error);
-      });
-
+      service
+        .sendBulkMarketingEmailsBackground(
+          recipients,
+          2000,
+          campaignId,
+          senderConfig
+        )
+        .catch(error => {
+          console.error('❌ Greška u pozadinskom slanju:', error);
+        });
     } catch (error) {
       console.error('Marketing campaign error:', error);
       res.status(500).json({ success: false, error: error.message });
@@ -827,11 +860,7 @@ router.post(
         });
       }
 
-      const templatePath = path.join(
-        ROOT_DIR,
-        'email-templates',
-        safeFileName
-      );
+      const templatePath = path.join(ROOT_DIR, 'email-templates', safeFileName);
 
       // Provjeri da li fajl već postoji
       if (fs.existsSync(templatePath)) {
@@ -866,7 +895,7 @@ router.get(
       const { campaignId } = req.params;
       const MarketingEmailService = require('../../marketing-email');
       const service = new MarketingEmailService();
-      
+
       const progress = await service.getCampaignProgress(campaignId);
       res.json(progress);
     } catch (error) {
@@ -886,18 +915,18 @@ router.post(
       const { campaignId } = req.params;
       const MarketingEmailService = require('../../marketing-email');
       const service = new MarketingEmailService();
-      
+
       const cancelled = await service.requestCampaignCancellation(campaignId);
-      
+
       if (cancelled) {
-        res.json({ 
-          success: true, 
-          message: 'Kampanja će biti prekinuta nakon trenutnog emaila' 
+        res.json({
+          success: true,
+          message: 'Kampanja će biti prekinuta nakon trenutnog emaila',
         });
       } else {
-        res.status(400).json({ 
-          success: false, 
-          error: 'Kampanja nije pronađena ili nije aktivna' 
+        res.status(400).json({
+          success: false,
+          error: 'Kampanja nije pronađena ili nije aktivna',
         });
       }
     } catch (error) {
@@ -980,10 +1009,14 @@ router.get(
         datum_registracije: 'datum_registracije',
         created_at: 'created_at',
         updated_at: 'updated_at',
+        mail_knjigovodje: 'mail_knjigovodje',
       };
 
       const sortBy = allowedSort[req.query.sortBy] || 'updated_at';
-      const sortDir = String(req.query.sortDir || 'desc').toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+      const sortDir =
+        String(req.query.sortDir || 'desc').toLowerCase() === 'asc'
+          ? 'ASC'
+          : 'DESC';
 
       const { whereClause, queryParams } = buildEmailTableWhereClause(
         req.query,
@@ -1011,7 +1044,8 @@ router.get(
           datum_registracije,
           opted_in,
           created_at,
-          updated_at
+          updated_at,
+          mail_knjigovodje
         FROM emails
         ${whereClause}
         ORDER BY ${sortBy} ${sortDir}
@@ -1101,6 +1135,145 @@ router.get(
   }
 );
 
+// Update firme po PIB-u (admin)
+router.put(
+  '/api/email-admin/table/company/:pib',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const pib = normalizePibValue(req.params.pib);
+      if (!/^\d{8}$/.test(pib)) {
+        return res.status(400).json({ success: false, message: 'PIB mora imati 8 cifara' });
+      }
+
+      const EDITABLE_FIELDS = [
+        'naziv', 'oblik_organizacije', 'grad', 'kd', 'email', 'telefon',
+        'broj_zaposlenih', 'prihod', 'datum_registracije', 'web',
+        'tip_firme', 'kategorija_prihoda', 'napomene', 'mail_knjigovodje',
+      ];
+
+      const updates = {};
+      for (const field of EDITABLE_FIELDS) {
+        if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+          const val = req.body[field];
+          updates[field] = (val === '' || val === null) ? null : String(val);
+        }
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ success: false, message: 'Nema podataka za update' });
+      }
+
+      const setClauses = Object.keys(updates).map(f => `\`${f}\` = ?`).join(', ');
+      const values = [...Object.values(updates), pib];
+
+      await executeQuery(
+        `UPDATE emails SET ${setClauses}, updated_at = NOW() WHERE TRIM(pib) = ?`,
+        values
+      );
+
+      res.json({ success: true, message: 'Firma uspješno ažurirana' });
+    } catch (error) {
+      console.error('Email table company update error:', error);
+      res.status(500).json({ success: false, message: 'Greška pri ažuriranju firme' });
+    }
+  }
+);
+
+// Pokreni email kampanju iz emails tabele
+router.post(
+  '/api/email-admin/table/launch-campaign',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const {
+        pibs,
+        campaignName,
+        subject,
+        template,
+        senderName,
+        senderEmail,
+        skipBookkeeper,
+      } = req.body;
+
+      if (!Array.isArray(pibs) || pibs.length === 0) {
+        return res.status(400).json({ success: false, message: 'Nema selektovanih PIB-ova' });
+      }
+
+      const cleanPibs = pibs
+        .map(p => String(p || '').trim())
+        .filter(p => /^\d{8}$/.test(p));
+
+      if (!cleanPibs.length) {
+        return res.status(400).json({ success: false, message: 'Nevažeći PIB-ovi' });
+      }
+
+      const placeholders = cleanPibs.map(() => '?').join(',');
+      let query = `
+        SELECT TRIM(pib) as pib, naziv, email
+        FROM emails
+        WHERE TRIM(pib) IN (${placeholders})
+          AND email IS NOT NULL AND TRIM(email) != ''
+      `;
+      if (skipBookkeeper) {
+        query += ` AND (mail_knjigovodje IS NULL OR TRIM(mail_knjigovodje) = '')`;
+      }
+
+      const rows = await executeQuery(query, cleanPibs);
+
+      if (!rows || rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nema emailova za selektovane firme (možda su svi mail_knjigovodje?)',
+        });
+      }
+
+      const recipients = rows.map(r => ({
+        email: r.email,
+        companyName: r.naziv,
+        pib: r.pib,
+      }));
+
+      const service = new MarketingEmailService();
+      if (template) service.setTemplate(template);
+
+      const senderConfig =
+        senderEmail || senderName || subject
+          ? { email: senderEmail, name: senderName, subject }
+          : null;
+
+      const title =
+        campaignName ||
+        `Kampanja ${new Date().toISOString().split('T')[0]}`;
+      const emailSubject =
+        subject || '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!';
+
+      const campaignId = await service.createCampaign(
+        title,
+        emailSubject,
+        recipients.length,
+        req.user.id
+      );
+
+      for (const r of recipients) {
+        await service.addEmailToCampaign(campaignId, r.email, null, r.companyName);
+      }
+
+      // Odgovori odmah, šalji u pozadini
+      res.json({ success: true, campaignId, total: recipients.length });
+
+      service
+        .sendBulkMarketingEmailsBackground(recipients, 500, campaignId, senderConfig)
+        .catch(err => console.error('Campaign background error:', err));
+    } catch (error) {
+      console.error('Launch campaign error:', error);
+      res.status(500).json({ success: false, message: 'Greška pri pokretanju kampanje' });
+    }
+  }
+);
+
 // Selektuj sve PIB-ove iz trenutnog filter rezultata
 router.post(
   '/api/email-admin/table/select-all',
@@ -1161,13 +1334,24 @@ router.post(
   async (req, res) => {
     try {
       const inputPibs = Array.isArray(req.body?.pibs) ? req.body.pibs : [];
-      const uniquePibs = [...new Set(inputPibs.map(pib => normalizeText(pib)).filter(Boolean))];
-      const inputFields = Array.isArray(req.body?.fields) ? req.body.fields : [];
+      const uniquePibs = [
+        ...new Set(inputPibs.map(pib => normalizeText(pib)).filter(Boolean)),
+      ];
+      const inputFields = Array.isArray(req.body?.fields)
+        ? req.body.fields
+        : [];
       const selectedFields = [
         ...new Set(
           inputFields
             .map(field => normalizeText(field))
-            .filter(field => field && Object.prototype.hasOwnProperty.call(IRMS_UPDATABLE_FIELDS, field))
+            .filter(
+              field =>
+                field &&
+                Object.prototype.hasOwnProperty.call(
+                  IRMS_UPDATABLE_FIELDS,
+                  field
+                )
+            )
         ),
       ];
       const overwriteExisting = Boolean(req.body?.overwriteExisting);
@@ -1291,9 +1475,7 @@ router.post(
       const skipExistingBeforeIrms = req.body?.skipExistingBeforeIrms !== false;
       const uniquePibs = [
         ...new Set(
-          inputPibs
-            .map(pib => normalizePibValue(pib))
-            .filter(Boolean)
+          inputPibs.map(pib => normalizePibValue(pib)).filter(Boolean)
         ),
       ];
 
@@ -1628,7 +1810,9 @@ router.post(
   requireRole(ROLES.ADMIN),
   async (req, res) => {
     try {
-      const { removeDuplicates } = require('../../email-lists/remove-duplicates');
+      const {
+        removeDuplicates,
+      } = require('../../email-lists/remove-duplicates');
       const result = await removeDuplicates();
 
       // Check for clean file
@@ -1873,7 +2057,7 @@ router.get(
         LIMIT 1
       `;
       const campaigns = await executeQuery(query);
-      
+
       if (campaigns.length > 0) {
         res.json({ success: true, campaign: campaigns[0] });
       } else {
@@ -2073,6 +2257,5 @@ router.get('/visit/:pib/:campaign', async (req, res) => {
     res.redirect('/');
   }
 });
-
 
 module.exports = router;
