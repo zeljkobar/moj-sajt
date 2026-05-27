@@ -360,6 +360,47 @@
           </div>
         </div>
 
+        <!-- Preregistracija -->
+        <div class="template-card" data-template="preregistracija.html">
+          <div class="template-header">
+            <div
+              class="template-icon"
+              style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              "
+            >
+              <i class="fas fa-building"></i>
+            </div>
+            <div class="template-title">Preregistracija</div>
+            <div class="template-description">
+              Obavezna preregistracija firme do 15.06. putem IRMS portala
+            </div>
+          </div>
+          <div class="template-body">
+            <ul class="template-features">
+              <li>Upozorenje o roku (15.06.)</li>
+              <li>Uslovi za potpisivanje (token/lična karta)</li>
+              <li>Lista usluga i cijena (150 €)</li>
+              <li>CTA dugme za kontakt</li>
+              <li>Kontakt podaci i potpis</li>
+            </ul>
+          </div>
+          <div class="template-actions">
+            <button
+              class="btn-preview"
+              onclick="previewTemplate('preregistracija.html')"
+            >
+              <i class="fas fa-eye"></i> Preview
+            </button>
+            <button
+              class="btn-select"
+              onclick="selectTemplate('preregistracija.html')"
+            >
+              <i class="fas fa-check"></i> Select
+            </button>
+          </div>
+        </div>
+
         <!-- Newsletter -->
         <div class="template-card" data-template="newsletter-mesecni.html">
           <div class="template-header">
@@ -453,6 +494,7 @@
           'marketing-default.html': 'Marketing Default',
           'promo-specijalna-ponuda.html': 'Specijalna Ponuda',
           'newsletter-mesecni.html': 'Mesečni Newsletter',
+          'preregistracija.html': 'Preregistracija',
         };
 
         document.getElementById('selectedTemplateName').textContent =
