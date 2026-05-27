@@ -324,7 +324,7 @@ class Navigation {
     const domain = urlParams.get('domain');
     const isMojradnik = host.includes('mojradnik.me') || domain === 'mojradnik';
     const logoutRedirect = isMojradnik
-      ? '/mojradnik/index.html'
+      ? '/mojradnik/'
       : '/index.html';
 
     // Logout funkcionalnost
