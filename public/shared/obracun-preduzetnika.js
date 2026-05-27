@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ostvareniPromet =
       parseFloat(document.getElementById('ostvareniPromet').value) || 0;
     const prosjecnaZarada =
-      parseFloat(document.getElementById('prosjecnaZarada').value) || 1083;
+      parseFloat(document.getElementById('prosjecnaZarada').value) || 1206;
     const pocetniDatum = document.getElementById('pocetniDatum').value;
     const krajnjiDatum = document.getElementById('krajnjiDatum').value;
 
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .split('T')[0];
 
     // Postavi default prosečnu zaradu
-    document.getElementById('prosjecnaZarada').value = '1083';
+    document.getElementById('prosjecnaZarada').value = '1206.00';
 
     // Sakrij rezultate
     resultsContent.classList.add('d-none');
