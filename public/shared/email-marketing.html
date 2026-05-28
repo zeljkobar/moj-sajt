@@ -1629,6 +1629,14 @@
               <div class="modal-footer">
                 <button
                   type="button"
+                  id="retryFailedBtn"
+                  class="btn btn-warning d-none"
+                  onclick="retryFailedEmails()"
+                >
+                  <i class="fas fa-redo"></i> Ponovi neuspješne
+                </button>
+                <button
+                  type="button"
                   class="btn btn-secondary"
                   data-bs-dismiss="modal"
                 >
@@ -2730,7 +2738,22 @@
       }
 
       // Display campaign details in modal
+      let currentCampaignId = null;
+
       function displayCampaignDetails(campaign, emails) {
+        currentCampaignId = campaign.id;
+        // Prikaži/sakrij dugme za retry
+        const retryBtn = document.getElementById('retryFailedBtn');
+        if (retryBtn) {
+          const failedCount = campaign.emails_failed || 0;
+          if (failedCount > 0) {
+            retryBtn.classList.remove('d-none');
+            retryBtn.textContent = '';
+            retryBtn.innerHTML = `<i class="fas fa-redo"></i> Ponovi neuspješne (${failedCount})`;
+          } else {
+            retryBtn.classList.add('d-none');
+          }
+        }
         const content = document.getElementById('campaignDetailsContent');
 
         const createdDate = new Date(campaign.created_at).toLocaleDateString(
@@ -2893,6 +2916,33 @@
             </div>
           </div>
         `;
+      }
+
+      async function retryFailedEmails() {
+        if (!currentCampaignId) return;
+        const btn = document.getElementById('retryFailedBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pokretanje...';
+        try {
+          const response = await fetch(`/api/marketing/campaigns/${currentCampaignId}/retry-failed`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert(`✅ ${result.message}`);
+            btn.classList.add('d-none');
+          } else {
+            alert('❌ Greška: ' + (result.message || result.error));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo"></i> Ponovi neuspješne';
+          }
+        } catch (err) {
+          alert('❌ Greška pri komunikaciji sa serverom');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-redo"></i> Ponovi neuspješne';
+        }
       }
     </script>
 

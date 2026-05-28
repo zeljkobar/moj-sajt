@@ -2143,6 +2143,91 @@ router.get(
   }
 );
 
+// Neuspješni emailovi kampanje
+router.get(
+  '/api/marketing/campaigns/:id/failed',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id, 10);
+      const rows = await executeQuery(
+        `SELECT email_address, recipient_name, company_name, error_message
+         FROM marketing_emails
+         WHERE campaign_id = ? AND status = 'failed'
+         ORDER BY id ASC`,
+        [campaignId]
+      );
+      res.json({ success: true, total: rows.length, emails: rows });
+    } catch (error) {
+      console.error('Failed emails error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
+// Retry neuspješnih emailova kampanje
+router.post(
+  '/api/marketing/campaigns/:id/retry-failed',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id, 10);
+
+      // Dohvati originalnu kampanju
+      const [campaign] = await executeQuery(
+        `SELECT * FROM marketing_campaigns WHERE id = ?`,
+        [campaignId]
+      );
+      if (!campaign) {
+        return res.status(404).json({ success: false, message: 'Kampanja nije pronađena' });
+      }
+
+      // Dohvati neuspješne emailove
+      const failedRows = await executeQuery(
+        `SELECT email_address, recipient_name, company_name
+         FROM marketing_emails
+         WHERE campaign_id = ? AND status = 'failed'`,
+        [campaignId]
+      );
+
+      if (failedRows.length === 0) {
+        return res.json({ success: true, message: 'Nema neuspješnih emailova za retry', total: 0 });
+      }
+
+      const recipients = failedRows.map(r => ({
+        email: r.email_address,
+        firstName: r.recipient_name || '',
+        companyName: r.company_name || '',
+      }));
+
+      const retryCampaignName = `${campaign.campaign_name} - retry`;
+      const senderConfig = req.body.senderConfig || null;
+
+      // Pokretanje u pozadini
+      const service = new MarketingEmailService();
+      if (campaign.template_name) {
+        service.setTemplate(campaign.template_name);
+      }
+
+      res.json({
+        success: true,
+        message: `Pokrenuto ponovno slanje za ${recipients.length} neuspješnih emailova`,
+        total: recipients.length,
+      });
+
+      // Šalji u pozadini
+      service.sendBulkMarketingEmails(recipients, 600, retryCampaignName, null, senderConfig)
+        .catch(err => console.error('Retry kampanja greška:', err));
+
+    } catch (error) {
+      console.error('Retry failed emails error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // Email tracking endpoint - tracking pixel
 router.get('/api/marketing/track/open/:emailId', async (req, res) => {
   try {
