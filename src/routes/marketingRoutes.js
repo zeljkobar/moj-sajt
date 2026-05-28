@@ -2205,20 +2205,31 @@ router.post(
       const retryCampaignName = `${campaign.campaign_name} - retry`;
       const senderConfig = req.body.senderConfig || null;
 
-      // Pokretanje u pozadini
       const service = new MarketingEmailService();
       if (campaign.template_name) {
         service.setTemplate(campaign.template_name);
+      }
+
+      // Kreiraj kampanju PRIJE odgovora, da klijent dobije newCampaignId za praćenje napretka
+      const newCampaignId = await service.createCampaign(
+        retryCampaignName,
+        campaign.subject || '📊 SummaSummarum.me',
+        recipients.length,
+        null
+      );
+      for (const r of recipients) {
+        await service.addEmailToCampaign(newCampaignId, r.email, r.firstName, r.companyName);
       }
 
       res.json({
         success: true,
         message: `Pokrenuto ponovno slanje za ${recipients.length} neuspješnih emailova`,
         total: recipients.length,
+        newCampaignId,
       });
 
-      // Šalji u pozadini
-      service.sendBulkMarketingEmails(recipients, 600, retryCampaignName, null, senderConfig)
+      // Šalji u pozadini koristeći već kreiranu kampanju
+      service.sendBulkMarketingEmailsBackground(recipients, 600, newCampaignId, senderConfig)
         .catch(err => console.error('Retry kampanja greška:', err));
 
     } catch (error) {

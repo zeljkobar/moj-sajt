@@ -2931,8 +2931,19 @@
           });
           const result = await response.json();
           if (result.success) {
-            alert(`✅ ${result.message}`);
-            btn.classList.add('d-none');
+            // Zatvori modal
+            bootstrap.Modal.getInstance(document.getElementById('campaignDetailsModal')).hide();
+            // Pokreni praćenje napretka
+            if (result.newCampaignId) {
+              activeCampaignId = result.newCampaignId;
+              resetProgressBar();
+              document.getElementById('progressTotal').textContent = result.total;
+              document.getElementById('progressRemaining').textContent = result.total;
+              addLog('info', `Retry kampanja #${result.newCampaignId} pokrenuta za ${result.total} emailova`);
+              startProgressMonitoring(result.newCampaignId);
+              // Skroluj na vrh da se vidi napredak
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
           } else {
             alert('❌ Greška: ' + (result.message || result.error));
             btn.disabled = false;
