@@ -191,6 +191,21 @@ class MarketingEmailService {
         );
       }
 
+      // Ažuriraj per-firma statistike u emails tabeli
+      if (userData && userData.pib) {
+        try {
+          await executeQuery(
+            `UPDATE emails
+             SET ukupno_poslato = ukupno_poslato + 1,
+                 poslednji_email = NOW()
+             WHERE TRIM(pib) = ?`,
+            [String(userData.pib).trim()]
+          );
+        } catch (trackErr) {
+          console.error('Greška pri ažuriranju email statistike za PIB:', userData.pib, trackErr);
+        }
+      }
+
       return {
         success: true,
         messageId: result.messageId,
