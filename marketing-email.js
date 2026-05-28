@@ -2,14 +2,17 @@
 
 const fs = require('fs');
 const path = require('path');
-const { createTransporter } = require('./src/config/emailConfig');
+const { getMarketingTransporter, resetMarketingTransporter } = require('./src/config/emailConfig');
 const { executeQuery } = require('./src/config/database');
 
 class MarketingEmailService {
   constructor() {
-    this.transporter = createTransporter();
     this.templatesPath = path.join(__dirname, 'email-templates');
     this.templatePath = path.join(this.templatesPath, 'izvodi-automatizacija.html'); // default template
+  }
+
+  get transporter() {
+    return getMarketingTransporter();
   }
 
   // Postavi template za slanje
@@ -177,7 +180,20 @@ class MarketingEmailService {
         text: this.createTextVersion(userData),
       };
 
-      const result = await this.transporter.sendMail(mailOptions);
+      let result;
+      try {
+        result = await this.transporter.sendMail(mailOptions);
+      } catch (smtpErr) {
+        // Ako je auth/login greška, resetuj singleton i pokušaj ponovo jednom
+        if (smtpErr.message && (smtpErr.message.includes('Too many login') || smtpErr.message.includes('Invalid login') || smtpErr.message.includes('454'))) {
+          console.warn('⚠️ Gmail auth greška - resetujem transporter i čekam 30s...');
+          resetMarketingTransporter();
+          await this.sleep(30000);
+          result = await this.transporter.sendMail(mailOptions);
+        } else {
+          throw smtpErr;
+        }
+      }
 
       console.log(`✅ Marketing email poslat na: ${recipientEmail}`);
       console.log(`Message ID: ${result.messageId}`);
