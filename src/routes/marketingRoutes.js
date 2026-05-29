@@ -759,9 +759,10 @@ router.post(
       // Kreiraj kampanju ID ODMAH i vrati odgovor
       const campaignId = await service.createCampaign(
         campaignTitle,
-        '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!',
+        senderConfig?.subject || '📊 SummaSummarum.me - Revolucija u knjigovodstvu Crne Gore!',
         recipients.length,
-        req.user.id
+        req.user.id,
+        template || null
       );
 
       // Dodaj sve email adrese u kampanju
@@ -1254,7 +1255,8 @@ router.post(
         title,
         emailSubject,
         recipients.length,
-        req.user.id
+        req.user.id,
+        template || null
       );
 
       for (const r of recipients) {
@@ -2203,7 +2205,10 @@ router.post(
       }));
 
       const retryCampaignName = `${campaign.campaign_name} - retry`;
-      const senderConfig = req.body.senderConfig || null;
+      // Koristi senderConfig iz requesta ili izgradi iz originalne kampanje
+      const senderConfig = req.body.senderConfig || {
+        subject: campaign.subject,
+      };
 
       const service = new MarketingEmailService();
       if (campaign.template_name) {
@@ -2215,7 +2220,8 @@ router.post(
         retryCampaignName,
         campaign.subject || '📊 SummaSummarum.me',
         recipients.length,
-        null
+        null,
+        campaign.template_name || null
       );
       for (const r of recipients) {
         await service.addEmailToCampaign(newCampaignId, r.email, r.firstName, r.companyName);

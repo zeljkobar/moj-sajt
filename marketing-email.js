@@ -487,18 +487,19 @@ SummaSummarum Team
   }
 
   // Kreiranje nove kampanje
-  async createCampaign(campaignName, subject, totalRecipients, userId = null) {
+  async createCampaign(campaignName, subject, totalRecipients, userId = null, templateName = null) {
     try {
       const query = `
         INSERT INTO marketing_campaigns 
-        (campaign_name, subject, total_recipients, created_by) 
-        VALUES (?, ?, ?, ?)
+        (campaign_name, subject, total_recipients, created_by, template_name) 
+        VALUES (?, ?, ?, ?, ?)
       `;
       const result = await executeQuery(query, [
         campaignName,
         subject,
         totalRecipients,
         userId,
+        templateName || null,
       ]);
       return result.insertId;
     } catch (error) {
