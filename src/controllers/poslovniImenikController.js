@@ -228,7 +228,7 @@ const poslovniImenikController = {
       );
 
       // Pošalji notifikaciju adminu
-      const adminEmail = emailService.getSummasummarumEmail('admin');
+      const adminEmail = 'zeljkodj@t-com.me';
       const appUrl = process.env.APP_URL || 'https://summasummarum.me';
       await emailService.transporter.sendMail({
         from: `"Moj Radnik" <${emailService.getMojRadnikEmail('support')}>`,
@@ -314,7 +314,7 @@ const poslovniImenikController = {
 
       // Ako se ponovo šalje na odobrenje, obavijesti admina
       if (noviStatus === 'pending') {
-        const adminEmail = emailService.getSummasummarumEmail('admin');
+        const adminEmail = 'zeljkodj@t-com.me';
         const appUrl = process.env.APP_URL || 'https://summasummarum.me';
         const firma = await executeQuery(
           `SELECT pi.naziv, pi.pib FROM poslovni_imenik pi WHERE pi.id = ?`,
