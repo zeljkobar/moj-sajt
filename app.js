@@ -25,6 +25,7 @@ const emailRoutes = require('./src/routes/emailRoutes');
 const godisnjiomdoriRoutes = require('./src/routes/godisnjiomdori');
 const oglasiRoutes = require('./src/routes/oglasiRoutes');
 const zavrsniRacuniRoutes = require('./src/routes/zavrsniRacuniRoutes');
+const poslovniImenikRoutes = require('./src/routes/poslovniImenikRoutes');
 const { authMiddleware } = require('./src/middleware/auth');
 const { requireRole, ROLES } = require('./src/middleware/roleAuth');
 const { subscriptionMiddleware } = require('./src/middleware/subscription');
@@ -813,6 +814,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/godisnji-odmori', godisnjiomdoriRoutes);
 app.use('/api/oglasi', oglasiRoutes);
 app.use('/api/zavrsni-racuni', zavrsniRacuniRoutes);
+app.use('/api/imenik', poslovniImenikRoutes);
 
 // Marketing and email-admin routes
 app.use(require('./src/routes/marketingRoutes'));

@@ -1723,4 +1723,21 @@ router.get('/payments/export', async (req, res) => {
   }
 });
 
+// =====================
+// POSLOVNI IMENIK - Admin rute
+// =====================
+const poslovniImenikController = require('../controllers/poslovniImenikController');
+
+// GET /api/admin/imenik?status=pending|approved|rejected|all
+router.get('/imenik', poslovniImenikController.adminGetAll);
+
+// PUT /api/admin/imenik/:id/approve
+router.put('/imenik/:id/approve', poslovniImenikController.adminApprove);
+
+// PUT /api/admin/imenik/:id/reject
+router.put('/imenik/:id/reject', poslovniImenikController.adminReject);
+
+// DELETE /api/admin/imenik/:id
+router.delete('/imenik/:id', poslovniImenikController.adminDelete);
+
 module.exports = router;

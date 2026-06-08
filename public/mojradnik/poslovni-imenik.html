@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Poslovni imenik | Moj Radnik</title>
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/mojradnik/images/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/mojradnik/images/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/mojradnik/images/favicon/favicon-16x16.png" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/shared/style.css" />
+    <link rel="stylesheet" href="/shared/global-components.css" />
+    <link rel="stylesheet" href="/shared/app-pages.css" />
+
+    <style>
+      .imenik-hero {
+        background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+        color: white;
+        padding: 2.5rem 0 2rem;
+        margin-bottom: 2rem;
+      }
+      .status-badge-pending  { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+      .status-badge-approved { background: #d1e7dd; color: #0f5132; border: 1px solid #198754; }
+      .status-badge-rejected { background: #f8d7da; color: #842029; border: 1px solid #dc3545; }
+      .status-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
+      }
+      .form-section {
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 12px; padding: 1.75rem; margin-bottom: 1.5rem;
+      }
+      .form-section-title {
+        font-size: 1rem; font-weight: 700; color: #2c5aa0;
+        margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e9ecef;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .link-input-group .input-group-text {
+        background: #f8f9fa; border-right: none; color: #6c757d; min-width: 44px;
+      }
+      .link-input-group .form-control { border-left: none; }
+      .link-input-group .form-control:focus { box-shadow: none; border-color: #dee2e6; }
+      .profil-link-box {
+        background: #e8f4fd; border: 1px solid #b8d9f5; border-radius: 10px;
+        padding: 1.25rem; display: flex; align-items: center; gap: 12px;
+      }
+      .profil-link-box .link-url {
+        font-family: monospace; font-size: 0.9rem; color: #1a3a6b;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Hero -->
+    <div class="imenik-hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col">
+            <h1 class="fw-bold mb-1">
+              <i class="fas fa-address-book me-2"></i>Poslovni imenik
+            </h1>
+            <p class="mb-0 opacity-75">
+              Predstavite svoju firmu — javni profil vidljiv svima, idealan za NFC kartice i dijeljenje online.
+            </p>
+          </div>
+          <div class="col-auto d-none d-md-block">
+            <a href="/imenik" target="_blank" class="btn btn-outline-light">
+              <i class="fas fa-globe me-2"></i>Pogledaj imenik
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container pb-5">
+
+      <!-- Loading stanje -->
+      <div id="loadingState" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Učitavanje podataka...</p>
+      </div>
+
+      <!-- Greška: nema firme -->
+      <div id="noFirmaState" class="d-none">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Niste unijeli firmu.</strong> Da biste se upisali u poslovni imenik, prvo morate unijeti podatke o firmi u sekciji <a href="/shared/edit-firmu.html" class="alert-link">Izmijeni firmu</a>.
+        </div>
+      </div>
+
+      <!-- Greška: nema telefon/email -->
+      <div id="noContactState" class="d-none">
+        <div class="alert alert-warning">
+          <i class="fas fa-phone me-2"></i>
+          <strong>Nedostaju kontakt podaci.</strong> Firma mora imati unesen <strong>telefon</strong> i <strong>email</strong> za upis u imenik.
+          <a href="/shared/edit-firmu.html" class="alert-link ms-1">Ažurirajte podatke firme</a>.
+        </div>
+      </div>
+
+      <!-- Glavni sadržaj -->
+      <div id="mainContent" class="d-none">
+
+        <!-- Status panel (ako postoji unos) -->
+        <div id="statusPanel" class="d-none mb-4">
+          <div class="form-section">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div>
+                <div class="fw-bold mb-1">Status Vašeg unosa</div>
+                <div id="statusBadge"></div>
+                <div id="adminKomentar" class="d-none mt-2 text-muted small"></div>
+              </div>
+              <div id="profilLinkBox" class="d-none profil-link-box flex-grow-1" style="max-width:480px;">
+                <i class="fas fa-link text-primary fs-4"></i>
+                <div class="flex-grow-1">
+                  <div class="small text-muted mb-1">Vaš javni link (za NFC karticu, web sajt...)</div>
+                  <a id="profilLink" href="#" target="_blank" class="link-url fw-bold"></a>
+                </div>
+                <button onclick="copyLink()" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prepopulirani podaci firme (read-only) -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <i class="fas fa-building"></i> Podaci firme (automatski preuzeti)
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted small">Naziv firme</label>
+              <input type="text" id="firmaNaziv" class="form-control bg-light" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small">PIB</label>
+              <input type="text" id="firmaPib" class="form-control bg-light" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small">Grad</label>
+              <input type="text" id="firmaGrad" class="form-control bg-light" readonly />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">Adresa</label>
+              <input type="text" id="firmaAdresa" class="form-control bg-light" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small">Telefon</label>
+              <input type="text" id="firmaTelefon" class="form-control bg-light" readonly />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-muted small">Email</label>
+              <input type="text" id="firmaEmail" class="form-control bg-light" readonly />
+            </div>
+          </div>
+          <p class="text-muted small mt-2 mb-0">
+            <i class="fas fa-info-circle me-1"></i>
+            Da promijenite ove podatke, <a href="/shared/edit-firmu.html">uredite podatke firme</a>.
+          </p>
+        </div>
+
+        <!-- Forma za upis/ažuriranje -->
+        <form id="imenikForm">
+
+          <!-- Opis i djelatnost -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="fas fa-info-circle"></i> O firmi
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Kratki opis firme</label>
+                <textarea id="opis" name="opis" class="form-control" rows="3"
+                  placeholder="Opišite čime se Vaša firma bavi, koje usluge ili proizvode nudite..."></textarea>
+                <div class="form-text">Maksimalno 500 karaktera. Ovo vide posjetioci Vašeg profila.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Šifra djelatnosti</label>
+                <input type="text" id="sifraDjelatnosti" name="sifra_djelatnosti" class="form-control"
+                  placeholder="npr. 6920" maxlength="10" />
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Naziv djelatnosti</label>
+                <input type="text" id="nazivDjelatnosti" name="naziv_djelatnosti" class="form-control"
+                  placeholder="npr. Računovodstvene i knjigovodstvene djelatnosti" maxlength="255" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Radno vrijeme</label>
+                <input type="text" id="radnoVrijeme" name="radno_vrijeme" class="form-control"
+                  placeholder="npr. Pon–Pet: 08:00–16:00 | Sub: 08:00–13:00" maxlength="255" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Linkovi i kontakti -->
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="fas fa-share-alt"></i> Linkovi i društvene mreže
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Web sajt</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                  <input type="text" id="webSajt" name="web_sajt" class="form-control"
+                    placeholder="www.vasafirma.me" maxlength="500" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Instagram</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                  <input type="text" id="instagram" name="instagram" class="form-control"
+                    placeholder="instagram.com/vasafirma" maxlength="500" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Facebook</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fab fa-facebook"></i></span>
+                  <input type="text" id="facebook" name="facebook" class="form-control"
+                    placeholder="facebook.com/vasafirma" maxlength="500" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">LinkedIn</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fab fa-linkedin"></i></span>
+                  <input type="text" id="linkedin" name="linkedin" class="form-control"
+                    placeholder="linkedin.com/company/vasafirma" maxlength="500" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">WhatsApp broj</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                  <input type="text" id="whatsapp" name="whatsapp" class="form-control"
+                    placeholder="+38269123456" maxlength="50" />
+                </div>
+                <div class="form-text">Unesite broj bez razmaka, npr. +38269123456</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Google Maps link</label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                  <input type="text" id="googleMaps" name="google_maps" class="form-control"
+                    placeholder="maps.google.com/..." maxlength="1000" />
+                </div>
+                <div class="form-text">Kopirajte link iz Google Maps → Dijeli</div>
+              </div>              <div class="col-md-6">
+                <label class="form-label">Digitalni meni <span class="text-muted small">(restoran / kafić)</span></label>
+                <div class="input-group link-input-group">
+                  <span class="input-group-text"><i class="fas fa-utensils"></i></span>
+                  <input type="text" id="digitalniMeni" name="digitalni_meni" class="form-control"
+                    placeholder="menu.vasafirma.me ili link do PDF-a" maxlength="500" />
+                </div>
+                <div class="form-text">Link do digitalnog menija, QR koda ili PDF-a</div>
+              </div>            </div>
+          </div>
+
+          <!-- Submit dugme -->
+          <div id="pendingWarning" class="d-none alert alert-info">
+            <i class="fas fa-clock me-2"></i>
+            Vaš zahtjev je na čekanju. Ne možete ga mijenjati dok admin ne donese odluku.
+          </div>
+
+          <div id="submitSection">
+            <button type="submit" id="submitBtn" class="btn btn-primary btn-lg px-4">
+              <i class="fas fa-paper-plane me-2"></i>
+              <span id="submitBtnText">Pošalji zahtjev za upis</span>
+            </button>
+            <p class="text-muted small mt-2">
+              <i class="fas fa-shield-alt me-1"></i>
+              Vaš unos će biti pregledan od strane admina prije objave.
+            </p>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast notifikacija -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+      <div id="toastMsg" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+          <div class="toast-body" id="toastBody"></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/shared/components/navbar.js"></script>
+
+    <script>
+      const APP_URL = '';
+      let existingUnos = null;
+
+      // Inicijalizacija
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadData();
+      });
+
+      async function loadData() {
+        try {
+          const res = await fetch('/api/imenik/moj-unos', { credentials: 'include' });
+          if (res.status === 401) {
+            window.location.href = '/mojradnik/prijava.html';
+            return;
+          }
+          const data = await res.json();
+
+          const firma = data.unos
+            ? { naziv: data.unos.naziv, pib: data.unos.pib, adresa: data.unos.adresa,
+                grad: data.unos.grad, telefon: data.unos.telefon, email: data.unos.email }
+            : data.firma;
+
+          document.getElementById('loadingState').classList.add('d-none');
+
+          if (!firma) {
+            document.getElementById('noFirmaState').classList.remove('d-none');
+            return;
+          }
+
+          if (!firma.telefon || !firma.email) {
+            document.getElementById('noContactState').classList.remove('d-none');
+            return;
+          }
+
+          document.getElementById('mainContent').classList.remove('d-none');
+
+          // Popuni read-only polja firme
+          document.getElementById('firmaNaziv').value  = firma.naziv || '';
+          document.getElementById('firmaPib').value    = firma.pib || '';
+          document.getElementById('firmaGrad').value   = firma.grad || '';
+          document.getElementById('firmaAdresa').value = firma.adresa || '';
+          document.getElementById('firmaTelefon').value= firma.telefon || '';
+          document.getElementById('firmaEmail').value  = firma.email || '';
+
+          if (data.unos) {
+            existingUnos = data.unos;
+            prikaziStatus(data.unos);
+            popuniFormu(data.unos);
+          }
+        } catch (err) {
+          document.getElementById('loadingState').classList.add('d-none');
+          showToast('Greška pri učitavanju podataka.', 'danger');
+        }
+      }
+
+      function prikaziStatus(unos) {
+        const panel = document.getElementById('statusPanel');
+        const badge = document.getElementById('statusBadge');
+        panel.classList.remove('d-none');
+
+        const statusMap = {
+          pending:  { cls: 'status-badge-pending',  icon: 'fa-clock',         text: 'Na čekanju — čeka odobrenje admina' },
+          approved: { cls: 'status-badge-approved', icon: 'fa-check-circle',  text: 'Odobreno — profil je javno vidljiv' },
+          rejected: { cls: 'status-badge-rejected', icon: 'fa-times-circle',  text: 'Odbijeno — možete ispraviti i ponovo podnijeti' }
+        };
+
+        const s = statusMap[unos.status] || statusMap['pending'];
+        badge.innerHTML = `<span class="status-badge ${s.cls}"><i class="fas ${s.icon}"></i>${s.text}</span>`;
+
+        if (unos.admin_komentar) {
+          const k = document.getElementById('adminKomentar');
+          k.textContent = 'Napomena admina: ' + unos.admin_komentar;
+          k.classList.remove('d-none');
+        }
+
+        if (unos.status === 'approved' && unos.slug) {
+          const linkBox = document.getElementById('profilLinkBox');
+          const linkEl  = document.getElementById('profilLink');
+          const url = `${window.location.origin}/imenik/${unos.slug}`;
+          linkEl.href = url;
+          linkEl.textContent = url;
+          linkBox.classList.remove('d-none');
+        }
+
+        if (unos.status === 'pending') {
+          document.getElementById('pendingWarning').classList.remove('d-none');
+          document.getElementById('submitSection').classList.add('d-none');
+        } else if (unos.status === 'approved') {
+          document.getElementById('submitBtnText').textContent = 'Sačuvaj izmjene';
+        } else if (unos.status === 'rejected') {
+          document.getElementById('submitBtnText').textContent = 'Ispravite i ponovo pošaljite';
+        }
+      }
+
+      function popuniFormu(unos) {
+        const fields = ['opis', 'sifra_djelatnosti', 'naziv_djelatnosti', 'radno_vrijeme',
+                        'web_sajt', 'instagram', 'facebook', 'linkedin', 'whatsapp', 'google_maps', 'digitalni_meni'];
+        const ids    = ['opis', 'sifraDjelatnosti', 'nazivDjelatnosti', 'radnoVrijeme',
+                        'webSajt', 'instagram', 'facebook', 'linkedin', 'whatsapp', 'googleMaps', 'digitalniMeni'];
+        fields.forEach((f, i) => {
+          const el = document.getElementById(ids[i]);
+          if (el && unos[f]) el.value = unos[f];
+        });
+      }
+
+      // Submit forme
+      document.getElementById('imenikForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Šalje se...';
+
+        function ensureHttps(val) {
+          if (!val) return val;
+          if (/^https?:\/\//i.test(val)) return val;
+          return 'https://' + val;
+        }
+
+        const payload = {
+          opis:               document.getElementById('opis').value.trim(),
+          sifra_djelatnosti:  document.getElementById('sifraDjelatnosti').value.trim(),
+          naziv_djelatnosti:  document.getElementById('nazivDjelatnosti').value.trim(),
+          radno_vrijeme:      document.getElementById('radnoVrijeme').value.trim(),
+          web_sajt:           ensureHttps(document.getElementById('webSajt').value.trim()),
+          instagram:          ensureHttps(document.getElementById('instagram').value.trim()),
+          facebook:           ensureHttps(document.getElementById('facebook').value.trim()),
+          linkedin:           ensureHttps(document.getElementById('linkedin').value.trim()),
+          whatsapp:           document.getElementById('whatsapp').value.trim(),
+          google_maps:        ensureHttps(document.getElementById('googleMaps').value.trim()),
+          digitalni_meni:     ensureHttps(document.getElementById('digitalniMeni').value.trim()),
+        };
+
+        try {
+          const method = existingUnos ? 'PUT' : 'POST';
+          const url    = existingUnos ? '/api/imenik/moj-unos' : '/api/imenik';
+
+          const res = await fetch(url, {
+            method,
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            showToast(data.error || 'Greška pri slanju.', 'danger');
+          } else {
+            showToast(
+              existingUnos ? 'Podaci su sačuvani!' : 'Zahtjev je uspješno podnesen! Čeka se odobrenje.',
+              'success'
+            );
+            setTimeout(() => location.reload(), 2000);
+          }
+        } catch (err) {
+          showToast('Greška pri slanju zahtjeva.', 'danger');
+        } finally {
+          btn.disabled = false;
+          document.getElementById('submitBtnText').textContent =
+            existingUnos ? 'Sačuvaj izmjene' : 'Pošalji zahtjev za upis';
+          btn.innerHTML = `<i class="fas fa-paper-plane me-2"></i><span id="submitBtnText">${btn.querySelector('span') ? btn.querySelector('span').textContent : 'Pošalji zahtjev za upis'}</span>`;
+        }
+      });
+
+      function copyLink() {
+        const link = document.getElementById('profilLink').href;
+        navigator.clipboard.writeText(link).then(() => showToast('Link je kopiran!', 'success'));
+      }
+
+      function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toastMsg');
+        const body  = document.getElementById('toastBody');
+        toast.className = `toast align-items-center text-white border-0 bg-${type}`;
+        body.textContent = msg;
+        bootstrap.Toast.getOrCreateInstance(toast).show();
+      }
+    </script>
+  </body>
+</html>

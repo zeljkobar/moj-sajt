@@ -129,6 +129,18 @@ class Navigation {
 
               ${mjesecneObavezeItem}
 
+              <!-- Poslovni imenik (samo za mojradnik) -->
+              ${
+                isMojradnik
+                  ? `
+              <li class="nav-item">
+                <a class="nav-link" href="/imenik">
+                  <i class="fas fa-address-book me-1"></i>Poslovni imenik
+                </a>
+              </li>`
+                  : ''
+              }
+
               <!-- Pomoć (samo za mojradnik) -->
               ${
                 isMojradnik
@@ -155,6 +167,7 @@ class Navigation {
                   <li><a class="dropdown-item" href="/email-admin.html"><i class="fas fa-envelope-open-text me-2"></i>Email Admin</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="/shared/email-marketing.html"><i class="fas fa-bullhorn me-2"></i>Marketing Email</a></li>
+                  <li><a class="dropdown-item" href="/shared/admin-imenik.html"><i class="fas fa-address-book me-2"></i>Poslovni imenik</a></li>
                   <li><a class="dropdown-item" href="#"><i class="fas fa-chart-line me-2"></i>Sistemski izveštaji</a></li>
                 </ul>
               </li>

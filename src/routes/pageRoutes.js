@@ -597,5 +597,24 @@ router.get(
   }
 );
 
+// Javni poslovni imenik - lista
+router.get('/imenik', (req, res) => {
+  res.sendFile(path.join(ROOT_DIR, 'public', 'imenik', 'index.html'));
+});
+
+// Javni profil firme - /imenik/:slug
+router.get('/imenik/:slug', (req, res) => {
+  res.sendFile(path.join(ROOT_DIR, 'public', 'imenik', 'profil.html'));
+});
+
+// Admin poslovni imenik
+router.get(
+  '/shared/admin-imenik.html',
+  authMiddleware,
+  requireRole([ROLES.ADMIN]),
+  (req, res) => {
+    res.sendFile(path.join(ROOT_DIR, 'public', 'shared', 'admin-imenik.html'));
+  }
+);
 
 module.exports = router;
