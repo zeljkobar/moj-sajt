@@ -818,6 +818,30 @@ router.post(
   }
 );
 
+// Dobij dostupne email template fajlove
+router.get(
+  '/api/marketing/templates',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  (req, res) => {
+    try {
+      const templatesDir = path.join(ROOT_DIR, 'email-templates');
+      const files = fs.readdirSync(templatesDir).filter(f => f.endsWith('.html'));
+      const templates = files.map(file => {
+        const name = file
+          .replace('.html', '')
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+        return { file, name };
+      });
+      res.json({ success: true, templates });
+    } catch (error) {
+      console.error('Templates list error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  }
+);
+
 // Dobij dostupne email liste
 router.get(
   '/api/marketing/lists',

@@ -959,7 +959,7 @@ async function selectAllFromFilter() {
   }
 }
 
-function showCampaignModal() {
+async function showCampaignModal() {
   if (state.selectedPibs.size === 0) {
     alert('Nema selektovanih PIB-ova.');
     return;
@@ -978,6 +978,22 @@ function showCampaignModal() {
   ).length;
   document.getElementById('campaignRecipientEstimate').textContent =
     `~${filtered} (vidljivi); tačan broj biće izračunat pri pokretanju`;
+
+  // Učitaj template listu dinamički
+  const templateSelect = document.getElementById('campaignTemplate');
+  const previousValue = templateSelect.value;
+  templateSelect.innerHTML = '<option value="">— Učitavanje... —</option>';
+  try {
+    const res = await fetch('/api/marketing/templates');
+    const data = await res.json();
+    if (data.success) {
+      templateSelect.innerHTML = data.templates
+        .map(t => `<option value="${t.file}"${t.file === previousValue ? ' selected' : ''}>${t.name}</option>`)
+        .join('');
+    }
+  } catch (e) {
+    console.error('Greška pri učitavanju templata:', e);
+  }
 
   bootstrap.Modal.getOrCreateInstance(document.getElementById('campaignModal')).show();
 }
