@@ -3738,6 +3738,55 @@
         }
       }
 
+
+      function openNoviZajmodavacModal() {
+        const form = document.getElementById('zajmodavacForm');
+        form.reset();
+        const modal = new bootstrap.Modal(
+          document.getElementById('zajmodavacModal')
+        );
+        modal.show();
+      }
+
+      async function submitNoviZajmodavac() {
+        const form = document.getElementById('zajmodavacForm');
+        const formData = new FormData(form);
+        const body = {
+          ime: formData.get('ime'),
+          prezime: formData.get('prezime'),
+          jmbg: formData.get('jmbg') || null,
+          ziro_racun: formData.get('ziro_racun') || null,
+        };
+
+        try {
+          const response = await fetch(
+            `/api/firme/${currentFirmaId}/zajmodavci`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body),
+            }
+          );
+          const data = await response.json();
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Greška pri kreiranju zajmodavca');
+          }
+
+          bootstrap.Modal.getInstance(
+            document.getElementById('zajmodavacModal')
+          ).hide();
+
+          await loadZajmodavceForPozajmiceModal();
+          const select = document.getElementById('zajmodavac_id');
+          if (data.data && data.data.id) {
+            select.value = data.data.id;
+          }
+        } catch (error) {
+          console.error('Greška pri kreiranju zajmodavca:', error);
+          alert(`Greška: ${error.message}`);
+        }
+      }
+
       async function submitPozajmica() {
         try {
           const form = document.getElementById('pozajmicaForm');
@@ -4621,13 +4670,23 @@
                     <label for="zajmodavac_id" class="form-label">
                       Zajmodavac*
                     </label>
-                    <select
-                      class="form-select"
-                      id="zajmodavac_id"
-                      name="zajmodavac_id"
-                    >
-                      <option value="">Izaberite zajmodavca...</option>
-                    </select>
+                    <div class="input-group">
+                      <select
+                        class="form-select"
+                        id="zajmodavac_id"
+                        name="zajmodavac_id"
+                      >
+                        <option value="">Izaberite zajmodavca...</option>
+                      </select>
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        title="Dodaj novog zajmodavca"
+                        onclick="openNoviZajmodavacModal()"
+                      >
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
                     <div class="form-text">
                       Vanjska osoba koja daje pozajmicu
                     </div>
@@ -4694,6 +4753,96 @@
               </button>
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-1"></i>Sačuvaj pozajmicu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal za dodavanje novog zajmodavca -->
+    <div class="modal fade" id="zajmodavacModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-user-plus me-2"></i>Novi zajmodavac
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form
+            id="zajmodavacForm"
+            onsubmit="event.preventDefault(); submitNoviZajmodavac();"
+          >
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="zajmodavac_ime" class="form-label">Ime*</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="zajmodavac_ime"
+                      name="ime"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="zajmodavac_prezime" class="form-label">Prezime*</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="zajmodavac_prezime"
+                      name="prezime"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="zajmodavac_jmbg" class="form-label">JMBG</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="zajmodavac_jmbg"
+                      name="jmbg"
+                      maxlength="13"
+                      placeholder="Opciono"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="zajmodavac_ziro_racun" class="form-label">Žiro račun</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="zajmodavac_ziro_racun"
+                      name="ziro_racun"
+                      placeholder="Opciono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Otkaži
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Sačuvaj zajmodavca
               </button>
             </div>
           </form>

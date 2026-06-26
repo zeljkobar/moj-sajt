@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const { logWarning } = require('../utils/logger');
 
 function getSessionCookieKey(req) {
@@ -7,7 +8,7 @@ function getSessionCookieKey(req) {
   if (match && match[1]) {
     return `sid:${match[1]}`;
   }
-  return `ip:${req.ip}`;
+  return `ip:${ipKeyGenerator(req.ip)}`;
 }
 
 // Osnovni rate limiter za sve zahteve
