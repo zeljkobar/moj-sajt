@@ -145,10 +145,40 @@
         }
         body {
           background-color: white;
+          line-height: 1.55;
+          font-size: 14px;
         }
         .container {
           box-shadow: none;
           padding: 20px;
+        }
+
+        /* Kompresuj razmake da ugovor stane na 2 strane */
+        .article {
+          margin: 16px 0;
+        }
+        .article p {
+          margin: 9px 0;
+        }
+        h1 {
+          margin-bottom: 22px;
+        }
+        h2 {
+          margin: 16px 0;
+        }
+        ul {
+          margin: 9px 0;
+        }
+        li {
+          margin: 4px 0;
+        }
+
+        /* Potpis mora ostati na istoj (drugoj) strani */
+        .signature-section {
+          margin-top: 50px;
+          padding-top: 20px;
+          page-break-inside: avoid;
+          break-inside: avoid;
         }
 
         /* Ukloni header i footer sa datumom i linkom */
