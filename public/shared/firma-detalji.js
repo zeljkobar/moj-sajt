@@ -3570,6 +3570,14 @@ function fillBasicInfoFromConfig(company, config) {
   if (periodEndElement)
     periodEndElement.textContent = formatDate(config.periodEnd);
 
+  // Popuni datum objave na oglasnoj tabli (7 dana prije datuma odluke)
+  const oglasnaTablaElement = document.getElementById('oglasna-tabla-date');
+  if (oglasnaTablaElement) {
+    const boardDate = new Date(config.decisionDate);
+    boardDate.setDate(boardDate.getDate() - 7);
+    oglasnaTablaElement.textContent = formatDate(boardDate);
+  }
+
   // Popuni vremena smjena
   const firstShiftElement = document.getElementById('first-shift-time');
   const secondShiftElement = document.getElementById('second-shift-time');
