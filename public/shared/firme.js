@@ -565,6 +565,17 @@ async function lookupIrmsCompany() {
   if (lookupBtn) lookupBtn.disabled = true;
 
   try {
+    const extensionResult = await lookupIrmsThroughBrowser(pib).catch(error => {
+      if (error?.message === 'IRMS_EXTENSION_NOT_AVAILABLE') return null;
+      throw error;
+    });
+
+    if (extensionResult) {
+      fillFirmFormFromIrms(extensionResult);
+      setIrmsStatus('Podaci su povučeni iz IRMS registra.', 'success');
+      return;
+    }
+
     const response = await fetch('/api/irms/search', {
       method: 'POST',
       headers: {
@@ -591,13 +602,68 @@ async function lookupIrmsCompany() {
   }
 }
 
+function lookupIrmsThroughBrowser(pib) {
+  const requestId = `irms-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  return new Promise((resolve, reject) => {
+    let lookupStarted = false;
+    const probeTimeout = window.setTimeout(
+      () => finish(new Error('IRMS_EXTENSION_NOT_AVAILABLE')),
+      500
+    );
+    const lookupTimeout = window.setTimeout(
+      () => finish(new Error('IRMS pretraga je istekla. Pokušajte ponovo.')),
+      60000
+    );
+
+    function cleanup() {
+      window.clearTimeout(probeTimeout);
+      window.clearTimeout(lookupTimeout);
+      window.removeEventListener('message', onMessage);
+    }
+
+    function finish(error, data) {
+      cleanup();
+      if (error) reject(error);
+      else resolve(data);
+    }
+
+    function onMessage(event) {
+      if (event.source !== window || event.origin !== window.location.origin) return;
+
+      if (event.data?.type === 'SUMMA_IRMS_EXTENSION_READY' && !lookupStarted) {
+        lookupStarted = true;
+        window.clearTimeout(probeTimeout);
+        window.postMessage(
+          { type: 'SUMMA_IRMS_LOOKUP', requestId, pib },
+          window.location.origin
+        );
+        return;
+      }
+
+      if (event.data?.requestId !== requestId) return;
+      if (event.data?.type === 'SUMMA_IRMS_RESULT' && event.data.data) {
+        finish(null, event.data.data);
+      } else if (event.data?.type === 'SUMMA_IRMS_ERROR') {
+        finish(new Error(event.data.message || 'IRMS pretraga nije uspjela.'));
+      }
+    }
+
+    window.addEventListener('message', onMessage);
+    window.postMessage(
+      { type: 'SUMMA_IRMS_EXTENSION_PROBE' },
+      window.location.origin
+    );
+  });
+}
+
 function fillFirmFormFromIrms(company) {
   const firstDirector = Array.isArray(company.directors)
     ? company.directors.find(d => d.fullName) || company.directors[0]
     : null;
 
   const fields = {
-    naziv: company.name,
+    naziv: company.name || company.legalName || company.shortName,
     adresa: company.address,
     grad: company.city,
     telefon: company.phone,
