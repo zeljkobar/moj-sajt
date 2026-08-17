@@ -169,7 +169,16 @@ async function upsertPibFromIrms(pib, summary) {
     return;
   }
 
-  summary.irmsFound += 1;
+  return saveIrmsCompany(pib, irmsData, summary);
+}
+
+async function saveIrmsCompany(pib, irmsData, summary) {
+  summary = summary || {};
+  const increment = key => {
+    summary[key] = Number(summary[key] || 0) + 1;
+  };
+
+  increment('irmsFound');
 
   const naziv = normalizeText(irmsData.name || irmsData.legalName);
   const oblikOrganizacije = normalizeOrganizationType(
@@ -198,7 +207,7 @@ async function upsertPibFromIrms(pib, summary) {
     !grad &&
     !datumRegistracije
   ) {
-    summary.skippedNoData += 1;
+    increment('skippedNoData');
     return;
   }
 
@@ -243,7 +252,8 @@ async function upsertPibFromIrms(pib, summary) {
       ]
     );
 
-    summary.updatedExistingRows += Number(updateResult?.affectedRows || 0);
+    summary.updatedExistingRows =
+      Number(summary.updatedExistingRows || 0) + Number(updateResult?.affectedRows || 0);
     return;
   }
 
@@ -274,7 +284,9 @@ async function upsertPibFromIrms(pib, summary) {
     ]
   );
 
-  summary.insertedCompanies += 1;
+  increment('insertedCompanies');
+
+  return { inserted: true, summary };
 }
 
 async function runAutomaticIrmsImportForPreviousDay(options = {}) {
@@ -333,4 +345,5 @@ async function runAutomaticIrmsImportForPreviousDay(options = {}) {
 module.exports = {
   runAutomaticIrmsImportForPreviousDay,
   getPreviousDayYmd,
+  saveIrmsCompany,
 };

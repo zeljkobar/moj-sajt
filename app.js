@@ -997,7 +997,7 @@ async function runAutomaticIrmsDailyImport() {
 
 function startIrmsDailyImportScheduler() {
   const importEnabled =
-    String(process.env.ENABLE_IRMS_DAILY_IMPORT || 'true').toLowerCase() !== 'false';
+    String(process.env.ENABLE_IRMS_DAILY_IMPORT || 'false').toLowerCase() !== 'false';
 
   if (!importEnabled) {
     return;

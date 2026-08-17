@@ -295,6 +295,80 @@
         return String(value || '').replace(/\D/g, '').trim();
       }
 
+      const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+
+      async function excludeExistingPibs(pibs) {
+        const response = await fetch('/api/irms/existing-pibs', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pibs }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Nije moguće provjeriti postojeće PIB-ove');
+        }
+        return {
+          existingPibs: Array.isArray(result.existingPibs) ? result.existingPibs : [],
+          missingPibs: Array.isArray(result.missingPibs) ? result.missingPibs : [],
+        };
+      }
+
+      function requestIrmsExtension(type, payload, successTypes, timeoutMs = 90000) {
+        const requestId = `irms-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        return new Promise((resolve, reject) => {
+          let started = false;
+          const probeTimer = setTimeout(
+            () => finish(new Error('IRMS ekstenzija nije dostupna. Provjeri da li je uključena.')),
+            800
+          );
+          const requestTimer = setTimeout(
+            () => finish(new Error('IRMS zahtjev je istekao. Riješi reCAPTCHA-u ako se pojavila.')),
+            timeoutMs
+          );
+
+          function cleanup() {
+            clearTimeout(probeTimer);
+            clearTimeout(requestTimer);
+            window.removeEventListener('message', onMessage);
+          }
+          function finish(error, data) {
+            cleanup();
+            if (error) reject(error);
+            else resolve(data);
+          }
+          function onMessage(event) {
+            if (event.source !== window || event.origin !== window.location.origin) return;
+            if (event.data?.type === 'SUMMA_IRMS_EXTENSION_READY' && !started) {
+              started = true;
+              clearTimeout(probeTimer);
+              window.postMessage({ type, requestId, ...payload }, window.location.origin);
+              return;
+            }
+            if (event.data?.requestId !== requestId) return;
+            if (successTypes.includes(event.data?.type)) finish(null, event.data.data);
+            else if (event.data?.type === 'SUMMA_IRMS_ERROR') {
+              finish(new Error(event.data.message || 'IRMS zahtjev nije uspio.'));
+            }
+          }
+
+          window.addEventListener('message', onMessage);
+          window.postMessage({ type: 'SUMMA_IRMS_EXTENSION_PROBE' }, window.location.origin);
+        });
+      }
+
+      function searchEntitiesThroughExtension(filters) {
+        return requestIrmsExtension(
+          'SUMMA_IRMS_SEARCH_ENTITIES',
+          { filters },
+          ['SUMMA_IRMS_ENTITIES_RESULT', 'SUMMA_IRMS_RESULT']
+        );
+      }
+
+      function lookupCompanyThroughExtension(pib) {
+        return requestIrmsExtension('SUMMA_IRMS_LOOKUP', { pib }, ['SUMMA_IRMS_RESULT']);
+      }
+
       function stopAddPibsPolling() {
         if (!state.addPibsPollingTimer) return;
         clearInterval(state.addPibsPollingTimer);
@@ -531,11 +605,6 @@
           return;
         }
 
-        const confirmed = window.confirm(
-          `Da li želiš da dodaš/ažuriraš ${pibs.length} PIB-ova (${description}) kroz postojeći IRMS sistem?`
-        );
-        if (!confirmed) return;
-
         setActionButtonsBusy(true);
         setProgress({
           label: `Pokretanje dodavanja (${description})...`,
@@ -546,36 +615,90 @@
         });
 
         try {
-          const response = await fetch('/api/email-admin/table/add-pibs', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ pibs }),
+          setStatus('Provjeravam koji PIB-ovi već postoje u bazi...', false);
+          const uniquePibs = [...new Set(pibs.map(normalizePib).filter(pib => /^\d{8}$/.test(pib)))];
+          const { existingPibs, missingPibs } = await excludeExistingPibs(uniquePibs);
+
+          if (!missingPibs.length) {
+            setStatus(`Svih ${existingPibs.length} PIB-ova već postoji u bazi. IRMS nije pozvan.`, false);
+            hideProgress();
+            alert(`Svi izabrani PIB-ovi (${existingPibs.length}) već postoje u bazi.`);
+            return;
+          }
+
+          const confirmed = window.confirm(
+            `${existingPibs.length} PIB-ova već postoji u bazi i biće preskočeno.\n` +
+              `${missingPibs.length} novih PIB-ova biće preuzeto sa IRMS-a (${description}).\n\n` +
+              `Između zahtjeva je pauza od 10 sekundi. Nastaviti?`
+          );
+          if (!confirmed) {
+            hideProgress();
+            setStatus('Import je otkazan.', false);
+            return;
+          }
+
+          const summary = {
+            inserted: 0,
+            updated: 0,
+            skipped: existingPibs.length,
+            errors: 0,
+          };
+          for (let index = 0; index < missingPibs.length; index++) {
+            const pib = missingPibs[index];
+            setStatus(`Preuzimam ${index + 1}/${missingPibs.length}: PIB ${pib}`, false);
+            setProgress({
+              label: `IRMS import (${index + 1}/${missingPibs.length})`,
+              value: `${Math.round((index / missingPibs.length) * 100)}%`,
+              percent: (index / missingPibs.length) * 100,
+              visible: true,
+              animated: true,
+            });
+
+            try {
+              const company = await lookupCompanyThroughExtension(pib);
+              const response = await fetch('/api/irms/import-company', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ company: { ...company, pib } }),
+              });
+              const result = await response.json();
+              if (!response.ok || !result.success) {
+                throw new Error(result.message || `PIB ${pib} nije upisan`);
+              }
+              if (Number(result.summary?.insertedCompanies || 0) > 0) summary.inserted += 1;
+              else if (Number(result.summary?.updatedExistingRows || 0) > 0) summary.updated += 1;
+              else summary.skipped += 1;
+            } catch (error) {
+              console.error(`IRMS import greška za PIB ${pib}:`, error);
+              summary.errors += 1;
+            }
+
+            if (index < missingPibs.length - 1) {
+              setStatus(`Pauza 10 sekundi prije sljedećeg IRMS zahtjeva...`, false);
+              await delay(10000);
+            }
+          }
+
+          setProgress({
+            label: 'Import završen',
+            value: '100%',
+            percent: 100,
+            visible: true,
+            animated: false,
           });
-
-          const result = await response.json();
-          if (!response.ok || !result.success) {
-            throw new Error(result.message || 'Greška pri pokretanju dodavanja PIB-ova');
-          }
-
-          state.addPibsJobId = result.job?.id || null;
-          if (!state.addPibsJobId) {
-            throw new Error('Dodavanje nije pokrenuto ispravno');
-          }
-
-          setStatus(`Dodavanje pokrenuto za ${pibs.length} PIB-ova (${description})...`, false);
-
-          stopAddPibsPolling();
-          await pollAddPibsStatus();
-          state.addPibsPollingTimer = setInterval(() => {
-            pollAddPibsStatus();
-          }, 1200);
+          setStatus(
+            `Import završen: ${summary.inserted} novih, ${summary.updated} ažuriranih, ${summary.skipped} preskočenih, ${summary.errors} grešaka.`,
+            summary.errors > 0
+          );
+          alert(
+            `IRMS import završen.\nNove firme: ${summary.inserted}\nAžurirane: ${summary.updated}\nPreskočene: ${summary.skipped}\nGreške: ${summary.errors}`
+          );
         } catch (error) {
           state.addPibsJobId = null;
-          setActionButtonsBusy(false);
           setStatus(error.message || 'Greška pri dodavanju PIB-ova', true);
+        } finally {
+          setActionButtonsBusy(false);
         }
       }
 
@@ -658,22 +781,7 @@
           ...basePayload,
           page,
         };
-
-        const response = await fetch('/api/irms/search-entities', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || 'Greška pri paginaciji');
-        }
-
-        return result.data || {};
+        return (await searchEntitiesThroughExtension(payload)) || {};
       }
 
       async function estimateTotalPages(basePayload, firstPageData) {
@@ -734,25 +842,11 @@
 
       async function runSearch() {
         const payload = collectPayload();
-        setStatus('Pretražujem IRMS...', false);
+        setStatus('Pretražujem IRMS kroz browser ekstenziju...', false);
         setPagesText('');
         hideProgress();
 
-        const response = await fetch('/api/irms/search-entities', {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || 'Greška pri IRMS pretrazi');
-        }
-
-        const data = result.data || {};
+        const data = (await searchEntitiesThroughExtension(payload)) || {};
         const rows = Array.isArray(data.results) ? data.results : [];
         renderRows(rows);
 
@@ -762,7 +856,9 @@
         };
         state.lastSearchData = data;
 
-        const query = new URLSearchParams(result.appliedFilters || {}).toString();
+        const query = new URLSearchParams(
+          Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== ''))
+        ).toString();
         els.appliedQuery.textContent =
           'https://irms.tax.gov.me/public/search-register/business-entities?' + query;
 

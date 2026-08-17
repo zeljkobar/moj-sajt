@@ -3,8 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
+const { requireRole, ROLES } = require('../middleware/roleAuth');
 const rateLimiter = require('../middleware/rateLimiting');
 const irmsApiClient = require('../services/irmsApiClient');
+const { saveIrmsCompany } = require('../services/irmsDailyImportService');
+const { executeQuery } = require('../config/database');
 
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const IRMS_LOOKUPS_PATH = path.join(ROOT_DIR, 'scripts', 'irms-lookups.json');
@@ -84,6 +87,7 @@ router.get('/lookups', authMiddleware, rateLimiter.api, async (req, res) => {
 router.post(
   '/search-entities',
   authMiddleware,
+  requireRole(ROLES.ADMIN),
   rateLimiter.api,
   async (req, res) => {
     try {
@@ -138,6 +142,71 @@ router.post(
         success: false,
         message: 'IRMS servis trenutno nije dostupan',
       });
+    }
+  }
+);
+
+router.post(
+  '/existing-pibs',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  rateLimiter.api,
+  async (req, res) => {
+    try {
+      const pibs = [
+        ...new Set(
+          (Array.isArray(req.body?.pibs) ? req.body.pibs : [])
+            .map(value => normalizeText(value).replace(/\D/g, ''))
+            .filter(value => /^\d{8}$/.test(value))
+        ),
+      ];
+
+      if (!pibs.length) {
+        return res.json({ success: true, existingPibs: [], missingPibs: [] });
+      }
+
+      const existingPibs = new Set();
+      for (let offset = 0; offset < pibs.length; offset += 500) {
+        const chunk = pibs.slice(offset, offset + 500);
+        const placeholders = chunk.map(() => '?').join(', ');
+        const rows = await executeQuery(
+          `SELECT DISTINCT TRIM(pib) AS pib FROM emails WHERE TRIM(pib) IN (${placeholders})`,
+          chunk
+        );
+        rows.forEach(row => existingPibs.add(normalizeText(row.pib)));
+      }
+
+      res.json({
+        success: true,
+        existingPibs: pibs.filter(pib => existingPibs.has(pib)),
+        missingPibs: pibs.filter(pib => !existingPibs.has(pib)),
+      });
+    } catch (error) {
+      console.error('Greška pri provjeri postojećih PIB-ova:', error.message);
+      res.status(500).json({ success: false, message: 'PIB-ovi nisu provjereni' });
+    }
+  }
+);
+
+router.post(
+  '/import-company',
+  authMiddleware,
+  requireRole(ROLES.ADMIN),
+  rateLimiter.api,
+  async (req, res) => {
+    try {
+      const company = req.body?.company || {};
+      const pib = normalizeText(company.pib || company.identificationNumber).replace(/\D/g, '');
+      if (!/^\d{8}$/.test(pib)) {
+        return res.status(400).json({ success: false, message: 'PIB mora imati 8 cifara' });
+      }
+
+      const summary = {};
+      const result = await saveIrmsCompany(pib, company, summary);
+      res.json({ success: true, result: result || null, summary });
+    } catch (error) {
+      console.error('Greška pri upisu IRMS firme:', error.message);
+      res.status(500).json({ success: false, message: 'Firma nije upisana u bazu' });
     }
   }
 );

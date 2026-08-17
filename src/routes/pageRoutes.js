@@ -152,10 +152,17 @@ router.get('/firme.html', authMiddleware, subscriptionMiddleware, (req, res) => 
   res.sendFile(ROOT_DIR + '/public/shared/firme.html');
 });
 
+router.get(
+  '/shared/irms-pretraga.html',
+  authMiddleware,
+  subscriptionMiddleware,
+  requireRole(ROLES.ADMIN),
+  (req, res) => res.sendFile(ROOT_DIR + '/public/shared/irms-pretraga.html')
+);
+
 const protectedSharedPages = [
   'dashboard.html',
   'firme.html',
-  'irms-pretraga.html',
   'firma-detalji.html',
   'dodaj-firmu.html',
   'edit-firmu.html',
